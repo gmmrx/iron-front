@@ -15,10 +15,10 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 /* Yükleme ekranı */
 #status {
 	position: absolute; inset: 0;
-	display: flex; flex-direction: column; justify-content: center; align-items: center;
+	display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
 	background:
-		radial-gradient(ellipse at 50% 40%, rgba(70, 60, 40, 0.35) 0%, rgba(11, 13, 16, 0) 60%),
-		linear-gradient(180deg, #101317 0%, #0b0d10 100%);
+		linear-gradient(180deg, rgba(11,13,16,0) 55%, rgba(11,13,16,0.55) 78%, rgba(11,13,16,0.92) 100%),
+		url('$GODOT_SPLASH') center top / cover no-repeat, #0b0d10;
 	font-family: 'Barlow Condensed', 'Noto Sans', Arial, sans-serif;
 	letter-spacing: 0.04em;
 	transition: opacity 0.6s ease;
@@ -26,6 +26,15 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 }
 #status.fade { opacity: 0; pointer-events: none; }
 #status-splash { display: none; }
+#status-title, #status-rule, #status-sub { display: none; }
+#status-panel {
+	width: min(1100px, 92vw); margin-bottom: 4vh; padding: 22px 28px 24px;
+	background: rgba(24, 34, 30, 0.86); border: 1px solid rgba(215,180,90,0.55); border-radius: 4px;
+	box-shadow: 0 0 0 4px rgba(24,34,30,0.6), 0 18px 40px rgba(0,0,0,0.45);
+	display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+#status-head { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 30px; letter-spacing: 0.32em; color: #efe6cf; }
+#status-tip { margin-top: 14px; font-size: 17px; color: #bfb69f; min-height: 22px; font-style: italic; }
 #status-title {
 	font-family: 'Cinzel', 'Times New Roman', serif; font-weight: 700;
 	font-size: clamp(40px, 7vw, 84px); line-height: 1; letter-spacing: 0.12em;
@@ -36,14 +45,14 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 #status-rule { width: min(520px, 70vw); height: 1px; margin: 18px 0 12px;
 	background: linear-gradient(90deg, rgba(215,180,90,0) 0%, rgba(215,180,90,0.9) 50%, rgba(215,180,90,0) 100%); }
 #status-sub { font-size: 18px; color: #bfb08c; letter-spacing: 0.32em; text-transform: uppercase; }
-#status-bar { position: relative; width: min(520px, 70vw); height: 6px; margin-top: 44px;
+#status-bar { position: relative; width: min(640px, 80vw); height: 6px; margin-top: 16px;
 	background: rgba(255,255,255,0.08); border: 1px solid rgba(215,180,90,0.35); border-radius: 3px; overflow: hidden; }
 #status-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
 	background: linear-gradient(90deg, #9c7a2e, #e8c96b); transition: width 0.25s ease; }
 #status-bar.indeterminate #status-fill { width: 30%; animation: slide 1.4s ease-in-out infinite; }
 @keyframes slide { 0% { left: -30%; } 100% { left: 100%; } }
 #status-text { margin-top: 12px; font-size: 17px; color: #d8cba8; min-height: 22px; }
-#status-hint { position: absolute; bottom: 22px; font-size: 14px; color: #6f6a5c; letter-spacing: 0.08em; }
+#status-hint { position: absolute; bottom: 8px; right: 14px; font-size: 13px; color: rgba(200,190,160,0.55); letter-spacing: 0.08em; }
 #status-progress { display: none; }
 #status-notice {
 	display: none; margin-top: 28px; max-width: min(640px, 80vw);
@@ -67,10 +76,14 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 			<div id="status-title">IRON FRONT</div>
 			<div id="status-rule"></div>
 			<div id="status-sub">1936 – 1945 · Büyük Strateji</div>
-			<div id="status-bar"><div id="status-fill"></div></div>
-			<div id="status-text">Hazırlanıyor…</div>
-			<progress id="status-progress"></progress>
-			<div id="status-notice"></div>
+			<div id="status-panel">
+				<div id="status-head">YÜKLENİYOR</div>
+				<div id="status-text">Hazırlanıyor…</div>
+				<div id="status-bar"><div id="status-fill"></div></div>
+				<div id="status-tip"></div>
+				<progress id="status-progress"></progress>
+				<div id="status-notice"></div>
+			</div>
 			<div id="status-hint">İlk yükleme yaklaşık 370 MB · masaüstü tarayıcı önerilir</div>
 		</div>
 
@@ -88,6 +101,23 @@ const engine = new Engine(GODOT_CONFIG);
 	const statusFill = document.getElementById('status-fill');
 	const statusText = document.getElementById('status-text');
 	let phase = 'pack';
+	const TIPS = [
+		'İkmal hatlarını korumak, cephedeki birliklerin savaş gücünü belirler.',
+		'Bir tümen düşmana komşu bölgede beklerken planlama biriktirir: ilk darbe daha güçlü olur.',
+		'Nehir geçişinde saldırı %30 zayıflar; köprübaşını başka yönden açmayı deneyin.',
+		'Kışın 45° kuzeyinde saldırılar zayıflar; kış donanımı yoksa birlikler yıpranır.',
+		'Deniz hâkimiyeti olmadan çıkarma yapan tümenler yolda kayıp verir.',
+		'Sivil fabrika inşaatı, askerî fabrika üretimi demektir: önce sanayi, sonra ordu.',
+		'Odak ağacındaki kararlar geri alınamaz; her odak 35–70 gün sürer.',
+		'Uçak kanatlarını üsse konuşlandırıp görev bölgesi verin; menzil dışı bölgeye gidemezler.',
+		'Zırhlı ve motorlu tümenler yakıt tüketir; petrol yoksa güçleri %35 düşer.',
+		'Ordu kurup cephe atayın: tümenler düşman yoğunluğuna göre kendiliğinden dağılır.',
+	];
+	const statusTip = document.getElementById('status-tip');
+	let tipIndex = Math.floor(Math.random() * TIPS.length);
+	const showTip = () => { statusTip.textContent = TIPS[tipIndex % TIPS.length]; tipIndex += 1; };
+	showTip();
+	setInterval(showTip, 6000);
 
 	let initializing = true;
 	let statusMode = '';
