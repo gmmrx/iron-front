@@ -4,6 +4,7 @@ extends PanelContainer
 
 var _slots: VBoxContainer
 var _tree: VBoxContainer
+var _scroll: ScrollContainer
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -17,25 +18,31 @@ func _ready() -> void:
 	title.add_theme_font_override("font", UiTheme.title_font())
 	v.add_child(title)
 	_slots = VBoxContainer.new()
-	_slots.add_theme_constant_override("separation", 4)
+	_slots.add_theme_constant_override("separation", 8)
 	v.add_child(_slots)
 	v.add_child(HSeparator.new())
 	var scroll := ScrollContainer.new()
+	_scroll = scroll
 	scroll.custom_minimum_size = Vector2(700, 520)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_tree = VBoxContainer.new()
 	_tree.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tree.add_theme_constant_override("separation", 6)
+	_tree.add_theme_constant_override("separation", 12)
 	scroll.add_child(_tree)
 	v.add_child(scroll)
 	Research.research_changed.connect(func(t: String) -> void:
 		if visible and t == World.player_tag: refresh())
 	World.daily_update.connect(func() -> void:
 		if visible: _refresh_slots())
+	get_viewport().size_changed.connect(_fit)
 
 func open() -> void:
 	visible = true
 	refresh()
+	_fit.call_deferred()
+
+func _fit() -> void:
+	PanelLayout.fit_scroll(self, _scroll, 620)
 
 func close() -> void:
 	visible = false
@@ -46,18 +53,15 @@ func refresh() -> void:
 	for ch in _tree.get_children():
 		ch.queue_free()
 	for cat: String in Research.categories:
-		_tree.add_child(UiTheme.make_label(Research.category_name(cat).to_upper(), 16, UiTheme.TEXT_DIM))
-		var flow := HFlowContainer.new()
-		flow.add_theme_constant_override("h_separation", 6)
-		flow.add_theme_constant_override("v_separation", 6)
+		PanelLayout.section(_tree, Research.category_name(cat).to_upper())
+		var flow := PanelLayout.grid()
 		for id: String in Research.techs:
 			var t: Dictionary = Research.techs[id]
 			if t["cat"] != cat:
 				continue
 			var b := Button.new()
 			b.focus_mode = Control.FOCUS_NONE
-			b.custom_minimum_size = Vector2(256, 82)
-			b.add_theme_font_size_override("font_size", 14)
+			PanelLayout.card(b, 324, 92)
 			b.icon = UiTheme.technology_icon(id)
 			b.expand_icon = true
 			b.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -82,14 +86,21 @@ func refresh() -> void:
 			b.pressed.connect(func() -> void: Research.start(c, id))
 			flow.add_child(b)
 		_tree.add_child(flow)
+	_fit.call_deferred()
 
 func _refresh_slots() -> void:
 	var c := World.player()
 	for ch in _slots.get_children():
 		ch.queue_free()
 	for i in c.research_slots:
+		var slot := PanelContainer.new()
+		var style := UiTheme.panel_style(Color(1, 1, 1, 0.035), UiTheme.BORDER_DIM)
+		style.shadow_size = 0
+		style.set_content_margin_all(10)
+		slot.add_theme_stylebox_override("panel", style)
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
+		slot.add_child(row)
 		if i < c.research_current.size():
 			var r: Dictionary = c.research_current[i]
 			var id: String = r["tech"]
@@ -114,5 +125,9 @@ func _refresh_slots() -> void:
 			row.add_child(UiTheme.make_label("%d %s" % [ceili(left), tr("UI_DAYS")], 15, UiTheme.TEXT_DIM))
 			row.add_child(UiTheme.icon_button("close", tr("TIP_RESEARCH_CANCEL"), func() -> void: Research.cancel(c, id), 26))
 		else:
-			row.add_child(UiTheme.make_label(tr("RESEARCH_EMPTY_SLOT") % (i + 1), 16, UiTheme.BAD))
-		_slots.add_child(row)
+			row.add_child(UiTheme.icon_texture(UiTheme.icon("research"), 38))
+			var empty := UiTheme.make_label(tr("RESEARCH_EMPTY_SLOT") % (i + 1), 18, UiTheme.ACCENT)
+			empty.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			row.add_child(empty)
+		_slots.add_child(slot)
+	_fit.call_deferred()

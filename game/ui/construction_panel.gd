@@ -11,9 +11,10 @@ var _buttons := {}
 var _summary: Label
 var _queue_box: VBoxContainer
 var _message: Label
+var _scroll: ScrollContainer
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(480, 0)
+	custom_minimum_size = Vector2(520, 0)
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	position = Vector2(12, 120)
 	size = Vector2(480, 760)
@@ -30,10 +31,7 @@ func _ready() -> void:
 	v.add_child(_summary)
 	v.add_child(HSeparator.new())
 
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 6)
-	grid.add_theme_constant_override("v_separation", 6)
+	var grid := PanelLayout.grid()
 	var group := ButtonGroup.new()
 	group.allow_unpress = true
 	for b in ORDER:
@@ -48,7 +46,7 @@ func _ready() -> void:
 		btn.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.add_theme_constant_override("icon_max_width", 68)
 		btn.tooltip_text = "%s\n%s\n\n%s" % [Economy.building_name(b), tr("BDESC_" + b), tr("TIP_BUILD_COST") % UiTheme.format_number(Economy.defs[b]["cost"])]
-		btn.add_theme_font_size_override("font_size", 15)
+		PanelLayout.card(btn, 238, 88)
 		btn.toggled.connect(func(on: bool) -> void: _on_toggle(b, on))
 		grid.add_child(btn)
 		_buttons[b] = btn
@@ -57,9 +55,10 @@ func _ready() -> void:
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(_message)
 	v.add_child(HSeparator.new())
-	v.add_child(UiTheme.make_label(tr("CONSTRUCTION_QUEUE"), 17, UiTheme.TEXT_DIM))
+	PanelLayout.section(v, tr("CONSTRUCTION_QUEUE"))
 
 	var scroll := ScrollContainer.new()
+	_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size.y = 360
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -73,10 +72,15 @@ func _ready() -> void:
 		if tag == World.player_tag and visible:
 			refresh())
 	World.player_changed.connect(func(_t: String) -> void: refresh())
+	get_viewport().size_changed.connect(_fit)
 
 func open() -> void:
 	visible = true
 	refresh()
+	_fit.call_deferred()
+
+func _fit() -> void:
+	PanelLayout.fit_scroll(self, _scroll, 300)
 
 func close() -> void:
 	visible = false
@@ -105,6 +109,7 @@ func refresh() -> void:
 		ch.queue_free()
 	for i in c.construction_queue.size():
 		_queue_box.add_child(_row(c, i))
+	_fit.call_deferred()
 
 func _row(c: Country, i: int) -> Control:
 	var p := c.construction_queue[i]
@@ -120,7 +125,8 @@ func _row(c: Country, i: int) -> Control:
 	var head := HBoxContainer.new()
 	var name := UiTheme.make_label("%s — %s" % [Economy.building_name(p.building), st.display_name()], 16)
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name.clip_text = true
+	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name.custom_minimum_size.x = 220
 	head.add_child(name)
 	head.add_child(UiTheme.icon_button("up", tr("TIP_QUEUE_UP"), func() -> void: Economy.move_project(c, i, -1), 26))
 	head.add_child(UiTheme.icon_button("down", tr("TIP_QUEUE_DOWN"), func() -> void: Economy.move_project(c, i, 1), 26))

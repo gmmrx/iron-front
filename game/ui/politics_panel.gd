@@ -5,6 +5,7 @@ extends PanelContainer
 var _pp: Label
 var _groups_box: VBoxContainer
 var _extra: VBoxContainer
+var _scroll: ScrollContainer
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -18,8 +19,10 @@ func _ready() -> void:
 	title.add_theme_font_override("font", UiTheme.title_font())
 	v.add_child(title)
 	_pp = UiTheme.make_label("", 17, UiTheme.TEXT)
+	_pp.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(_pp)
 	var scroll := ScrollContainer.new()
+	_scroll = scroll
 	scroll.custom_minimum_size = Vector2(520, 680)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -42,10 +45,15 @@ func _ready() -> void:
 		if visible: refresh())
 	Economy.laws_changed.connect(func(_t: String) -> void:
 		if visible: refresh())
+	get_viewport().size_changed.connect(_fit)
 
 func open() -> void:
 	visible = true
 	refresh()
+	_fit.call_deferred()
+
+func _fit() -> void:
+	PanelLayout.fit_scroll(self, _scroll, 740)
 
 func close() -> void:
 	visible = false
@@ -59,10 +67,8 @@ func refresh() -> void:
 	for ch in _groups_box.get_children():
 		ch.queue_free()
 	for g: String in Economy.law_groups:
-		_groups_box.add_child(UiTheme.make_label(Economy.group_name(g).to_upper(), 16, UiTheme.TEXT_DIM))
-		var flow := HFlowContainer.new()
-		flow.add_theme_constant_override("h_separation", 6)
-		flow.add_theme_constant_override("v_separation", 6)
+		PanelLayout.section(_groups_box, Economy.group_name(g).to_upper())
+		var flow := PanelLayout.grid()
 		for law: String in Economy.law_groups[g]["laws"]:
 			var b := Button.new()
 			b.text = Economy.law_name(g, law)
@@ -77,13 +83,14 @@ func refresh() -> void:
 			b.set_pressed_no_signal(current)
 			b.disabled = not current and not Economy.can_change_law(c, g, law)
 			b.tooltip_text = _effects(Economy.law_def(g, law))
-			b.add_theme_font_size_override("font_size", 15)
+			PanelLayout.card(b)
 			b.pressed.connect(func() -> void:
 				if not current:
 					Economy.change_law(c, g, law)
 				refresh())
 			flow.add_child(b)
 		_groups_box.add_child(flow)
+	_fit.call_deferred()
 
 func _effects(d: Dictionary) -> String:
 	var lines := []
@@ -104,16 +111,17 @@ func _refresh_extra(c: Country) -> void:
 	for ideo: String in ["democratic", "communism", "fascism", "neutrality"]:
 		var r := ColorRect.new()
 		r.color = cols[ideo]
-		r.custom_minimum_size = Vector2(maxf(float(c.popularity.get(ideo, 0.0)) * 440.0, 1.0), 14)
+		r.custom_minimum_size = Vector2(0, 14)
+		r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		r.size_flags_stretch_ratio = maxf(float(c.popularity.get(ideo, 0.0)), 0.001)
 		r.tooltip_text = "%s: %%%d" % [tr("IDEOLOGY_" + ideo), roundi(float(c.popularity.get(ideo, 0.0)) * 100)]
 		bar.add_child(r)
-	_extra.add_child(UiTheme.make_label(tr("POL_POPULARITY"), 15, UiTheme.TEXT_DIM))
+	PanelLayout.section(_extra, tr("POL_POPULARITY"))
 	_extra.add_child(bar)
 	_extra.add_child(UiTheme.make_label(tr("POL_STATS") % [roundi(Politics.stability(c) * 100), roundi(Politics.war_support(c) * 100), roundi(World.world_tension)], 16))
 	# milli ruhlar
-	_extra.add_child(UiTheme.make_label(tr("POL_SPIRITS"), 15, UiTheme.TEXT_DIM))
-	var sf := HFlowContainer.new()
-	sf.add_theme_constant_override("h_separation", 6)
+	PanelLayout.section(_extra, tr("POL_SPIRITS"))
+	var sf := PanelLayout.grid()
 	for sp in c.spirits:
 		var def: Dictionary = Politics.spirits.get(sp, Politics.decisions.get(sp, {}))
 		if def.is_empty():
@@ -127,14 +135,12 @@ func _refresh_extra(c: Country) -> void:
 		l.custom_minimum_size = Vector2(238, 72)
 		l.focus_mode = Control.FOCUS_NONE
 		l.tooltip_text = Politics.loc(def["name"]) + "\n" + Politics.describe_mods(def.get("mods", {}))
-		l.add_theme_font_size_override("font_size", 14)
+		PanelLayout.card(l)
 		sf.add_child(l)
 	_extra.add_child(sf)
 	# danışmanlar
-	_extra.add_child(UiTheme.make_label(tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors, int(Politics.advisor_cost)], 15, UiTheme.TEXT_DIM))
-	var af := HFlowContainer.new()
-	af.add_theme_constant_override("h_separation", 6)
-	af.add_theme_constant_override("v_separation", 6)
+	PanelLayout.section(_extra, tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors, int(Politics.advisor_cost)])
+	var af := PanelLayout.grid()
 	for id: String in Politics.advisor_defs:
 		var def: Dictionary = Politics.advisor_defs[id]
 		var b := Button.new()
@@ -146,7 +152,7 @@ func _refresh_extra(c: Country) -> void:
 		b.custom_minimum_size = Vector2(238, 72)
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 14)
+		PanelLayout.card(b)
 		var hired := id in c.advisors
 		b.set_pressed_no_signal(hired)
 		b.disabled = not hired and not Politics.can_hire(c, id)
@@ -158,9 +164,8 @@ func _refresh_extra(c: Country) -> void:
 		af.add_child(b)
 	_extra.add_child(af)
 	# kararlar
-	_extra.add_child(UiTheme.make_label(tr("POL_DECISIONS"), 15, UiTheme.TEXT_DIM))
-	var df := HFlowContainer.new()
-	df.add_theme_constant_override("h_separation", 6)
+	PanelLayout.section(_extra, tr("POL_DECISIONS"))
+	var df := PanelLayout.grid()
 	for id: String in Politics.decisions:
 		var def: Dictionary = Politics.decisions[id]
 		var b := Button.new()
@@ -172,7 +177,7 @@ func _refresh_extra(c: Country) -> void:
 		b.add_theme_constant_override("icon_max_width", 58)
 		b.custom_minimum_size = Vector2(238, 72)
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 14)
+		PanelLayout.card(b)
 		b.disabled = not Politics.can_take_decision(c, id)
 		b.tooltip_text = "%s\n%s\n%s" % [Politics.loc(def["name"]), Politics.describe_mods(def["mods"]), tr("TIP_DECISION") % [int(def["cost"]), int(def["days"])]]
 		b.pressed.connect(func() -> void:
