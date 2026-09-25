@@ -526,3 +526,24 @@ ARMY_SELECT,Select army,Orduyu seç
 TIP_ARMY_SELECT,Select all divisions of this army.,Bu ordunun bütün tümenlerini seç.
 ARMY_DISBAND,Dissolve,Orduyu dağıt
 TIP_ARMY_DISBAND,"DISSOLVE ARMY\nDivisions stay where they are, without a front.","ORDUYU DAĞIT\nTümenler yerinde kalır, cephesiz."
+UI_SUPPLY_TIP,"SUPPLY\nShare of your divisions that are supplied. Unsupplied divisions fight at -35%% and move slower (supply reaches 9 provinces from a source in occupied land).","İKMAL\nİkmal alan tümenlerinizin oranı. İkmalsiz tümenler %%35 zayıf savaşır ve yavaş ilerler (işgal toprağında ikmal kaynaktan 9 bölge uzağa ulaşır)."
+UI_SUPPLY_DETAIL,Supplied: %d / %d divisions,İkmalli: %d / %d tümen
+UI_CONVOY_TIP,"CONVOYS\nMerchant ships carrying imports and overseas troops. 1 convoy per 2 imported resources; submarines sink them.","KONVOYLAR\nİthalatı ve deniz aşırı birlikleri taşıyan yük gemileri. İthal edilen her 2 kaynak için 1 konvoy gerekir; denizaltılar batırır."
+UI_CONVOY_DETAIL,In stock: %d · needed for imports: %d,Stokta: %d · ithalat için gereken: %d
+UI_COMMAND_TIP,"COMMAND POWER (+%.1f/day, max 200)\nSpent on generals, doctrines and special orders.","KOMUTA GÜCÜ (+%.1f/gün, en çok 200)\nGeneraller, doktrinler ve özel emirler için harcanır."
+UI_XP_ARMY_TIP,"ARMY EXPERIENCE\nGained in land battles. Spent on division templates and land doctrines.","KARA TECRÜBESİ\nKara muharebelerinde kazanılır. Tümen şablonları ve kara doktrinleri için harcanır."
+UI_XP_NAVY_TIP,"NAVY EXPERIENCE\nGained in naval battles. Spent on ship refits and naval doctrines.","DENİZ TECRÜBESİ\nDeniz muharebelerinde kazanılır. Gemi tadilatı ve deniz doktrinleri için harcanır."
+UI_XP_AIR_TIP,"AIR EXPERIENCE\nGained in air combat. Spent on aircraft variants and air doctrines.","HAVA TECRÜBESİ\nHava çatışmalarında kazanılır. Uçak varyantları ve hava doktrinleri için harcanır."
+TASK_LOGISTICS_KEY,Logistics (L),Lojistik (L)
+TIP_TASK_LOGISTICS,"Equipment stockpile, daily production, needs and resource balance","Ekipman stoğu, günlük üretim, ihtiyaç ve kaynak dengesi"
+LOG_TITLE,Logistics,Lojistik
+LOG_SUMMARY,"Military factories in use: %d / %d · Dockyards in use: %d / %d","Kullanılan askeri fabrika: %d / %d · Kullanılan tersane: %d / %d"
+LOG_EQUIPMENT,Equipment,Ekipman
+LOG_STOCK,Stock,Stok
+LOG_IN_USE,In use,Kullanımda
+LOG_DAILY,Daily,Günlük
+LOG_NEED,Need,İhtiyaç
+LOG_BALANCE,Balance,Denge
+LOG_RESOURCES,Resources,Kaynaklar
+LOG_RES_PROD,Production,Üretim
+LOG_RES_USE,Use,Kullanım

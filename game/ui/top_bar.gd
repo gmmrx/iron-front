@@ -18,6 +18,12 @@ var _pause_label: Label
 var _pips: Array[ColorRect] = []
 var _pause_btn: Button
 var _pause_icon: PlayPauseIcon
+var _convoys: Label
+var _supply: Label
+var _command: Label
+var _xp_army: Label
+var _xp_navy: Label
+var _xp_air: Label
 
 ## Yazı tipinde olmayan ▶ / ❚❚ glifleri yerine vektörel ikon
 class PlayPauseIcon extends Control:
@@ -80,6 +86,14 @@ func _ready() -> void:
 	_factories = _stat(row, ResourceIcon.Kind.FACTORY, "UI_FACTORIES_TIP")
 	_factories.custom_minimum_size.x = 70
 	_fuel = _stat(row, ResourceIcon.Kind.FUEL, "UI_FUEL_TIP")
+	_supply = _stat(row, ResourceIcon.Kind.SUPPLY, "UI_SUPPLY_TIP")
+	_convoys = _stat(row, ResourceIcon.Kind.CONVOY, "UI_CONVOY_TIP")
+	_command = _stat(row, ResourceIcon.Kind.COMMAND, "UI_COMMAND_TIP")
+	_xp_army = _stat(row, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
+	_xp_navy = _stat(row, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
+	_xp_air = _stat(row, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
+	for l: Label in [_xp_army, _xp_navy, _xp_air, _command, _supply, _convoys]:
+		l.custom_minimum_size.x = 30
 
 	_tension = UiTheme.make_label("", 18, UiTheme.TEXT)
 	_tension.add_theme_font_override("font", UiTheme.bold_font())
@@ -189,6 +203,29 @@ func _update_country() -> void:
 	_fuel.text = "%d%%" % roundi(maxf(c.fuel, 0.0) / fcap * 100.0)
 	_fuel.add_theme_color_override("font_color", Color(0.95, 0.4, 0.3) if c.fuel <= fcap * 0.1 and c.fuel >= 0.0 else UiTheme.TEXT)
 	_fuel.get_parent().tooltip_text = tr("UI_FUEL_TIP") + "\n" + tr("UI_FUEL_DETAIL") % [UiTheme.format_number(roundi(maxf(c.fuel, 0.0))), UiTheme.format_number(roundi(fcap))]
+	# ikmal doluluğu: ikmalli tümen oranı
+	var divs := Military.country_divisions(c.tag)
+	var sup := 0
+	for d in divs:
+		if d.supplied:
+			sup += 1
+	var sup_pct := 100 if divs.is_empty() else roundi(100.0 * sup / divs.size())
+	_supply.text = "%d%%" % sup_pct
+	_supply.add_theme_color_override("font_color", UiTheme.BAD if sup_pct < 80 else UiTheme.TEXT)
+	_supply.get_parent().tooltip_text = tr("UI_SUPPLY_TIP") + "\n" + tr("UI_SUPPLY_DETAIL") % [sup, divs.size()]
+	# konvoylar: stok / ithalat ihtiyacı
+	var conv := int(c.stockpile.get("convoy", 0.0))
+	var need := 0.0
+	for i: Dictionary in c.imports:
+		need += float(i["amount"]) * 0.5
+	_convoys.text = "%d" % conv
+	_convoys.add_theme_color_override("font_color", UiTheme.BAD if float(conv) < need else UiTheme.TEXT)
+	_convoys.get_parent().tooltip_text = tr("UI_CONVOY_TIP") + "\n" + tr("UI_CONVOY_DETAIL") % [conv, ceili(need)]
+	_command.text = "%d" % int(c.command_power)
+	_command.get_parent().tooltip_text = tr("UI_COMMAND_TIP") % (0.5 if Diplomacy.at_war(c.tag) else 0.3)
+	_xp_army.text = "%d" % int(c.army_xp)
+	_xp_navy.text = "%d" % int(c.navy_xp)
+	_xp_air.text = "%d" % int(c.air_xp)
 	_tension.text = tr("TOP_TENSION") % roundi(World.world_tension)
 	if Diplomacy.at_war(c.tag):
 		var foes := Diplomacy.enemies_of(c.tag)

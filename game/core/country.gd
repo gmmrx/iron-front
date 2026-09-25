@@ -57,6 +57,10 @@ var access: Array[String] = []             ## askeri geçiş hakkı olan ülkele
 var capitulated := false
 var surrender_progress := 0.0
 var air_losses := 0.0
+var command_power := 0.0                    ## komuta gücü (0..200): general/doktrin/özel emirler için
+var army_xp := 0.0                          ## kara tecrübesi (0..500): şablon düzenleme, doktrin
+var navy_xp := 0.0
+var air_xp := 0.0
 var naval_strength_cache := 0.0
 
 ## Toplam modifier: milli ruhlar + danışmanlar + araştırma + yasalar

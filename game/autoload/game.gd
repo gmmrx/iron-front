@@ -83,6 +83,7 @@ func save_game(slot: String) -> bool:
 			"pp": c.political_power, "stability": c.stability, "war_support": c.war_support, "ideology": c.ideology,
 			"capital": c.capital_state, "laws": c.laws, "spirits": Array(c.spirits), "advisors": Array(c.advisors),
 			"focus_done": Array(c.focus_done), "focus_current": c.focus_current, "focus_progress": c.focus_progress,
+			"cp": c.command_power, "axp": c.army_xp, "nxp": c.navy_xp, "airxp": c.air_xp,
 			"research_slots": c.research_slots, "fuel": c.fuel, "rstore": c.research_stored, "research_current": c.research_current, "research_done": Array(c.research_done),
 			"research_bonus": c.research_bonus, "decisions": c.decisions_active, "manpower_used": c.manpower_used,
 			"templates": c.templates, "faction": c.faction, "war_goals": c.war_goals, "justify": c.justify_progress,
@@ -148,6 +149,7 @@ func load_game(slot: String) -> bool:
 		c.ideology = cd["ideology"]; c.capital_state = int(cd["capital"]); c.laws = cd["laws"]
 		c.spirits.assign(cd["spirits"]); c.advisors.assign(cd["advisors"]); c.focus_done.assign(cd["focus_done"])
 		c.focus_current = cd["focus_current"]; c.focus_progress = float(cd["focus_progress"])
+		c.command_power = float(cd.get("cp", 0.0)); c.army_xp = float(cd.get("axp", 0.0)); c.navy_xp = float(cd.get("nxp", 0.0)); c.air_xp = float(cd.get("airxp", 0.0))
 		c.research_slots = int(cd["research_slots"]); c.fuel = float(cd.get("fuel", -1.0)); c.research_stored = float(cd.get("rstore", 0.0)); c.research_current = cd["research_current"]
 		c.research_done.clear()
 		c.tech_mods.clear()

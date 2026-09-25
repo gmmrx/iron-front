@@ -1,0 +1,1353 @@
+{
+  "version": 1,
+  "project": "IRON FRONT",
+  "created": "2026-09-25",
+  "method": "built-in image_gen",
+  "scope": "110 briefs; kits and animation families expand into separate deliverables",
+  "entries": [
+    {
+      "id": "001",
+      "title": "Türk piyadesi",
+      "section": "Askerler",
+      "prompt": "1939 Türk Kara Kuvvetleri er piyadesi. Haki yün üniforma, dönemine uygun başlık/miğfer, kahverengi deri teçhizat ve fişeklik, ahşap kundaklı Türk Mauser tüfeği. Cumhuriyet dönemi üniformasını esas al; Osmanlı veya modern Türk askeri unsurları ekleme. Üniforma, başlık ve tüfeğin alt varyantını tarihî referansla tutarlı seç.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/001_turkish_infantry_1939/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-55755386-6817-4572-8c66-c74347c1ceec.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ve ayrı tüfek mevcut. Üst/alt açılar tam ortografik değil; matarada arka/üç çeyrek yerleşim farkı var. Ayrı görünüş üretiminde düzeltilmeli. Tarihsel inceleme ve teknik onay bekliyor.",
+      "prompt_file": "art/references/ww2/001_turkish_infantry_1939/prompt_v01.md",
+      "review_file": "art/references/ww2/001_turkish_infantry_1939/REVIEW.md",
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "blender_ready": false
+    },
+    {
+      "id": "002",
+      "title": "Alman piyadesi",
+      "section": "Askerler",
+      "prompt": "1939–1940 Alman Heer er piyadesi. Feldgrau M36 üniforma, M35 çelik miğfer, siyah deri çizme ve teçhizat, Kar98k tüfek. Kumaş, deri, ahşap ve boyalı çeliği birbirinden ayır. Geç savaş kamuflajı veya modern aksesuar ekleme.",
+      "status": "generation_blocked",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending",
+      "generation_note": "blocked: Built-in image_gen output safety rejection, request ID 09000ac3-a7dd-490a-9ceb-a805784961da; no image produced. No fallback or workaround attempted.",
+      "prompt_file": "art/references/ww2/002_german_infantry_1940/prompt_v01.md"
+    },
+    {
+      "id": "003",
+      "title": "Sovyet piyadesi",
+      "section": "Askerler",
+      "prompt": "1941 Sovyet Kızıl Ordu er piyadesi. Haki-kahverengi gimnastyorka, SSh-40 miğfer, kahverengi deri kemer ve fişeklik, Mosin-Nagant 1891/30 tüfek. Subay üniforması veya 1943 sonrası omuz apoletlerini bu sete ekleme.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/003_soviet_infantry_1941/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-f142ad55-0729-45f2-9aa2-8e69f830018d.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ve ayrı tüfek mevcut. Üst/alt görünüşler perspektifli. Tüfeğin sürgü kolu iki yanda tekrarlanmış; silah paftası teknik kullanım öncesi düzeltilmeli. Mataranın arka/üç çeyrek konumu tutarsız. Tarihsel inceleme bekliyor.",
+      "prompt_file": "art/references/ww2/003_soviet_infantry_1941/prompt_v01.md",
+      "review_file": "art/references/ww2/003_soviet_infantry_1941/REVIEW.md",
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "blender_ready": false
+    },
+    {
+      "id": "004",
+      "title": "Britanya piyadesi",
+      "section": "Askerler",
+      "prompt": "1940 Britanya er piyadesi. Kahverengimsi haki battledress, Mk II çelik miğfer, Pattern 1937 dokuma teçhizat, SMLE No.1 Mk III tüfek. Dokuma çantalar, tozluklar ve ayakkabıları açıkça ayırt edilebilir göster.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/004_british_infantry_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-5ea6ecd1-7900-42e9-b953-a098afa05eac.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: ana siluet ve 8 görünüş var. Üst/alt açılar perspektifli; matarada görünüşler arası konum farkı ve tüfekte iki taraflı sürgü kolu hatası var. Ayrı teknik görünüşler/aksesuar paftası bekliyor.",
+      "prompt_file": "art/references/ww2/004_british_infantry_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/004_british_infantry_1940/REVIEW.md",
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "blender_ready": false
+    },
+    {
+      "id": "005",
+      "title": "ABD piyadesi",
+      "section": "Askerler",
+      "prompt": "1944 Avrupa cephesindeki ABD er piyadesi. M1 miğfer, zeytuni-haki M1941 ceket, yün pantolon, kanvas tozluk, kahverengi bot, M1 Garand. Mermi kemerleri ve saha çantaları dönemine uygun olsun; Vietnam dönemi teçhizat kullanma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/005_us_infantry_1944/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-ca213264-7dfd-4d2d-9aad-5a8682900ad2.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı, ayrı Garand görünüşleri. Üst/alt perspektifli. Ceketin cep/kapatma düzeni M1941 için tarihsel doğrulama ve revizyon gerektiriyor; doğrudan üretim referansı olarak onaylanmadı.",
+      "prompt_file": "art/references/ww2/005_us_infantry_1944/prompt_v01.md",
+      "review_file": "art/references/ww2/005_us_infantry_1944/REVIEW.md",
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "blender_ready": false
+    },
+    {
+      "id": "006",
+      "title": "Fransız piyadesi",
+      "section": "Askerler",
+      "prompt": "1940 Fransız er piyadesi. Haki üniforma ve kaput, M1926 Adrian miğfer, kahverengi deri teçhizat, MAS-36 tüfek. Birinci Dünya Savaşı’nın ufuk mavisi üniformasını varsayılan yapma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/006_french_infantry_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-955ce0e1-b810-43c1-8f7a-963f2ada72ee.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: kaput ve Adrian miğfer silueti, 8 açı mevcut. Üst/alt açılar perspektifli; miğfer alt varyantı ve MAS-36 mekanizma/nişangah ayrıntıları tarihsel teknik inceleme bekliyor. Kaput altında gövde için ayrıca kıyafetsiz olmayan basit rig referansı gerekecek.",
+      "prompt_file": "art/references/ww2/006_french_infantry_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/006_french_infantry_1940/REVIEW.md",
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "blender_ready": false
+    },
+    {
+      "id": "007",
+      "title": "İtalyan piyadesi",
+      "section": "Askerler",
+      "prompt": "1940 İtalyan er piyadesi. Grigio-verde gri-yeşil üniforma, M33 miğfer, deri fişeklikler ve Carcano M91 tüfek. Alpini tüyü gibi uzman birlik unsurlarını standart piyadeye ekleme.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/007_italian_infantry_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-1710a1ea-193a-418a-a076-942995bed64d.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 görünüş ve ayrı Carcano tüfek görünüşleri mevcut. Matarada arka/üç çeyrek konum farkı, perspektifli üst/alt görünüşler ve tüfekte sağ/sol mekanizma tutarsızlığı var. Teknik/tarihsel revizyon bekliyor.",
+      "prompt_file": "art/references/ww2/007_italian_infantry_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/007_italian_infantry_1940/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "008",
+      "title": "Japon piyadesi",
+      "section": "Askerler",
+      "prompt": "1941 Japon İmparatorluk Ordusu er piyadesi. Haki Type 98 üniforma, Type 90 miğfer, bez dolak, kahverengi deri teçhizat ve Type 38 Arisaka tüfek. Üniformayı deniz piyadesi veya pilot teçhizatıyla karıştırma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/008_japanese_infantry_1941/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-a51527d6-d641-4c11-adde-1e6b4475043f.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ve ayrı tüfek mevcut. Üst/alt açılar perspektifli, kayış/matara yerleşimi görünüşler arasında tutarsız. Type 98 üniforma, Type 90 miğfer ve Type 38 tüfek alt ayrıntıları tarihsel inceleme bekliyor.",
+      "prompt_file": "art/references/ww2/008_japanese_infantry_1941/prompt_v01.md",
+      "review_file": "art/references/ww2/008_japanese_infantry_1941/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "009",
+      "title": "Çin Milliyetçi piyadesi",
+      "section": "Askerler",
+      "prompt": "1937 Çin Milliyetçi Ordusu’nun Alman eğitimli birliğinden er piyadesi. Gri-yeşil üniforma, M35 tipi miğfer, kumaş dolak ve Type 24 tüfek. Bu görünümü bütün Çin birliklerinin ortak üniforması olarak sunma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/009_chinese_infantry_1937/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-7cec26ed-56cf-4d3c-819a-44069d810f82.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ve Type 24 tüfek referansı mevcut. Üst/alt açılar perspektifli, tüfeğin sürgü kolu sağ/sol tutarsız. Miğfer/üniforma ve teçhizat yerleşimi tarihsel teknik inceleme bekliyor.",
+      "prompt_file": "art/references/ww2/009_chinese_infantry_1937/prompt_v01.md",
+      "review_file": "art/references/ww2/009_chinese_infantry_1937/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "010",
+      "title": "Makineli tüfekçi",
+      "section": "Asker rol varyantları",
+      "prompt": "Seçilen ülkenin onaylı piyade modelini koru. O ülke ve yılda kullanılan hafif makineli tüfeği, mühimmat çantalarını ve taşıma düzenini ayrı aksesuarlar olarak tasarla. Ayakta taşıma, diz çökerek hazırlık ve destekli ateş pozlarını ayrı paftada göster. Yeni bir insan gövdesi tasarlama.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/010_british_machine_gunner_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-b5eb89ac-8db5-4d06-83cf-55867837d476.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "ENG ilk rol taslağı; 004 görünümü korunuyor, Bren ve ayrı şarjör/bipod çizildi. Arka görünüşlerde ön şarjör çantaları gövdenin arkasına da yansıtılmış: düzeltilmeli. Silah mekanizmaları/ölçek ve üst-alt perspektif kontrolü bekliyor. Diğer ülke varyantları henüz yok.",
+      "prompt_file": "art/references/ww2/010_british_machine_gunner_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/010_british_machine_gunner_1940/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "variant": "ENG",
+      "other_country_variants": "pending",
+      "base_reference": "004"
+    },
+    {
+      "id": "011",
+      "title": "Topçu mürettebatı",
+      "section": "Asker rol varyantları",
+      "prompt": "Seçilen ülkenin piyade modelinden topçu mürettebatı türet. Tüfeği kaldır; dürbün, top mermisi ve mürettebat ekipmanını ayrı nesneler olarak ver. Nişancı, doldurucu ve komutan görevleri için üç poz referansı üret. El ve mermi geometrileri birbirine geçmesin.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/011_british_artillery_crew_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-9308afde-33b0-4f1d-b1bf-d5ccea34c08a.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "ENG ilk topçu mürettebatı taslağı. Tüfek kaldırıldı; dürbün, mühimmatın dış görünüşü, çanta ve eldiven ayrı gösterildi. Gövde ekipmanının yan/arka görünüş konumları ve üst/alt perspektif revizyonu bekliyor. Ekipman ölçekleri karşılaştırmalı gerçek ölçü değildir. Görev pozları ve diğer ülke varyantları bekliyor.",
+      "prompt_file": "art/references/ww2/011_british_artillery_crew_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/011_british_artillery_crew_1940/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "variant": "ENG",
+      "other_country_variants": "pending",
+      "base_reference": "004"
+    },
+    {
+      "id": "012",
+      "title": "Subay / birlik komutanı",
+      "section": "Asker rol varyantları",
+      "prompt": "Seçilen ülke ve yılın üniformasına uygun bir saha subayı varyantı üret. Dürbün, harita çantası ve tabanca kılıfı ayrı aksesuarlar olsun. Nötr A-pozu ana referans olarak koru; emir verme pozunu ayrı göster. Tören üniforması kullanma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/012_british_field_officer_1940/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-6d592b48-8e64-43fb-ba7a-4172637b6c64.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "ENG ilk komutan taslağı; dürbün, harita çantası ve kapalı kılıf ayrıldı. Harita çantası ön/arka görünüşlerde konum değiştiriyor; perspektifli üst/alt açılar ve rütbe/kemer düzeni tarihsel teknik revizyon bekliyor. Emir pozları ve diğer ülke varyantları bekliyor.",
+      "prompt_file": "art/references/ww2/012_british_field_officer_1940/prompt_v01.md",
+      "review_file": "art/references/ww2/012_british_field_officer_1940/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending",
+      "variant": "ENG",
+      "other_country_variants": "pending",
+      "base_reference": "004"
+    },
+    {
+      "id": "013",
+      "title": "Panzer II Ausf. C",
+      "section": "Tanklar",
+      "prompt": "1940 Panzer II Ausf. C. Koyu gri boyama; kompakt gövde, doğru tekerlek düzeni ve küçük kule. Gövde, kule, top, paletler ve yürüyüş takımı ayrı parça referanslarında gösterilsin.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/013_panzer_ii_ausf_c/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-54ed80c9-90f0-4e97-a591-848f1da03ff3.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ile gövde/kule/namlu/palet/tekerlek ayrımı mevcut. İki yan görünüşte beş ana yol tekerleği tutarlı. Çamurluk aletleri, üst görünüş namlu izdüşümü ve alt yüzey ayrıntıları teknik kaynaktan doğrulanmalı; parça şeridi montaj ölçeği değildir.",
+      "prompt_file": "art/references/ww2/013_panzer_ii_ausf_c/prompt_v01.md",
+      "review_file": "art/references/ww2/013_panzer_ii_ausf_c/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "014",
+      "title": "Panzer IV Ausf. G",
+      "section": "Tanklar",
+      "prompt": "1943 Panzer IV Ausf. G. Uzun namlulu top, koyu sarı taban üzerine ölçülü zeytin yeşili kamuflaj. Seçilen üretim örneğinin zırh ve yan etek durumunu bütün açılarda koru; farklı Ausführung parçalarını karıştırma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/014_panzer_iv_ausf_g/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-084abb62-b9d8-4967-995a-182b79b1f976.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: 8 açı ve parça şeridi mevcut; yanlarda sekiz ana yol tekerleği seçiliyor. Üst görünüşte namlu uzunluğu yan görünüşle uyuşmuyor, taban/çatı kapakları ve kamuflaj sürekliliği doğrulanmalı. L/43 konfigürasyonu ve erken G gövdesi teknik inceleme bekliyor.",
+      "prompt_file": "art/references/ww2/014_panzer_iv_ausf_g/prompt_v01.md",
+      "review_file": "art/references/ww2/014_panzer_iv_ausf_g/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "015",
+      "title": "T-26",
+      "section": "Tanklar",
+      "prompt": "1939 tek kuleli T-26. Mat Sovyet koruyucu yeşili, ince gövde, perçin ve kaynak detayları, doğru yürüyüş takımı. Çift kuleli ilk modellerin parçalarını kullanma.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/015_t26_1939/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-23cd589d-ce32-405e-be66-610b4f7b2157.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: sekiz açı, iki bogi gruplu yürüyüş takımı ve ayrı parçalar mevcut. Üst görünüş namlu uzunluğu yanla uyuşmuyor; yardımcı tekerlek/süspansiyon ve 1939 gövde/kule perçin düzeni teknik tarihsel doğrulama bekliyor.",
+      "prompt_file": "art/references/ww2/015_t26_1939/prompt_v01.md",
+      "review_file": "art/references/ww2/015_t26_1939/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "016",
+      "title": "T-34/76 Model 1942",
+      "section": "Tanklar",
+      "prompt": "T-34/76 Model 1942. Mat yeşil, eğimli gövde zırhı, seçilen altıgen kule varyantı ve doğru palet genişliği. T-34/85 kulesi kullanma. Kule ve top pivotlarını parça paftasında işaretle.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/016_t34_76_1942/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-88af1034-01dc-44a5-aceb-16cc1d1292ea.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: iki yanda beş büyük tekerlek ve sekiz görünüş mevcut; kule/namlu pivot önerisi var. Üst görünüş namlusu hücre sınırında kesilmiş/kısalmış; motor kapağı ve tekerlek/tahrik ayrıntıları teknik doğrulama bekliyor. 1942 kule alt varyantı ayrıca doğrulanmalı.",
+      "prompt_file": "art/references/ww2/016_t34_76_1942/prompt_v01.md",
+      "review_file": "art/references/ww2/016_t34_76_1942/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "017",
+      "title": "Light Tank Mk VI B",
+      "section": "Tanklar",
+      "prompt": "1940 Britanya Light Tank Mk VI B. Küçük yüksek kule, makineli tüfek silahlandırması ve dar paletler. Döneme uygun koyu yeşil iki tonlu boyama örneği seç; ayrıntıları teknik referansla doğrula.",
+      "status": "draft_needs_revision",
+      "outputs": [
+        {
+          "path": "art/references/ww2/017_light_tank_mk_vib/turnaround_v01.png",
+          "width": 1536,
+          "height": 1024,
+          "kind": "turnaround_sheet",
+          "version": 1,
+          "source": "/Users/bugra/.codex/generated_images/01a0d322-7bec-7122-9b51-a2977903746d/exec-443b4bc0-ded6-444e-965d-c3797595223f.png"
+        }
+      ],
+      "historical_review": "pending",
+      "geometry_review": "Taslak: dört ana tekerlekli siluet, sekiz görünüş ve parça şeridi mevcut. Mk VI B kule şekli/silah mantleti ve motor ızgaraları tarihsel doğrulama bekliyor; ayrı kule çizimindeki kapak açıklığı ana görünüşlerden farklı. Boyama deseninin açılar arasında sürekliliği düzeltilecek.",
+      "prompt_file": "art/references/ww2/017_light_tank_mk_vib/prompt_v01.md",
+      "review_file": "art/references/ww2/017_light_tank_mk_vib/REVIEW.md",
+      "blender_ready": false,
+      "individual_views": "pending",
+      "accessory_sheet": "pending"
+    },
+    {
+      "id": "018",
+      "title": "Cromwell IV",
+      "section": "Tanklar",
+      "prompt": "1944 Cromwell IV kruvazör tankı. SCC 15 olive drab görünümü, kutu biçimli kule ve gövde, büyük yol tekerlekleri. Challenger veya Comet parçaları kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "019",
+      "title": "M3 Stuart",
+      "section": "Tanklar",
+      "prompt": "1942 M3 Stuart. Mat olive drab boyama, doğru küçük kule ve yüksek gövde silueti. M3 ve M5 gövde ayrıntılarını karıştırma. İşaretleri ayrı decal paftasında göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "020",
+      "title": "M4A3 Sherman",
+      "section": "Tanklar",
+      "prompt": "1944 M4A3 Sherman, 75 mm top ve VVSS süspansiyonlu örnek. Olive drab boyama. Kaynaklı gövde, seçilen kapak düzeni ve kule bütün açılarda aynı olsun; 76 mm veya HVSS parçalarını ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "021",
+      "title": "Renault R35",
+      "section": "Tanklar",
+      "prompt": "1940 Renault R35. Kısa namlu, küçük döküm kule, kompakt gövde. Yeşil, toprak kahverengisi ve sarımsı tonlardan oluşan dönem kamuflajı; desen bütün görünüşlerde süreklilik göstersin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "022",
+      "title": "SOMUA S35",
+      "section": "Tanklar",
+      "prompt": "1940 SOMUA S35. Karakteristik yüksek gövde ve tek kişilik kule, dönemine uygun çok renkli Fransız kamuflajı. Döküm yüzeylerini abartmadan göster; Renault R35 geometrisini büyüterek kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "023",
+      "title": "L6/40",
+      "section": "Tanklar",
+      "prompt": "İtalyan L6/40 hafif tankı, Kuzey Afrika görünümü. Açık kum rengi, kompakt perçinli gövde, küçük kule. Gerçek araç oranlarını ve palet düzenini koru.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "024",
+      "title": "M13/40",
+      "section": "Tanklar",
+      "prompt": "1941 M13/40. Kum rengi gövde, perçinli zırh, karakteristik kule ve ön gövde makineli tüfek çıkıntısı. M14/41 ve sonraki modellerin ayrıntılarını bilinçsizce karıştırma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "025",
+      "title": "Type 95 Ha-Go",
+      "section": "Tanklar",
+      "prompt": "Type 95 Ha-Go. Sarımsı toprak, yeşil ve kahverengi alanlardan oluşan tarihsel kamuflaj örneği. Asimetrik gövde ayrıntıları, küçük kule ve süspansiyon doğru olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "026",
+      "title": "Type 97 Chi-Ha",
+      "section": "Tanklar",
+      "prompt": "İlk kuleli, kısa 57 mm toplu Type 97 Chi-Ha. Yeşil, kahverengi ve toprak sarısı kamuflaj. Shinhoto Chi-Ha’nın uzun toplu kulesini kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "027",
+      "title": "Opel Blitz",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1940 Opel Blitz 3 tonluk askerî kamyon. Koyu gri kabin ve gövde, mat koyu kanvas tente. Kabin, kasa, tente, tekerlekler ve ön direksiyon aksını ayrı göster. Açık ve tenteli kasa aynı şasiyi kullansın.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "028",
+      "title": "ZiS-5",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1941 ZiS-5 kamyon. Koruyucu yeşil kabin, ahşap kasa ve koyu lastikler. Kabin, şasi, kasa ve tekerlekleri ayrı parçalar olarak göster; Opel Blitz gövdesini yeniden boyama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "029",
+      "title": "GMC CCKW",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1944 GMC CCKW 6×6 askerî kamyon. Olive drab boyama, üç aks, kanvas tenteli yük kasası. Seçilen kabin tipini bütün açılarda koru; tekerlek ve direksiyon hareketleri için parçaları ayır.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "030",
+      "title": "10,5 cm leFH 18",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1940 Alman leFH 18 obüsü. Koyu gri, iki tekerlekli kundak ve açılır ayaklar. Namlu, geri tepme grubu, yükseliş mekanizması ve taşıma pozunu ayrı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "031",
+      "title": "25-pounder",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "Britanya QF 25-pounder saha topu. Zeytuni yeşil boyama, karakteristik kalkan ve ateşleme platformu. Çekili taşıma ve mevzilenmiş hâllerini göster; topu platformla tek katı parça yapma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "032",
+      "title": "ZiS-3",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "Sovyet 76,2 mm ZiS-3. Koruyucu yeşil, ince namlu, karakteristik kalkan ve açılır kundak ayakları. Ateşleme ve taşıma konfigürasyonları aynı geometriyi kullansın.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "033",
+      "title": "PaK 40",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1943 Alman 7,5 cm PaK 40. Koyu sarı boyama, uzun namlu, düşük siluet ve çift katmanlı kalkan. Kundak ayaklarını, tekerlekleri ve namlu hareketini ayrı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "034",
+      "title": "Bofors 40 mm L/60",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "II. Dünya Savaşı dönemi çekili, tek namlulu Bofors 40 mm L/60. Mat askerî yeşil. Döner üst grup, namlu yükselişi, mürettebat koltukları ve destek ayakları ayrı olsun. Modern L/70 ayrıntıları ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "035",
+      "title": "8,8 cm FlaK 36",
+      "section": "Kamyonlar ve çekili silahlar",
+      "prompt": "1940 FlaK 36 ağır uçaksavar. Koyu gri, haç biçimli platform ve ayrılabilir taşıma düzeni. Yatay dönüş, namlu yükselişi ve geri tepme mekanizması için temiz parça ayrımı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "036",
+      "title": "Bf 109 E-4",
+      "section": "Uçaklar",
+      "prompt": "1940 Bf 109 E-4 avcı uçağı. RLM 02/71 üst yüzeyler ve RLM 65 alt yüzeylerden oluşan bir Britanya Muharebesi boyama örneği. Sarı burun kullanılıyorsa belirli referans örneğine bağlı kal. Sonraki G serisinin kaporta çıkıntılarını ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "037",
+      "title": "Ju 87 B-2",
+      "section": "Uçaklar",
+      "prompt": "1940 Ju 87 B-2 Stuka. RLM 70/71 keskin sınırlı üst kamuflaj, RLM 65 alt yüzey. Ters martı kanat, sabit kaportalı iniş takımı ve gövde altı bomba taşıyıcısı belirgin olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "038",
+      "title": "He 111 H-3",
+      "section": "Uçaklar",
+      "prompt": "1940 Heinkel He 111 H-3. RLM 70/71 üst kamuflaj ve RLM 65 alt yüzey. Asimetrik camlı burun, iki motor ve eliptik kanat planı doğru olsun; P serisi ayrıntılarını karıştırma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "039",
+      "title": "I-16 Type 24",
+      "section": "Uçaklar",
+      "prompt": "1940 Polikarpov I-16 Type 24. Yeşil üst yüzey, açık mavi alt yüzey; kısa kalın gövde, radyal motor ve açık kokpit. İniş takımları kapalı uçuş görünümü esas olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "040",
+      "title": "Il-2",
+      "section": "Uçaklar",
+      "prompt": "1943 iki kişilik Il-2 yer taarruz uçağı. AMT-4 yeşil ve AMT-6 siyah üst kamuflaj, AMT-7 mavi alt yüzey örneği. Seçilen düz veya geriye süpürülmüş kanat varyantını bütün görünüşlerde aynı tut.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "041",
+      "title": "Pe-2",
+      "section": "Uçaklar",
+      "prompt": "1942 Petlyakov Pe-2. Yeşil-siyah üst yüzeyler ve açık mavi alt yüzey. Çift motor, çift dikey kuyruk ve ince gövde. Seçilen üretim serisinin cam ve silah yerleşimini koru.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "042",
+      "title": "Spitfire Mk I",
+      "section": "Uçaklar",
+      "prompt": "1940 yaz sonu RAF Spitfire Mk I. Dark Earth ve Dark Green üst kamuflaj; Sky alt yüzey. Eliptik kanatlar ve üç palli pervane. Sonraki markların top çıkıntılarını veya büyük kuyruklarını ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "043",
+      "title": "Typhoon Mk IB",
+      "section": "Uçaklar",
+      "prompt": "1944 Hawker Typhoon Mk IB. Dark Green ve Ocean Grey üst yüzey, Medium Sea Grey alt yüzey; büyük çene radyatörü, kabarcık kanopi ve kanat altı roket rayları. İstila şeritlerini ayrı isteğe bağlı decal olarak göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "044",
+      "title": "Blenheim Mk IV",
+      "section": "Uçaklar",
+      "prompt": "1940 Bristol Blenheim Mk IV. Dark Earth/Dark Green üst kamuflaj; seçilen gündüz bombardıman örneğine uygun siyah alt yüzey. Uzatılmış camlı burun ve iki radyal motor doğru olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "045",
+      "title": "P-40E",
+      "section": "Uçaklar",
+      "prompt": "1942 USAAF P-40E. Olive Drab üst, Neutral Gray alt yüzey; burun altı radyatör ve üç palli pervane. Köpekbalığı ağzını varsayılan ekleme; birliğe özel süslemeleri ayrı decal olarak ele al.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "046",
+      "title": "P-47D-25",
+      "section": "Uçaklar",
+      "prompt": "1944 P-47D-25 yer taarruz konfigürasyonu. Doğal metal dış yüzey, olive drab parlama önleyici burun üstü panel; kabarcık kanopi, dört palli pervane ve ayrı bomba askıları. Metal yüzeyi krom gibi parlak yapma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "047",
+      "title": "B-25C Mitchell",
+      "section": "Uçaklar",
+      "prompt": "1942 B-25C Mitchell. Olive Drab üst ve Neutral Gray alt yüzey. Çift motor, çift dikey kuyruk, camlı burun ve üç tekerlekli iniş takımı. B-25J’nin farklı burun ve silah düzenini kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "048",
+      "title": "Dewoitine D.520",
+      "section": "Uçaklar",
+      "prompt": "1940 Dewoitine D.520. Koyu mavi-gri, yeşil ve kahverengi üst kamuflaj; açık mavi-gri alt yüzey. Savaş öncesi/1940 Fransız işaretleri kullan; sonraki Vichy şeritlerini ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "049",
+      "title": "Bréguet 693",
+      "section": "Uçaklar",
+      "prompt": "1940 Bréguet 693 taarruz uçağı. Dönem Fransız yeşil, kahverengi ve mavi-gri üst kamuflajı; açık mavi-gri alt yüzey. Kompakt çift motorlu gövde ve çift kuyruk düzeni doğru olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "050",
+      "title": "LeO 451",
+      "section": "Uçaklar",
+      "prompt": "1940 Lioré et Olivier LeO 451. Fransız üç renkli üst kamuflajı ve açık mavi-gri alt yüzey. İnce aerodinamik gövde, iki radyal motor ve çift kuyruk; Bréguet 693 geometrisini büyüterek kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "051",
+      "title": "Macchi C.202",
+      "section": "Uçaklar",
+      "prompt": "1942 Macchi C.202 Folgore. Nocciola Chiaro 4 kum-kahverengi taban üzerinde koyu yeşil lekeli seçilmiş tarihsel desen; açık gri alt yüzey. Üreticiye özgü deseni tek referans örneğine göre tutarlı uygula.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "052",
+      "title": "Breda Ba.65",
+      "section": "Uçaklar",
+      "prompt": "1940 Breda Ba.65, tek kişilik yer taarruz varyantı. Kuzey Afrika’ya uygun kum tonlu taban ve yeşil-kahverengi kamuflaj örneği; açık gri alt yüzey. Kanat ve motor kaportası alt varyantla tutarlı olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "053",
+      "title": "Fiat BR.20M",
+      "section": "Uçaklar",
+      "prompt": "1940 Fiat BR.20M Cicogna. İki motorlu orta bombardıman uçağı; toprak sarısı, yeşil ve kahverengi üst kamuflaj, açık gri alt yüzey. BR.20 ilk modelinin burun ayrıntılarını karıştırma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "054",
+      "title": "A6M2 Model 21",
+      "section": "Uçaklar",
+      "prompt": "1941 Mitsubishi yapımı A6M2 Model 21 Zero. Hafif sıcak zeytuni ton taşıyan açık gri genel boya, koyu motor kaportası ve kırmızı Hinomaru işaretleri. Uçağı saf beyaz veya geç savaş koyu yeşili olarak boyama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "055",
+      "title": "Aichi D3A1",
+      "section": "Uçaklar",
+      "prompt": "1941 Aichi D3A1 dalış bombardıman uçağı. Seçilen erken dönem açık gri boyama, koyu motor kaportası, kırmızı Hinomaru işaretleri. Sabit kaportalı iniş takımı, iki kişilik uzun kanopi ve dalış frenleri.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "056",
+      "title": "Ki-21-IIa",
+      "section": "Uçaklar",
+      "prompt": "1942 Mitsubishi Ki-21-IIa kara konuşlu bombardıman uçağı. Açık gri temel üzerinde koyu yeşil düzensiz üst kamuflaj örneği. Çift motor, tek dikey kuyruk ve uzun camlı burun. Ki-21-IIb üst silah kulesini ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "057",
+      "title": "Türk PZL P.24G",
+      "section": "Uçaklar",
+      "prompt": "1938 Türk hizmetindeki PZL P.24G. Martı biçimli yüksek kanat, radyal motor ve sabit iniş takımı. Haki/yeşil üst ve açık alt yüzeyli Türk örneğinin renklerini tarihî referansla doğrula. Dönemin Türk kare milliyet işaretlerini ayrı decal paftasında göster; modern işaretleri otomatik kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "058",
+      "title": "Türk Vultee V-11",
+      "section": "Uçaklar",
+      "prompt": "1939 Türk hizmetindeki Vultee V-11. Tek motorlu alçak kanatlı gövde, uzun sera tipi kanopi. Türk hizmetindeki belirli bir uçağı referans al; haki üst, açık alt yüzey ve dönem milliyet işaretlerini doğrula. Görseli birebir tarihsel alt varyanta bağla.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "059",
+      "title": "Türk He 111 F-1",
+      "section": "Uçaklar",
+      "prompt": "1938 Türk hizmetindeki Heinkel He 111 F-1. Erken basamaklı kokpit ve F serisine özgü kanat geometrisi; H serisinin tamamen camlı burun tasarımını kullanma. Boyama ve dönem Türk işaretlerini tarihî fotoğrafla doğrula.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "060",
+      "title": "Konvoy — Liberty",
+      "section": "Gemiler",
+      "prompt": "1942 Liberty tipi yük gemisi. Gri gövde, sade üstyapı, yük ambarları ve dönem yükleme direkleri. Modern konteyner, radar veya vinç ekleme. Su hattı ile su altı gövdesini ayrı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "061",
+      "title": "Muhrip — Fletcher",
+      "section": "Gemiler",
+      "prompt": "1942 Fletcher sınıfı muhrip. İnce uzun gövde, iki baca, doğru ana top yerleşimi ve torpido tüpleri. İlk üretim konfigürasyonu kullan; sonraki modernizasyonları karıştırma. Gövde, top kuleleri, torpido grubu ve pervaneleri ayrı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "062",
+      "title": "Denizaltı — Type VIIC",
+      "section": "Gemiler",
+      "prompt": "1941 Type VIIC denizaltı. Dar uzun gövde, dönem kulesi, güverte topu ve periskoplar. Gri üst yüzey, koyu su hattı altı. Sonraki genişletilmiş kule veya savaş sonrası düzen kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "063",
+      "title": "Kruvazör — Southampton",
+      "section": "Gemiler",
+      "prompt": "1939 Southampton sınıfı hafif kruvazör. Dört üçlü ana top kulesi, iki baca ve dönem üstyapısı. Gri borda, koyu üst yüzeyler ve ahşap güverte bölgeleri ayrı malzemeler olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "064",
+      "title": "Zırhlı — King George V",
+      "section": "Gemiler",
+      "prompt": "1941 King George V sınıfı zırhlı. Önde dört namlulu ve iki namlulu, arkada dört namlulu ana kule düzeni doğru olsun. Dönem gri boyama; ana kule, ikincil silahlar ve gövdeyi ayrı parçalar olarak göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "065",
+      "title": "Sivil fabrika",
+      "section": "Binalar",
+      "prompt": "1930’lar tuğla sanayi fabrikası. Testere dişli çatı, ana üretim salonu, iki baca, yükleme kapısı ve küçük idare binası. Tuğla, kirli cam, beton ve çelik ayrı malzemeler. Tek bina ve büyüme modüllerini ayrı göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "066",
+      "title": "Askerî fabrika",
+      "section": "Binalar",
+      "prompt": "1940’lar silah ve araç fabrikası. Geniş üretim hangarı, yüksek endüstriyel pencereler, demiryolu yükleme kapısı ve kontrollü giriş. Sivil fabrikadan belirgin farklı siluet; modern depo veya cam ofis görünümü olmasın.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "067",
+      "title": "Tersane",
+      "section": "Binalar",
+      "prompt": "1930–1945 tersanesi. Kuru havuz, dönem kafes bomlu vinç, gemi yapım kızağı ve atölye. Boş kuru havuz ile inşa hâlindeki gemiyi ayrı nesneler olarak göster. Modern konteyner terminali oluşturma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "068",
+      "title": "Sentetik rafineri",
+      "section": "Binalar",
+      "prompt": "1930–1945 kömürden sıvı yakıt üretimini temsil eden sanayi tesisi. İşleme kuleleri, boru bağlantıları, yatay ve dikey tanklar, kazan binası. Temiz okunabilir modüler yapı; modern dev petrokimya kompleksi görünümü kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "069",
+      "title": "Altyapı bakım tesisi",
+      "section": "Binalar",
+      "prompt": "1930’lar yol ve demiryolu bakım deposu. Küçük atölye, malzeme sundurması, taş ve travers istifleri, servis avlusu. Yol ve demiryolu parçalarını tesisten bağımsız göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "070",
+      "title": "Hava üssü",
+      "section": "Binalar",
+      "prompt": "1939 askerî hava meydanı. Çim veya sıkıştırılmış zemin pist, dönem hangarı, küçük kontrol binası ve dağınık uçak park alanları. Pist, hangar, kule ve sığınak ayrı modüller olsun. Jet üssü veya modern terminal ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "071",
+      "title": "Deniz üssü",
+      "section": "Binalar",
+      "prompt": "1939 donanma limanı. Askerî iskele, yakıt tankı, ikmal deposu, küçük idare binası ve mendirek. Tersanedeki kuru havuz ve gemi yapım tesislerinden farklı bir siluet oluştur. Gemileri modele birleştirme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "072",
+      "title": "Sabit uçaksavar mevzisi",
+      "section": "Binalar",
+      "prompt": "Daha önce üretilen uçaksavar topunu değiştirmeden kullanacak bir mevzi tasarla. Kum torbası veya alçak beton çevre, mühimmat nişi ve bağlantı yolu. Top için boş döner platform bırak; topu çevreyle tek parça yapma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "073",
+      "title": "Taş kemer köprü",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "1930’larda kullanılabilecek modüler taş kemer yol köprüsü. Tek açıklık, orta ayak, iki uç dayanak ve yaklaşım rampası ayrı parçalar. Yol üst kotu bütün birleşimlerde kesintisiz; kemer ve ayaklar fiziksel olarak bağlantılı olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "074",
+      "title": "Çelik kafes demiryolu köprüsü",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "Dönem çelik kafes demiryolu köprüsü. Tek açıklık modülü, taş/beton ayak, uç dayanak ve ray tabliyesini ayrı göster. Kafesler ray açıklığını engellemesin; tekrar eden modüllerde ray uçları tam eşleşsin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "075",
+      "title": "Kısa beton yol köprüsü",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "1930’lar kısa betonarme kiriş köprüsü. Tabliye, korkuluk, uç dayanak ve isteğe bağlı orta ayak. Yol genişliği ve giriş yüksekliği sabit olsun; modern otoyol köprüsü tasarlama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "076",
+      "title": "Ahşap kırsal köprü",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "Dar ahşap kırsal yol köprüsü. Ahşap tabliye, çapraz destekler, taş veya ahşap ayaklar. Sağlam taşıyıcı sistem ve düz giriş-çıkış; birbirine geçmeyen dekoratif kütükler oluşturma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "077",
+      "title": "Yol modül seti",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "Aynı genişlikte düz, 45 derece viraj, 90 derece viraj, T kavşak ve dört yol kavşağı üret. Toprak ve dönem asfaltı iki yüzey varyantı olsun. Parçaları ayrı ayrı göster; kenar ve yükseklikleri birleşimde tam eşleşsin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "078",
+      "title": "Demiryolu modül seti",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "Aynı ray açıklığında düz ray, geniş viraj, makas ve hemzemin geçit üret. Ray, travers ve balast yatağı okunabilir olsun. Her parçanın giriş ve çıkış ekseni eşleşsin; raylar kendi içine kesişmesin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "079",
+      "title": "İstasyon ve lojistik seti",
+      "section": "Köprüler, yollar ve demiryolu",
+      "prompt": "1930’lar küçük demiryolu istasyonu, yük ambarı, su kulesi ve yükleme rampası. Her yapı ayrı nesne. Ek paftalarda buharlı lokomotif, kapalı yük vagonu ve açık yük vagonunu ayrı ayrı üret; binalarla birleştirme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "080",
+      "title": "Batı / Orta Avrupa kiti",
+      "section": "Yerleşkeler",
+      "prompt": "1930’lar Batı ve Orta Avrupa yerleşkesi için bağımsız bir kır evi, bitişik şehir evi, köşe apartmanı, dükkân, belediye binası ve kilise üret. Kiremit veya arduvaz çatılar, sıva ve tuğla cepheler. Her binayı ayrı referans setinde göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "081",
+      "title": "Anadolu / Balkan / Akdeniz kiti",
+      "section": "Yerleşkeler",
+      "prompt": "1930’lar Anadolu ve yakın coğrafya için sıvalı kiremit çatılı ev, taş ev, küçük dükkân, avlulu yapı ve sade kamu binası üret. Cami ve kiliseyi ayrı isteğe bağlı bölgesel yapılar olarak göster; her şehre aynı dinî yapıyı yerleştirme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "082",
+      "title": "Doğu Avrupa kiti",
+      "section": "Yerleşkeler",
+      "prompt": "1930’lar Doğu Avrupa yerleşkesi. Ahşap kırsal ev, sıvalı şehir evi, tuğla apartman, küçük istasyon binası ve bölgesel kamu yapısı. Savaş sonrası Sovyet panel apartmanlarını kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "083",
+      "title": "Kuzey Avrupa kiti",
+      "section": "Yerleşkeler",
+      "prompt": "1930’lar Kuzey Avrupa yerleşkesi. Dik çatılı ahşap ev, boyalı ahşap depo, tuğla şehir evi ve küçük kamu binası. Karsız ana modeller üret; kar örtüsünü geometriyi gizlemeyen ayrı varyant olarak göster.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "084",
+      "title": "Doğu Asya kiti",
+      "section": "Yerleşkeler",
+      "prompt": "1930’lar Japonya ve Çin için birbirinden ayrı iki mimari alt set oluştur. Japon ahşap ev ve dükkânlarını Çin avlulu ev ve dükkânlarıyla karıştırma. Tapınakları isteğe bağlı tekil yapılar olarak göster; bütün binaları süslü tapınak çatısıyla tasarlama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "085",
+      "title": "Petrol sahası",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "1930–1945 petrol çıkarma sahası. Dönem çelik sondaj kulesi, pompa ünitesi, küçük tank ve servis kulübesi. Her eleman ayrı nesne; modern açık deniz platformu veya çağdaş ekipman ekleme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "086",
+      "title": "Çelik tesisi",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "1930’lar çelik üretim tesisi. Yüksek fırın, dökümhane, baca ve yükleme alanı. Çeliği parlak metal dağlarıyla temsil etme; okunabilir endüstriyel siluet oluştur.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "087",
+      "title": "Boksit madeni / alüminyum tesisi",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "Boksit çıkarma alanı ile alüminyum işleme tesisini iki ayrı modül olarak üret. Açık kazı yüzeyi, cevher yükleme yapısı; diğer modülde uzun elektroliz salonları. Madeni doğrudan saf alüminyum külçeleriyle kaplama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "088",
+      "title": "Tungsten madeni",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "1930’lar sert kaya madeni. Maden ağzı, küçük kırıcı bina, cevher vagonu ve koyu cevher istifi. Tungsteni parlak mavi kristaller gibi gösterme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "089",
+      "title": "Krom madeni",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "1930’lar kromit madeni. Kaya ocağı, cevher ayıklama alanı, küçük yükleme tesisi ve koyu renkli cevher yığını. Tungsten madeninden yerleşim ve siluet farkıyla ayrışsın; fantastik metal kristalleri kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "090",
+      "title": "Kauçuk plantasyonu",
+      "section": "Kaynak ve üretim sahaları",
+      "prompt": "1930’lar kauçuk plantasyonu. Kauçuk ağacı, gövdede özsu toplama kabı ve küçük toplama kulübesi. Ağaçları ayrı model olarak göster; plantasyon tek katı blok olmasın.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "091",
+      "title": "Geniş yapraklı ağaç",
+      "section": "Doğal çevre",
+      "prompt": "Strateji haritası için gerçekçi oranlı geniş yapraklı ağaç. Aynı türün küçük, orta ve büyük üç siluet varyantı. Gövde ve ana dallar okunabilir; yapraklar pamuk veya küre gibi görünmesin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "092",
+      "title": "İğne yapraklı ağaç",
+      "section": "Doğal çevre",
+      "prompt": "Çam/ladin karakterli iğne yapraklı ağaç. Üç yükseklik ve taç silueti varyantı; açıkça ayrılan gövde ve dal katmanları. Kusursuz geometrik koni kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "093",
+      "title": "Akdeniz bitki örtüsü",
+      "section": "Doğal çevre",
+      "prompt": "Bir servi, bir zeytin ağacı ve bir kuru çalıyı ayrı modeller olarak tasarla. Mat yeşil-gri yapraklar, gerçekçi gövde ve uzaktan ayırt edilebilir siluet.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "094",
+      "title": "Kaya seti",
+      "section": "Doğal çevre",
+      "prompt": "Küçük kaya, geniş kaya çıkıntısı ve uçurum kenarı parçasını ayrı ayrı tasarla. Doğal tabakalaşma, mat yüzey ve yere oturan düz taban. Dokuya gömülü sert yönlü gölge kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "095",
+      "title": "idle",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Tüfeğini güvenli taşıyan piyadenin 4 anahtar pozlu sakin bekleme döngüsünü göster. Çok hafif nefes ve ağırlık aktarımı; ayaklar kaymasın, baş ve silah sürekli sallanmasın.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "096",
+      "title": "walk",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Tüfek taşıyan piyade için 8 anahtar pozlu yerinde yürüme döngüsü. Temas, aşağı geçiş, geçiş ve yukarı geçiş pozlarını her iki bacak için göster. Ayaklar yere bassın; silah gövdeye girmesin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "097",
+      "title": "run",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Tüfeği iki elle tutan piyade için 8 anahtar pozlu yerinde koşu döngüsü. Kontrollü askerî koşu, kısa havada kalma evresi ve doğru ağırlık merkezi. Karikatürize sıçrama kullanma.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "098",
+      "title": "turn_left / turn_right",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Piyadenin yerinde 90 derece sola ve sağa dönmesini ayrı 6 pozluk şeritlerde göster. Ayaklar küçük adımlarla yön değiştirsin; gövde sabit ayak üzerinde kayarak dönmesin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "099",
+      "title": "aim / fire / reload",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Nişan alma, tek atış ve yeniden doldurma hareketlerini üç ayrı paftada göster. Seçilen tüfeğin mekanizmasına uygun davran; sürgülü tüfek ile yarı otomatik tüfeğe aynı doldurma hareketini uygulama. Namlu alevini karakter çizimine gömme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "100",
+      "title": "MG deploy / fire / reload",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Seçilen ülkenin makineli tüfeğiyle destek açma, ateş pozuna geçme, kısa seri ateş ve mühimmat yenileme için ayrı anahtar poz şeritleri. Bipod, şarjör veya şerit besleme mekanizması seçilen silaha uygun olsun.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "101",
+      "title": "Artillery deploy / aim / recoil / load",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Onaylı top modeli ve mürettebatıyla taşıma durumundan mevzilenme, yatay nişan, namlu yükselişi, geri tepme ve doldurma hareketlerini ayrı göster. Geri tepmede bütün top değil namlu grubu hareket etsin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "102",
+      "title": "Tank drive / steer / turret / fire",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Tankın düz sürüş, dönüş, kule dönüşü, namlu yükselişi ve atış geri tepmesini ayrı teknik şeritlerde göster. Paletler tekerleklerle tutarlı hareket etsin. Gövdenin tamamını ateş sırasında geriye sıçratma; namlu hareketini ayır.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "103",
+      "title": "Truck drive / steer",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Kamyonun tekerlek dönüşü, ön tekerleklerle yönlenme ve hafif süspansiyon hareketini ayrı göster. Arka akslar ön aks gibi dönmesin. Araç gövdesini yumuşak lastik gibi bükme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "104",
+      "title": "AA traverse / elevate / fire",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Uçaksavarın yatay hedef takibi, namlu yükselişi ve geri tepmesini ayrı şeritlerde göster. Sabit platform yerde kalsın; yalnızca üst grup ve ilgili mekanizmalar hareket etsin.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "105",
+      "title": "Aircraft propeller / controls / gear / attack",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Pervane dönüş ekseni, kanatçık ve dümen hareketleri, varsa iniş takımı açılma-kapanması ve bomba bırakma için ayrı teknik referanslar. Kanatlar organik biçimde bükülmesin. Sabit iniş takımlı uçaklara toplama animasyonu tasarlama.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "106",
+      "title": "Ship sail / turret / fire / sink",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Geminin hafif yalpa, top kulesi dönüşü, namlu yükselişi, atış geri tepmesi ve batma durumlarını ayrı şeritlerde göster. Seyir izi ve su sıçramasını gövde geometrisine ekleme; ayrı efekt olarak işaretle.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "107",
+      "title": "Submarine surface / dive / periscope",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Denizaltının yüzey seyri, kontrollü dalış ve periskop yükseltme hareketlerini ayrı göster. Gövde bükülmesin; dalış dümenlerini seçilen modelin doğru konumlarında kullan.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "108",
+      "title": "Sanayi ve liman hareketleri",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Vinç bomu dönüşü, kanca yükselmesi, petrol pompası çevrimi ve fabrika kapısı açılması için her nesneye ayrı anahtar poz şeridi üret. Bina gövdeleri sabit kalsın. Dumanı modelin veya hareketli parçaların içine çizme.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "109",
+      "title": "Buharlı tren",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Onaylı lokomotifin tekerlek ve biyel hareketini 8 pozluk yan görünüş şeridinde göster. Bağlantı çubukları tekerlek merkezlerine tutarlı bağlı kalsın. Buhar ve dumanı ayrı efekt olarak belirt.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    },
+    {
+      "id": "110",
+      "title": "Efektler",
+      "section": "Animasyon ve efekt referansları",
+      "prompt": "Namlu alevi, kısa patlama, duman, hareket tozu, gemi seyir izi ve su sıçraması için ayrı ayrı 8 karelik 2D efekt referans şeritleri üret. Şeffaf arka plan, sabit kare ölçüsü ve tutarlı merkez kullan. Bunların katı 3D model değil, oyun içi efekt referansı olduğunu koru.",
+      "status": "pending",
+      "outputs": [],
+      "historical_review": "pending",
+      "geometry_review": "pending"
+    }
+  ],
+  "last_run": {
+    "date": "2026-09-25",
+    "status": "in_progress",
+    "images_saved": 16,
+    "briefs_total": 110,
+    "next_id": "018",
+    "auto_resume_scheduled": false,
+    "previous_usage_limit_cleared": true
+  }
+}

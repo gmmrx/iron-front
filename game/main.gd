@@ -255,6 +255,7 @@ func _handle_dev_args() -> void:
 			"army": hud.toggle_army()
 			"research": hud.toggle_research()
 			"focus": hud.toggle_focus()
+			"logistics": hud.toggle_logistics()
 			"diplomacy": hud.diplomacy.open_for(args.get("target", ""))
 	if args.has("build"):
 		hud.toggle_construction()
@@ -649,6 +650,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_U: hud.toggle_army()
 			KEY_N: hud.toggle_navy()
 			KEY_H: hud.toggle_air()
+			KEY_L: hud.toggle_logistics()
 			KEY_I: hud.toggle_research()
 			KEY_O: hud.toggle_diplomacy()
 			KEY_F: hud.toggle_focus()

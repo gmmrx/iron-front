@@ -19,6 +19,7 @@ var research: ResearchPanel
 var diplomacy: DiplomacyPanel
 var navy: NavyPanel
 var air: AirPanel
+var logistics: LogisticsPanel
 var focus: FocusPanel
 var divisions: DivisionPanel
 var events: EventPopup
@@ -52,7 +53,8 @@ func _ready() -> void:
 	diplomacy = DiplomacyPanel.new()
 	navy = NavyPanel.new()
 	air = AirPanel.new()
-	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy]:
+	logistics = LogisticsPanel.new()
+	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]:
 		root.add_child(p)
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
@@ -70,7 +72,7 @@ func _ready() -> void:
 		["TASK_RESEARCH_KEY", "research", toggle_research], ["TASK_DIPLOMACY_KEY", "diplomacy", toggle_diplomacy],
 		["TASK_TRADE", "trade", toggle_trade], ["CONSTRUCTION_BUTTON", "construction", toggle_construction],
 		["TASK_PRODUCTION", "production", toggle_production], ["TASK_ARMY", "army", toggle_army],
-		["TASK_NAVY", "navy", toggle_navy], ["TASK_AIR", "air", toggle_air]]
+		["TASK_NAVY", "navy", toggle_navy], ["TASK_AIR", "air", toggle_air], ["TASK_LOGISTICS_KEY", "production", toggle_logistics]]
 	# kare simge düğmeleri: ad ipucunda, kısayol harfi köşede
 	for t: Array in tasks:
 		var b := Button.new()
@@ -163,7 +165,7 @@ func is_mouse_over_ui() -> bool:
 	return c != null and c != root
 
 func _left_panels() -> Array:
-	return [construction, production, politics, trade, army, navy, air, research, diplomacy]
+	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]
 
 func _close_all() -> void:
 	for p in _left_panels():
@@ -198,6 +200,7 @@ func toggle_trade() -> void: _open_only(trade)
 func toggle_army() -> void: _open_only(army)
 func toggle_navy() -> void: _open_only(navy)
 func toggle_air() -> void: _open_only(air)
+func toggle_logistics() -> void: _open_only(logistics)
 ## Donanma panelini açık tut (filo seçilince)
 func show_navy() -> void:
 	if not navy.visible:

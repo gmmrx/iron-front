@@ -314,6 +314,31 @@ func front_provinces(a: Army) -> Array[int]:
 	return out
 
 ## Günlük: ordular cephelerine dağılır (düşman yoğunluğuna göre), taarruzdaysa hattı bozmadan ilerler
+## Komuta gücü ve tecrübe (günlük): komuta gücü barışta +0,3, savaşta +0,5 (tavan 200);
+## kara tecrübesi aktif kara muharebesi başına, deniz/hava kendi çatışmalarından (tavan 500)
+func _experience_tick() -> void:
+	var land := {}
+	for pid: int in battles:
+		var b: Dictionary = battles[pid]
+		for d: Division in b["attackers"] + b["defenders"]:
+			land[d.owner] = int(land.get(d.owner, 0)) + 1
+	var naval := {}
+	for pid: int in Navy.battles:
+		for side: Array in Navy.battles[pid]["sides"]:
+			for f in side:
+				naval[f.owner] = int(naval.get(f.owner, 0)) + 1
+	var air := {}
+	for key: int in Air.fights:
+		for t: String in Air.fights[key]["tags"]:
+			air[t] = int(air.get(t, 0)) + 1
+	for c: Country in World.countries.values():
+		if not c.exists():
+			continue
+		c.command_power = minf(c.command_power + (0.5 if Diplomacy.at_war(c.tag) else 0.3), 200.0)
+		c.army_xp = minf(c.army_xp + minf(float(land.get(c.tag, 0)) * 0.08, 2.0), 500.0)
+		c.navy_xp = minf(c.navy_xp + minf(float(naval.get(c.tag, 0)) * 0.15, 1.5), 500.0)
+		c.air_xp = minf(c.air_xp + minf(float(air.get(c.tag, 0)) * 0.12, 1.5), 500.0)
+
 func _armies_tick() -> void:
 	for a in armies.duplicate():
 		var divs := army_divisions(a)
@@ -1041,6 +1066,7 @@ func _on_day() -> void:
 		elif GameClock.month >= 6 and GameClock.month <= 8 and World.province(d.province).terrain == "desert":
 			d.strength = maxf(d.strength - 0.0015, 0.3)
 	_fuel()
+	_experience_tick()
 	var ta := Time.get_ticks_usec()
 	_armies_tick()
 	GameClock.timed("armies", ta)

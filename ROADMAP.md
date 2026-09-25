@@ -356,6 +356,21 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 
 ---
 
+## BÖLÜM UI-P — TÜRÜN KLASİĞİYLE ARAYÜZ PARİTESİ (Faz 16) ◐
+Kaynak: hoi4.paradoxwikis.com/Beginner's_guide (üst çubuk, sol menüler, harita modları, temel kavramlar). Eksik/var listesi:
+- [x] Üst çubuk: siyasi güç, istikrar, savaş desteği, insan gücü, fabrikalar, yakıt, gerginlik, tarih/hız
+- [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), komuta gücü (+0,3/gün,
+      savaşta +0,5; tavan 200), kara/deniz/hava tecrübesi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
+- [x] Lojistik ekranı (L): ekipman stok / kullanımda / günlük üretim / ihtiyaç / denge, kaynak üretim-kullanım, fabrika kullanımı
+- [x] Mevcut ekranlar: Hükümet (yasalar, danışmanlar, ruhlar, kararlar), Odak, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim,
+      Ordu, Donanma, Hava
+- [ ] Komuta gücü ve tecrübenin harcanacağı yer: **Subay Heyeti** (generaller, doktrinler, tercihli taktikler) — V3/C3
+- [ ] **Kur & Konuşlandır**: tümen şablonu düzenleyici (tabur/destek bölüğü, kara tecrübesi harcar), takviye/yükseltme önceliği
+- [ ] Kararlar için ayrı düğme (şimdi Hükümet ekranında), İstihbarat (ajanlar), Uluslararası Pazar
+- [ ] İkmal harita modu (demiryolu/ikmal merkezi) — B3 ile; radar ve tahkimat binaları (kara/kıyı tahkimatı)
+- [ ] Savaş sonu: barış konferansı (savaş puanı ile talep), sürgün hükümetleri, kukla yönetimi
+- [ ] Kontrol edilen tüm ekranların türün klasiği düzeniyle karşılaştırmalı gözden geçirilmesi (sekmeler, kartlar, ipucu içinde ipucu)
+
 ## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
 - [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,
       iş parçacığı desteği kapalı, pck 90 MB parçalara bölünüp `tools/web/shell.html` ile birleştirilir)
