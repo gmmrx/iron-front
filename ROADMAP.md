@@ -351,7 +351,10 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
       iş parçacığı desteği kapalı, pck 90 MB parçalara bölünüp `tools/web/shell.html` ile birleştirilir)
 - [x] Compatibility renderer farkları çözüldü: sahne sRGB uzayında çizildiği için shader'lar `srgb_out` ile çıkışı çevirir;
       custom_data'lı MultiMesh'lerde renk yuvası sıfır kaldığından instance renkleri beyaz yapılır (yalnız web'de)
-- [ ] Patlama/duman efektleri Compatibility'de biraz koyu (vfx shader'a aynı sRGB düzeltmesi)
+- [x] Renkler masaüstüyle aynı: Compatibility'de güneş gölgesi + glow/SSAO/renk ayarı kapalı (GLES3 bunlarla ton eşlemeyi
+      LDR son işlemde yapıp aşırı parlatıyor); efekt shader'larında sRGB çıkışı; ölçülen fark 9/255 (SSAO ayrıntısı)
+- [x] Web'de bölge ipucu/tıklama (RGBA8 kimlik çözümü düzeltildi)
+- [ ] Web'de birim gölgeleri yok (GLES3 gölge geçişi parlaklığı bozduğu için kapalı)
 - [ ] Web için varlık diyeti: yükseklik haritası yarım çözünürlük, doku boyutları, ilk yükleme süresi
 - [ ] Mobil tarayıcı desteği (bellek), kayıt dosyalarının tarayıcıda kalıcılığı
 
