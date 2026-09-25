@@ -364,9 +364,12 @@ func select_in_rect(rect: Rect2, additive: bool) -> void:
 func select_divisions(divs: Array, additive: bool) -> void:
 	if not additive:
 		selected.clear()
+	var before := selected.size()
 	for d: Division in divs:
 		if d.owner == World.player_tag and not d in selected:
 			selected.append(d)
+	if selected.size() > before:
+		Audio.play("select_unit", 120)
 	_dirty = true
 
 func prune_selection() -> void:

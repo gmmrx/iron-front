@@ -5,6 +5,7 @@ const DRAG_THRESHOLD := 6.0
 
 enum Phase { MENU, SETUP, PLAYING }
 var phase := Phase.MENU
+var weather: WeatherLayer
 var _menu_layer: CanvasLayer
 var _menu: MainMenu
 var _select: CountrySelect
@@ -57,6 +58,13 @@ func _ready() -> void:
 	fleets.camera = camera
 	fleets.models = models
 	add_child(fleets)
+	var battle_audio := BattleAudio.new()
+	battle_audio.map = map_view
+	add_child(battle_audio)
+	weather = WeatherLayer.new()
+	weather.map = map_view
+	weather.camera = camera
+	add_child(weather)
 	var fronts := FrontLayer.new()
 	fronts.map = map_view
 	fronts.camera = camera
@@ -389,6 +397,8 @@ func _handle_dev_args() -> void:
 					Navy.set_mission(f, Fleet.Mission.SUPERIORITY, far)
 					fleets.select(f)
 				break
+	if args.has("weather"):
+		weather.force = {"clear": 0, "rain": 1, "snow": 2}.get(args["weather"], -1)
 	if args.has("panel_air"):
 		hud.toggle_air()
 	if args.has("speed"):
@@ -663,6 +673,7 @@ func _left_click(pos: Vector2, shift: bool) -> void:
 		_wing_pick = null
 		var err := Air.order(w, _pick(pos))
 		if err == "":
+			Audio.play("select_air", 150)
 			World.notify(tr("AIR_ORDER_OK") % [w.name, tr("AIR_MISSION_%d" % int(w.mission)), Air.zone_name(w.zone)], "info")
 		else:
 			World.notify(tr(err), "bad")
@@ -705,11 +716,14 @@ func _order_move(pid: int) -> void:
 			ok += 1
 	if ok == 0:
 		World.notify(tr("NOTE_NO_PATH"), "bad")
+	else:
+		Audio.play("order_attack" if Diplomacy.are_enemies(World.controller_tag(pid), World.player_tag) else "order_move", 150)
 	units._dirty = true
 
 ## Seçili filoya emir: deniz/kıyı -> görev bölgesi, kendi limanı -> üs
 func _order_fleet(f: Fleet, pid: int) -> void:
 	if Navy.order(f, pid):
+		Audio.play("order_move", 150)
 		var what := Navy.zone_name(f.zone_center) if f.mission != Fleet.Mission.PORT else (World.province(f.home).city.display_name() if World.province(f.home).city else "")
 		World.notify(tr("NAVY_ORDER_OK") % [f.name, "%s — %s" % [tr("MISSION_%d" % int(f.mission)), what]], "info")
 		hud.navy.refresh()

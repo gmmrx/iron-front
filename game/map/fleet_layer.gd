@@ -336,6 +336,8 @@ func fleet_position(f: Fleet) -> Vector2:
 	return World.province(f.location).center
 
 func select(f: Fleet) -> void:
+	if f != null and f != selected and f.owner == World.player_tag:
+		Audio.play("select_fleet", 150)
 	selected = f
 	for id: int in _counters:
 		_counters[id]["key"] = ""
