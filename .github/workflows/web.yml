@@ -1,0 +1,99 @@
+name: Web (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot ve export şablonları (önbellek)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-web-v1
+
+      - name: Godot indir
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p ~/godot ~/.local/share/godot/export_templates
+          BASE=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          curl -sSL -o godot.zip $BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          unzip -q godot.zip -d ~/godot && mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          curl -sSL -o templates.tpz $BASE/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          unzip -q templates.tpz -d tpl
+          mv tpl/templates ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          rm -rf godot.zip templates.tpz tpl
+
+      - name: Veri klasörlerini dışa aktarıma aç
+        run: |
+          # data/ ve assets/terrain/ editörden gizli (.gdignore); pakete girmeleri için CI'da açılır.
+          # PNG'ler oyun içinde ham okunur, doku olarak içe aktarılmasın diye "keep" işaretlenir.
+          rm -f data/.gdignore assets/terrain/.gdignore
+          for f in data/map/*.png assets/terrain/*.png; do
+            printf '[remap]\n\nimporter="keep"\n' > "$f.import"
+          done
+
+      - name: İçe aktar
+        run: ~/godot/godot --headless --path . --import 2>&1 | tail -n 40 || true
+
+      - name: Web export
+        run: |
+          mkdir -p build/web
+          ~/godot/godot --headless --path . --export-release Web build/web/index.html 2>&1 | tail -n 60
+          ls -la build/web
+
+      - name: Paketi parçala (100 MB sınırı)
+        run: |
+          cd build/web
+          SIZE=$(stat -c%s index.pck)
+          if [ "$SIZE" -gt 94371840 ]; then
+            split -b 90m -d -a 2 index.pck index.pck.part
+            python3 - <<'PY'
+          import glob, json, os
+          parts = sorted(glob.glob("index.pck.part*"))
+          json.dump({"parts": parts, "size": sum(os.path.getsize(p) for p in parts)}, open("index.pck.parts.json", "w"))
+          print(parts)
+          PY
+            rm index.pck
+          fi
+          touch .nojekyll
+          du -sh .
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - id: deployment
+        uses: actions/deploy-pages@v4

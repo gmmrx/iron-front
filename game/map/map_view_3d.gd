@@ -44,6 +44,8 @@ func _ready() -> void:
 	var terrain := Image.load_from_file(TERRAIN_PATH)
 	terrain.generate_mipmaps()
 	_province_image = Image.load_from_file(PROVINCES_PATH)
+	if _province_image.get_format() == Image.FORMAT_LA8 and OS.has_feature("web"):
+		_province_image.convert(Image.FORMAT_RGBA8)   # WebGL2'de LA8 yok; R=L, A=A korunur, çözümleme aynı kalır
 	var borders := Image.load_from_file(BORDERS_PATH)
 	map_size = Vector2(_province_image.get_size())
 	_height_image = _load_heightmap()
