@@ -1609,7 +1609,7 @@
     },
     "x": 2,
     "y": 2,
-    "days": 70,
+    "days": 35,
     "prereq": [
      "ger_anschluss"
     ],
@@ -1651,7 +1651,7 @@
     },
     "x": 2,
     "y": 3,
-    "days": 70,
+    "days": 21,
     "prereq": [
      "ger_pact_steel"
     ],
@@ -1671,7 +1671,7 @@
       "news": "NEWS_MOLOTOV"
      }
     ],
-    "ai": 40
+    "ai": 42
    },
    {
     "id": "ger_danzig",
@@ -1685,7 +1685,7 @@
     },
     "x": 1,
     "y": 4,
-    "days": 70,
+    "days": 14,
     "prereq": [],
     "any_prereq": [
      "ger_bohemia",
@@ -1709,7 +1709,7 @@
       "ai_only": true
      }
     ],
-    "ai": 40
+    "ai": 45
    },
    {
     "id": "ger_west",
@@ -1723,7 +1723,7 @@
     },
     "x": 1,
     "y": 5,
-    "days": 70,
+    "days": 35,
     "prereq": [
      "ger_danzig"
     ],
@@ -1757,7 +1757,7 @@
       "ai_only": true
      }
     ],
-    "ai": 40
+    "ai": 45
    },
    {
     "id": "ger_denmark",
@@ -1771,7 +1771,7 @@
     },
     "x": 2,
     "y": 5,
-    "days": 70,
+    "days": 21,
     "prereq": [
      "ger_danzig"
     ],
@@ -1812,7 +1812,7 @@
     },
     "x": 2,
     "y": 6,
-    "days": 70,
+    "days": 35,
     "prereq": [
      "ger_west"
     ],
@@ -1847,7 +1847,7 @@
       "ai_only": true
      }
     ],
-    "ai": 35
+    "ai": 38
    },
    {
     "id": "ger_barbarossa",
@@ -1861,7 +1861,7 @@
     },
     "x": 1,
     "y": 6,
-    "days": 70,
+    "days": 35,
     "prereq": [
      "ger_west"
     ],
@@ -1892,7 +1892,7 @@
       "ai_only": true
      }
     ],
-    "ai": 40
+    "ai": 45
    },
    {
     "id": "g_industry",

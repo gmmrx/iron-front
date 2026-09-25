@@ -1,61 +1,402 @@
 {
-  "_comment": "Milli ruhlar, danışmanlar, kararlar. Modifier anahtarları: political_power_gain, political_power_flat, stability, war_support, research_speed, construction_speed, factory_output, org, defense, speed, recruitable_population, consumer_goods_mod, air_power, naval_power",
-  "spirits": {
-    "kemalist_reforms": {"name": {"en": "Kemalist Reforms", "tr": "Kemalist Reformlar"}, "mods": {"stability": 0.05, "political_power_gain": 0.1}},
-    "armed_neutrality": {"name": {"en": "Armed Neutrality", "tr": "Silahlı Tarafsızlık"}, "mods": {"defense": 0.1, "war_support": -0.05}},
-    "village_institutes": {"name": {"en": "Village Institutes", "tr": "Köy Enstitüleri"}, "mods": {"stability": 0.05, "research_speed": 0.05}},
-    "five_year_plan": {"name": {"en": "Five Year Plan", "tr": "Beş Yıllık Plan"}, "mods": {"construction_speed": 0.1, "factory_output": 0.05}},
-    "great_purge": {"name": {"en": "Great Purge", "tr": "Büyük Temizlik"}, "mods": {"org": -0.15, "stability": 0.05}},
-    "rearmament": {"name": {"en": "Rearmament", "tr": "Yeniden Silahlanma"}, "mods": {"factory_output": 0.1, "war_support": 0.05}},
-    "maginot_mentality": {"name": {"en": "Maginot Mentality", "tr": "Maginot Zihniyeti"}, "mods": {"defense": 0.1, "war_support": -0.1}},
-    "british_empire": {"name": {"en": "British Empire", "tr": "Britanya İmparatorluğu"}, "mods": {"naval_power": 0.2, "political_power_gain": 0.1}},
-    "fascist_state": {"name": {"en": "Totalitarian State", "tr": "Totaliter Devlet"}, "mods": {"war_support": 0.1, "political_power_gain": 0.1}},
-    "war_propaganda": {"name": {"en": "War Propaganda", "tr": "Savaş Propagandası"}, "mods": {"war_support": 0.1}},
-    "industrial_drive": {"name": {"en": "Industrial Drive", "tr": "Sanayi Atılımı"}, "mods": {"construction_speed": 0.1}},
-    "military_modernization": {"name": {"en": "Army Modernization", "tr": "Ordunun Modernizasyonu"}, "mods": {"org": 0.1, "research_speed": 0.03}},
-    "national_unity": {"name": {"en": "National Unity", "tr": "Milli Birlik"}, "mods": {"stability": 0.1, "war_support": 0.05}},
-    "spanish_civil_war": {"name": {"en": "Civil Unrest", "tr": "İç Karışıklık"}, "mods": {"stability": -0.15, "factory_output": -0.1}}
+ "_comment": "Milli ruhlar, danışmanlar, kararlar. Modifier anahtarları: political_power_gain, political_power_flat, stability, war_support, research_speed, construction_speed, factory_output, org, defense, speed, recruitable_population, consumer_goods_mod, air_power, naval_power",
+ "spirits": {
+  "kemalist_reforms": {
+   "name": {
+    "en": "Kemalist Reforms",
+    "tr": "Kemalist Reformlar"
+   },
+   "mods": {
+    "stability": 0.05,
+    "political_power_gain": 0.1
+   }
   },
-  "advisors": {
-    "silent_workhorse": {"name": {"en": "Silent Workhorse", "tr": "Sessiz Çalışkan"}, "mods": {"political_power_gain": 0.15}},
-    "captain_of_industry": {"name": {"en": "Captain of Industry", "tr": "Sanayi Kaptanı"}, "mods": {"construction_speed": 0.1}},
-    "armaments_organizer": {"name": {"en": "Armaments Organizer", "tr": "Silahlanma Organizatörü"}, "mods": {"factory_output": 0.08}},
-    "research_director": {"name": {"en": "Research Director", "tr": "Araştırma Müdürü"}, "mods": {"research_speed": 0.08}},
-    "army_chief": {"name": {"en": "Chief of Army", "tr": "Kara Kuvvetleri Komutanı"}, "mods": {"org": 0.1, "defense": 0.05}},
-    "air_chief": {"name": {"en": "Chief of Air Force", "tr": "Hava Kuvvetleri Komutanı"}, "mods": {"air_power": 0.15}},
-    "navy_chief": {"name": {"en": "Chief of Navy", "tr": "Deniz Kuvvetleri Komutanı"}, "mods": {"naval_power": 0.15}},
-    "propaganda_minister": {"name": {"en": "Propaganda Minister", "tr": "Propaganda Bakanı"}, "mods": {"war_support": 0.1, "stability": 0.03}}
+  "armed_neutrality": {
+   "name": {
+    "en": "Armed Neutrality",
+    "tr": "Silahlı Tarafsızlık"
+   },
+   "mods": {
+    "defense": 0.1,
+    "war_support": -0.05
+   }
   },
-  "advisor_cost": 150,
-  "max_advisors": 3,
-  "decisions": {
-    "war_bonds": {"name": {"en": "War Bonds", "tr": "Savaş Tahvilleri"}, "cost": 50, "days": 90, "requires_war": true, "mods": {"war_support": 0.08}},
-    "propaganda_campaign": {"name": {"en": "Propaganda Campaign", "tr": "Propaganda Kampanyası"}, "cost": 75, "days": 120, "mods": {"stability": 0.08}},
-    "emergency_industry": {"name": {"en": "Emergency Industrial Drive", "tr": "Acil Sanayi Seferberliği"}, "cost": 100, "days": 90, "mods": {"construction_speed": 0.15}}
+  "village_institutes": {
+   "name": {
+    "en": "Village Institutes",
+    "tr": "Köy Enstitüleri"
+   },
+   "mods": {
+    "stability": 0.05,
+    "research_speed": 0.05
+   }
   },
-  "start": {
-    "TUR": ["kemalist_reforms", "armed_neutrality"],
-    "SOV": ["five_year_plan", "great_purge"],
-    "GER": ["rearmament", "fascist_state"],
-    "ITA": ["fascist_state"],
-    "ENG": ["british_empire"],
-    "FRA": ["maginot_mentality"],
-    "SPR": ["spanish_civil_war"]
+  "five_year_plan": {
+   "name": {
+    "en": "Five Year Plan",
+    "tr": "Beş Yıllık Plan"
+   },
+   "mods": {
+    "construction_speed": 0.1,
+    "factory_output": 0.05
+   }
   },
-  "popularity": {
-    "GER": {"fascism": 0.8, "democratic": 0.1, "communism": 0.05, "neutrality": 0.05},
-    "ITA": {"fascism": 0.8, "democratic": 0.1, "communism": 0.05, "neutrality": 0.05},
-    "SOV": {"communism": 0.85, "fascism": 0.05, "democratic": 0.05, "neutrality": 0.05},
-    "_democratic": {"democratic": 0.7, "fascism": 0.1, "communism": 0.1, "neutrality": 0.1},
-    "_neutrality": {"neutrality": 0.6, "democratic": 0.2, "fascism": 0.1, "communism": 0.1},
-    "_fascism": {"fascism": 0.6, "neutrality": 0.2, "democratic": 0.1, "communism": 0.1},
-    "_communism": {"communism": 0.7, "neutrality": 0.1, "democratic": 0.1, "fascism": 0.1}
+  "great_purge": {
+   "name": {
+    "en": "Great Purge",
+    "tr": "Büyük Temizlik"
+   },
+   "mods": {
+    "org": -0.15,
+    "stability": 0.05,
+    "attack": -0.3,
+    "defense": -0.1
+   }
   },
-  "factions": {
-    "GER": {"en": "Axis", "tr": "Mihver"},
-    "ENG": {"en": "Allies", "tr": "Müttefikler"},
-    "SOV": {"en": "Comintern", "tr": "Komintern"},
-    "TUR": {"en": "Balkan Entente", "tr": "Balkan Antantı"}
+  "rearmament": {
+   "name": {
+    "en": "Rearmament",
+    "tr": "Yeniden Silahlanma"
+   },
+   "mods": {
+    "factory_output": 0.1,
+    "war_support": 0.05
+   }
   },
-  "start_factions": {"ENG": ["ENG", "FRA"]}
+  "maginot_mentality": {
+   "name": {
+    "en": "Maginot Mentality",
+    "tr": "Maginot Zihniyeti"
+   },
+   "mods": {
+    "defense": 0.1,
+    "war_support": -0.1,
+    "attack": -0.3,
+    "entrenchment": 0.1
+   }
+  },
+  "british_empire": {
+   "name": {
+    "en": "British Empire",
+    "tr": "Britanya İmparatorluğu"
+   },
+   "mods": {
+    "naval_power": 0.2,
+    "political_power_gain": 0.1
+   }
+  },
+  "fascist_state": {
+   "name": {
+    "en": "Totalitarian State",
+    "tr": "Totaliter Devlet"
+   },
+   "mods": {
+    "war_support": 0.1,
+    "political_power_gain": 0.1
+   }
+  },
+  "war_propaganda": {
+   "name": {
+    "en": "War Propaganda",
+    "tr": "Savaş Propagandası"
+   },
+   "mods": {
+    "war_support": 0.1
+   }
+  },
+  "industrial_drive": {
+   "name": {
+    "en": "Industrial Drive",
+    "tr": "Sanayi Atılımı"
+   },
+   "mods": {
+    "construction_speed": 0.1
+   }
+  },
+  "military_modernization": {
+   "name": {
+    "en": "Army Modernization",
+    "tr": "Ordunun Modernizasyonu"
+   },
+   "mods": {
+    "org": 0.1,
+    "research_speed": 0.03
+   }
+  },
+  "national_unity": {
+   "name": {
+    "en": "National Unity",
+    "tr": "Milli Birlik"
+   },
+   "mods": {
+    "stability": 0.1,
+    "war_support": 0.05
+   }
+  },
+  "spanish_civil_war": {
+   "name": {
+    "en": "Civil Unrest",
+    "tr": "İç Karışıklık"
+   },
+   "mods": {
+    "stability": -0.15,
+    "factory_output": -0.1
+   }
+  },
+  "blitzkrieg_doctrine": {
+   "name": {
+    "en": "Blitzkrieg Doctrine",
+    "tr": "Yıldırım Harbi Doktrini"
+   },
+   "mods": {
+    "attack": 0.25,
+    "breakthrough": 0.2,
+    "speed": 0.1
+   }
+  },
+  "obsolete_army": {
+   "name": {
+    "en": "Obsolete Army",
+    "tr": "Modası Geçmiş Ordu"
+   },
+   "mods": {
+    "attack": -0.2,
+    "defense": -0.15,
+    "org": -0.1
+   }
+  },
+  "italian_army": {
+   "name": {
+    "en": "Unprepared Army",
+    "tr": "Hazırlıksız Ordu"
+   },
+   "mods": {
+    "attack": -0.25,
+    "org": -0.1
+   }
+  },
+  "expeditionary_doctrine": {
+   "name": {
+    "en": "Expeditionary Doctrine",
+    "tr": "Sefer Kuvveti Doktrini"
+   },
+   "mods": {
+    "attack": -0.15
+   }
+  }
+ },
+ "advisors": {
+  "silent_workhorse": {
+   "name": {
+    "en": "Silent Workhorse",
+    "tr": "Sessiz Çalışkan"
+   },
+   "mods": {
+    "political_power_gain": 0.15
+   }
+  },
+  "captain_of_industry": {
+   "name": {
+    "en": "Captain of Industry",
+    "tr": "Sanayi Kaptanı"
+   },
+   "mods": {
+    "construction_speed": 0.1
+   }
+  },
+  "armaments_organizer": {
+   "name": {
+    "en": "Armaments Organizer",
+    "tr": "Silahlanma Organizatörü"
+   },
+   "mods": {
+    "factory_output": 0.08
+   }
+  },
+  "research_director": {
+   "name": {
+    "en": "Research Director",
+    "tr": "Araştırma Müdürü"
+   },
+   "mods": {
+    "research_speed": 0.08
+   }
+  },
+  "army_chief": {
+   "name": {
+    "en": "Chief of Army",
+    "tr": "Kara Kuvvetleri Komutanı"
+   },
+   "mods": {
+    "org": 0.1,
+    "defense": 0.05
+   }
+  },
+  "air_chief": {
+   "name": {
+    "en": "Chief of Air Force",
+    "tr": "Hava Kuvvetleri Komutanı"
+   },
+   "mods": {
+    "air_power": 0.15
+   }
+  },
+  "navy_chief": {
+   "name": {
+    "en": "Chief of Navy",
+    "tr": "Deniz Kuvvetleri Komutanı"
+   },
+   "mods": {
+    "naval_power": 0.15
+   }
+  },
+  "propaganda_minister": {
+   "name": {
+    "en": "Propaganda Minister",
+    "tr": "Propaganda Bakanı"
+   },
+   "mods": {
+    "war_support": 0.1,
+    "stability": 0.03
+   }
+  }
+ },
+ "advisor_cost": 150,
+ "max_advisors": 3,
+ "decisions": {
+  "war_bonds": {
+   "name": {
+    "en": "War Bonds",
+    "tr": "Savaş Tahvilleri"
+   },
+   "cost": 50,
+   "days": 90,
+   "requires_war": true,
+   "mods": {
+    "war_support": 0.08
+   }
+  },
+  "propaganda_campaign": {
+   "name": {
+    "en": "Propaganda Campaign",
+    "tr": "Propaganda Kampanyası"
+   },
+   "cost": 75,
+   "days": 120,
+   "mods": {
+    "stability": 0.08
+   }
+  },
+  "emergency_industry": {
+   "name": {
+    "en": "Emergency Industrial Drive",
+    "tr": "Acil Sanayi Seferberliği"
+   },
+   "cost": 100,
+   "days": 90,
+   "mods": {
+    "construction_speed": 0.15
+   }
+  }
+ },
+ "start": {
+  "TUR": [
+   "kemalist_reforms",
+   "armed_neutrality"
+  ],
+  "SOV": [
+   "five_year_plan",
+   "great_purge"
+  ],
+  "GER": [
+   "rearmament",
+   "fascist_state",
+   "blitzkrieg_doctrine"
+  ],
+  "ITA": [
+   "fascist_state",
+   "italian_army"
+  ],
+  "ENG": [
+   "british_empire",
+   "expeditionary_doctrine"
+  ],
+  "FRA": [
+   "maginot_mentality"
+  ],
+  "SPR": [
+   "spanish_civil_war"
+  ],
+  "POL": [
+   "obsolete_army"
+  ]
+ },
+ "popularity": {
+  "GER": {
+   "fascism": 0.8,
+   "democratic": 0.1,
+   "communism": 0.05,
+   "neutrality": 0.05
+  },
+  "ITA": {
+   "fascism": 0.8,
+   "democratic": 0.1,
+   "communism": 0.05,
+   "neutrality": 0.05
+  },
+  "SOV": {
+   "communism": 0.85,
+   "fascism": 0.05,
+   "democratic": 0.05,
+   "neutrality": 0.05
+  },
+  "_democratic": {
+   "democratic": 0.7,
+   "fascism": 0.1,
+   "communism": 0.1,
+   "neutrality": 0.1
+  },
+  "_neutrality": {
+   "neutrality": 0.6,
+   "democratic": 0.2,
+   "fascism": 0.1,
+   "communism": 0.1
+  },
+  "_fascism": {
+   "fascism": 0.6,
+   "neutrality": 0.2,
+   "democratic": 0.1,
+   "communism": 0.1
+  },
+  "_communism": {
+   "communism": 0.7,
+   "neutrality": 0.1,
+   "democratic": 0.1,
+   "fascism": 0.1
+  }
+ },
+ "factions": {
+  "GER": {
+   "en": "Axis",
+   "tr": "Mihver"
+  },
+  "ENG": {
+   "en": "Allies",
+   "tr": "Müttefikler"
+  },
+  "SOV": {
+   "en": "Comintern",
+   "tr": "Komintern"
+  },
+  "TUR": {
+   "en": "Balkan Entente",
+   "tr": "Balkan Antantı"
+  }
+ },
+ "start_factions": {
+  "ENG": [
+   "ENG",
+   "FRA"
+  ]
+ }
 }

@@ -189,9 +189,12 @@ func _military(c: Country) -> void:
 		if at_war:
 			_invade(c)
 		return
-	# büyük güçler savaşta cephe orduları kullanır (oyuncuyla aynı sistem): konuşlanma + taarruz ordu işi
-	if at_war and c.is_major():
+	# büyük güçler savaşta cephe orduları kullanır (oyuncuyla aynı sistem): konuşlanma + taarruz ordu işi;
+	# orduya girmeyen tümenler sınır/anavatan garnizonu olarak dağılır
+	if at_war and c.is_major() and USE_AI_ARMIES:
 		_ai_armies(c)
+		if (World.day_count + c.index) % 2 == 0:
+			_assign(c, fronts)
 		return
 	_release_armies(c)
 	if (World.day_count + c.index) % 2 == 0:
@@ -201,6 +204,8 @@ func _military(c: Country) -> void:
 
 # ------------------------------------------------------------------ cephe orduları (AI)
 const ARMY_PLAN_DAYS := 7
+const USE_AI_ARMIES := false       ## deney: AI büyük güçler cephe ordusu yerine eski konuşlanma+taarruz yolunu kullanır
+const PHONEY_ARMY_DAYS := 270      ## demokrasi orduları savaşın ilk 9 ayında savunmada
 const ARMY_ATTACK_RATIO := 1.0
 
 ## Haftalık plan: düşman başına bir ordu; tümenler cephe uzunluğu + düşman gücüne göre paylaştırılır,
@@ -283,7 +288,18 @@ func _ai_armies(c: Country) -> void:
 	var n := pool.size()
 	var budget := {}
 	for e: String in plans:
-		budget[e] = maxi(1, roundi(float(n) * float(plans[e]["w"]) / maxf(wsum, 0.001)))
+		var share := maxi(1, roundi(float(n) * float(plans[e]["w"]) / maxf(wsum, 0.001)))
+		# tavan: küçük cepheye koca ordu yok (1 bölgelik Arnavutluk cephesine 138 tümen gitmişti);
+		# cephe uzunluğunun 1,5 katı ya da karşıdaki tümenlerin 2 katı + 4
+		var fp_n: int = (plans[e]["front"] as Array).size()
+		var foe_n := 0
+		var seen_n := {}
+		for pid: int in plans[e]["front"]:
+			for nb in World.land_neighbors(pid):
+				if not seen_n.has(nb) and Diplomacy.are_enemies(World.controller_tag(nb), c.tag):
+					seen_n[nb] = true
+					foe_n += Military.enemies_in(nb, c.tag).size()
+		budget[e] = mini(share, maxi(4, maxi(ceili(fp_n * 1.5), foe_n * 2)))
 	var members := {}
 	for e: String in by_enemy:
 		members[e] = []
@@ -318,9 +334,13 @@ func _ai_armies(c: Country) -> void:
 			var d: Division = free.pop_front()
 			d.army = a.id
 			arr.append(d)
-		# duruş: cephedeki düşmandan belirgin güçlüysek taarruz
+		# duruş: cephedeki düşmandan belirgin güçlüysek taarruz; "garip savaş": demokrasiler savaşın ilk 9 ayında
+		# taarruza kalkmaz (1939'da Fransa boş Ruhr'a yürüyüp Almanya'yı Ekim'de teslim ettiriyordu)
 		var power := _local_power(arr)
-		a.mode = Army.Mode.ATTACK if power >= float(plans[e]["foe"]) * ARMY_ATTACK_RATIO else Army.Mode.HOLD
+		var phoney := c.ideology == "democratic" and Diplomacy.days_at_war(c.tag) < PHONEY_ARMY_DAYS
+		# demokrasiler temkinli: ancak belirgin üstünlükte (1,5×) taarruz eder (Fransa 1940'ta Almanya'ya saldırmasın)
+		var ratio := ARMY_ATTACK_RATIO * (1.5 if c.ideology == "democratic" else 1.0)
+		a.mode = Army.Mode.ATTACK if power >= float(plans[e]["foe"]) * ratio and not phoney else Army.Mode.HOLD
 
 func _centroid(pids: Array) -> Vector2:
 	var sum := Vector2.ZERO
@@ -378,8 +398,17 @@ func _target_divisions(c: Country) -> int:
 	return t
 
 func _recruit(c: Country) -> void:
-	var have := Military.country_divisions(c.tag).size()
+	var divs := Military.country_divisions(c.tag)
+	var have := divs.size()
 	var target := _target_divisions(c)
+	# mevcut tümenler dolmadan yenisi kurulmaz: sanayinin donatamayacağı kadar tümen hepsini yarı güçte
+	# bırakıyordu (1940 Mayıs: Almanya 151 tümen, 72'si <%50 güç → taarruz edemedi)
+	if have >= 12:
+		var str_sum := 0.0
+		for d in divs:
+			str_sum += d.strength
+		if str_sum / float(have) < 0.8:
+			return
 	var n := 0
 	while have < target and n < 2:
 		var ti := 0
@@ -513,7 +542,7 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 		own[pid] = 0
 	var idle: Array[Division] = []
 	for d in Military.country_divisions(c.tag):
-		if d.training > 0 or d.attacking > 0 or d.in_combat:
+		if d.training > 0 or d.attacking > 0 or d.in_combat or d.army > 0:
 			continue
 		if fronts.has(d.province):
 			own[d.province] = int(own[d.province]) + 1
@@ -569,7 +598,15 @@ func _local_power(divs: Array) -> float:
 
 ## "Garip Savaş": demokrasiler savaşın ilk 8 ayında düşman anavatanına taarruz etmez,
 ## yalnız kendi / müttefik toprağını geri alır (türün klasiklerinde 1939-40 müttefik AI'ı gibi)
-const PHONEY_WAR_DAYS := 0            ## kapalı: müttefikleri tahkimata sokup Fransa'yı yenilmez yapıyordu
+const PHONEY_WAR_DAYS := 270          ## demokrasiler ilk 9 ay yalnız kendi/müttefik toprağını geri alır
+
+## Demokrasiler sağlam bir büyük gücün anavatanına taarruz etmez (tarihte Müttefikler ancak Almanya çökerken
+## saldırdı); düşman teslim ilerlemesi ≥ 0,4 olunca ya da 1942'den sonra serbest
+func _cautious_vs_major(c: Country, enemy_tag: String) -> bool:
+	if c.ideology != "democratic" or World.date_value() >= 19420101:
+		return false
+	var e: Country = World.countries.get(enemy_tag)
+	return e != null and e.is_major() and e.surrender_progress < 0.4
 
 func _flank_safe(tag: String, target: int, from: int) -> bool:
 	var city := World.province(target).city
@@ -603,7 +640,7 @@ func _attack(c: Country) -> void:
 			var ctl := World.controller_tag(n)
 			if not Diplomacy.are_enemies(ctl, c.tag):
 				continue
-			if phoney:
+			if phoney or _cautious_vs_major(c, ctl):
 				var st := World.state_of_province(n)
 				if st == null or not (st.owner == c.tag or Diplomacy.are_allies(st.owner, c.tag)):
 					continue

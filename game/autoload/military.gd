@@ -121,6 +121,8 @@ func stats(c: Country, ti: int) -> Dictionary:
 	s["hardness"] = s["hardness"] / maxf(n, 1.0)
 	s["org"] = (org_sum / maxf(org_n, 1.0)) * (1.0 + c.mod("org"))
 	s["defense"] *= 1.0 + c.mod("defense")
+	s["soft"] *= 1.0 + c.mod("attack")
+	s["hard"] *= 1.0 + c.mod("attack")
 	s["breakthrough"] *= 1.0 + c.mod("breakthrough")
 	s["speed"] = (4.0 if s["speed"] > 90.0 else s["speed"]) * (1.0 + c.mod("speed"))
 	s["hp"] = maxf(s["hp"], 1.0)
@@ -255,9 +257,13 @@ func _targets(a: Army) -> Dictionary:
 	var out := {}
 	if a.enemy != "" and World.countries.has(a.enemy):
 		out[World.countries[a.enemy].index] = true
-		for o: Country in World.countries.values():
-			if o.tag != a.enemy and o.tag != a.owner and Diplomacy.are_enemies(o.tag, a.owner) and Diplomacy.are_allies(o.tag, a.enemy):
-				out[o.index] = true
+		# Oyuncu ordusu: düşmanın müttefikleri de hedef (tek cephe emriyle koalisyona karşı savunma).
+		# AI ordusu: yalnız o ülke — müttefikler de sayılınca "GER>POL" ordusu Fransa sınırına da yayılıyor,
+		# tek ordu doğu+batı toplamına bakıp hep savunmada kalıyordu (1939–41 akışını kilitleyen hata).
+		if a.owner == World.player_tag:
+			for o: Country in World.countries.values():
+				if o.tag != a.enemy and o.tag != a.owner and Diplomacy.are_enemies(o.tag, a.owner) and Diplomacy.are_allies(o.tag, a.enemy):
+					out[o.index] = true
 	_target_cache[key] = out
 	return out
 
@@ -289,9 +295,12 @@ func front_provinces(a: Army) -> Array[int]:
 		_front_cache[key] = out
 		return out
 	var sides: Array = [World.countries[a.owner].index]
-	for o: Country in World.countries.values():
-		if o.tag != a.owner and o.exists() and Diplomacy.are_allies(o.tag, a.owner):
-			sides.append(o.index)
+	# Müttefik toprağı yalnız oyuncu ordusu için cephe sayılır; AI kendi toprağını savunur/kendi sınırından
+	# saldırır (aksi hâlde Almanya İtalya'nın Arnavutluk/Libya sınırına tümen yığıyordu)
+	if a.owner == World.player_tag:
+		for o: Country in World.countries.values():
+			if o.tag != a.owner and o.exists() and Diplomacy.are_allies(o.tag, a.owner):
+				sides.append(o.index)
 	for ci: int in sides:
 		for pid in AI._controlled(ci):
 			var p := World.province(pid)
@@ -353,9 +362,11 @@ func _army_spread(a: Army, divs: Array[Division], front: Array[int]) -> void:
 			var sp: int = weak[i][1]
 			tsum += float(threat[sp]) * 2.0
 			threat[sp] = float(threat[sp]) * 3.0
+	# her cephe bölgesinde en az 1 tümen (yeterse): boş bölgeye bedava yürüyüş yok (Hollanda Ruhr'u almıştı)
+	var floor_want := 1.0 if divs.size() >= front.size() else 0.5
 	var want := {}
 	for pid in front:
-		want[pid] = maxf(float(divs.size()) * float(threat[pid]) / tsum, 0.5)
+		want[pid] = maxf(float(divs.size()) * float(threat[pid]) / tsum, floor_want)
 	var orders := 0
 	var fails := 0
 	var max_orders := 40 if a.owner == World.player_tag else 12

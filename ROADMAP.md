@@ -17,11 +17,18 @@ Son güncelleme: **25 Eylül 2026**
 - Derinlik: tümen tecrübesi, planlama bonusu, kış/çamur, yakıt, araştırma birikimi eklendi.
 
 ### Sıradaki işler (öncelik sırasıyla)
-1. **P1** 1939–41 akışının tutarlılığı (anavatan savunması, teslim formülü) — otomatik denge testiyle
-2. **C2** Savaş planı okları (taarruz oku çiz, planlama bonusu, yürüt/durdur) + **C1** ordu kartı ve general atama
-3. **P2** Muharebe ayrıntı penceresi ve "neden?" ipuçları
-4. **★5/E** Zoom'a göre muharebe sesleri; **★2** geri çekilme / teslim animasyonu
-5. **V2/B** Lojistik: trenler, ikmal merkezleri, demiryolu
+1. **P1** 1939–41 akışının tutarlılığı (anavatan savunması, teslim formülü) — otomatik denge testiyle (sürüyor)
+2. **D4 Hava durumu**: yağmur, kar, sis animasyonları (diorama görünümüne uygun; kış/çamur cezalarıyla görsel tutarlı)
+3. **İnşaat görünürlüğü**: fabrika / tersane / altyapı / uçaksavar / rafineri haritada şehir çevresinde model olarak belirir,
+   inşaat sürerken iskele-vinç, tamamlanınca ses (şu an yalnız hava üssü ve liman görünüyor)
+4. **Ses seti** ✔ 28 prosedürel ses (arayüz, telsiz emirleri, telgraf uyarıları, savaş ilanı, 3D muharebe); kalan: ayarlarda ses/müzik seviyesi
+5. **Oynanabilirlik testi (Türkiye)**: baştan sona oynanıp kazanılabilir / kaybedilebilir olduğu görsel olarak doğrulanır;
+   anlaşılırlık eksikleri listelenip kapatılır
+6. **Karar oyuncuda**: tümen duruşu "Son askere kadar savun" (otomatik geri çekilme yok); geri çekilme yalnız oyuncu emriyle
+   - **Otomatiklik denetimi**: oyuncu adına kendiliğinden yapılan her şey (üretim/atama/ikmal/uçaksavar vb.) bulunur, kapatılır ya da açık seçime dönüştürülür
+   - **Seçenekli olaylar**: tarihî baskı ve krizler seçenekli olay olarak gelir (Türkiye: Sovyet toprak/üs talebi, Montrö, Hatay, savaşa giriş baskısı; ret / taviz / savaş)
+7. **C2** Savaş planı okları + **C1** ordu kartı ve general atama; **P2** muharebe ayrıntı penceresi
+8. **★2** geri çekilme / teslim animasyonu; **V2/B** lojistik
 
 ---
 

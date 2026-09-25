@@ -88,14 +88,20 @@ func _process(_delta: float) -> void:
 		current_intensity = 1.0
 	var near := camera.distance < MAX_VIEW_DIST
 	var fade := clampf(1.0 - (camera.distance - 350.0) / (MAX_VIEW_DIST - 350.0), 0.0, 1.0)
+	# yakın zoom: kutu görüş alanı kadar küçülür, parçacık sayısı da azalır (ekranı kaplayan büyük damlalar FPS yiyordu)
+	var ext := clampf(camera.distance * 0.9, 45.0, BOX.x)
+	var density := clampf(ext / BOX.x, 0.3, 1.0) * (0.55 if UnitModels.COMPAT else 1.0)
+	for e: GPUParticles3D in [rain, snow]:
+		var pm := e.process_material as ParticleProcessMaterial
+		pm.emission_box_extents = Vector3(ext * 0.5, BOX.y * 0.5, ext * 0.5)
 	var ground := map.height_at(target) if map else 0.0
 	var center := Vector3(target.x, ground + BOX.y * 0.5 + 4.0, target.y)
 	rain.global_position = center
 	snow.global_position = center
 	var want_rain := near and current == Kind.RAIN
 	var want_snow := near and current == Kind.SNOW
-	rain.amount_ratio = clampf(current_intensity * fade, 0.0, 1.0)
-	snow.amount_ratio = clampf(current_intensity * fade, 0.0, 1.0)
+	rain.amount_ratio = clampf(current_intensity * fade * density, 0.05, 1.0)
+	snow.amount_ratio = clampf(current_intensity * fade * density, 0.05, 1.0)
 	if rain.emitting != want_rain:
 		rain.emitting = want_rain
 	if snow.emitting != want_snow:
@@ -118,8 +124,8 @@ func _make_emitter(is_rain: bool) -> GPUParticles3D:
 	pm.scale_min = 0.8
 	pm.scale_max = 1.2
 	p.process_material = pm
-	p.amount = 5000 if is_rain else 1600
-	p.lifetime = 1.0 if is_rain else 6.0
+	p.amount = 2200 if is_rain else 800
+	p.lifetime = 0.8 if is_rain else 5.0
 	p.explosiveness = 0.0
 	p.randomness = 0.6
 	p.visibility_aabb = AABB(-BOX * 0.6, BOX * 1.2)
@@ -129,7 +135,8 @@ func _make_emitter(is_rain: bool) -> GPUParticles3D:
 	mesh.size = Vector2(0.09, 2.6) if is_rain else Vector2(0.3, 0.3)
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR if not is_rain else BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.alpha_scissor_threshold = 0.35
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y if is_rain else BaseMaterial3D.BILLBOARD_ENABLED
 	mat.billboard_keep_scale = true
 	mat.no_depth_test = false
