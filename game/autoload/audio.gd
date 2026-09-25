@@ -56,6 +56,19 @@ func _ready() -> void:
 	Game.game_over.connect(func(victory: bool, _r: String) -> void: play("victory" if victory else "capitulation"))
 	Military.battles_changed.connect(_on_battles)
 
+func music_linear() -> float:
+	return clampf(db_to_linear(music_db + 16.0), 0.0, 1.0)
+
+func set_music_linear(v: float) -> void:
+	music_db = linear_to_db(maxf(v, 0.001)) - 16.0
+	music.volume_db = music_db
+
+func sfx_linear() -> float:
+	return clampf(db_to_linear(sfx_db), 0.0, 1.0)
+
+func set_sfx_linear(v: float) -> void:
+	sfx_db = linear_to_db(maxf(v, 0.001))
+
 func _mine(tag: String) -> bool:
 	return World.in_game and tag == World.player_tag
 

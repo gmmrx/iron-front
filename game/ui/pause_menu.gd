@@ -113,6 +113,16 @@ func _settings() -> void:
 	vol.value_changed.connect(func(v: float) -> void: AudioServer.set_bus_volume_db(0, linear_to_db(maxf(v, 0.001))))
 	_box.add_child(UiTheme.make_label(tr("SET_VOLUME"), 16))
 	_box.add_child(vol)
+	for pair in [["SET_MUSIC", Audio.music_linear(), Audio.set_music_linear], ["SET_SFX", Audio.sfx_linear(), Audio.set_sfx_linear]]:
+		var sl := HSlider.new()
+		sl.min_value = 0.0
+		sl.max_value = 1.0
+		sl.step = 0.05
+		sl.value = pair[1]
+		sl.custom_minimum_size.x = 300
+		sl.value_changed.connect(pair[2])
+		_box.add_child(UiTheme.make_label(tr(pair[0]), 16))
+		_box.add_child(sl)
 	var ai := CheckButton.new()
 	ai.text = tr("SET_AI")
 	ai.button_pressed = AI.enabled

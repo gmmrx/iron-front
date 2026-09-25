@@ -353,6 +353,8 @@ TOP_TENSION,Tension %d%%,Gerginlik %%%d
 NOTE_WELCOME,"Welcome, leader of %s. Pick a national focus (F) and research (I)!","Hoş geldiniz, %s lideri. Bir milli odak (F) ve araştırma (I) seçin!"
 NOTE_NO_PATH,No route to that province.,O bölgeye yol bulunamadı.
 SET_VOLUME,Master volume,Ana ses düzeyi
+SET_MUSIC,Music,Müzik
+SET_SFX,Sound effects,Ses efektleri
 TIPMAP_CITY_IN,Urban center in %s,%s eyaletindeki şehir merkezi
 TIPMAP_STATE,State territory,Eyalet bölgesi
 TIPMAP_OURS,Our territory,Bizim toprağımız
