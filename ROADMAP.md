@@ -346,6 +346,15 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 
 ---
 
+## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
+- [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,
+      iş parçacığı desteği kapalı, pck 90 MB parçalara bölünüp `tools/web/shell.html` ile birleştirilir)
+- [x] Compatibility renderer farkları çözüldü: sahne sRGB uzayında çizildiği için shader'lar `srgb_out` ile çıkışı çevirir;
+      custom_data'lı MultiMesh'lerde renk yuvası sıfır kaldığından instance renkleri beyaz yapılır (yalnız web'de)
+- [ ] Patlama/duman efektleri Compatibility'de biraz koyu (vfx shader'a aynı sRGB düzeltmesi)
+- [ ] Web için varlık diyeti: yükseklik haritası yarım çözünürlük, doku boyutları, ilk yükleme süresi
+- [ ] Mobil tarayıcı desteği (bellek), kayıt dosyalarının tarayıcıda kalıcılığı
+
 ## BÖLÜM G — PERFORMANS (sürekli) ◐
 Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 - [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü)

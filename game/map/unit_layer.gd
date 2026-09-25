@@ -33,6 +33,7 @@ func _ready() -> void:
 	_arrows = MeshInstance3D.new()
 	_arrow_mat = ShaderMaterial.new()
 	_arrow_mat.shader = preload("res://assets/shaders/arrow.gdshader")
+	UnitModels.compat_material(_arrow_mat)
 	_arrow_mat.render_priority = 8
 	_arrows.material_override = _arrow_mat
 	_arrows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

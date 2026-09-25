@@ -60,6 +60,7 @@ uniform sampler2D mark_tex : filter_nearest, repeat_disable;   // province baş�
 uniform bool marks_enabled = false;   // ülke seçim ekranında vurgulanan ülke (0 = yok)
 
 uniform bool wrap_x = false;           // dünya haritası doğu-batı sarmalanır
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 
 float height_at(vec2 uv) {
 	if (wrap_x) { uv.x = fract(uv.x); }
@@ -383,7 +384,7 @@ void fragment() {
 	vec2 e = min(uv, 1.0 - uv);
 	if (wrap_x) { e.x = 1.0; }   // sarmalanan haritada doğu-batı kenarı yok
 	col *= mix(0.45, 1.0, smoothstep(0.0, 0.02, min(e.x, e.y)));
-	ALBEDO = pow(clamp(col, 0.0, 1.0), vec3(2.2));
+	ALBEDO = srgb_out ? clamp(col, 0.0, 1.0) : pow(clamp(col, 0.0, 1.0), vec3(2.2));
 	ROUGHNESS = mix(0.12, 0.95, land_a);
 	SPECULAR = mix(0.6, 0.12, land_a);
 }

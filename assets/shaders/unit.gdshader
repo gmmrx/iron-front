@@ -7,6 +7,7 @@ shader_type spatial;
 render_mode cull_back, diffuse_lambert;
 
 const float HIP = 0.86;   // kalça yüksekliği (model metre)
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 
 varying vec3 tint;
 varying float mask;
@@ -58,6 +59,7 @@ void fragment() {
 	float l = dot(base, vec3(0.299, 0.587, 0.114));
 	vec3 painted = tint * clamp(l / 0.16, 0.35, 1.6);
 	ALBEDO = mix(base, painted, mask);
+	if (srgb_out) { ALBEDO = pow(max(ALBEDO, vec3(0.0)), vec3(1.0 / 2.2)); }   // Compatibility: lineer -> sRGB
 	ROUGHNESS = mix(0.72, 0.9, mask);
 	SPECULAR = 0.25;
 }

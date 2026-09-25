@@ -56,6 +56,7 @@ func _ready() -> void:
 
 	_material = ShaderMaterial.new()
 	_material.shader = SHADER
+	UnitModels.compat_material(_material)
 	_material.set_shader_parameter("terrain_tex", ImageTexture.create_from_image(terrain))
 	height_texture = ImageTexture.create_from_image(_height_image)
 	_material.set_shader_parameter("height_tex", height_texture)

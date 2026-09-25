@@ -2,6 +2,7 @@ shader_type spatial;
 // Rota şeridi: genişlik ekranda sabit kalsın diye tepe noktasında açılır (UV2 = yan yön, UV.x = ±genişlik katsayısı,
 // UV.y = yay uzunluğu). Akış: ithalatçıya doğru ilerleyen parlak dalgalar; kesikli: planlanan hareket.
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 
 uniform float width = 2.0;          // dünya birimi (kamera uzaklığıyla güncellenir)
 uniform float flow_speed = 0.0;     // piksel / saniye; 0 = akış yok
@@ -38,5 +39,6 @@ void fragment() {
 		a *= step(d, 0.6);
 	}
 	ALBEDO = c;
+	if (srgb_out) { ALBEDO = pow(max(ALBEDO, vec3(0.0)), vec3(1.0 / 2.2)); }   // Compatibility: lineer -> sRGB
 	ALPHA = a;
 }

@@ -45,9 +45,26 @@ var _gtracers: Array = []            ## [konum, hız, ömür] piyade iz mermiler
 var _gtracer_mmi: MultiMeshInstance3D
 var anchors := {}                    ## div id -> akıcı görsel konum (sayaçlar ve oklar kullanır)
 
+## Compatibility (web/GLES3) renderer farkları — Forward+ (masaüstü) bu bayrakla hiç değişmez.
+## 1) Sahne sRGB uzayında çizilir: shader'lar srgb_out=true ile çıkışı kendileri sRGB'ye çevirir.
+## 2) custom_data kullanan MultiMesh'te renk yuvası sıfır kalır ve köşe rengi sıfırla çarpılır (siyah figür):
+##    use_colors açılıp her instance rengi beyaz yapılır.
+static var COMPAT: bool = RenderingServer.get_current_rendering_method() == "gl_compatibility"
+
+static func compat_material(mat: ShaderMaterial) -> ShaderMaterial:
+	if COMPAT:
+		mat.set_shader_parameter("srgb_out", true)
+	return mat
+
+static func compat_colors(mm: MultiMesh) -> void:
+	if COMPAT and mm.use_colors:
+		for i in mm.instance_count:
+			mm.set_instance_color(i, Color.WHITE)
+
 func _ready() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
+	compat_material(mat)
 	for path: String in MODEL_FILES:
 		var scene: Node = (load(path) as PackedScene).instantiate()
 		var stack: Array[Node] = [scene]
@@ -62,6 +79,7 @@ func _ready() -> void:
 			continue
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.use_colors = COMPAT
 		mm.use_custom_data = true
 		mm.mesh = _meshes.get(name)
 		var mi := MultiMeshInstance3D.new()
@@ -210,6 +228,7 @@ func _update_models(dt: float) -> void:
 		var arr: Array = lists[name]
 		if mm.instance_count < arr.size():
 			mm.instance_count = arr.size() + 16
+			compat_colors(mm)
 		mm.visible_instance_count = arr.size()
 		for i in arr.size():
 			mm.set_instance_transform(i, arr[i][0])

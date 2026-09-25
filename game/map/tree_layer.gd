@@ -18,6 +18,7 @@ func _ready() -> void:
 		return
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
+	UnitModels.compat_material(mat)
 	mat.set_shader_parameter("height_tex", map.height_texture)
 	mat.set_shader_parameter("map_size", map.map_size)
 	mat.set_shader_parameter("height_scale", MapView3D.HEIGHT_SCALE)

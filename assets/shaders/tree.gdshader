@@ -6,6 +6,7 @@ uniform sampler2D height_tex : filter_linear, repeat_disable;
 uniform vec2 map_size = vec2(5120.0, 4348.0);
 uniform float height_scale = 0.012;
 uniform float brightness = 1.25;
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 
 void vertex() {
 	vec3 o = MODEL_MATRIX[3].xyz;
@@ -20,6 +21,7 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = COLOR.rgb * brightness;
+	if (srgb_out) { ALBEDO = pow(max(ALBEDO, vec3(0.0)), vec3(1.0 / 2.2)); }   // Compatibility: lineer -> sRGB
 	ROUGHNESS = 0.9;
 	SPECULAR = 0.1;
 }

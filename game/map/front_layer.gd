@@ -16,6 +16,7 @@ var _border_cache := {}              ## "f:n" -> Vector2 sınır noktası
 func _ready() -> void:
 	_mat = ShaderMaterial.new()
 	_mat.shader = preload("res://assets/shaders/route.gdshader")
+	UnitModels.compat_material(_mat)
 	_mat.set_shader_parameter("opacity", 0.95)
 	_mat.render_priority = 3
 	_mi = MeshInstance3D.new()

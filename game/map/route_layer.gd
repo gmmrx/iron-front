@@ -54,6 +54,7 @@ func _ready() -> void:
 func _mi(wk: float, flow: float, period: float, opacity: float, dash := 0.0) -> MeshInstance3D:
 	var m := ShaderMaterial.new()
 	m.shader = preload("res://assets/shaders/route.gdshader")
+	UnitModels.compat_material(m)
 	m.set_shader_parameter("flow_speed", flow)
 	m.set_shader_parameter("flow_period", period)
 	m.set_shader_parameter("opacity", opacity)

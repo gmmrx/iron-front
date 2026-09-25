@@ -2,6 +2,7 @@
 // UV.x: gövde boyunca 0..1 (1 = uç), UV.y: 0..1 genişlik. Renk: ülke rengi (sRGB).
 shader_type spatial;
 render_mode unshaded, blend_mix, cull_disabled, depth_test_disabled, shadows_disabled;
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 
 uniform float opacity = 0.55;
 
@@ -11,6 +12,7 @@ void fragment() {
 	vec3 body = base * mix(0.95, 0.7, smoothstep(0.2, 0.85, e));
 	float outline = smoothstep(0.78, 0.9, e);
 	ALBEDO = mix(body, base * 0.25, outline);
+	if (srgb_out) { ALBEDO = pow(max(ALBEDO, vec3(0.0)), vec3(1.0 / 2.2)); }   // Compatibility: lineer -> sRGB
 	// kuyruk tarafı daha soluk: uca doğru belirginleşir
 	float fade = mix(0.55, 1.0, smoothstep(0.0, 0.35, UV.x));
 	ALPHA = opacity * fade * (1.0 - smoothstep(0.95, 1.0, e));

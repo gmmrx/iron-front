@@ -37,11 +37,13 @@ func _ready() -> void:
 		scene.free()
 	var mat := ShaderMaterial.new()
 	mat.shader = preload("res://assets/shaders/unit.gdshader")
+	UnitModels.compat_material(mat)
 	for name: String in ["fighter_germany", "fighter_uk", "fighter_usa", "cas_soviet", "fighter", "bomber"]:
 		if not _meshes.has(name):
 			continue
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.use_colors = UnitModels.COMPAT
 		mm.use_custom_data = true
 		mm.mesh = _meshes[name]
 		var mi := MultiMeshInstance3D.new()
@@ -182,6 +184,7 @@ func _update_planes() -> void:
 		var arr: Array = lists[n]
 		if mm.instance_count < arr.size():
 			mm.instance_count = arr.size() + 8
+			UnitModels.compat_colors(mm)
 		mm.visible_instance_count = arr.size()
 		for i in arr.size():
 			mm.set_instance_transform(i, arr[i][0])
@@ -450,9 +453,11 @@ func _maybe_crash() -> void:
 			break
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = UnitModels.COMPAT
 	mm.use_custom_data = true
 	mm.mesh = _meshes[name]
 	mm.instance_count = 1
+	UnitModels.compat_colors(mm)
 	mm.set_instance_custom_data(0, custom)
 	mm.set_instance_transform(0, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * _scale(name)), Vector3.ZERO))
 	var mi := MultiMeshInstance3D.new()
