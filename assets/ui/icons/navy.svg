@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<defs>
+  <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#48515a"/><stop offset=".5" stop-color="#252c33"/><stop offset="1" stop-color="#11161b"/></linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3dc91"/><stop offset=".42" stop-color="#b88a3d"/><stop offset="1" stop-color="#6b431d"/></linearGradient>
+  <linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7d5"/><stop offset="1" stop-color="#c9b87b"/></linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3d6e93"/><stop offset="1" stop-color="#16324a"/></linearGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.6"/><feOffset dy="2"/><feComponentTransfer><feFuncA type="linear" slope=".65"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs><g filter="url(#shadow)">
+<path d="M32 3 53 11 60 32 52 53 32 61 11 53 4 32 12 11Z" fill="#090d11" opacity=".8"/>
+<path d="M32 5 51 12 58 32 50 51 32 58 13 51 6 32 14 13Z" fill="url(#steel)" stroke="url(#brass)" stroke-width="2.2"/>
+<path d="M32 10 48 16 53 32 47 47 32 53 17 47 11 32 17 17Z" fill="#171d22" stroke="#737a77" stroke-width=".8"/>
+<path d="M18 16Q32 9 46 16" fill="none" stroke="#d9c47b" stroke-width="1" opacity=".45"/>
+<path d="M13 40h38l-2 7H15Z" fill="url(#sea)"/>
+<path d="M12 36h40l-5 7H17Z" fill="url(#ivory)" stroke="#17130d" stroke-width="1"/>
+<path d="M24 30h14v6H24Z" fill="url(#ivory)" stroke="#17130d" stroke-width="1"/>
+<path d="M29 23h5v7h-5Z" fill="url(#brass)" stroke="#17130d" stroke-width="1"/>
+<path d="M17 33h6v3h-6ZM41 33h6v3h-6Z" fill="url(#ivory)" stroke="#17130d" stroke-width=".8"/>
+<path d="M11 34 17 33M47 33l7-1.5" stroke="#efe2b6" stroke-width="1.6"/>
+<path d="M31.5 17v6" stroke="#efe2b6" stroke-width="1.2"/>
+</g></svg>

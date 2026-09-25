@@ -1,0 +1,271 @@
+{
+ "events": {
+  "anschluss": {
+   "title": {
+    "tr": "Anschluss",
+    "en": "Anschluss"
+   },
+   "desc": {
+    "tr": "Almanya, Avusturya'nın Reich'a katılmasını talep ediyor.",
+    "en": "Germany demands the union of Austria with the Reich."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Kabul et",
+      "en": "Accept"
+     },
+     "effects": [
+      {
+       "annexed_by": "FROM"
+      }
+     ],
+     "ai": 0.9
+    },
+    {
+     "name": {
+      "tr": "Reddet",
+      "en": "Refuse"
+     },
+     "effects": [
+      {
+       "give_war_goal": "FROM"
+      }
+     ],
+     "ai": 0.1
+    }
+   ],
+   "trigger": null
+  },
+  "sudeten": {
+   "title": {
+    "tr": "Münih Konferansı",
+    "en": "The Munich Conference"
+   },
+   "desc": {
+    "tr": "Almanya, Südet bölgesinin kendisine bırakılmasını istiyor.",
+    "en": "Germany demands the Sudetenland."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Südet bölgesini bırak",
+      "en": "Cede the Sudetenland"
+     },
+     "effects": [
+      {
+       "cede_border_to": "FROM"
+      }
+     ],
+     "ai": 0.85
+    },
+    {
+     "name": {
+      "tr": "Direnin!",
+      "en": "Resist!"
+     },
+     "effects": [
+      {
+       "give_war_goal": "FROM"
+      }
+     ],
+     "ai": 0.15
+    }
+   ],
+   "trigger": null
+  },
+  "hatay_question": {
+   "title": {
+    "tr": "Hatay Meselesi",
+    "en": "The Hatay Question"
+   },
+   "desc": {
+    "tr": "Türkiye, İskenderun Sancağı'nın kendisine bırakılmasını istiyor.",
+    "en": "Turkey demands the Sanjak of Alexandretta."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Hatay'ı Türkiye'ye bırak",
+      "en": "Cede Hatay to Turkey"
+     },
+     "effects": [
+      {
+       "cede_city_to": {
+        "city": "Antakya",
+        "to": "FROM"
+       }
+      }
+     ],
+     "ai": 0.75
+    },
+    {
+     "name": {
+      "tr": "Reddet",
+      "en": "Refuse"
+     },
+     "effects": [
+      {
+       "give_war_goal": "FROM"
+      }
+     ],
+     "ai": 0.25
+    }
+   ],
+   "trigger": null
+  },
+  "faction_invite": {
+   "title": {
+    "tr": "İttifak Daveti",
+    "en": "Alliance Invitation"
+   },
+   "desc": {
+    "tr": "Bir ittifaka katılmaya davet edildik.",
+    "en": "We have been invited to join an alliance."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Katıl",
+      "en": "Join"
+     },
+     "effects": [
+      {
+       "join_faction": "FROM"
+      }
+     ],
+     "ai": 0.6
+    },
+    {
+     "name": {
+      "tr": "Reddet",
+      "en": "Decline"
+     },
+     "effects": [],
+     "ai": 0.4
+    }
+   ],
+   "trigger": null
+  },
+  "call_to_arms": {
+   "title": {
+    "tr": "Silah Başına Çağrı",
+    "en": "Call to Arms"
+   },
+   "desc": {
+    "tr": "Müttefikimiz savaşa katılmamızı istiyor.",
+    "en": "Our ally asks us to join the war."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Savaşa katıl",
+      "en": "Join the war"
+     },
+     "effects": [
+      {
+       "join_war_of": "FROM"
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Tarafsız kal",
+      "en": "Stay out"
+     },
+     "effects": [],
+     "ai": 0.2
+    }
+   ],
+   "trigger": null
+  },
+  "access_request": {
+   "title": {
+    "tr": "Askeri Geçiş Talebi",
+    "en": "Military Access Request"
+   },
+   "desc": {
+    "tr": "Bir ülke topraklarımızdan geçiş hakkı istiyor.",
+    "en": "A country requests military access."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Geçiş ver",
+      "en": "Grant access"
+     },
+     "effects": [
+      {
+       "grant_access": "FROM"
+      }
+     ],
+     "ai": 0.5
+    },
+    {
+     "name": {
+      "tr": "Reddet",
+      "en": "Refuse"
+     },
+     "effects": [],
+     "ai": 0.5
+    }
+   ],
+   "trigger": null
+  },
+  "white_peace": {
+   "title": {
+    "tr": "Barış Teklifi",
+    "en": "Peace Offer"
+   },
+   "desc": {
+    "tr": "Düşmanımız beyaz barış teklif ediyor.",
+    "en": "Our enemy offers a white peace."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Kabul et",
+      "en": "Accept"
+     },
+     "effects": [
+      {
+       "white_peace_with": "FROM"
+      }
+     ],
+     "ai": 0.5
+    },
+    {
+     "name": {
+      "tr": "Reddet",
+      "en": "Refuse"
+     },
+     "effects": [],
+     "ai": 0.5
+    }
+   ],
+   "trigger": null
+  },
+  "news_war": {
+   "title": {
+    "tr": "Savaş!",
+    "en": "War!"
+   },
+   "desc": {
+    "tr": "",
+    "en": ""
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Tamam",
+      "en": "OK"
+     },
+     "effects": [],
+     "ai": 1.0
+    }
+   ],
+   "trigger": null
+  }
+ }
+}

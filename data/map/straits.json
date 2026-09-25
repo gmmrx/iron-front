@@ -1,0 +1,213 @@
+{
+ "straits": [
+  {
+   "name": {
+    "en": "Bosporus",
+    "tr": "İstanbul Boğazı"
+   },
+   "provinces": [
+    4300,
+    11871
+   ],
+   "from": [
+    8987,
+    3205
+   ],
+   "to": [
+    8991,
+    3206
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Dardanelles",
+    "tr": "Çanakkale Boğazı"
+   },
+   "provinces": [
+    11918,
+    4457
+   ],
+   "from": [
+    8868,
+    3248
+   ],
+   "to": [
+    8872,
+    3255
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Strait of Gibraltar",
+    "tr": "Cebelitarık Boğazı"
+   },
+   "provinces": [
+    4547,
+    607
+   ],
+   "from": [
+    7413,
+    3470
+   ],
+   "to": [
+    7425,
+    3478
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Øresund",
+    "tr": "Öresund"
+   },
+   "provinces": [
+    4750,
+    4428
+   ],
+   "from": [
+    8241,
+    2326
+   ],
+   "to": [
+    8247,
+    2324
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Great Belt",
+    "tr": "Büyük Belt"
+   },
+   "provinces": [
+    672,
+    4750
+   ],
+   "from": [
+    8160,
+    2371
+   ],
+   "to": [
+    8174,
+    2370
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Little Belt",
+    "tr": "Küçük Belt"
+   },
+   "provinces": [
+    671,
+    672
+   ],
+   "from": [
+    8112,
+    2355
+   ],
+   "to": [
+    8111,
+    2360
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Kerch Strait",
+    "tr": "Kerç Boğazı"
+   },
+   "provinces": [
+    3317,
+    6629
+   ],
+   "from": [
+    9328,
+    2967
+   ],
+   "to": [
+    9340,
+    2974
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Strait of Messina",
+    "tr": "Messina Boğazı"
+   },
+   "provinces": [
+    12014,
+    4732
+   ],
+   "from": [
+    8376,
+    3356
+   ],
+   "to": [
+    8381,
+    3361
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Strait of Dover",
+    "tr": "Manş (Dover) Boğazı"
+   },
+   "provinces": [
+    5596,
+    4605
+   ],
+   "from": [
+    7727,
+    2630
+   ],
+   "to": [
+    7752,
+    2640
+   ],
+   "land_crossing": false
+  },
+  {
+   "name": {
+    "en": "Strait of Bonifacio",
+    "tr": "Bonifacio Boğazı"
+   },
+   "provinces": [
+    4744,
+    4739
+   ],
+   "from": [
+    8085,
+    3185
+   ],
+   "to": [
+    8089,
+    3194
+   ],
+   "land_crossing": true
+  },
+  {
+   "name": {
+    "en": "Suez Canal",
+    "tr": "Süveyş Kanalı"
+   },
+   "provinces": [
+    3866,
+    11779
+   ],
+   "from": [
+    9137,
+    3747
+   ],
+   "to": [
+    9141,
+    3747
+   ],
+   "land_crossing": true
+  }
+ ]
+}

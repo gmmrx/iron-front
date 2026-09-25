@@ -1,0 +1,17 @@
+import puppeteer from 'puppeteer-core';
+import fs from 'node:fs';
+const [,, listFile, outDir] = process.argv;
+const list = JSON.parse(fs.readFileSync(listFile, 'utf8'));
+const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true, args: ['--use-angle=metal', '--enable-webgl', '--ignore-gpu-blocklist'] });
+const page = await browser.newPage();
+page.on('console', (m) => { if (m.type() === 'error') console.error('[page]', m.text()); });
+await page.goto('http://localhost:5199/export.html?list=' + encodeURIComponent(JSON.stringify(list)), { timeout: 120000 });
+await page.waitForFunction('window.__ready === true', { timeout: 600000, polling: 500 });
+const err = await page.evaluate('window.__error');
+if (err) console.error(err);
+const glb = await page.evaluate('window.__glb');
+const stats = await page.evaluate('window.__stats');
+fs.mkdirSync(outDir, { recursive: true });
+for (const [k, v] of Object.entries(glb)) fs.writeFileSync(`${outDir}/${k}.glb`, Buffer.from(v, 'base64'));
+console.log(JSON.stringify(stats, null, 1));
+await browser.close();

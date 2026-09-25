@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<defs>
+  <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#48515a"/><stop offset=".5" stop-color="#252c33"/><stop offset="1" stop-color="#11161b"/></linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3dc91"/><stop offset=".42" stop-color="#b88a3d"/><stop offset="1" stop-color="#6b431d"/></linearGradient>
+  <linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7d5"/><stop offset="1" stop-color="#c9b87b"/></linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c95d4d"/><stop offset="1" stop-color="#68251f"/></linearGradient>
+  <linearGradient id="buildingPlate" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#26343b"/><stop offset=".5" stop-color="#131b20"/><stop offset="1" stop-color="#080d11"/></linearGradient>
+  <linearGradient id="resourcePlate" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2b3133"/><stop offset=".55" stop-color="#121719"/><stop offset="1" stop-color="#070a0c"/></linearGradient>
+  <linearGradient id="equipmentPlate" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#27302b"/><stop offset=".48" stop-color="#151b19"/><stop offset="1" stop-color="#080c0c"/></linearGradient>
+  <radialGradient id="softGlow" cx="35%" cy="24%" r="75%"><stop stop-color="#fff2b0" stop-opacity=".22"/><stop offset=".55" stop-color="#b8d2d7" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.6"/><feOffset dy="2"/><feComponentTransfer><feFuncA type="linear" slope=".65"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="objectShadow" x="-35%" y="-35%" width="180%" height="190%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.25"/><feOffset dx="1.2" dy="2.2"/><feComponentTransfer><feFuncA type="linear" slope=".88"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g filter="url(#shadow)">
+<path d="M6 5h48l5 5v44l-5 5H10l-5-5V10Z" fill="#05080a" stroke="#050708" stroke-width="3"/>
+<path d="M8 7h44l5 5v40l-5 5H12l-5-5V12Z" fill="url(#equipmentPlate)" stroke="#7f8e87" stroke-width="1.4"/>
+<path d="M11 11h24" stroke="#e5d185" stroke-width="1.2" opacity=".55"/>
+<path d="M29 54h24" stroke="#4f653f" stroke-width="1.5" opacity=".8"/><rect x="6" y="6" width="52" height="52" rx="8" fill="url(#softGlow)"/></g>
+<g transform="translate(-3 -3) scale(1.10)" filter="url(#objectShadow)"><path d="M13 38h39l-5 13H18Z" fill="#56694a" stroke="#11171b" stroke-width="1.8"/><path d="M20 27h23l6 11H16Z" fill="#70805d" stroke="#11171b"/><path d="M26 21h14l4 8H23Zm13 3h17v4H39Z" fill="url(#ivory)" stroke="#11171b"/><circle cx="22" cy="45" r="4" fill="#252d2d"/><circle cx="43" cy="45" r="4" fill="#252d2d"/></g>
+</svg>

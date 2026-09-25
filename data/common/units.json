@@ -1,0 +1,260 @@
+{
+ "_comment": "Tabur türleri (klasik 1936 değerlerine yakın). equipment: tabur başına ekipman ihtiyacı. category: araştırma modifier'larının hedefi.",
+ "battalions": {
+  "infantry": {
+   "name": {
+    "en": "Infantry",
+    "tr": "Piyade"
+   },
+   "category": "infantry",
+   "soft": 6,
+   "hard": 1,
+   "defense": 22,
+   "breakthrough": 3,
+   "hp": 25,
+   "org": 60,
+   "width": 2,
+   "speed": 4,
+   "hardness": 0.0,
+   "armor": 0,
+   "piercing": 4,
+   "manpower": 1000,
+   "equipment": {
+    "infantry_equipment": 100
+   }
+  },
+  "artillery": {
+   "name": {
+    "en": "Artillery",
+    "tr": "Topçu"
+   },
+   "category": "artillery",
+   "soft": 25,
+   "hard": 2,
+   "defense": 10,
+   "breakthrough": 6,
+   "hp": 0.6,
+   "org": 0,
+   "width": 3,
+   "speed": 4,
+   "hardness": 0.0,
+   "armor": 0,
+   "piercing": 5,
+   "manpower": 500,
+   "equipment": {
+    "artillery_equipment": 12
+   }
+  },
+  "anti_tank": {
+   "name": {
+    "en": "Anti-Tank",
+    "tr": "Tanksavar"
+   },
+   "category": "artillery",
+   "soft": 2,
+   "hard": 16,
+   "defense": 8,
+   "breakthrough": 2,
+   "hp": 0.6,
+   "org": 0,
+   "width": 1,
+   "speed": 4,
+   "hardness": 0.0,
+   "armor": 0,
+   "piercing": 60,
+   "manpower": 500,
+   "equipment": {
+    "anti_tank_equipment": 12
+   }
+  },
+  "motorized": {
+   "name": {
+    "en": "Motorized",
+    "tr": "Motorize Piyade"
+   },
+   "category": "infantry",
+   "soft": 6,
+   "hard": 1,
+   "defense": 22,
+   "breakthrough": 3,
+   "hp": 25,
+   "org": 60,
+   "width": 2,
+   "speed": 12,
+   "hardness": 0.1,
+   "armor": 0,
+   "piercing": 4,
+   "manpower": 1200,
+   "equipment": {
+    "infantry_equipment": 100,
+    "motorized_equipment": 35
+   }
+  },
+  "light_armor": {
+   "name": {
+    "en": "Light Tanks",
+    "tr": "Hafif Tank"
+   },
+   "category": "armor",
+   "soft": 16,
+   "hard": 4,
+   "defense": 4,
+   "breakthrough": 22,
+   "hp": 2,
+   "org": 10,
+   "width": 2,
+   "speed": 10,
+   "hardness": 0.8,
+   "armor": 12,
+   "piercing": 20,
+   "manpower": 500,
+   "equipment": {
+    "light_tank_equipment": 60
+   }
+  },
+  "medium_armor": {
+   "name": {
+    "en": "Medium Tanks",
+    "tr": "Orta Tank"
+   },
+   "category": "armor",
+   "soft": 22,
+   "hard": 12,
+   "defense": 6,
+   "breakthrough": 34,
+   "hp": 2,
+   "org": 10,
+   "width": 2,
+   "speed": 9,
+   "hardness": 0.9,
+   "armor": 45,
+   "piercing": 55,
+   "manpower": 500,
+   "equipment": {
+    "medium_tank_equipment": 50
+   },
+   "requires": "medium_tank_equipment"
+  }
+ },
+ "division_equipment": {
+  "support_equipment": 20
+ },
+ "templates": [
+  {
+   "name": {
+    "en": "Infantry Division",
+    "tr": "Piyade Tümeni"
+   },
+   "battalions": {
+    "infantry": 7,
+    "artillery": 2
+   }
+  },
+  {
+   "name": {
+    "en": "Armored Division",
+    "tr": "Zırhlı Tümen"
+   },
+   "battalions": {
+    "light_armor": 4,
+    "motorized": 4
+   }
+  },
+  {
+   "name": {
+    "en": "Garrison Division",
+    "tr": "Garnizon Tümeni"
+   },
+   "battalions": {
+    "infantry": 5
+   }
+  }
+ ],
+ "terrain": {
+  "plains": {
+   "width": 90,
+   "attack": 0.0,
+   "move": 1.0
+  },
+  "forest": {
+   "width": 84,
+   "attack": -0.15,
+   "move": 0.8
+  },
+  "hills": {
+   "width": 80,
+   "attack": -0.25,
+   "move": 0.8
+  },
+  "mountain": {
+   "width": 75,
+   "attack": -0.5,
+   "move": 0.6
+  },
+  "marsh": {
+   "width": 78,
+   "attack": -0.4,
+   "move": 0.6
+  },
+  "desert": {
+   "width": 90,
+   "attack": 0.0,
+   "move": 0.9
+  },
+  "urban": {
+   "width": 96,
+   "attack": -0.3,
+   "move": 1.0
+  }
+ },
+ "river_attack": -0.3,
+ "amphibious_attack": -0.5,
+ "start_divisions": {
+  "GER": 44,
+  "SOV": 95,
+  "FRA": 60,
+  "ENG": 26,
+  "ITA": 44,
+  "POL": 32,
+  "TUR": 20,
+  "SPR": 18,
+  "ROM": 22,
+  "YUG": 20,
+  "CZE": 22,
+  "HUN": 10,
+  "GRE": 12,
+  "BUL": 10,
+  "SWE": 10,
+  "PER": 12,
+  "_default": 4,
+  "USA": 12,
+  "JAP": 40,
+  "CHI": 60,
+  "PRC": 12,
+  "MAN": 14,
+  "SHX": 12,
+  "GXC": 14,
+  "YUN": 10,
+  "XSM": 10,
+  "SIK": 8,
+  "RAJ": 20,
+  "AST": 6,
+  "CAN": 6,
+  "SAF": 5,
+  "NZL": 3,
+  "BRA": 12,
+  "ARG": 10,
+  "MEX": 10,
+  "SIA": 8,
+  "ETH": 12,
+  "MON": 6,
+  "TIB": 3,
+  "PHI": 4,
+  "CHL": 6,
+  "PRU": 6,
+  "COL": 5,
+  "VEN": 4,
+  "BOL": 5,
+  "PAR": 5
+ }
+}

@@ -1,0 +1,4940 @@
+{
+ "trees": {
+  "_generic": [
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 0,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 0,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 0,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 1,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 4,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 6,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 6,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "TUR": [
+   {
+    "id": "tur_kemalism",
+    "name": {
+     "tr": "Kemalist Devlet",
+     "en": "Kemalist State"
+    },
+    "desc": {
+     "tr": "Cumhuriyetin temelleri: +100 siyasi güç, +%5 istikrar.",
+     "en": "+100 PP, +5% stability."
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 100
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 30
+   },
+   {
+    "id": "tur_montreux",
+    "name": {
+     "tr": "Montrö Sözleşmesi",
+     "en": "Montreux Convention"
+    },
+    "desc": {
+     "tr": "Boğazlar üzerindeki egemenlik yeniden kazanılır.",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 35,
+    "prereq": [
+     "tur_kemalism"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1936-06-01"
+     }
+    ],
+    "effects": [
+     {
+      "building": "naval_base",
+      "count": 2,
+      "where": "capital_region"
+     },
+     {
+      "stability": 0.05
+     },
+     {
+      "news": "NEWS_MONTREUX"
+     }
+    ],
+    "ai": 30
+   },
+   {
+    "id": "tur_five_year",
+    "name": {
+     "tr": "Birinci Beş Yıllık Plan",
+     "en": "First Five-Year Plan"
+    },
+    "desc": {
+     "tr": "Devletçi sanayileşme: 2 sivil fabrika ve Beş Yıllık Plan.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "tur_kemalism"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "five_year_plan"
+     }
+    ],
+    "ai": 30
+   },
+   {
+    "id": "tur_karabuk",
+    "name": {
+     "tr": "Karabük Demir Çelik",
+     "en": "Karabük Steelworks"
+    },
+    "desc": {
+     "tr": "Türkiye'nin ilk entegre demir çelik tesisi: +12 çelik, 2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "tur_five_year"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     },
+     {
+      "resource": "steel",
+      "amount": 12
+     }
+    ],
+    "ai": 28
+   },
+   {
+    "id": "tur_sumerbank",
+    "name": {
+     "tr": "Sümerbank Fabrikaları",
+     "en": "Sümerbank Factories"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 4,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "tur_five_year"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     }
+    ],
+    "ai": 22
+   },
+   {
+    "id": "tur_railways",
+    "name": {
+     "tr": "Demiryolu Seferberliği",
+     "en": "Railway Mobilization"
+    },
+    "desc": {
+     "tr": "Demir ağlarla ör: altyapı.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "tur_karabuk"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 4
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "tur_second_plan",
+    "name": {
+     "tr": "İkinci Beş Yıllık Plan",
+     "en": "Second Five-Year Plan"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 4,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "tur_sumerbank"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     },
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 24
+   },
+   {
+    "id": "tur_village",
+    "name": {
+     "tr": "Köy Enstitüleri",
+     "en": "Village Institutes"
+    },
+    "desc": {
+     "tr": "Kırsal eğitim atılımı.",
+     "en": ""
+    },
+    "x": 2,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "tur_kemalism"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "village_institutes"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "tur_nuri",
+    "name": {
+     "tr": "Nuri Demirağ Uçak Fabrikası",
+     "en": "Nuri Demirağ Aircraft"
+    },
+    "desc": {
+     "tr": "Yerli uçak sanayii.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "tur_kemalism"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "air_base",
+      "count": 2
+     },
+     {
+      "research_bonus": "air",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "equipment": {
+       "fighter_equipment": 40
+      }
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "tur_army",
+    "name": {
+     "tr": "Ordunun Modernizasyonu",
+     "en": "Army Modernization"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "tur_kemalism"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "military_modernization"
+     },
+     {
+      "research_bonus": "infantry",
+      "value": 1.0,
+      "uses": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "tur_thrace",
+    "name": {
+     "tr": "Trakya Tahkimatı",
+     "en": "Fortify Thrace"
+    },
+    "desc": {
+     "tr": "Çakmak Hattı: 3 yeni tümen ve ekipman.",
+     "en": ""
+    },
+    "x": 0,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "tur_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 400
+      }
+     },
+     {
+      "add_divisions": 3
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "tur_hatay",
+    "name": {
+     "tr": "Hatay Meselesi",
+     "en": "The Hatay Question"
+    },
+    "desc": {
+     "tr": "İskenderun Sancağı'nı anavatana katmak için Fransa ile müzakere et.",
+     "en": ""
+    },
+    "x": 1,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "tur_montreux"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1938-01-01"
+     },
+     {
+      "owns_city_not": "Antakya"
+     }
+    ],
+    "effects": [
+     {
+      "event": "hatay_question",
+      "target": "FRA"
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "tur_balkan",
+    "name": {
+     "tr": "Balkan Antantı",
+     "en": "Balkan Entente"
+    },
+    "desc": {
+     "tr": "Yunanistan, Yugoslavya ve Romanya ile ortak savunma.",
+     "en": ""
+    },
+    "x": 1,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "tur_hatay"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "create_faction": true
+     },
+     {
+      "invite": "GRE"
+     },
+     {
+      "invite": "YUG"
+     },
+     {
+      "invite": "ROM"
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "tur_saadabad",
+    "name": {
+     "tr": "Sadabat Paktı",
+     "en": "Saadabad Pact"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "tur_village"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 50
+     },
+     {
+      "stability": 0.05
+     },
+     {
+      "guarantee": "IRQ"
+     },
+     {
+      "guarantee": "PER"
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "tur_neutral",
+    "name": {
+     "tr": "Silahlı Tarafsızlık",
+     "en": "Armed Neutrality"
+    },
+    "desc": {
+     "tr": "Savaşın dışında kal ama hazırlıklı ol.",
+     "en": ""
+    },
+    "x": 2,
+    "y": 4,
+    "days": 70,
+    "prereq": [
+     "tur_saadabad"
+    ],
+    "any_prereq": [],
+    "exclusive": [
+     "tur_allies",
+     "tur_axis"
+    ],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     },
+     {
+      "add_divisions": 4
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "tur_allies",
+    "name": {
+     "tr": "Müttefiklere Katıl",
+     "en": "Join the Allies"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 4,
+    "days": 70,
+    "prereq": [
+     "tur_balkan"
+    ],
+    "any_prereq": [],
+    "exclusive": [
+     "tur_neutral",
+     "tur_axis"
+    ],
+    "available": [
+     {
+      "tension": 40
+     }
+    ],
+    "effects": [
+     {
+      "join_faction": "ENG"
+     },
+     {
+      "war_support": 0.1
+     }
+    ],
+    "ai": 4
+   },
+   {
+    "id": "tur_axis",
+    "name": {
+     "tr": "Mihvere Yaklaş",
+     "en": "Approach the Axis"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 3,
+    "y": 4,
+    "days": 70,
+    "prereq": [
+     "tur_railways"
+    ],
+    "any_prereq": [],
+    "exclusive": [
+     "tur_neutral",
+     "tur_allies"
+    ],
+    "available": [
+     {
+      "tension": 40
+     }
+    ],
+    "effects": [
+     {
+      "join_faction": "GER"
+     },
+     {
+      "popularity": {
+       "fascism": 0.15
+      }
+     }
+    ],
+    "ai": 2
+   },
+   {
+    "id": "tur_mosul",
+    "name": {
+     "tr": "Musul Talebi",
+     "en": "Claim Mosul"
+    },
+    "desc": {
+     "tr": "Misak-ı Milli sınırları: Irak'a karşı savaş gerekçesi.",
+     "en": ""
+    },
+    "x": 3,
+    "y": 5,
+    "days": 70,
+    "prereq": [
+     "tur_axis"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "war_goal": "IRQ"
+     }
+    ],
+    "ai": 5
+   },
+   {
+    "id": "tur_aegean",
+    "name": {
+     "tr": "Oniki Ada",
+     "en": "Dodecanese"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 5,
+    "days": 70,
+    "prereq": [
+     "tur_allies"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "war_goal": "ITA"
+     }
+    ],
+    "ai": 5
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 11,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 12,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 13,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 13,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 13,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "GER": [
+   {
+    "id": "ger_rhineland",
+    "name": {
+     "tr": "Ren Bölgesini Askerileştir",
+     "en": "Remilitarize the Rhineland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 0,
+    "days": 35,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "war_support": 0.1
+     },
+     {
+      "tension": 5
+     },
+     {
+      "news": "NEWS_RHINELAND"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_four_year",
+    "name": {
+     "tr": "Dört Yıllık Plan",
+     "en": "Four Year Plan"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 3,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 3
+     },
+     {
+      "building": "synthetic_refinery",
+      "count": 1
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "ger_anschluss",
+    "name": {
+     "tr": "Anschluss",
+     "en": "Anschluss"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "ger_rhineland"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1938-02-01"
+     },
+     {
+      "exists": "AUS"
+     }
+    ],
+    "effects": [
+     {
+      "event": "anschluss",
+      "target": "AUS"
+     },
+     {
+      "tension": 10
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_sudeten",
+    "name": {
+     "tr": "Südet Bölgesi Talebi",
+     "en": "Demand the Sudetenland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "ger_anschluss"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1938-09-01"
+     },
+     {
+      "exists": "CZE"
+     }
+    ],
+    "effects": [
+     {
+      "event": "sudeten",
+      "target": "CZE"
+     },
+     {
+      "tension": 10
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_bohemia",
+    "name": {
+     "tr": "Bohemya-Moravya",
+     "en": "Bohemia and Moravia"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "ger_sudeten"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-03-01"
+     },
+     {
+      "exists": "CZE"
+     }
+    ],
+    "effects": [
+     {
+      "annex": "CZE"
+     },
+     {
+      "tension": 15
+     },
+     {
+      "news": "NEWS_CZECH"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_pact_steel",
+    "name": {
+     "tr": "Çelik Paktı",
+     "en": "Pact of Steel"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "ger_anschluss"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-05-01"
+     }
+    ],
+    "effects": [
+     {
+      "create_faction": true
+     },
+     {
+      "invite": "ITA"
+     },
+     {
+      "invite": "HUN"
+     },
+     {
+      "invite": "BUL"
+     },
+     {
+      "invite": "ROM"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_molotov",
+    "name": {
+     "tr": "Molotov-Ribbentrop Paktı",
+     "en": "Molotov-Ribbentrop Pact"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 3,
+    "days": 70,
+    "prereq": [
+     "ger_pact_steel"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-08-01"
+     }
+    ],
+    "effects": [
+     {
+      "flag_target": "molotov",
+      "target": "SOV"
+     },
+     {
+      "news": "NEWS_MOLOTOV"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_danzig",
+    "name": {
+     "tr": "Danzig ya da Savaş",
+     "en": "Danzig or War"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 4,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [
+     "ger_bohemia",
+     "ger_sudeten"
+    ],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-08-20"
+     },
+     {
+      "exists": "POL"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "POL"
+     },
+     {
+      "declare_war": "POL",
+      "ai_only": true
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_west",
+    "name": {
+     "tr": "Batı Seferi",
+     "en": "The West"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 5,
+    "days": 70,
+    "prereq": [
+     "ger_danzig"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-04-01"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "HOL"
+     },
+     {
+      "war_goal": "BEL"
+     },
+     {
+      "war_goal": "LUX"
+     },
+     {
+      "declare_war": "HOL",
+      "ai_only": true
+     },
+     {
+      "declare_war": "BEL",
+      "ai_only": true
+     },
+     {
+      "declare_war": "LUX",
+      "ai_only": true
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ger_denmark",
+    "name": {
+     "tr": "Weserübung",
+     "en": "Weserübung"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 5,
+    "days": 70,
+    "prereq": [
+     "ger_danzig"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-04-01"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "DEN"
+     },
+     {
+      "war_goal": "NOR"
+     },
+     {
+      "declare_war": "DEN",
+      "ai_only": true
+     },
+     {
+      "declare_war": "NOR",
+      "ai_only": true
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "ger_balkans",
+    "name": {
+     "tr": "Balkan Harekâtı",
+     "en": "Balkan Campaign"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 6,
+    "days": 70,
+    "prereq": [
+     "ger_west"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1941-04-01"
+     },
+     {
+      "not": {
+       "enemies_at_war": [
+        "GER",
+        "FRA"
+       ]
+      }
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "YUG"
+     },
+     {
+      "war_goal": "GRE"
+     },
+     {
+      "declare_war": "YUG",
+      "ai_only": true
+     },
+     {
+      "declare_war": "GRE",
+      "ai_only": true
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "ger_barbarossa",
+    "name": {
+     "tr": "Barbarossa Harekâtı",
+     "en": "Operation Barbarossa"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 6,
+    "days": 70,
+    "prereq": [
+     "ger_west"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1941-06-20"
+     },
+     {
+      "exists": "SOV"
+     },
+     {
+      "not": {
+       "enemies_at_war": [
+        "GER",
+        "FRA"
+       ]
+      }
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "SOV"
+     },
+     {
+      "declare_war": "SOV",
+      "ai_only": true
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 9,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 9,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 11,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "SOV": [
+   {
+    "id": "sov_plan",
+    "name": {
+     "tr": "İkinci Beş Yıllık Plan",
+     "en": "Second Five-Year Plan"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 3
+     },
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "sov_purge",
+    "name": {
+     "tr": "Temizliği Sona Erdir",
+     "en": "End the Purge"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1938-11-01"
+     }
+    ],
+    "effects": [
+     {
+      "remove_spirit": "great_purge"
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "sov_poland",
+    "name": {
+     "tr": "Doğu Polonya",
+     "en": "Eastern Poland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "sov_plan"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-09-15"
+     },
+     {
+      "has_flag": "molotov"
+     },
+     {
+      "enemies_at_war": [
+       "GER",
+       "POL"
+      ]
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "POL"
+     },
+     {
+      "declare_war": "POL",
+      "ai_only": true
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "sov_winter",
+    "name": {
+     "tr": "Kış Savaşı",
+     "en": "Winter War"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "sov_plan"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-11-30"
+     },
+     {
+      "exists": "FIN"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "FIN"
+     },
+     {
+      "declare_war": "FIN",
+      "ai_only": true
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "sov_baltic",
+    "name": {
+     "tr": "Baltık Devletleri",
+     "en": "The Baltic States"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 3,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "sov_plan"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-06-01"
+     }
+    ],
+    "effects": [
+     {
+      "annex": "EST"
+     },
+     {
+      "annex": "LAT"
+     },
+     {
+      "annex": "LIT"
+     },
+     {
+      "tension": 10
+     },
+     {
+      "news": "NEWS_BALTIC"
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "sov_defense",
+    "name": {
+     "tr": "Anavatan Savunması",
+     "en": "Defense of the Motherland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "sov_purge"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     },
+     {
+      "add_divisions": 10
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 9,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 9,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 11,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "ENG": [
+   {
+    "id": "eng_rearm",
+    "name": {
+     "tr": "Yeniden Silahlanma",
+     "en": "Rearmament"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "rearmament"
+     },
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "eng_radar",
+    "name": {
+     "tr": "Zincir Ev Radar Ağı",
+     "en": "Chain Home"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "electronics",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "eng_guarantee",
+    "name": {
+     "tr": "Polonya'ya Garanti",
+     "en": "Guarantee Poland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "eng_rearm"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-03-31"
+     },
+     {
+      "exists": "POL"
+     }
+    ],
+    "effects": [
+     {
+      "guarantee": "POL"
+     },
+     {
+      "guarantee": "ROM"
+     },
+     {
+      "guarantee": "GRE"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "eng_navy",
+    "name": {
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 3,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 2
+     },
+     {
+      "equipment": {
+       "destroyer": 10,
+       "cruiser": 4
+      }
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 6,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 9,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 9,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 11,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 11,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "FRA": [
+   {
+    "id": "fra_maginot",
+    "name": {
+     "tr": "Maginot Hattı",
+     "en": "Maginot Line"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "add_divisions": 4
+     },
+     {
+      "equipment": {
+       "infantry_equipment": 4000
+      }
+     }
+    ],
+    "ai": 30
+   },
+   {
+    "id": "fra_guarantee",
+    "name": {
+     "tr": "Polonya'ya Garanti",
+     "en": "Guarantee Poland"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "fra_maginot"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-03-31"
+     },
+     {
+      "exists": "POL"
+     }
+    ],
+    "effects": [
+     {
+      "guarantee": "POL"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "fra_mobilize",
+    "name": {
+     "tr": "Genel Seferberlik",
+     "en": "General Mobilization"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 9,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 10,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 10,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "ITA": [
+   {
+    "id": "ita_albania",
+    "name": {
+     "tr": "Arnavutluk'u İşgal",
+     "en": "Occupy Albania"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-04-01"
+     },
+     {
+      "exists": "ALB"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "ALB"
+     },
+     {
+      "declare_war": "ALB",
+      "ai_only": true
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ita_mare",
+    "name": {
+     "tr": "Mare Nostrum",
+     "en": "Mare Nostrum"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 2
+     },
+     {
+      "equipment": {
+       "destroyer": 8,
+       "cruiser": 4
+      }
+     }
+    ],
+    "ai": 30
+   },
+   {
+    "id": "ita_war",
+    "name": {
+     "tr": "Savaşa Giriş",
+     "en": "Enter the War"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "ita_albania"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-06-10"
+     },
+     {
+      "enemies_at_war": [
+       "GER",
+       "FRA"
+      ]
+     }
+    ],
+    "effects": [
+     {
+      "join_war_of": "GER"
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "ita_greece",
+    "name": {
+     "tr": "Yunanistan'a Ültimatom",
+     "en": "Ultimatum to Greece"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "ita_war"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-10-28"
+     },
+     {
+      "not": {
+       "enemies_at_war": [
+        "GER",
+        "FRA"
+       ]
+      }
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "GRE"
+     },
+     {
+      "declare_war": "GRE",
+      "ai_only": true
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "g_industry",
+    "name": {
+     "tr": "Sanayi Hamlesi",
+     "en": "Industrial Effort"
+    },
+    "desc": {
+     "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "industry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "civilian_factory",
+      "count": 1
+     }
+    ],
+    "ai": 20
+   },
+   {
+    "id": "g_construction",
+    "name": {
+     "tr": "İnşaat Çalışmaları",
+     "en": "Construction Effort"
+    },
+    "desc": {
+     "tr": "2 sivil fabrika ve Sanayi Atılımı.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     },
+     {
+      "spirit": "industrial_drive"
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_research",
+    "name": {
+     "tr": "Araştırma Enstitüleri",
+     "en": "Research Institutes"
+    },
+    "desc": {
+     "tr": "+1 araştırma slotu.",
+     "en": ""
+    },
+    "x": 4,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_construction"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_slot": 1
+     }
+    ],
+    "ai": 25
+   },
+   {
+    "id": "g_arms",
+    "name": {
+     "tr": "Silah Sanayii",
+     "en": "Arms Industry"
+    },
+    "desc": {
+     "tr": "2 askeri fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_industry"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 18
+   },
+   {
+    "id": "g_infra",
+    "name": {
+     "tr": "Altyapı Yatırımı",
+     "en": "Infrastructure"
+    },
+    "desc": {
+     "tr": "Altyapı ve 1 askeri fabrika.",
+     "en": ""
+    },
+    "x": 5,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_arms"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "infrastructure",
+      "count": 2
+     },
+     {
+      "building": "military_factory",
+      "count": 1
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_army",
+    "name": {
+     "tr": "Kara Kuvvetleri",
+     "en": "Army Effort"
+    },
+    "desc": {
+     "tr": "Piyade araştırmasına bonus.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "infantry",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "pp": 25
+     }
+    ],
+    "ai": 15
+   },
+   {
+    "id": "g_doctrine",
+    "name": {
+     "tr": "Harp Akademisi",
+     "en": "War College"
+    },
+    "desc": {
+     "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "doctrine",
+      "value": 1.0,
+      "uses": 1
+     },
+     {
+      "spirit": "military_modernization"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_equipment",
+    "name": {
+     "tr": "Ekipman Stoklama",
+     "en": "Equipment Stockpile"
+    },
+    "desc": {
+     "tr": "Piyade teçhizatı ve topçu stoğu.",
+     "en": ""
+    },
+    "x": 7,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_doctrine"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "infantry_equipment": 3000,
+       "artillery_equipment": 300,
+       "support_equipment": 150
+      }
+     }
+    ],
+    "ai": 12
+   },
+   {
+    "id": "g_air",
+    "name": {
+     "tr": "Hava Kuvvetleri",
+     "en": "Air Effort"
+    },
+    "desc": {
+     "tr": "Hava araştırma bonusu ve hava üsleri.",
+     "en": ""
+    },
+    "x": 8,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     },
+     {
+      "building": "air_base",
+      "count": 2
+     }
+    ],
+    "ai": 10
+   },
+   {
+    "id": "g_air2",
+    "name": {
+     "tr": "Avcı Programı",
+     "en": "Fighter Program"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 8,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_air"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "equipment": {
+       "fighter_equipment": 60
+      }
+     },
+     {
+      "research_bonus": "air",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 8
+   },
+   {
+    "id": "g_navy",
+    "name": {
+     "tr": "Donanma",
+     "en": "Naval Effort"
+    },
+    "desc": {
+     "tr": "1 tersane ve deniz araştırma bonusu.",
+     "en": ""
+    },
+    "x": 9,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 1
+     },
+     {
+      "research_bonus": "naval",
+      "value": 0.5,
+      "uses": 1
+     }
+    ],
+    "ai": 6
+   },
+   {
+    "id": "g_politics",
+    "name": {
+     "tr": "Siyasi Etki",
+     "en": "Political Effort"
+    },
+    "desc": {
+     "tr": "+75 siyasi güç, +%5 istikrar.",
+     "en": ""
+    },
+    "x": 10,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "pp": 75
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 16
+   },
+   {
+    "id": "g_unity",
+    "name": {
+     "tr": "Milli Birlik",
+     "en": "National Unity"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 10,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "g_politics"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "national_unity"
+     }
+    ],
+    "ai": 14
+   },
+   {
+    "id": "g_propaganda",
+    "name": {
+     "tr": "Savaş Propagandası",
+     "en": "War Propaganda"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 10,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "g_unity"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "spirit": "war_propaganda"
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 10
+   }
+  ],
+  "JAP": [
+   {
+    "id": "jap_army",
+    "name": {
+     "tr": "İmparatorluk Ordusu",
+     "en": "Imperial Army"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     },
+     {
+      "war_support": 0.05
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "jap_navy",
+    "name": {
+     "tr": "Kaigun Genişlemesi",
+     "en": "Kaigun Expansion"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 2
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "jap_manchuria",
+    "name": {
+     "tr": "Mançurya Sanayisi",
+     "en": "Manchurian Industry"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "jap_army"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 2
+     }
+    ],
+    "ai": 35
+   },
+   {
+    "id": "jap_marco_polo",
+    "name": {
+     "tr": "Marco Polo Köprüsü Olayı",
+     "en": "The Marco Polo Bridge Incident"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 2,
+    "days": 35,
+    "prereq": [
+     "jap_manchuria"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1937-07-01"
+     },
+     {
+      "exists": "CHI"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "CHI"
+     },
+     {
+      "declare_war": "CHI",
+      "ai_only": true
+     },
+     {
+      "tension": 10
+     },
+     {
+      "war_support": 0.1
+     }
+    ],
+    "ai": 60
+   },
+   {
+    "id": "jap_tripartite",
+    "name": {
+     "tr": "Üçlü Pakt",
+     "en": "The Tripartite Pact"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 3,
+    "days": 35,
+    "prereq": [
+     "jap_marco_polo"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-09-20"
+     }
+    ],
+    "effects": [
+     {
+      "join_faction": "GER"
+     },
+     {
+      "tension": 5
+     }
+    ],
+    "ai": 50
+   },
+   {
+    "id": "jap_strike_south",
+    "name": {
+     "tr": "Güneye Saldırı",
+     "en": "Strike South"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 2,
+    "y": 3,
+    "days": 35,
+    "prereq": [
+     "jap_marco_polo",
+     "jap_navy"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1941-11-20"
+     },
+     {
+      "exists": "USA"
+     }
+    ],
+    "effects": [
+     {
+      "war_goal": "USA"
+     },
+     {
+      "war_goal": "HOL"
+     },
+     {
+      "declare_war": "USA",
+      "ai_only": true
+     },
+     {
+      "declare_war": "HOL",
+      "ai_only": true
+     },
+     {
+      "tension": 15
+     }
+    ],
+    "ai": 60
+   }
+  ],
+  "USA": [
+   {
+    "id": "usa_new_deal",
+    "name": {
+     "tr": "New Deal",
+     "en": "The New Deal"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "civilian_factory",
+      "count": 3
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "usa_rearm",
+    "name": {
+     "tr": "Yeniden Silahlanma",
+     "en": "Rearmament"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "usa_new_deal"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1939-09-01"
+     }
+    ],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 4
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "usa_two_ocean",
+    "name": {
+     "tr": "İki Okyanus Donanması",
+     "en": "Two-Ocean Navy Act"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "usa_new_deal"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-07-01"
+     }
+    ],
+    "effects": [
+     {
+      "building": "dockyard",
+      "count": 4
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "usa_arsenal",
+    "name": {
+     "tr": "Demokrasinin Cephaneliği",
+     "en": "Arsenal of Democracy"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 2,
+    "days": 70,
+    "prereq": [
+     "usa_rearm"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1940-12-01"
+     }
+    ],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 5
+     },
+     {
+      "war_support": 0.1
+     }
+    ],
+    "ai": 40
+   }
+  ],
+  "CHI": [
+   {
+    "id": "chi_united_front",
+    "name": {
+     "tr": "Birleşik Cephe",
+     "en": "The United Front"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 0,
+    "days": 70,
+    "prereq": [],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [
+     {
+      "date": "1937-01-01"
+     }
+    ],
+    "effects": [
+     {
+      "war_support": 0.15
+     },
+     {
+      "stability": 0.05
+     }
+    ],
+    "ai": 40
+   },
+   {
+    "id": "chi_army",
+    "name": {
+     "tr": "Ulusal Devrim Ordusu",
+     "en": "National Revolutionary Army"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 0,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "chi_united_front"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "add_divisions": 12
+     }
+    ],
+    "ai": 45
+   },
+   {
+    "id": "chi_industry",
+    "name": {
+     "tr": "Sanayi Seferberliği",
+     "en": "Industrial Mobilization"
+    },
+    "desc": {
+     "tr": "",
+     "en": ""
+    },
+    "x": 1,
+    "y": 1,
+    "days": 70,
+    "prereq": [
+     "chi_united_front"
+    ],
+    "any_prereq": [],
+    "exclusive": [],
+    "available": [],
+    "effects": [
+     {
+      "building": "military_factory",
+      "count": 2
+     }
+    ],
+    "ai": 35
+   }
+  ]
+ }
+}

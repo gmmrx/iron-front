@@ -1,0 +1,380 @@
+{
+ "_comment": "klasik strateji temelli ekipmanlar. cost: birim başına IC; resources: fabrika başına kaynak ihtiyacı (üretim hattında).",
+ "equipment": {
+  "infantry_equipment": {
+   "cost": 0.5,
+   "resources": {
+    "steel": 2
+   },
+   "category": "land",
+   "name": {
+    "en": "Infantry Equipment",
+    "tr": "Piyade Teçhizatı"
+   }
+  },
+  "support_equipment": {
+   "cost": 4.0,
+   "resources": {
+    "steel": 1,
+    "aluminium": 1
+   },
+   "category": "land",
+   "name": {
+    "en": "Support Equipment",
+    "tr": "Destek Ekipmanı"
+   }
+  },
+  "artillery_equipment": {
+   "cost": 3.5,
+   "resources": {
+    "steel": 2,
+    "tungsten": 1
+   },
+   "category": "land",
+   "name": {
+    "en": "Artillery",
+    "tr": "Topçu"
+   }
+  },
+  "anti_tank_equipment": {
+   "cost": 4.0,
+   "resources": {
+    "steel": 2,
+    "tungsten": 1
+   },
+   "category": "land",
+   "name": {
+    "en": "Anti-Tank",
+    "tr": "Tanksavar"
+   }
+  },
+  "anti_air_equipment": {
+   "cost": 4.0,
+   "resources": {
+    "steel": 1,
+    "aluminium": 1
+   },
+   "category": "land",
+   "name": {
+    "en": "Anti-Air",
+    "tr": "Uçaksavar Topu"
+   }
+  },
+  "motorized_equipment": {
+   "cost": 2.5,
+   "resources": {
+    "steel": 1,
+    "rubber": 1
+   },
+   "category": "land",
+   "name": {
+    "en": "Trucks",
+    "tr": "Kamyon"
+   }
+  },
+  "light_tank_equipment": {
+   "cost": 8.0,
+   "resources": {
+    "steel": 2,
+    "chromium": 1
+   },
+   "category": "armor",
+   "name": {
+    "en": "Light Tank",
+    "tr": "Hafif Tank"
+   }
+  },
+  "medium_tank_equipment": {
+   "cost": 12.0,
+   "resources": {
+    "steel": 2,
+    "chromium": 2
+   },
+   "category": "armor",
+   "name": {
+    "en": "Medium Tank",
+    "tr": "Orta Tank"
+   }
+  },
+  "fighter_equipment": {
+   "cost": 22.0,
+   "resources": {
+    "aluminium": 2,
+    "rubber": 1
+   },
+   "category": "air",
+   "name": {
+    "en": "Fighter",
+    "tr": "Avcı Uçağı"
+   }
+  },
+  "cas_equipment": {
+   "cost": 24.0,
+   "resources": {
+    "aluminium": 2,
+    "rubber": 1
+   },
+   "category": "air",
+   "name": {
+    "en": "Close Air Support",
+    "tr": "Yakın Hava Desteği"
+   }
+  },
+  "tactical_bomber_equipment": {
+   "cost": 36.0,
+   "resources": {
+    "aluminium": 3,
+    "rubber": 1
+   },
+   "category": "air",
+   "name": {
+    "en": "Tactical Bomber",
+    "tr": "Taktik Bombardıman"
+   }
+  },
+  "convoy": {
+   "cost": 30.0,
+   "resources": {
+    "steel": 2
+   },
+   "category": "naval",
+   "yard": true,
+   "name": {
+    "en": "Convoy",
+    "tr": "Konvoy"
+   }
+  },
+  "destroyer": {
+   "cost": 60.0,
+   "resources": {
+    "steel": 2
+   },
+   "category": "naval",
+   "yard": true,
+   "name": {
+    "en": "Destroyer",
+    "tr": "Muhrip"
+   }
+  },
+  "submarine": {
+   "cost": 45.0,
+   "resources": {
+    "steel": 1,
+    "chromium": 1
+   },
+   "category": "naval",
+   "yard": true,
+   "name": {
+    "en": "Submarine",
+    "tr": "Denizaltı"
+   }
+  },
+  "cruiser": {
+   "cost": 180.0,
+   "resources": {
+    "steel": 3,
+    "chromium": 1
+   },
+   "category": "naval",
+   "yard": true,
+   "name": {
+    "en": "Cruiser",
+    "tr": "Kruvazör"
+   }
+  },
+  "battleship": {
+   "cost": 500.0,
+   "resources": {
+    "steel": 5,
+    "chromium": 2
+   },
+   "category": "naval",
+   "yard": true,
+   "name": {
+    "en": "Battleship",
+    "tr": "Zırhlı Gemi"
+   }
+  }
+ },
+ "production": {
+  "mil_factory_output": 4.5,
+  "max_factories_per_line": 15,
+  "efficiency_start": 0.1,
+  "efficiency_cap": 0.5,
+  "efficiency_gain_per_day": 0.012,
+  "resource_shortage_floor": 0.25,
+  "dockyard_output": 2.5
+ },
+ "start_fleets": {
+  "ENG": {
+   "destroyer": 60,
+   "cruiser": 40,
+   "battleship": 12,
+   "submarine": 30,
+   "convoy": 300
+  },
+  "FRA": {
+   "destroyer": 40,
+   "cruiser": 18,
+   "battleship": 6,
+   "submarine": 40,
+   "convoy": 120
+  },
+  "ITA": {
+   "destroyer": 50,
+   "cruiser": 20,
+   "battleship": 4,
+   "submarine": 60,
+   "convoy": 100
+  },
+  "GER": {
+   "destroyer": 15,
+   "cruiser": 6,
+   "battleship": 2,
+   "submarine": 30,
+   "convoy": 60
+  },
+  "SOV": {
+   "destroyer": 20,
+   "cruiser": 7,
+   "battleship": 3,
+   "submarine": 60,
+   "convoy": 40
+  },
+  "TUR": {
+   "destroyer": 8,
+   "cruiser": 2,
+   "battleship": 1,
+   "submarine": 5,
+   "convoy": 20
+  },
+  "SPR": {
+   "destroyer": 12,
+   "cruiser": 6,
+   "battleship": 2,
+   "submarine": 8,
+   "convoy": 20
+  },
+  "GRE": {
+   "destroyer": 8,
+   "cruiser": 2,
+   "submarine": 4,
+   "convoy": 15
+  },
+  "HOL": {
+   "destroyer": 8,
+   "cruiser": 4,
+   "submarine": 12,
+   "convoy": 40
+  },
+  "SWE": {
+   "destroyer": 10,
+   "cruiser": 2,
+   "submarine": 12,
+   "convoy": 20
+  },
+  "_default_coastal": {
+   "destroyer": 2,
+   "convoy": 5
+  },
+  "_bases": {
+   "_comment": "Tarihî ana üsler (filo i -> üs i % n). Bulunamazsa başkente en yakın büyük liman.",
+   "ENG": [
+    "Portsmouth",
+    "Alexandria",
+    "Edinburgh"
+   ],
+   "FRA": [
+    "Toulon",
+    "Brest"
+   ],
+   "ITA": [
+    "Taranto",
+    "Naples"
+   ],
+   "GER": [
+    "Kiel"
+   ],
+   "SOV": [
+    "Sevastopol",
+    "St. Petersburg"
+   ],
+   "TUR": [
+    "İzmit"
+   ],
+   "SPR": [
+    "Cartagena"
+   ],
+   "GRE": [
+    "Piraeus"
+   ],
+   "HOL": [
+    "Rotterdam"
+   ],
+   "USA": [
+    "Norfolk",
+    "San Diego",
+    "Honolulu"
+   ],
+   "JAP": [
+    "Yokosuka",
+    "Kure",
+    "Sasebo"
+   ]
+  },
+  "USA": {
+   "destroyer": 90,
+   "cruiser": 30,
+   "battleship": 15,
+   "submarine": 60,
+   "convoy": 400
+  },
+  "JAP": {
+   "destroyer": 80,
+   "cruiser": 35,
+   "battleship": 10,
+   "submarine": 50,
+   "convoy": 250
+  },
+  "AST": {
+   "destroyer": 5,
+   "cruiser": 4,
+   "convoy": 30
+  },
+  "CAN": {
+   "destroyer": 4,
+   "convoy": 40
+  },
+  "ARG": {
+   "destroyer": 12,
+   "cruiser": 3,
+   "battleship": 2,
+   "submarine": 3,
+   "convoy": 25
+  },
+  "BRA": {
+   "destroyer": 8,
+   "cruiser": 2,
+   "battleship": 2,
+   "submarine": 4,
+   "convoy": 25
+  },
+  "CHL": {
+   "destroyer": 8,
+   "cruiser": 2,
+   "battleship": 1,
+   "submarine": 6,
+   "convoy": 15
+  },
+  "CHI": {
+   "destroyer": 4,
+   "cruiser": 4,
+   "convoy": 10
+  },
+  "SIA": {
+   "destroyer": 4,
+   "submarine": 4,
+   "convoy": 8
+  }
+ }
+}

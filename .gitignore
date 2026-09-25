@@ -1,0 +1,6 @@
+.godot/
+tools/cache/
+*.translation
+.DS_Store
+data/map/heightmap.r32
+build/

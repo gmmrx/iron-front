@@ -1,0 +1,543 @@
+{
+ "_comment": "Teknolojiler. cost: gün (araştırma hızı 1'de). year: bu yıldan önce araştırılırsa yıl başına +%150 süre. effects: modifier toplamları; unlock: ekipman/tabur.",
+ "categories": {
+  "infantry": {
+   "en": "Infantry",
+   "tr": "Piyade"
+  },
+  "artillery": {
+   "en": "Artillery",
+   "tr": "Topçu"
+  },
+  "armor": {
+   "en": "Armor",
+   "tr": "Zırh"
+  },
+  "air": {
+   "en": "Air",
+   "tr": "Hava"
+  },
+  "naval": {
+   "en": "Naval",
+   "tr": "Deniz"
+  },
+  "industry": {
+   "en": "Industry",
+   "tr": "Sanayi"
+  },
+  "electronics": {
+   "en": "Electronics",
+   "tr": "Elektronik"
+  },
+  "doctrine": {
+   "en": "Land Doctrine",
+   "tr": "Kara Doktrini"
+  }
+ },
+ "techs": {
+  "infantry_weapons_1": {
+   "cat": "infantry",
+   "year": 1936,
+   "cost": 100,
+   "req": [],
+   "name": {
+    "en": "Infantry Weapons I",
+    "tr": "Piyade Silahları I"
+   },
+   "effects": {
+    "infantry_soft": 0.1
+   }
+  },
+  "infantry_weapons_2": {
+   "cat": "infantry",
+   "year": 1939,
+   "cost": 140,
+   "req": [
+    "infantry_weapons_1"
+   ],
+   "name": {
+    "en": "Infantry Weapons II",
+    "tr": "Piyade Silahları II"
+   },
+   "effects": {
+    "infantry_soft": 0.15,
+    "infantry_defense": 0.1
+   }
+  },
+  "infantry_weapons_3": {
+   "cat": "infantry",
+   "year": 1942,
+   "cost": 170,
+   "req": [
+    "infantry_weapons_2"
+   ],
+   "name": {
+    "en": "Infantry Weapons III",
+    "tr": "Piyade Silahları III"
+   },
+   "effects": {
+    "infantry_soft": 0.15,
+    "infantry_defense": 0.15
+   }
+  },
+  "motorization": {
+   "cat": "infantry",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Motorization",
+    "tr": "Motorizasyon"
+   },
+   "effects": {
+    "infantry_speed": 0.05
+   }
+  },
+  "support_weapons": {
+   "cat": "infantry",
+   "year": 1937,
+   "cost": 110,
+   "req": [
+    "infantry_weapons_1"
+   ],
+   "name": {
+    "en": "Support Weapons",
+    "tr": "Destek Silahları"
+   },
+   "effects": {
+    "infantry_breakthrough": 0.2
+   }
+  },
+  "artillery_1": {
+   "cat": "artillery",
+   "year": 1936,
+   "cost": 100,
+   "req": [],
+   "name": {
+    "en": "Interwar Artillery",
+    "tr": "Savaşlar Arası Topçu"
+   },
+   "effects": {
+    "artillery_soft": 0.1
+   }
+  },
+  "artillery_2": {
+   "cat": "artillery",
+   "year": 1939,
+   "cost": 140,
+   "req": [
+    "artillery_1"
+   ],
+   "name": {
+    "en": "Improved Artillery",
+    "tr": "Gelişmiş Topçu"
+   },
+   "effects": {
+    "artillery_soft": 0.2
+   }
+  },
+  "anti_tank_1": {
+   "cat": "artillery",
+   "year": 1937,
+   "cost": 110,
+   "req": [
+    "artillery_1"
+   ],
+   "name": {
+    "en": "Anti-Tank Guns",
+    "tr": "Tanksavar Topları"
+   },
+   "effects": {
+    "artillery_hard": 0.2
+   }
+  },
+  "artillery_3": {
+   "cat": "artillery",
+   "year": 1941,
+   "cost": 170,
+   "req": [
+    "artillery_2"
+   ],
+   "name": {
+    "en": "Advanced Artillery",
+    "tr": "İleri Topçu"
+   },
+   "effects": {
+    "artillery_soft": 0.2,
+    "artillery_hard": 0.2
+   }
+  },
+  "light_tank_2": {
+   "cat": "armor",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Improved Light Tank",
+    "tr": "Gelişmiş Hafif Tank"
+   },
+   "effects": {
+    "armor_soft": 0.1,
+    "armor_breakthrough": 0.1
+   }
+  },
+  "medium_tank_1": {
+   "cat": "armor",
+   "year": 1939,
+   "cost": 150,
+   "req": [
+    "light_tank_2"
+   ],
+   "name": {
+    "en": "Medium Tank",
+    "tr": "Orta Tank"
+   },
+   "effects": {},
+   "unlock": [
+    "medium_tank_equipment"
+   ]
+  },
+  "medium_tank_2": {
+   "cat": "armor",
+   "year": 1941,
+   "cost": 170,
+   "req": [
+    "medium_tank_1"
+   ],
+   "name": {
+    "en": "Improved Medium Tank",
+    "tr": "Gelişmiş Orta Tank"
+   },
+   "effects": {
+    "armor_soft": 0.15,
+    "armor_breakthrough": 0.2,
+    "armor_hard": 0.15
+   }
+  },
+  "fighter_1": {
+   "cat": "air",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Monoplane Fighter",
+    "tr": "Tek Kanatlı Avcı"
+   },
+   "effects": {
+    "air_power": 0.15
+   },
+   "unlock": [
+    "fighter_equipment"
+   ]
+  },
+  "cas_1": {
+   "cat": "air",
+   "year": 1937,
+   "cost": 120,
+   "req": [
+    "fighter_1"
+   ],
+   "name": {
+    "en": "Close Air Support",
+    "tr": "Yakın Hava Desteği"
+   },
+   "effects": {},
+   "unlock": [
+    "cas_equipment"
+   ]
+  },
+  "fighter_2": {
+   "cat": "air",
+   "year": 1940,
+   "cost": 150,
+   "req": [
+    "fighter_1"
+   ],
+   "name": {
+    "en": "Improved Fighter",
+    "tr": "Gelişmiş Avcı"
+   },
+   "effects": {
+    "air_power": 0.25
+   }
+  },
+  "bomber_1": {
+   "cat": "air",
+   "year": 1938,
+   "cost": 140,
+   "req": [
+    "fighter_1"
+   ],
+   "name": {
+    "en": "Tactical Bomber",
+    "tr": "Taktik Bombardıman"
+   },
+   "effects": {},
+   "unlock": [
+    "tactical_bomber_equipment"
+   ]
+  },
+  "destroyer_1": {
+   "cat": "naval",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Destroyers",
+    "tr": "Muhripler"
+   },
+   "effects": {
+    "naval_power": 0.1
+   },
+   "unlock": [
+    "destroyer"
+   ]
+  },
+  "cruiser_1": {
+   "cat": "naval",
+   "year": 1937,
+   "cost": 130,
+   "req": [
+    "destroyer_1"
+   ],
+   "name": {
+    "en": "Cruisers",
+    "tr": "Kruvazörler"
+   },
+   "effects": {
+    "naval_power": 0.15
+   },
+   "unlock": [
+    "cruiser"
+   ]
+  },
+  "submarine_1": {
+   "cat": "naval",
+   "year": 1938,
+   "cost": 130,
+   "req": [
+    "destroyer_1"
+   ],
+   "name": {
+    "en": "Submarines",
+    "tr": "Denizaltılar"
+   },
+   "effects": {
+    "naval_power": 0.1
+   },
+   "unlock": [
+    "submarine"
+   ]
+  },
+  "battleship_1": {
+   "cat": "naval",
+   "year": 1940,
+   "cost": 170,
+   "req": [
+    "cruiser_1"
+   ],
+   "name": {
+    "en": "Battleships",
+    "tr": "Zırhlılar"
+   },
+   "effects": {
+    "naval_power": 0.25
+   },
+   "unlock": [
+    "battleship"
+   ]
+  },
+  "industry_1": {
+   "cat": "industry",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Basic Machine Tools",
+    "tr": "Temel Takım Tezgâhları"
+   },
+   "effects": {
+    "production_efficiency_cap": 0.1
+   }
+  },
+  "construction_1": {
+   "cat": "industry",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Construction Engineering I",
+    "tr": "İnşaat Mühendisliği I"
+   },
+   "effects": {
+    "construction_speed": 0.1
+   }
+  },
+  "industry_2": {
+   "cat": "industry",
+   "year": 1937,
+   "cost": 140,
+   "req": [
+    "industry_1"
+   ],
+   "name": {
+    "en": "Dispersed Industry",
+    "tr": "Dağıtılmış Sanayi"
+   },
+   "effects": {
+    "factory_output": 0.1
+   }
+  },
+  "construction_2": {
+   "cat": "industry",
+   "year": 1938,
+   "cost": 140,
+   "req": [
+    "construction_1"
+   ],
+   "name": {
+    "en": "Construction Engineering II",
+    "tr": "İnşaat Mühendisliği II"
+   },
+   "effects": {
+    "construction_speed": 0.1
+   }
+  },
+  "synthetic_oil": {
+   "cat": "industry",
+   "year": 1937,
+   "cost": 130,
+   "req": [
+    "industry_1"
+   ],
+   "name": {
+    "en": "Synthetic Rubber",
+    "tr": "Sentetik Kauçuk"
+   },
+   "effects": {
+    "synthetic_output": 1.0
+   }
+  },
+  "industry_3": {
+   "cat": "industry",
+   "year": 1940,
+   "cost": 170,
+   "req": [
+    "industry_2"
+   ],
+   "name": {
+    "en": "Assembly Lines",
+    "tr": "Montaj Hatları"
+   },
+   "effects": {
+    "factory_output": 0.1,
+    "production_efficiency_cap": 0.1
+   }
+  },
+  "radio": {
+   "cat": "electronics",
+   "year": 1936,
+   "cost": 110,
+   "req": [],
+   "name": {
+    "en": "Radio",
+    "tr": "Radyo"
+   },
+   "effects": {
+    "research_speed": 0.03,
+    "org": 0.05
+   }
+  },
+  "computing_1": {
+   "cat": "electronics",
+   "year": 1938,
+   "cost": 140,
+   "req": [
+    "radio"
+   ],
+   "name": {
+    "en": "Mechanical Computing",
+    "tr": "Mekanik Hesaplama"
+   },
+   "effects": {
+    "research_speed": 0.05
+   }
+  },
+  "radar_1": {
+   "cat": "electronics",
+   "year": 1939,
+   "cost": 150,
+   "req": [
+    "radio"
+   ],
+   "name": {
+    "en": "Radar",
+    "tr": "Radar"
+   },
+   "effects": {
+    "air_power": 0.1,
+    "naval_power": 0.05
+   }
+  },
+  "doctrine_1": {
+   "cat": "doctrine",
+   "year": 1936,
+   "cost": 120,
+   "req": [],
+   "name": {
+    "en": "Mobile Warfare",
+    "tr": "Hareketli Harp"
+   },
+   "effects": {
+    "org": 0.1,
+    "armor_breakthrough": 0.1
+   }
+  },
+  "doctrine_2": {
+   "cat": "doctrine",
+   "year": 1936,
+   "cost": 120,
+   "req": [],
+   "name": {
+    "en": "Grand Battleplan",
+    "tr": "Büyük Harp Planı"
+   },
+   "effects": {
+    "defense": 0.1,
+    "entrenchment": 0.1
+   }
+  },
+  "doctrine_3": {
+   "cat": "doctrine",
+   "year": 1938,
+   "cost": 150,
+   "req": [
+    "doctrine_1"
+   ],
+   "name": {
+    "en": "Blitzkrieg",
+    "tr": "Yıldırım Savaşı"
+   },
+   "effects": {
+    "speed": 0.1,
+    "breakthrough": 0.15
+   }
+  },
+  "doctrine_4": {
+   "cat": "doctrine",
+   "year": 1938,
+   "cost": 150,
+   "req": [
+    "doctrine_2"
+   ],
+   "name": {
+    "en": "Deep Defense",
+    "tr": "Derin Savunma"
+   },
+   "effects": {
+    "defense": 0.15,
+    "org": 0.05
+   }
+  }
+ }
+}
