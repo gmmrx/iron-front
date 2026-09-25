@@ -6,7 +6,7 @@ extends Node3D
 ## Figürler bölgeler arasında hareket ilerlemesine göre yürür; muharebede düşmana döner ve ateş eder.
 ## Muharebe bölgelerinde namlu alevi, patlama ve duman efektleri.
 
-const MODEL_FILES := ["res://assets/models/muster_units.glb", "res://assets/models/units.glb"]
+const MODEL_FILES := ["res://assets/models/muster_units.glb", "res://assets/models/soldiers.glb", "res://assets/models/units.glb"]
 const SHADER := preload("res://assets/shaders/unit.gdshader")
 const VISIBLE_DIST := 700.0          ## kamera mesafesi: bunun altında figürler görünür
 ## rol önekine göre ölçek (modeller gerçek metre; piyade okunabilirlik için abartılı)
@@ -15,6 +15,7 @@ const ROLE_SCALE := {"inf": 2.6, "mg": 2.6, "art": 0.95, "aa": 0.85, "tank": 0.8
 const FACTION := {
 	"GER": "germany", "AUS": "germany", "SOV": "soviet", "MON": "soviet", "ENG": "uk", "CAN": "uk", "AST": "uk",
 	"SAF": "uk", "NZL": "uk", "RAJ": "uk", "USA": "usa", "ITA": "italy", "JAP": "japan",
+	"TUR": "turkey", "FRA": "france",
 }
 ## Dönem üniforma renkleri (yoksa haki + ülke renginden hafif ton)
 const UNIFORMS := {
