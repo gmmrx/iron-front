@@ -2,7 +2,7 @@ class_name ResourceIcon
 extends Control
 ## Vektörel küçük ikonlar (ikon atlası gelene kadar).
 
-enum Kind { POLITICAL_POWER, STABILITY, WAR_SUPPORT, MANPOWER, FACTORY, FUEL, CONVOY, SUPPLY, COMMAND, XP_ARMY, XP_NAVY, XP_AIR }
+enum Kind { POLITICAL_POWER, STABILITY, WAR_SUPPORT, MANPOWER, FACTORY, FUEL, CONVOY, SUPPLY, COMMAND, XP_ARMY, XP_NAVY, XP_AIR, TENSION, WAR }
 
 var kind: Kind
 
@@ -76,6 +76,27 @@ func _draw() -> void:
 		Kind.XP_AIR:
 			var col := Color("d9d9d9")
 			draw_colored_polygon(PackedVector2Array([c + Vector2(0, -r * 0.6), c + Vector2(r * 0.14, -r * 0.1), c + Vector2(r * 0.62, r * 0.15), c + Vector2(r * 0.14, r * 0.12), c + Vector2(r * 0.1, r * 0.5), c + Vector2(r * 0.25, r * 0.6), c + Vector2(-r * 0.25, r * 0.6), c + Vector2(-r * 0.1, r * 0.5), c + Vector2(-r * 0.14, r * 0.12), c + Vector2(-r * 0.62, r * 0.15), c + Vector2(-r * 0.14, -r * 0.1)]), col)
+		Kind.TENSION:
+			# dünya küresi
+			var col := Color("c9c2b0")
+			draw_arc(c, r * 0.58, 0, TAU, 24, col, 2.0, true)
+			draw_arc(c, r * 0.58, 0, TAU, 24, col, 1.0, true)
+			draw_line(c + Vector2(-r * 0.58, 0), c + Vector2(r * 0.58, 0), col, 1.5, true)
+			draw_line(c + Vector2(0, -r * 0.58), c + Vector2(0, r * 0.58), col, 1.5, true)
+			draw_arc(c, r * 0.58, PI * 0.5, PI * 1.5, 16, col, 1.5, true)
+			var pts := PackedVector2Array()
+			for i in 17:
+				var t := float(i) / 16.0
+				var y := -r * 0.58 + t * r * 1.16
+				pts.append(c + Vector2(cos(asin(clampf(y / (r * 0.58), -1, 1))) * r * 0.28, y))
+			draw_polyline(pts, col, 1.2, true)
+		Kind.WAR:
+			# çapraz kılıçlar
+			var col := Color("e0674f")
+			draw_line(c + Vector2(-r * 0.55, -r * 0.55), c + Vector2(r * 0.55, r * 0.55), col, 2.5, true)
+			draw_line(c + Vector2(r * 0.55, -r * 0.55), c + Vector2(-r * 0.55, r * 0.55), col, 2.5, true)
+			draw_line(c + Vector2(-r * 0.3, r * 0.15), c + Vector2(-r * 0.15, r * 0.3), col, 3.0, true)
+			draw_line(c + Vector2(r * 0.3, r * 0.15), c + Vector2(r * 0.15, r * 0.3), col, 3.0, true)
 		Kind.MANPOWER:
 			var col := Color("9ccf85")
 			draw_circle(c + Vector2(0, -r * 0.3), r * 0.24, col)

@@ -64,7 +64,7 @@ func _ready() -> void:
 	feed = NotificationFeed.new()
 	root.add_child(feed)
 	task_bar = HBoxContainer.new()
-	task_bar.position = Vector2(114, 46)
+	task_bar.position = Vector2(12, 58)
 	task_bar.add_theme_constant_override("separation", 3)
 	root.add_child(task_bar)
 	var tasks := [
@@ -132,7 +132,7 @@ func _ready() -> void:
 		diplomacy.open_for(tag))
 
 const SIDE_X := 12.0
-const SIDE_Y := 96.0
+const SIDE_Y := 100.0
 
 ## Yan paneller: sol kenara sabit, başlıkta kapatma düğmesi, açılırken kayarak gelir
 func _decorate_side_panel(p: Control) -> void:

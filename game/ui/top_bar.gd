@@ -41,7 +41,7 @@ class PlayPauseIcon extends Control:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	custom_minimum_size.y = 84
+	custom_minimum_size.y = 52
 	var sb := UiTheme.textured("topbar", 10, 8)
 	sb.content_margin_top = 5
 	sb.content_margin_bottom = 5
@@ -62,33 +62,25 @@ func _ready() -> void:
 	var fcol := VBoxContainer.new()
 	fcol.add_theme_constant_override("separation", 0)
 	_flag = TextureRect.new()
-	_flag.custom_minimum_size = Vector2(88, 52)
+	_flag.custom_minimum_size = Vector2(64, 40)
 	_flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_flag.stretch_mode = TextureRect.STRETCH_SCALE
 	_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	fcol.add_child(_flag)
-	_name = UiTheme.make_label("", 12, UiTheme.ACCENT)
-	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_name = UiTheme.make_label("", 16, UiTheme.ACCENT)
+	_name.add_theme_font_override("font", UiTheme.title_font())
 	_name.clip_text = true
-	_name.custom_minimum_size.x = 88
+	_name.custom_minimum_size.x = 150
+	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	fcol.add_child(_name)
 	_leader = UiTheme.make_label("", 12, UiTheme.TEXT_DIM)   # yalnız ipucunda kullanılır
 	flag_frame.add_child(fcol)
 	outer.add_child(flag_frame)
 
-	# bayrağın sağı: üstte göstergeler, altta görev düğmeleri için boşluk (HUD görev çubuğu buraya oturur)
-	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 4)
-	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer.add_child(stack)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
-	stack.add_child(row)
-	var task_slot := Control.new()
-	task_slot.custom_minimum_size.y = 36
-	task_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(task_slot)
+	row.add_theme_constant_override("separation", 5)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outer.add_child(row)
 
 	# --- göstergeler
 	_pp = _stat(row, ResourceIcon.Kind.POLITICAL_POWER, "UI_POLITICAL_POWER_TIP")
@@ -107,15 +99,10 @@ func _ready() -> void:
 	_xp_navy = _stat(row, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
 	_xp_air = _stat(row, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
 
-	_tension = UiTheme.make_label("", 15, UiTheme.TEXT)
-	_tension.add_theme_font_override("font", UiTheme.bold_font())
-	_tension.mouse_filter = Control.MOUSE_FILTER_STOP
-	_tension.tooltip_text = tr("TIP_TENSION")
-	row.add_child(_tension)
-	_war = UiTheme.make_label("", 15, UiTheme.BAD)
-	_war.add_theme_font_override("font", UiTheme.bold_font())
-	_war.mouse_filter = Control.MOUSE_FILTER_STOP
-	row.add_child(_war)
+	_tension = _stat(row, ResourceIcon.Kind.TENSION, "TIP_TENSION")
+	_war = _stat(row, ResourceIcon.Kind.WAR, "TIP_AT_WAR_SHORT")
+	_war.add_theme_color_override("font_color", UiTheme.BAD)
+	_cell_of(_war).visible = false
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
@@ -123,7 +110,7 @@ func _ready() -> void:
 	# --- tarih & hız
 	var date_panel := PanelContainer.new()
 	date_panel.add_theme_stylebox_override("panel", UiTheme.panel_style(Color(0, 0, 0, 0.35), UiTheme.BORDER_DIM))
-	date_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	date_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	outer.add_child(date_panel)
 	var drow := HBoxContainer.new()
 	drow.add_theme_constant_override("separation", 10)
@@ -173,10 +160,10 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 	sb.border_color = UiTheme.BORDER_DIM
 	sb.set_border_width_all(1)
 	sb.set_corner_radius_all(3)
-	sb.content_margin_left = 6
-	sb.content_margin_right = 7
-	sb.content_margin_top = 2
-	sb.content_margin_bottom = 2
+	sb.content_margin_left = 7
+	sb.content_margin_right = 9
+	sb.content_margin_top = 3
+	sb.content_margin_bottom = 3
 	cell.add_theme_stylebox_override("panel", sb)
 	cell.tooltip_text = tr(tip_key)
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -188,7 +175,7 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 	if ResourceIcon.FILES.has(kind):
 		var icon := TextureRect.new()
 		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
-		icon.custom_minimum_size = Vector2(22, 22)
+		icon.custom_minimum_size = Vector2(27, 27)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -196,25 +183,25 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 		box.add_child(icon)
 	else:
 		var ri := ResourceIcon.new(kind)
-		ri.custom_minimum_size = Vector2(22, 22)
+		ri.custom_minimum_size = Vector2(27, 27)
 		ri.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		box.add_child(ri)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 1)
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(col)
-	var l := UiTheme.make_label("", 15)
+	var l := UiTheme.make_label("", 17)
 	l.add_theme_font_override("font", UiTheme.bold_font())
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(l)
 	if kind in [ResourceIcon.Kind.FUEL, ResourceIcon.Kind.SUPPLY]:
 		var back := ColorRect.new()
 		back.color = Color(0, 0, 0, 0.6)
-		back.custom_minimum_size = Vector2(40, 4)
+		back.custom_minimum_size = Vector2(46, 4)
 		back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var fill := ColorRect.new()
 		fill.color = UiTheme.GOOD
-		fill.size = Vector2(40, 4)
+		fill.size = Vector2(46, 4)
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		back.add_child(fill)
 		col.add_child(back)
@@ -226,7 +213,7 @@ func _set_bar(kind: ResourceIcon.Kind, ratio: float) -> void:
 	if not _bars.has(kind):
 		return
 	var fill: ColorRect = _bars[kind][1]
-	fill.size.x = 40.0 * clampf(ratio, 0.0, 1.0)
+	fill.size.x = 46.0 * clampf(ratio, 0.0, 1.0)
 	fill.color = UiTheme.GOOD if ratio > 0.5 else (Color(0.9, 0.75, 0.3) if ratio > 0.2 else UiTheme.BAD)
 
 func _cell_of(l: Label) -> Control:
@@ -285,13 +272,14 @@ func _update_country() -> void:
 	_xp_army.text = "%d" % int(c.army_xp)
 	_xp_navy.text = "%d" % int(c.navy_xp)
 	_xp_air.text = "%d" % int(c.air_xp)
-	_tension.text = tr("TOP_TENSION") % roundi(World.world_tension)
+	_tension.text = "%d%%" % roundi(World.world_tension)
 	if Diplomacy.at_war(c.tag):
 		var foes := Diplomacy.enemies_of(c.tag)
-		_war.text = tr("TOP_AT_WAR") % [foes.size(), roundi(c.surrender_progress * 100)]
-		_war.tooltip_text = tr("TIP_AT_WAR") % [", ".join(foes.map(func(t: String) -> String: return World.countries[t].display_name())), roundi(Diplomacy.capitulation_threshold(c) * 100)]
+		_cell_of(_war).visible = true
+		_war.text = "%d · %d%%" % [foes.size(), roundi(c.surrender_progress * 100)]
+		_cell_of(_war).tooltip_text = tr("TIP_AT_WAR") % [", ".join(foes.map(func(t: String) -> String: return World.countries[t].display_name())), roundi(Diplomacy.capitulation_threshold(c) * 100)]
 	else:
-		_war.text = ""
+		_cell_of(_war).visible = false
 
 func _update_date() -> void:
 	_date.text = GameClock.date_string()

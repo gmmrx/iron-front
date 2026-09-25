@@ -5,7 +5,7 @@ Ana belge: [110 prompt](../../../docs/art/3d-model-animation-prompts.md). Ayrın
 ## Durum — 2026-09-25
 
 - **16 taslak pafta kaydedildi.** Üretim yöntemi: built-in image_gen. Çıktılar 1536×1024 PNG; 4K hedefi gerçekleşmedi, dosyalar büyütülüp 4K diye sunulmadı.
-- Devam sırası **018 — Cromwell IV**. Önceki kota engeli kullanıcının devam isteğinden sonraki denemede kalktı.
+- Görsel üretimi kullanıcının isteğiyle durduruldu; devam edilirse sıra **018 — Cromwell IV**. Önceki kota engeli kalktı. Şu an çalışma: 001 Türk piyadesinden ayrı bir 3D prototip.
 - 002 Alman piyadesi çıktı güvenlik filtresinde reddedildi; görsel yok. Prompt/hata kaydı korunuyor, filtre aşma girişimi yapılmadı.
 - 010–012, Britanya temelinin ilk rol örnekleri. Diğer ülkelerin rol varyantları ayrıca üretilecek.
 - Hiçbir pafta Blender'a hazır/onaylı teknik çizim değildir. Görsel ve tarihsel düzeltmeler REVIEW dosyalarında. Ayrı yüksek çözünürlüklü açılar ve aksesuar/parça paftaları henüz bekliyor.

@@ -9,6 +9,7 @@ from pathlib import Path
 
 import bpy
 import bmesh
+import numpy as np
 from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,6 +43,7 @@ source.pixels[0]  # Force lazy image decoding before changing the destination pa
 source.filepath_raw = str(TEX / 'reference_albedo.png')
 source.file_format = 'PNG'
 source.save()
+source_pixels = np.array(source.pixels[:], dtype=np.float32).reshape(1024,1536,4)
 
 
 def material(name, rgb, rough=.75, metal=0, texture=False, grain=0):
@@ -67,18 +69,27 @@ def material(name, rgb, rough=.75, metal=0, texture=False, grain=0):
         bump.inputs['Distance'].default_value = grain
         links.new(noise.outputs['Fac'], bump.inputs['Height'])
         links.new(bump.outputs['Normal'], bs.inputs['Normal'])
+        if not texture:
+            ramp=n.new('ShaderNodeValToRGB')
+            rgba=color(rgb)
+            ramp.color_ramp.elements[0].position=.2
+            ramp.color_ramp.elements[0].color=(*[v*.78 for v in rgba[:3]],1)
+            ramp.color_ramp.elements[1].position=.8
+            ramp.color_ramp.elements[1].color=(*[min(v*1.16,1) for v in rgba[:3]],1)
+            links.new(noise.outputs['Fac'],ramp.inputs['Fac'])
+            links.new(ramp.outputs['Color'],bs.inputs['Base Color'])
     return m
 
 
 mats = {
     'cloth_photo': material('Wool_reference_albedo', (129,116,85), .88, texture=True, grain=.00045),
     'skin_photo': material('Skin_reference_albedo', (191,148,117), .61, texture=True, grain=.00012),
-    'cloth': material('Wool_khaki', (129,117,88), .88, grain=.00045),
+    'cloth': material('Wool_khaki', (143,129,97), .88, grain=.0008),
     'cloth_dark': material('Wool_seam', (106,94,68), .9),
     'puttee': material('Woven_puttee', (126,116,88), .88, grain=.0004),
     'leather': material('Leather_brown', (82,55,39), .52, grain=.0003),
     'leather_edge': material('Leather_edge', (106,74,53), .56),
-    'boot': material('Leather_boot', (67,50,40), .46, grain=.0002),
+    'boot': material('Leather_boot', (67,50,40), .7, grain=.0003),
     'sole': material('Boot_sole', (38,31,27), .86),
     'skin': material('Skin_hands', (173,134,106), .67, grain=.00012),
     'brass': material('Aged_brass', (127,108,68), .43, .72),
@@ -129,6 +140,13 @@ def mesh(name, verts, faces, mat, subdiv=0):
 
 def loft(name, rings, mat, segments=48, wrinkles=0, subdiv=1):
     """Horizontal elliptical rings: z, x, y, radius_x, radius_y."""
+    if wrinkles:
+        dense=[]
+        for i in range(len(rings)-1):
+            for step in range(4):
+                t=step/4
+                dense.append(tuple(a*(1-t)+b*t for a,b in zip(rings[i],rings[i+1])))
+        rings=dense+[rings[-1]]
     verts = []
     for ri, (z, x, y, rx, ry) in enumerate(rings):
         for j in range(segments):
@@ -206,18 +224,18 @@ def ribbon(name, points, width, mat, normal=(0,-1,0), thickness=.003):
 
 
 # Uniform torso. Rings follow front-reference landmarks; depth is manually inferred.
-loft('Tunic',[(.825,0,0,.219,.125),(.835,0,0,.224,.129),(.87,0,0,.22,.126),(.96,0,0,.202,.118),(1.055,0,0,.185,.108),(1.085,0,0,.185,.11),(1.15,0,0,.195,.119),(1.25,0,0,.199,.122),(1.34,0,0,.205,.115),(1.405,0,0,.19,.097),(1.446,0,0,.147,.083),(1.482,0,0,.061,.058)],'cloth_photo',wrinkles=.003)
+loft('Tunic',[(.825,0,0,.219,.125),(.835,0,0,.224,.129),(.87,0,0,.22,.126),(.96,0,0,.202,.118),(1.055,0,0,.185,.108),(1.085,0,0,.185,.11),(1.15,0,0,.195,.119),(1.25,0,0,.199,.122),(1.34,0,0,.205,.115),(1.405,0,0,.19,.097),(1.446,0,0,.147,.083),(1.482,0,0,.061,.058)],'cloth',wrinkles=.003)
 
 # Legs, cloth folds, wrapped puttees and shaped boot volumes.
 for s,side in [(-1,'R'),(1,'L')]:
     rings=[(.405,s*.18,0,.06,.062),(.425,s*.177,0,.073,.069),(.45,s*.174,0,.082,.077),(.485,s*.168,0,.079,.083),(.53,s*.16,0,.088,.086),(.60,s*.15,0,.096,.085),(.67,s*.142,0,.105,.092),(.76,s*.133,0,.112,.10),(.85,s*.124,0,.105,.10),(.925,s*.112,0,.10,.10)]
-    loft('Trousers_'+side,rings,'cloth_photo',wrinkles=.006)
+    loft('Trousers_'+side,rings,'cloth',wrinkles=.006)
     puttee=[]
     for i in range(30):
         z=.155+i*(.264/29)
         r=.047+((z-.155)/.264)*.015
         puttee.append((z,s*.183,0,r,r*.98))
-    loft('Puttee_'+side,puttee,'cloth_photo',subdiv=0)
+    loft('Puttee_'+side,puttee,'puttee',subdiv=0)
     spiral=[]
     for i in range(480):
         t=i/479;a=t*2*math.pi*10;z=.157+t*.26;r=.048+t*.015
@@ -231,16 +249,17 @@ for s,side in [(-1,'R'),(1,'L')]:
 
 # Sleeves: one continuous loft per arm rather than intersecting cylinder segments.
 for s,side in [(-1,'R'),(1,'L')]:
-    c=[(s*.185,0,1.409),(s*.22,-.001,1.36),(s*.27,-.005,1.285),(s*.324,-.009,1.212),(s*.359,-.012,1.16),(s*.404,-.014,1.103),(s*.452,-.016,1.035),(s*.48,-.017,1.005)]
-    r=[(.075,.089),(.081,.084),(.075,.074),(.066,.068),(.064,.065),(.059,.058),(.05,.052),(.047,.048)]
-    tube('Sleeve_'+side,c,r,'cloth_photo',segments=40,wrinkle=.0026)
-    tube('Cuff_'+side,[c[-2],c[-1],(s*.486,-.017,.996)],[r[-2],r[-1],(.048,.049)],'cloth_photo',segments=32)
+    c=[(s*.135,0,1.42),(s*.182,0,1.404),(s*.22,-.001,1.36),(s*.27,-.005,1.285),(s*.324,-.009,1.212),(s*.359,-.012,1.16),(s*.404,-.014,1.103),(s*.452,-.016,1.035),(s*.48,-.017,1.005)]
+    r=[(.065,.077),(.078,.089),(.081,.084),(.075,.074),(.066,.068),(.064,.065),(.059,.058),(.05,.052),(.047,.048)]
+    tube('Sleeve_'+side,c,r,'cloth',segments=40,wrinkle=.0026)
+    tube('Cuff_'+side,[c[-2],c[-1],(s*.486,-.017,.996)],[r[-2],r[-1],(.048,.049)],'cloth',segments=32)
     # Palms and five separate articulated finger-shaped volumes, relaxed A-pose.
     axis=Vector((s*.39,0,-.921));across=Vector((s*.921,0,.39))
     wrist=Vector((s*.489,-.015,.989));palm=wrist+axis*.052
+    tube('Wrist_'+side,[tuple(wrist-axis*.042),tuple(wrist),tuple(palm)],[(.027,.023),(.025,.022),(.026,.021)],'skin',segments=24)
     tube('Palm_'+side,[tuple(wrist),tuple(wrist+axis*.026),tuple(palm),tuple(palm+axis*.029)],[(.024,.02),(.031,.021),(.033,.021),(.028,.018)],'skin',segments=24)
     for fi,(offset,length) in enumerate([(-.024,.061),(-.008,.071),(.009,.067),(.024,.05)]):
-        start=palm+axis*.024+across*offset
+        start=palm+axis*.012+across*offset
         end=start+axis*length+Vector((0,-.008,0))
         tube('Finger_'+side+str(fi),[tuple(start),tuple(start+axis*length*.4),tuple(start+axis*length*.75+Vector((0,-.004,0))),tuple(end),tuple(end+axis*.003)],[.008,.0075,.0064,.0055,.002],'skin',segments=14)
         nail=ellipsoid('Nail_'+side+str(fi),tuple(end-axis*.005+Vector((0,-.004,0))),(.004,.001,.006),'skin',seg=12)
@@ -270,21 +289,23 @@ for s in (-1,1):
     ellipsoid('Ear_'+str(s),(s*.079,.003,1.607),(.014,.018,.029),'skin_photo')
 
 # Soft field cap with folded band; no helmet, matching first Turkish reference.
-cap=loft('Turkish_field_cap',[(1.664,0,0,.08,.09),(1.68,0,0,.082,.094),(1.7,0,0,.078,.096),(1.728,0,.003,.064,.093),(1.753,0,.003,.044,.077),(1.775,0,-.025,.012,.037)],'cloth_photo',segments=48,wrinkles=.0015)
+cap=loft('Turkish_field_cap',[(1.664,0,0,.08,.09),(1.68,0,0,.082,.094),(1.7,0,0,.071,.096),(1.728,0,.003,.036,.093),(1.753,0,.003,.014,.077),(1.775,0,-.025,.003,.037)],'cloth',segments=48,wrinkles=.001)
 for s in (-1,1):
-    ribbon('Cap_fold_'+str(s),[(s*.068,-.066,1.693),(s*.081,-.02,1.682),(s*.077,.046,1.688),(s*.055,.078,1.702)],.026,'cloth',normal=(s,0,0),thickness=.002)
+    curve('Cap_fold_seam_'+str(s),[(s*.057,-.066,1.704),(s*.08,-.02,1.685),(s*.074,.046,1.689),(s*.045,.078,1.709)],.0015,'cloth_dark')
 
 # Front placket and relief pockets; photo carries the matching large-scale cloth detail.
-box('Button_placket',(0,-.123,1.247),(.023,.008,.314),'cloth_photo',.002)
+box('Button_placket',(0,-.123,1.247),(.023,.008,.314),'cloth',.002)
 for s in (-1,1):
-    box('Breast_pocket_'+str(s),(s*.095,-.12,1.277),(.091,.012,.104),'cloth_photo',.004)
-    box('Breast_flap_'+str(s),(s*.095,-.129,1.326),(.094,.007,.021),'cloth_photo',.002)
-    box('Skirt_pocket_'+str(s),(s*.139,-.109,.929),(.092,.008,.099),'cloth_photo',.003)
+    box('Breast_pocket_'+str(s),(s*.095,-.12,1.277),(.091,.012,.104),'cloth',.004)
+    box('Breast_flap_'+str(s),(s*.095,-.129,1.326),(.094,.007,.021),'cloth',.002)
+    box('Skirt_pocket_'+str(s),(s*.139,-.109,.929),(.092,.008,.099),'cloth',.003)
+    box('Skirt_flap_'+str(s),(s*.139,-.116,.974),(.094,.006,.022),'cloth',.002)
+    ellipsoid('Pocket_button_'+str(s),(s*.095,-.137,1.321),(.0045,.002,.0045),'brass',seg=12)
     # Triangular red collar tabs backed by uniform cloth.
-    verts=[(s*.022,-.062,1.483),(s*.085,-.07,1.442),(s*.047,-.091,1.405)]
+    verts=[(s*.022,-.075,1.493),(s*.09,-.11,1.441),(s*.047,-.13,1.407)]
     tab=mesh('Collar_'+str(s),verts,[(0,1,2)],'cloth',1)
     sol=tab.modifiers.new('Collar thickness','SOLIDIFY');sol.thickness=.004
-    verts2=[(s*.034,-.072,1.466),(s*.07,-.077,1.439),(s*.048,-.095,1.419)]
+    verts2=[(s*.034,-.091,1.47),(s*.07,-.125,1.44),(s*.048,-.136,1.421)]
     tab=mesh('Red_collar_tab_'+str(s),verts2,[(0,1,2)],'red')
     sol=tab.modifiers.new('Tab thickness','SOLIDIFY');sol.thickness=.001
 for z in [1.395,1.31,1.223,1.135,.96]:
@@ -331,8 +352,36 @@ for ob in parts:
             # 254 px/metre matches the 453 px tall reference figure.
             px=(207+co.x*254*.985) if front else (585-co.x*254*.985)
             py=465-co.z*254
+            # Avoid projecting the neutral background at a silhouette boundary.
+            # Move only the UV sample into the nearest warm-colored source pixel;
+            # this is texture-coordinate placement, not an edited reference image.
+            row=max(0,min(1023,int(1023-py)))
+            col=max(0,min(1535,int(px)))
+            sample=source_pixels[row,col,:3]
+            if sample[0]-sample[2] < .025:
+                lo,hi=(24,370) if front else (399,753)
+                line=source_pixels[row,lo:hi,:3]
+                valid=np.where((line[:,0]-line[:,2])>.04)[0]+lo
+                if len(valid):
+                    nearest=valid[np.argmin(abs(valid-px))]
+                    px=float(nearest)
             uv.data[li].uv=(px/1536,1-py/1024)
 
+
+# Fuse hand volumes so that the fingers/wrists are not disconnected mannequin parts.
+for side in ['L','R']:
+    names=('Palm_'+side,'Wrist_'+side,'Thumb_'+side)
+    hand=[o for o in parts if o.name in names or o.name.startswith('Finger_'+side) or o.name.startswith('Nail_'+side)]
+    bpy.ops.object.select_all(action='DESELECT')
+    for ob in hand:ob.select_set(True)
+    bpy.context.view_layer.objects.active=hand[0]
+    bpy.ops.object.join();ob=bpy.context.object;ob.name='Hand_fused_'+side
+    mod=ob.modifiers.new('Joined anatomical volumes','REMESH');mod.mode='VOXEL';mod.voxel_size=.0015;mod.use_smooth_shade=True
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    sm=ob.modifiers.new('Smooth joints','SMOOTH');sm.factor=.55;sm.iterations=3
+    bpy.ops.object.modifier_apply(modifier=sm.name)
+    parts=[p for p in parts if p not in hand]+[ob]
+    if not ob.data.uv_layers:ob.data.uv_layers.new(name='ReferenceUV')
 
 # Bake all visible materials to portable atlas images, including procedural grain normal.
 all_materials=[]
@@ -425,7 +474,7 @@ def camera(loc):
 
 stats={'mesh_vertices':len(character.data.vertices),'polygons':len(character.data.polygons),'triangles':sum(len(p.vertices)-2 for p in character.data.polygons),'height_metres':round(character.dimensions.z,3),'textures':[im.filepath_raw for im in images.values()],'rigged':False,'automated_image_to_3d':False,'method':'manual volume construction and reference albedo projection; procedural materials baked to 2K atlases'}
 (OUT/'model_stats.json').write_text(json.dumps(stats,indent=2))
-for name,loc in [('front',(0,-5,.94)),('three_quarter',(3,-5,2.2)),('rear',(-3,5,2.0))]:
+for name,loc in [('front',(0,-5,1.45)),('three_quarter',(3,-5,2.2)),('rear',(-3,5,2.0))]:
     camera(loc);scene.render.filepath=str(OUT/f'preview_{name}.png')
     print('RENDER',name,flush=True);bpy.ops.render.render(write_still=True)
 camera((3,-5,2.2))

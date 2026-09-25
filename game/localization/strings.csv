@@ -547,3 +547,4 @@ LOG_BALANCE,Balance,Denge
 LOG_RESOURCES,Resources,Kaynaklar
 LOG_RES_PROD,Production,Üretim
 LOG_RES_USE,Use,Kullanım
+TIP_AT_WAR_SHORT,"AT WAR\nEnemies · your surrender progress","SAVAŞTA\nDüşman sayısı · teslim ilerlemeniz"
