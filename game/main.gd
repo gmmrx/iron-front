@@ -542,7 +542,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
-		match mb.button_index:
+		var button := mb.button_index
+		if button == MOUSE_BUTTON_LEFT and mb.ctrl_pressed:
+			button = MOUSE_BUTTON_RIGHT   # macOS masaüstünde sistem bunu zaten sağ tık yapar; web'de (tarayıcı) yapmaz
+		match button:
 			MOUSE_BUTTON_WHEEL_UP:
 				if mb.pressed: camera.zoom_at(mb.position, mb.factor if mb.factor > 0 else 1.0)
 			MOUSE_BUTTON_WHEEL_DOWN:
