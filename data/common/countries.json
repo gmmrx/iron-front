@@ -14,8 +14,8 @@
    "ideology": "fascism",
    "leader": "Adolf Hitler",
    "capital_hint": "Berlin",
-   "stability": 0.6,
-   "war_support": 0.55,
+   "stability": 0.75,
+   "war_support": 0.2,
    "flag": {
     "dir": "h",
     "colors": [
@@ -23,6 +23,10 @@
      "#f2f2f2",
      "#c8102e"
     ]
+   },
+   "party": {
+    "en": "NSDAP",
+    "tr": "NSDAP"
    }
   },
   "ENG": {
@@ -38,7 +42,7 @@
    "ideology": "democratic",
    "leader": "Stanley Baldwin",
    "capital_hint": "London",
-   "stability": 0.75,
+   "stability": 0.595,
    "war_support": 0.15,
    "flag": {
     "dir": "h",
@@ -48,6 +52,14 @@
     "emblem": {
      "type": "union"
     }
+   },
+   "party": {
+    "en": "Conservative Party",
+    "tr": "Muhafazakâr Parti"
+   },
+   "elections": {
+    "months": 48,
+    "next": "1939-11-01"
    }
   },
   "FRA": {
@@ -57,10 +69,10 @@
    },
    "color": "#3d64b3",
    "ideology": "democratic",
-   "leader": "Albert Sarraut",
+   "leader": "Pierre Laval",
    "capital_hint": "Paris",
-   "stability": 0.45,
-   "war_support": 0.15,
+   "stability": 0.504,
+   "war_support": 0.25,
    "flag": {
     "dir": "v",
     "colors": [
@@ -68,6 +80,14 @@
      "#f5f5f5",
      "#ef4135"
     ]
+   },
+   "party": {
+    "en": "Radical Party",
+    "tr": "Radikal Parti"
+   },
+   "elections": {
+    "months": 48,
+    "next": "1936-05-03"
    }
   },
   "ITA": {
@@ -83,8 +103,8 @@
    "ideology": "fascism",
    "leader": "Benito Mussolini",
    "capital_hint": "Roma",
-   "stability": 0.65,
-   "war_support": 0.6,
+   "stability": 0.261,
+   "war_support": 0.45,
    "flag": {
     "dir": "v",
     "colors": [
@@ -92,6 +112,10 @@
      "#f1f2f1",
      "#ce2b37"
     ]
+   },
+   "party": {
+    "en": "National Fascist Party",
+    "tr": "Ulusal Faşist Parti"
    }
   },
   "SOV": {
@@ -107,8 +131,8 @@
    "ideology": "communism",
    "leader": "Iosif Stalin",
    "capital_hint": "Moskva",
-   "stability": 0.45,
-   "war_support": 0.3,
+   "stability": 0.318,
+   "war_support": 0.4,
    "flag": {
     "dir": "h",
     "colors": [
@@ -118,6 +142,10 @@
      "type": "canton_star",
      "color": "#ffd700"
     }
+   },
+   "party": {
+    "en": "VKP(b)",
+    "tr": "VKP(b)"
    }
   },
   "TUR": {
@@ -129,8 +157,8 @@
    "ideology": "neutrality",
    "leader": "Mustafa Kemal Atatürk",
    "capital_hint": "Ankara",
-   "stability": 0.7,
-   "war_support": 0.25,
+   "stability": 0.509,
+   "war_support": 0.5,
    "flag": {
     "dir": "h",
     "colors": [
@@ -140,6 +168,10 @@
      "type": "crescent",
      "color": "#ffffff"
     }
+   },
+   "party": {
+    "en": "Republican People's Party (CHP)",
+    "tr": "Cumhuriyet Halk Partisi (CHP)"
    }
   },
   "SPR": {
@@ -149,10 +181,10 @@
    },
    "color": "#d8bf55",
    "ideology": "democratic",
-   "leader": "Manuel Portela",
+   "leader": "Niceto Alcalá-Zamora",
    "capital_hint": "Madrid",
-   "stability": 0.25,
-   "war_support": 0.45,
+   "stability": 0.539,
+   "war_support": 0.3,
    "flag": {
     "dir": "h",
     "colors": [
@@ -160,6 +192,14 @@
      "#ffc400",
      "#6d2c8a"
     ]
+   },
+   "party": {
+    "en": "PSOE",
+    "tr": "PSOE"
+   },
+   "elections": {
+    "months": 48,
+    "next": "1936-02-16"
    }
   },
   "POR": {
@@ -168,10 +208,10 @@
     "tr": "Portekiz"
    },
    "color": "#2f7d4f",
-   "ideology": "fascism",
+   "ideology": "neutrality",
    "leader": "António Salazar",
    "capital_hint": "Lisboa",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.2,
    "flag": {
     "dir": "v",
@@ -180,7 +220,8 @@
      "#da291c",
      "#da291c"
     ]
-   }
+   },
+   "target_stability": 0.6
   },
   "POL": {
    "name": {
@@ -191,14 +232,18 @@
    "ideology": "neutrality",
    "leader": "Ignacy Mościcki",
    "capital_hint": "Warszawa",
-   "stability": 0.55,
-   "war_support": 0.4,
+   "stability": 0.353,
+   "war_support": 0.3,
    "flag": {
     "dir": "h",
     "colors": [
      "#f5f5f5",
      "#dc143c"
     ]
+   },
+   "party": {
+    "en": "Sanacja",
+    "tr": "Sanacja"
    }
   },
   "ROM": {
@@ -207,10 +252,10 @@
     "tr": "Romanya"
    },
    "color": "#c9b13a",
-   "ideology": "neutrality",
-   "leader": "Carol II",
+   "ideology": "democratic",
+   "leader": "Gheorghe Tătărescu",
    "capital_hint": "Bucureşti",
-   "stability": 0.45,
+   "stability": 0.46,
    "war_support": 0.2,
    "flag": {
     "dir": "v",
@@ -219,6 +264,14 @@
      "#fcd116",
      "#ce1126"
     ]
+   },
+   "party": {
+    "en": "National Liberal Party",
+    "tr": "Ulusal Liberal Parti"
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-12-20"
    }
   },
   "HUN": {
@@ -230,8 +283,8 @@
    "ideology": "neutrality",
    "leader": "Miklós Horthy",
    "capital_hint": "Budapest",
-   "stability": 0.5,
-   "war_support": 0.3,
+   "stability": 0.434,
+   "war_support": 0.08,
    "flag": {
     "dir": "h",
     "colors": [
@@ -239,6 +292,10 @@
      "#f5f5f5",
      "#436f4d"
     ]
+   },
+   "party": {
+    "en": "Party of National Unity",
+    "tr": "Ulusal Birlik Partisi"
    }
   },
   "CZE": {
@@ -248,9 +305,9 @@
    },
    "color": "#5bb3c6",
    "ideology": "democratic",
-   "leader": "Edvard Beneš",
+   "leader": "Milan Hodža",
    "capital_hint": "Praha",
-   "stability": 0.65,
+   "stability": 0.593,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -258,6 +315,14 @@
      "#f5f5f5",
      "#d7141a"
     ]
+   },
+   "party": {
+    "en": "Broad Coalition",
+    "tr": "Geniş Koalisyon"
+   },
+   "elections": {
+    "months": 60,
+    "next": "1940-05-01"
    }
   },
   "AUS": {
@@ -266,10 +331,10 @@
     "tr": "Avusturya"
    },
    "color": "#d8d4cc",
-   "ideology": "fascism",
+   "ideology": "neutrality",
    "leader": "Kurt Schuschnigg",
    "capital_hint": "Wien",
-   "stability": 0.45,
+   "stability": 0.36,
    "war_support": 0.15,
    "flag": {
     "dir": "h",
@@ -278,7 +343,8 @@
      "#f5f5f5",
      "#ed2939"
     ]
-   }
+   },
+   "target_stability": 0.45
   },
   "YUG": {
    "name": {
@@ -287,10 +353,10 @@
    },
    "color": "#6e70be",
    "ideology": "neutrality",
-   "leader": "Prens Pavle",
+   "leader": "Prince Paul",
    "capital_hint": "Beograd",
-   "stability": 0.4,
-   "war_support": 0.25,
+   "stability": 0.46,
+   "war_support": 0.2,
    "flag": {
     "dir": "h",
     "colors": [
@@ -298,6 +364,10 @@
      "#f5f5f5",
      "#c6363c"
     ]
+   },
+   "party": {
+    "en": "Regency Council",
+    "tr": "Naiplik Konseyi"
    }
   },
   "GRE": {
@@ -309,7 +379,7 @@
    "ideology": "neutrality",
    "leader": "II. Yorgi",
    "capital_hint": "Athina",
-   "stability": 0.45,
+   "stability": 0.36,
    "war_support": 0.25,
    "flag": {
     "dir": "h",
@@ -329,7 +399,8 @@
      "color": "#f5f5f5",
      "bg": "#0d5eaf"
     }
-   }
+   },
+   "target_stability": 0.45
   },
   "BUL": {
    "name": {
@@ -340,7 +411,7 @@
    "ideology": "neutrality",
    "leader": "III. Boris",
    "capital_hint": "Sofia",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.25,
    "flag": {
     "dir": "h",
@@ -349,7 +420,8 @@
      "#00966e",
      "#d62612"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "ALB": {
    "name": {
@@ -360,7 +432,7 @@
    "ideology": "neutrality",
    "leader": "I. Zogu",
    "capital_hint": "Tiranë",
-   "stability": 0.4,
+   "stability": 0.31,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -371,7 +443,8 @@
      "type": "center_disc",
      "color": "#1a1a1a"
     }
-   }
+   },
+   "target_stability": 0.4
   },
   "SWE": {
    "name": {
@@ -382,7 +455,7 @@
    "ideology": "democratic",
    "leader": "Per Albin Hansson",
    "capital_hint": "Stockholm",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -393,7 +466,12 @@
      "type": "nordic",
      "color": "#fecc00"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "NOR": {
    "name": {
@@ -404,7 +482,7 @@
    "ideology": "democratic",
    "leader": "Johan Nygaardsvold",
    "capital_hint": "Oslo",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -416,7 +494,12 @@
      "color": "#ffffff",
      "inner": "#00205b"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "DEN": {
    "name": {
@@ -427,7 +510,7 @@
    "ideology": "democratic",
    "leader": "Thorvald Stauning",
    "capital_hint": "København",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -438,7 +521,12 @@
      "type": "nordic",
      "color": "#ffffff"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "FIN": {
    "name": {
@@ -446,10 +534,10 @@
     "tr": "Finlandiya"
    },
    "color": "#dfe6ee",
-   "ideology": "democratic",
+   "ideology": "neutrality",
    "leader": "Pehr Evind Svinhufvud",
    "capital_hint": "Helsinki",
-   "stability": 0.65,
+   "stability": 0.56,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -460,7 +548,8 @@
      "type": "nordic",
      "color": "#002f6c"
     }
-   }
+   },
+   "target_stability": 0.65
   },
   "EST": {
    "name": {
@@ -471,7 +560,7 @@
    "ideology": "neutrality",
    "leader": "Konstantin Päts",
    "capital_hint": "Tallinn",
-   "stability": 0.55,
+   "stability": 0.46,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -480,7 +569,8 @@
      "#1a1a1a",
      "#f5f5f5"
     ]
-   }
+   },
+   "target_stability": 0.55
   },
   "LAT": {
    "name": {
@@ -491,7 +581,7 @@
    "ideology": "neutrality",
    "leader": "Kārlis Ulmanis",
    "capital_hint": "Rīga",
-   "stability": 0.55,
+   "stability": 0.46,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -500,7 +590,8 @@
      "#f5f5f5",
      "#9e3039"
     ]
-   }
+   },
+   "target_stability": 0.55
   },
   "LIT": {
    "name": {
@@ -511,7 +602,7 @@
    "ideology": "neutrality",
    "leader": "Antanas Smetona",
    "capital_hint": "Kaunas",
-   "stability": 0.55,
+   "stability": 0.46,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -520,7 +611,8 @@
      "#006a44",
      "#c1272d"
     ]
-   }
+   },
+   "target_stability": 0.55
   },
   "HOL": {
    "name": {
@@ -531,7 +623,7 @@
    "ideology": "democratic",
    "leader": "Hendrikus Colijn",
    "capital_hint": "Amsterdam",
-   "stability": 0.75,
+   "stability": 0.645,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -540,7 +632,12 @@
      "#f5f5f5",
      "#21468b"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.75
   },
   "BEL": {
    "name": {
@@ -551,7 +648,7 @@
    "ideology": "democratic",
    "leader": "Paul van Zeeland",
    "capital_hint": "Brussels",
-   "stability": 0.7,
+   "stability": 0.595,
    "war_support": 0.15,
    "flag": {
     "dir": "v",
@@ -560,7 +657,12 @@
      "#fdda24",
      "#ef3340"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.7
   },
   "LUX": {
    "name": {
@@ -571,7 +673,7 @@
    "ideology": "democratic",
    "leader": "Joseph Bech",
    "capital_hint": "Luxembourg",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -580,7 +682,12 @@
      "#f5f5f5",
      "#00a1de"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "SWI": {
    "name": {
@@ -591,7 +698,7 @@
    "ideology": "democratic",
    "leader": "Albert Meyer",
    "capital_hint": "Bern",
-   "stability": 0.85,
+   "stability": 0.745,
    "war_support": 0.15,
    "flag": {
     "dir": "h",
@@ -602,7 +709,12 @@
      "type": "swiss",
      "color": "#ffffff"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.85
   },
   "IRE": {
    "name": {
@@ -613,7 +725,7 @@
    "ideology": "democratic",
    "leader": "Éamon de Valera",
    "capital_hint": "Dublin",
-   "stability": 0.7,
+   "stability": 0.595,
    "war_support": 0.05,
    "flag": {
     "dir": "v",
@@ -622,7 +734,12 @@
      "#f5f5f5",
      "#ff883e"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.7
   },
   "ICE": {
    "name": {
@@ -633,7 +750,7 @@
    "ideology": "democratic",
    "leader": "Hermann Jónasson",
    "capital_hint": "Reykjavík",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -645,7 +762,12 @@
      "color": "#ffffff",
      "inner": "#dc1e35"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "PER": {
    "name": {
@@ -656,7 +778,7 @@
    "ideology": "neutrality",
    "leader": "Rıza Şah Pehlevi",
    "capital_hint": "Tehran",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -665,7 +787,8 @@
      "#f5f5f5",
      "#da0000"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "IRQ": {
    "name": {
@@ -676,7 +799,7 @@
    "ideology": "neutrality",
    "leader": "I. Gazi",
    "capital_hint": "Baghdad",
-   "stability": 0.35,
+   "stability": 0.26,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -685,7 +808,8 @@
      "#f5f5f5",
      "#007a3d"
     ]
-   }
+   },
+   "target_stability": 0.35
   },
   "SAU": {
    "name": {
@@ -696,7 +820,7 @@
    "ideology": "neutrality",
    "leader": "Abdulaziz",
    "capital_hint": "Riyadh",
-   "stability": 0.55,
+   "stability": 0.46,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -707,7 +831,8 @@
      "type": "bar",
      "color": "#f5f5f5"
     }
-   }
+   },
+   "target_stability": 0.55
   },
   "OMA": {
    "name": {
@@ -718,14 +843,15 @@
    "ideology": "neutrality",
    "leader": "Said bin Taimur",
    "capital_hint": "Muscat",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
     "colors": [
      "#db161b"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "USA": {
    "name": {
@@ -736,8 +862,8 @@
    "ideology": "democratic",
    "leader": "Franklin D. Roosevelt",
    "capital_hint": "Washington",
-   "stability": 0.8,
-   "war_support": 0.1,
+   "stability": 0.752,
+   "war_support": 0.05,
    "flag": {
     "dir": "h",
     "colors": [
@@ -760,6 +886,14 @@
      "bg": "#3c3b6e",
      "color": "#ffffff"
     }
+   },
+   "party": {
+    "en": "Democratic Party",
+    "tr": "Demokrat Parti"
+   },
+   "elections": {
+    "months": 48,
+    "next": "1936-11-03"
    }
   },
   "CAN": {
@@ -771,7 +905,7 @@
    "ideology": "democratic",
    "leader": "W. L. Mackenzie King",
    "capital_hint": "Ottawa",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -781,7 +915,12 @@
     "emblem": {
      "type": "canton_union"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "MEX": {
    "name": {
@@ -792,7 +931,7 @@
    "ideology": "neutrality",
    "leader": "Lázaro Cárdenas",
    "capital_hint": "Mexico City",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.2,
    "flag": {
     "dir": "v",
@@ -801,7 +940,8 @@
      "#f5f5f5",
      "#ce1126"
     ]
-   }
+   },
+   "target_stability": 0.6
   },
   "GUA": {
    "name": {
@@ -812,7 +952,7 @@
    "ideology": "neutrality",
    "leader": "Jorge Ubico",
    "capital_hint": "Guatemala",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.1,
    "flag": {
     "dir": "v",
@@ -821,7 +961,8 @@
      "#f5f5f5",
      "#4997d0"
     ]
-   }
+   },
+   "target_stability": 0.6
   },
   "HON": {
    "name": {
@@ -829,10 +970,10 @@
     "tr": "Honduras"
    },
    "color": "#5486b8",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Tiburcio Carías Andino",
    "capital_hint": "Tegucigalpa",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -841,7 +982,12 @@
      "#f5f5f5",
      "#0073cf"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.5
   },
   "ELS": {
    "name": {
@@ -849,10 +995,10 @@
     "tr": "El Salvador"
    },
    "color": "#4f6fb5",
-   "ideology": "neutrality",
+   "ideology": "fascism",
    "leader": "Maximiliano H. Martínez",
    "capital_hint": "San Salvador",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -861,7 +1007,8 @@
      "#f5f5f5",
      "#0f47af"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "NIC": {
    "name": {
@@ -872,7 +1019,7 @@
    "ideology": "neutrality",
    "leader": "Juan Bautista Sacasa",
    "capital_hint": "Managua",
-   "stability": 0.4,
+   "stability": 0.31,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -881,7 +1028,8 @@
      "#f5f5f5",
      "#0067c6"
     ]
-   }
+   },
+   "target_stability": 0.4
   },
   "COS": {
    "name": {
@@ -892,7 +1040,7 @@
    "ideology": "democratic",
    "leader": "Ricardo Jiménez Oreamuno",
    "capital_hint": "San José",
-   "stability": 0.7,
+   "stability": 0.595,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -904,7 +1052,12 @@
      "#f5f5f5",
      "#002b7f"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.7
   },
   "PAN": {
    "name": {
@@ -915,7 +1068,7 @@
    "ideology": "democratic",
    "leader": "Harmodio Arias Madrid",
    "capital_hint": "Panama City",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.05,
    "flag": {
     "dir": "v",
@@ -923,7 +1076,12 @@
      "#f5f5f5",
      "#da121a"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "CUB": {
    "name": {
@@ -931,10 +1089,10 @@
     "tr": "Küba"
    },
    "color": "#5c7fd0",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Fulgencio Batista",
    "capital_hint": "Havana",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -949,7 +1107,12 @@
      "type": "triangle",
      "color": "#cf142b"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.5
   },
   "HAI": {
    "name": {
@@ -957,10 +1120,10 @@
     "tr": "Haiti"
    },
    "color": "#4f5fa8",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Sténio Vincent",
    "capital_hint": "Port-au-Prince",
-   "stability": 0.4,
+   "stability": 0.295,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -968,7 +1131,12 @@
      "#00209f",
      "#d21034"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.4
   },
   "DOM": {
    "name": {
@@ -976,10 +1144,10 @@
     "tr": "Dominik Cumhuriyeti"
    },
    "color": "#b04a5a",
-   "ideology": "neutrality",
+   "ideology": "fascism",
    "leader": "Rafael Trujillo",
    "capital_hint": "Santo Domingo",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -991,7 +1159,8 @@
      "type": "swiss",
      "color": "#ffffff"
     }
-   }
+   },
+   "target_stability": 0.5
   },
   "COL": {
    "name": {
@@ -1002,7 +1171,7 @@
    "ideology": "democratic",
    "leader": "Alfonso López Pumarejo",
    "capital_hint": "Bogotá",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1012,7 +1181,12 @@
      "#003893",
      "#ce1126"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "VEN": {
    "name": {
@@ -1020,10 +1194,10 @@
     "tr": "Venezuela"
    },
    "color": "#c9a64a",
-   "ideology": "neutrality",
+   "ideology": "fascism",
    "leader": "Eleazar López Contreras",
    "capital_hint": "Caracas",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1032,7 +1206,8 @@
      "#00247d",
      "#cf142b"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "ECU": {
    "name": {
@@ -1040,10 +1215,10 @@
     "tr": "Ekvador"
    },
    "color": "#b8aa5a",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Federico Páez",
    "capital_hint": "Quito",
-   "stability": 0.4,
+   "stability": 0.295,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1053,7 +1228,12 @@
      "#0072ce",
      "#ef3340"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.4
   },
   "PRU": {
    "name": {
@@ -1061,10 +1241,10 @@
     "tr": "Peru"
    },
    "color": "#c05050",
-   "ideology": "neutrality",
+   "ideology": "fascism",
    "leader": "Óscar R. Benavides",
    "capital_hint": "Lima",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.1,
    "flag": {
     "dir": "v",
@@ -1073,7 +1253,8 @@
      "#f5f5f5",
      "#d91023"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "BOL": {
    "name": {
@@ -1081,10 +1262,10 @@
     "tr": "Bolivya"
    },
    "color": "#9aa04a",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "José David Toro",
    "capital_hint": "La Paz",
-   "stability": 0.4,
+   "stability": 0.295,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1093,7 +1274,12 @@
      "#f9e300",
      "#007934"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.4
   },
   "CHL": {
    "name": {
@@ -1104,7 +1290,7 @@
    "ideology": "democratic",
    "leader": "Arturo Alessandri",
    "capital_hint": "Santiago",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1117,7 +1303,12 @@
      "color": "#ffffff",
      "bg": "#0039a6"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "ARG": {
    "name": {
@@ -1128,7 +1319,7 @@
    "ideology": "neutrality",
    "leader": "Agustín P. Justo",
    "capital_hint": "Buenos Aires",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1141,7 +1332,8 @@
      "type": "center_disc",
      "color": "#f6b40e"
     }
-   }
+   },
+   "target_stability": 0.6
   },
   "URU": {
    "name": {
@@ -1152,7 +1344,7 @@
    "ideology": "democratic",
    "leader": "Gabriel Terra",
    "capital_hint": "Montevideo",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -1167,7 +1359,12 @@
      "#0038a8",
      "#f5f5f5"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "PAR": {
    "name": {
@@ -1175,10 +1372,10 @@
     "tr": "Paraguay"
    },
    "color": "#8c6fb0",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Rafael Franco",
    "capital_hint": "Asunción",
-   "stability": 0.4,
+   "stability": 0.295,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -1187,7 +1384,12 @@
      "#f5f5f5",
      "#0038a8"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.4
   },
   "BRA": {
    "name": {
@@ -1195,10 +1397,10 @@
     "tr": "Brezilya"
    },
    "color": "#4c9a55",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Getúlio Vargas",
    "capital_hint": "Rio de Janeiro",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1209,7 +1411,12 @@
      "type": "center_disc",
      "color": "#002776"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "JAP": {
    "name": {
@@ -1218,10 +1425,10 @@
    },
    "color": "#d9d9c9",
    "ideology": "neutrality",
-   "leader": "Hirohito (Keisuke Okada)",
+   "leader": "Keisuke Okada",
    "capital_hint": "Tokyo",
-   "stability": 0.7,
-   "war_support": 0.4,
+   "stability": 0.64,
+   "war_support": 0.0,
    "flag": {
     "dir": "h",
     "colors": [
@@ -1231,6 +1438,10 @@
      "type": "center_disc",
      "color": "#bc002d"
     }
+   },
+   "party": {
+    "en": "Kyokoku Itchi Naikaku",
+    "tr": "Kyokoku Itchi Naikaku"
    }
   },
   "MAN": {
@@ -1242,7 +1453,7 @@
    "ideology": "fascism",
    "leader": "Puyi",
    "capital_hint": "Changchun",
-   "stability": 0.4,
+   "stability": 0.295,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1258,7 +1469,8 @@
       "#000000"
      ]
     }
-   }
+   },
+   "target_stability": 0.4
   },
   "CHI": {
    "name": {
@@ -1269,8 +1481,8 @@
    "ideology": "neutrality",
    "leader": "Chiang Kai-shek",
    "capital_hint": "Nanjing",
-   "stability": 0.4,
-   "war_support": 0.4,
+   "stability": 0.252,
+   "war_support": 0.5,
    "flag": {
     "dir": "h",
     "colors": [
@@ -1281,6 +1493,10 @@
      "bg": "#000095",
      "color": "#ffffff"
     }
+   },
+   "party": {
+    "en": "Kuomintang",
+    "tr": "Kuomintang"
    }
   },
   "PRC": {
@@ -1292,7 +1508,7 @@
    "ideology": "communism",
    "leader": "Mao Zedong",
    "capital_hint": "Yan'an",
-   "stability": 0.6,
+   "stability": 0.471,
    "war_support": 0.6,
    "flag": {
     "dir": "h",
@@ -1303,7 +1519,8 @@
      "type": "canton_star",
      "color": "#ffd700"
     }
-   }
+   },
+   "target_stability": 0.599
   },
   "SHX": {
    "name": {
@@ -1314,7 +1531,7 @@
    "ideology": "neutrality",
    "leader": "Yan Xishan",
    "capital_hint": "Taiyuan",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -1325,7 +1542,8 @@
      "#f5f5f5",
      "#000000"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "GXC": {
    "name": {
@@ -1336,7 +1554,7 @@
    "ideology": "neutrality",
    "leader": "Li Zongren",
    "capital_hint": "Nanning",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -1348,7 +1566,8 @@
      "bg": "#000095",
      "color": "#ffffff"
     }
-   }
+   },
+   "target_stability": 0.5
   },
   "YUN": {
    "name": {
@@ -1359,7 +1578,7 @@
    "ideology": "neutrality",
    "leader": "Long Yun",
    "capital_hint": "Kunming",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1371,7 +1590,8 @@
      "bg": "#000095",
      "color": "#ffffff"
     }
-   }
+   },
+   "target_stability": 0.5
   },
   "XSM": {
    "name": {
@@ -1382,7 +1602,7 @@
    "ideology": "neutrality",
    "leader": "Ma Bufang",
    "capital_hint": "Xining",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.3,
    "flag": {
     "dir": "h",
@@ -1394,7 +1614,8 @@
      "bg": "#000095",
      "color": "#ffffff"
     }
-   }
+   },
+   "target_stability": 0.5
   },
   "SIK": {
    "name": {
@@ -1405,7 +1626,7 @@
    "ideology": "communism",
    "leader": "Sheng Shicai",
    "capital_hint": "Ürümqi",
-   "stability": 0.4,
+   "stability": 0.274,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1416,7 +1637,8 @@
      "type": "canton_star",
      "color": "#ffd700"
     }
-   }
+   },
+   "target_stability": 0.401
   },
   "TIB": {
    "name": {
@@ -1427,7 +1649,7 @@
    "ideology": "neutrality",
    "leader": "Reting Rinpoche",
    "capital_hint": "Lhasa",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1441,7 +1663,8 @@
      "type": "center_disc",
      "color": "#fcd116"
     }
-   }
+   },
+   "target_stability": 0.6
   },
   "MON": {
    "name": {
@@ -1452,7 +1675,7 @@
    "ideology": "communism",
    "leader": "Peljidiin Genden",
    "capital_hint": "Ulaanbaatar",
-   "stability": 0.5,
+   "stability": 0.371,
    "war_support": 0.3,
    "flag": {
     "dir": "v",
@@ -1461,7 +1684,8 @@
      "#015197",
      "#c4272f"
     ]
-   }
+   },
+   "target_stability": 0.499
   },
   "TAN": {
    "name": {
@@ -1472,7 +1696,7 @@
    "ideology": "communism",
    "leader": "Salchak Toka",
    "capital_hint": "Kyzyl",
-   "stability": 0.5,
+   "stability": 0.371,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1483,7 +1707,8 @@
      "#f5f5f5",
      "#c8102e"
     ]
-   }
+   },
+   "target_stability": 0.499
   },
   "SIA": {
    "name": {
@@ -1494,7 +1719,7 @@
    "ideology": "neutrality",
    "leader": "Phraya Phahon",
    "capital_hint": "Bangkok",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1506,7 +1731,8 @@
      "#f4f5f8",
      "#a51931"
     ]
-   }
+   },
+   "target_stability": 0.6
   },
   "PHI": {
    "name": {
@@ -1517,7 +1743,7 @@
    "ideology": "democratic",
    "leader": "Manuel L. Quezon",
    "capital_hint": "Manila",
-   "stability": 0.6,
+   "stability": 0.495,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1529,7 +1755,12 @@
      "type": "triangle",
      "color": "#f5f5f5"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.6
   },
   "AST": {
    "name": {
@@ -1540,7 +1771,7 @@
    "ideology": "democratic",
    "leader": "Joseph Lyons",
    "capital_hint": "Canberra",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1551,7 +1782,12 @@
      "type": "canton_union",
      "stars": true
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "NZL": {
    "name": {
@@ -1562,7 +1798,7 @@
    "ideology": "democratic",
    "leader": "Michael Joseph Savage",
    "capital_hint": "Wellington",
-   "stability": 0.8,
+   "stability": 0.695,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1573,7 +1809,12 @@
      "type": "canton_union",
      "stars": true
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.8
   },
   "SAF": {
    "name": {
@@ -1584,7 +1825,7 @@
    "ideology": "democratic",
    "leader": "J. B. M. Hertzog",
    "capital_hint": "Pretoria",
-   "stability": 0.7,
+   "stability": 0.595,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1593,7 +1834,12 @@
      "#f5f5f5",
      "#002395"
     ]
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.7
   },
   "ETH": {
    "name": {
@@ -1604,7 +1850,7 @@
    "ideology": "neutrality",
    "leader": "Haile Selassie",
    "capital_hint": "Addis Ababa",
-   "stability": 0.4,
+   "stability": 0.31,
    "war_support": 0.6,
    "flag": {
     "dir": "h",
@@ -1613,7 +1859,8 @@
      "#fcdd09",
      "#da121a"
     ]
-   }
+   },
+   "target_stability": 0.4
   },
   "LIB": {
    "name": {
@@ -1621,10 +1868,10 @@
     "tr": "Liberya"
    },
    "color": "#b86a6a",
-   "ideology": "neutrality",
+   "ideology": "democratic",
    "leader": "Edwin Barclay",
    "capital_hint": "Monrovia",
-   "stability": 0.5,
+   "stability": 0.395,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -1646,7 +1893,12 @@
      "bg": "#002868",
      "color": "#ffffff"
     }
-   }
+   },
+   "elections": {
+    "months": 48,
+    "next": "1937-06-01"
+   },
+   "target_stability": 0.5
   },
   "NEP": {
    "name": {
@@ -1657,7 +1909,7 @@
    "ideology": "neutrality",
    "leader": "Juddha Shumsher",
    "capital_hint": "Kathmandu",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1668,7 +1920,8 @@
      "type": "center_disc",
      "color": "#003893"
     }
-   }
+   },
+   "target_stability": 0.6
   },
   "BHU": {
    "name": {
@@ -1679,7 +1932,7 @@
    "ideology": "neutrality",
    "leader": "Jigme Wangchuck",
    "capital_hint": "Thimphu",
-   "stability": 0.6,
+   "stability": 0.51,
    "war_support": 0.05,
    "flag": {
     "dir": "h",
@@ -1687,7 +1940,8 @@
      "#ffd520",
      "#ff4e12"
     ]
-   }
+   },
+   "target_stability": 0.6
   },
   "RAJ": {
    "name": {
@@ -1695,10 +1949,10 @@
     "tr": "Britanya Hindistanı"
    },
    "color": "#d98a6a",
-   "ideology": "democratic",
+   "ideology": "neutrality",
    "leader": "Lord Linlithgow",
    "capital_hint": "New Delhi",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.1,
    "flag": {
     "dir": "h",
@@ -1708,7 +1962,8 @@
     "emblem": {
      "type": "canton_union"
     }
-   }
+   },
+   "target_stability": 0.5
   },
   "AFG": {
    "name": {
@@ -1719,7 +1974,7 @@
    "ideology": "neutrality",
    "leader": "Mohammed Zahir Shah",
    "capital_hint": "Kabul",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.2,
    "flag": {
     "dir": "v",
@@ -1728,7 +1983,8 @@
      "#d32011",
      "#007a36"
     ]
-   }
+   },
+   "target_stability": 0.5
   },
   "YEM": {
    "name": {
@@ -1739,7 +1995,7 @@
    "ideology": "neutrality",
    "leader": "Yahya Muhammad Hamid ed-Din",
    "capital_hint": "Sanaa",
-   "stability": 0.5,
+   "stability": 0.41,
    "war_support": 0.2,
    "flag": {
     "dir": "h",
@@ -1750,7 +2006,8 @@
      "type": "center_disc",
      "color": "#f5f5f5"
     }
-   }
+   },
+   "target_stability": 0.5
   }
  }
 }

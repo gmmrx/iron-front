@@ -9,7 +9,7 @@ const TYPE_ICON := {"fighter": "equipment_fighter_equipment", "cas": "equipment_
 const MISSION_ICON := ["building_air_base", "equipment_fighter_equipment", "equipment_cas_equipment", "building_naval_base"]
 
 var selected_id := 0
-var _summary: Label
+var _cells: Array[Label] = []
 var _deploy_type: OptionButton
 var _deploy_base: OptionButton
 var _deploy_btn: Button
@@ -18,17 +18,14 @@ var _pending := false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
-	custom_minimum_size = Vector2(480, 0)
 	visible = false
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 8)
-	add_child(v)
-	var title := UiTheme.make_label(tr("AIR_TITLE"), 24, UiTheme.ACCENT)
-	title.add_theme_font_override("font", UiTheme.title_font())
-	v.add_child(title)
-	_summary = UiTheme.make_label("", 16, UiTheme.TEXT_DIM)
-	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_summary)
+	_list = PanelLayout.frame(self, tr("AIR_TITLE"), "air", 500.0)
+	var top := PanelLayout.fixed(self)
+	_cells = PanelLayout.info_cells(top, [
+		["equipment_fighter_equipment", tr("WING_TYPE_fighter"), tr("AIR_CELL_TIP")],
+		["equipment_cas_equipment", tr("WING_TYPE_cas"), tr("AIR_CELL_TIP")],
+		["equipment_tactical_bomber_equipment", tr("WING_TYPE_bomber"), tr("AIR_CELL_TIP")]])
+	PanelLayout.section(top, tr("AIR_DEPLOY_HEAD"))
 	# konuşlandırma satırı
 	var dep := HBoxContainer.new()
 	dep.add_theme_constant_override("separation", 6)
@@ -36,6 +33,9 @@ func _ready() -> void:
 	_deploy_type.tooltip_text = tr("TIP_AIR_DEPLOY_TYPE")
 	_deploy_type.focus_mode = Control.FOCUS_NONE
 	_deploy_type.custom_minimum_size.x = 150
+	_deploy_type.add_theme_constant_override("icon_max_width", 22)
+	_deploy_type.expand_icon = true
+	_deploy_type.clip_text = true
 	dep.add_child(_deploy_type)
 	_deploy_base = OptionButton.new()
 	_deploy_base.tooltip_text = tr("TIP_AIR_DEPLOY_BASE")
@@ -49,16 +49,7 @@ func _ready() -> void:
 	_deploy_btn.focus_mode = Control.FOCUS_NONE
 	_deploy_btn.pressed.connect(_on_deploy)
 	dep.add_child(_deploy_btn)
-	v.add_child(dep)
-	v.add_child(HSeparator.new())
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 520)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_list = VBoxContainer.new()
-	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_list.add_theme_constant_override("separation", 8)
-	scroll.add_child(_list)
-	v.add_child(scroll)
+	top.add_child(dep)
 	Air.wings_changed.connect(_queue_refresh)
 	World.daily_update.connect(_queue_refresh)
 
@@ -79,8 +70,11 @@ func refresh() -> void:
 	var c := World.player()
 	if c == null:
 		return
-	_summary.text = tr("AIR_SUMMARY") % [Air.planes(c.tag, "fighter"), Air.planes(c.tag, "cas"), Air.planes(c.tag, "bomber")]
-	_summary.text += "\n" + tr("AIR_STOCK") % [int(c.stockpile.get("fighter_equipment", 0.0)), int(c.stockpile.get("cas_equipment", 0.0)), int(c.stockpile.get("tactical_bomber_equipment", 0.0))]
+	if _cells.is_empty():
+		return
+	for k in 3:
+		var t: String = ["fighter", "cas", "bomber"][k]
+		_cells[k].text = "%d  ·  %s %d" % [Air.planes(c.tag, t), tr("AIR_IN_STOCK"), int(c.stockpile.get(Air.TYPES[t]["eq"], 0.0))]
 	# konuşlandırma seçenekleri
 	var prev_t: Variant = _deploy_type.get_selected_metadata() if _deploy_type.item_count > 0 else null
 	_deploy_type.clear()
@@ -88,6 +82,7 @@ func refresh() -> void:
 		var n := int(c.stockpile.get(Air.TYPES[t]["eq"], 0.0))
 		_deploy_type.add_icon_item(UiTheme.icon(TYPE_ICON[t]), "%s (%d)" % [tr("WING_TYPE_" + t), n])
 		_deploy_type.set_item_metadata(_deploy_type.item_count - 1, t)
+		_deploy_type.get_popup().set_item_icon_max_width(_deploy_type.item_count - 1, 24)
 		if prev_t == t:
 			_deploy_type.select(_deploy_type.item_count - 1)
 	var prev_b: Variant = _deploy_base.get_selected_metadata() if _deploy_base.item_count > 0 else null
@@ -103,10 +98,9 @@ func refresh() -> void:
 	for ch in _list.get_children():
 		ch.queue_free()
 	var own := Air.wings_of(c.tag)
+	PanelLayout.section(_list, tr("AIR_WINGS") % own.size())
 	if own.is_empty():
-		var l := UiTheme.make_label(tr("AIR_NO_WINGS"), 16, UiTheme.TEXT_DIM)
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_list.add_child(l)
+		PanelLayout.empty(_list, tr("AIR_NO_WINGS"))
 		return
 	for w in own:
 		_list.add_child(_card(w))
@@ -123,10 +117,7 @@ func _on_deploy() -> void:
 func _card(w: AirWing) -> Control:
 	var sel := w.id == selected_id
 	var panel := PanelContainer.new()
-	var sb := UiTheme.panel_style(Color(1, 1, 1, 0.08 if sel else 0.035), UiTheme.ACCENT if sel else UiTheme.BORDER_DIM, 2 if sel else 1)
-	sb.shadow_size = 0
-	sb.set_content_margin_all(8)
-	panel.add_theme_stylebox_override("panel", sb)
+	panel.theme_type_variation = "SlotGold" if sel else "Row"
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 5)
 	panel.add_child(v)
@@ -154,10 +145,13 @@ func _card(w: AirWing) -> Control:
 	for m in 4:
 		var b := Button.new()
 		b.toggle_mode = true
+		b.theme_type_variation = "Tab"
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
 		b.icon = UiTheme.icon(MISSION_ICON[m])
 		b.add_theme_constant_override("icon_max_width", 18)
+		b.expand_icon = false
+		b.clip_text = true
 		b.text = tr("AIR_MISSION_%d" % m)
 		b.add_theme_font_size_override("font_size", 13)
 		b.tooltip_text = tr("TIP_AIR_MISSION_%d" % m)

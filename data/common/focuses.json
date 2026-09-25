@@ -435,6 +435,9 @@
      },
      {
       "stability": 0.05
+     },
+     {
+      "remove_spirit": "sectarian_woes"
      }
     ],
     "ai": 30
@@ -469,10 +472,8 @@
       "where": "capital_region"
      },
      {
-      "stability": 0.05
-     },
-     {
-      "news": "NEWS_MONTREUX"
+      "event": "tur_montreux",
+      "target": "self"
      }
     ],
     "ai": 30
@@ -648,6 +649,9 @@
     "effects": [
      {
       "spirit": "village_institutes"
+     },
+     {
+      "remove_spirit": "widespread_illiteracy"
      }
     ],
     "ai": 18
@@ -711,6 +715,9 @@
     "effects": [
      {
       "spirit": "military_modernization"
+     },
+     {
+      "remove_spirit": "disorganized_armed_forces"
      },
      {
       "research_bonus": "infantry",
@@ -881,6 +888,9 @@
     "effects": [
      {
       "spirit": "national_unity"
+     },
+     {
+      "spirit": "armed_neutrality"
      },
      {
       "add_divisions": 4
@@ -1451,6 +1461,10 @@
      },
      {
       "news": "NEWS_RHINELAND"
+     },
+     {
+      "event": "rhineland_crisis",
+      "target": "FRA"
      }
     ],
     "ai": 40
@@ -4749,6 +4763,9 @@
      },
      {
       "stability": 0.05
+     },
+     {
+      "remove_spirit": "great_depression"
      }
     ],
     "ai": 40

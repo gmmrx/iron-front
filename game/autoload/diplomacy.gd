@@ -88,9 +88,10 @@ func can_justify(a: Country, t: Country) -> String:
 		return "DIPLO_ERR_ALLY"
 	if a.political_power < JUSTIFY_COST:
 		return "DIPLO_ERR_PP"
-	if a.ideology == "democratic" and World.world_tension < 60.0:
+	# gerginlik eşikleri (türün klasiği): demokrasi %100 ve başka demokrasiye asla, bağlantısız %50
+	if a.ideology == "democratic" and (World.world_tension < 100.0 or t.ideology == "democratic"):
 		return "DIPLO_ERR_TENSION"
-	if a.ideology == "neutrality" and World.world_tension < 30.0:
+	if a.ideology == "neutrality" and World.world_tension < 50.0:
 		return "DIPLO_ERR_TENSION"
 	return ""
 
@@ -195,6 +196,18 @@ func leave_faction(tag: String) -> void:
 	Politics.factions[c.faction].erase(tag)
 	c.faction = ""
 
+## Garanti ve ittifaka katılma için gerginlik eşikleri (türün klasiği): demokrasi %25 / %80 (savunma savaşında %50),
+## bağlantısız %40 / %40; faşist ve komünist için eşik yok
+func guarantee_block(c: Country) -> String:
+	if c.ideology == "democratic" and World.world_tension < 25.0: return "DIPLO_ERR_TENSION"
+	if c.ideology == "neutrality" and World.world_tension < 40.0: return "DIPLO_ERR_TENSION"
+	return ""
+
+func join_faction_block(c: Country) -> String:
+	if c.ideology == "democratic" and World.world_tension < (50.0 if at_war(c.tag) else 80.0): return "DIPLO_ERR_TENSION"
+	if c.ideology == "neutrality" and World.world_tension < 40.0: return "DIPLO_ERR_TENSION"
+	return ""
+
 func guarantee(g: String, t: String) -> void:
 	var c: Country = World.countries.get(g)
 	if c and not t in c.guarantees and t != g:
@@ -265,8 +278,9 @@ func _surrender_progress(c: Country) -> float:
 		p += 0.1
 	return clampf(p, 0.0, 1.0)
 
+## Teslim sınırı (türün klasiği): %80; savaş desteği %50'nin altında −%30'a kadar düşer; ruhlar (surrender_limit); en az %20
 func capitulation_threshold(c: Country) -> float:
-	return clampf(CAPITULATION_BASE - (0.5 - Politics.stability(c)) * 0.3, 0.45, 0.95)
+	return clampf(CAPITULATION_BASE - maxf(0.5 - Politics.war_support(c), 0.0) * 0.6 + c.mod("surrender_limit"), 0.2, 0.95)
 
 signal country_capitulated(tag: String)
 

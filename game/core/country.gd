@@ -9,6 +9,7 @@ var map_names: Dictionary       ## dil kodu -> harita üzerindeki kısa ad
 var color: Color
 var ideology: String
 var leader: String
+var start_leader := ""                    ## 1936 lideri (portre dosyası ülke koduyla: assets/portraits/<TAG>.png)
 var stability: float
 var war_support: float
 var political_power: float = 50.0
@@ -28,6 +29,8 @@ var imports: Array = []                    ## [{from, res, amount}] (otomatik ti
 var exports: Array = []                    ## [{to, res, amount}]
 var trade_factories_paid := 0              ## ithalat için verilen sivil fabrika
 var trade_factories_earned := 0            ## ihracattan kazanılan sivil fabrika
+var auto_trade := true                      ## yapay zekâ ülkeleri otomatik alır; oyuncu kendisi karar verir (kapalı başlar)
+var trade_orders: Array = []                ## [{from, res, amount}] oyuncunun elle yaptığı ticaret anlaşmaları
 
 # --- siyaset
 var popularity: Dictionary = {}            ## ideoloji -> oran (toplam 1)
@@ -62,6 +65,9 @@ var army_xp := 0.0                          ## kara tecrübesi (0..500): şablon
 var navy_xp := 0.0
 var air_xp := 0.0
 var naval_strength_cache := 0.0
+var party: Dictionary = {}                ## iktidar partisi adı (dil kodu -> ad)
+var election_months := 0                    ## seçim aralığı (0 = seçim yok)
+var next_election := 0                      ## sonraki seçim tarihi (YYYYMMDD)
 
 ## Toplam modifier: milli ruhlar + danışmanlar + araştırma + yasalar
 func mod(key: String) -> float:
@@ -91,8 +97,13 @@ func map_name() -> String:
 	var loc := TranslationServer.get_locale().substr(0, 2)
 	return map_names.get(loc, display_name()) if not map_names.is_empty() else display_name()
 
+## Günlük siyasi güç: taban 2 × (1 + modifier + istikrar etkisi) + sabit (türün klasiği: istikrar %100'de +%10, %0'da −%20)
 func daily_political_power_gain() -> float:
-	return maxf(2.0 * (1.0 + mod("political_power_gain")) + mod("political_power_flat"), 0.1)
+	return maxf(2.0 * (1.0 + mod("political_power_gain") + Politics.stability_pp_mod(self)) + mod("political_power_flat"), 0.1)
+
+func party_name() -> String:
+	var loc := TranslationServer.get_locale().substr(0, 2)
+	return party.get(loc, party.get("en", ""))
 
 func recruitable_manpower() -> int:
-	return int(manpower_pop * (Economy.law_value(self, "manpower", 0.015) + mod("recruitable_population")))
+	return int(manpower_pop * maxf(Economy.law_value(self, "manpower", 0.015) + mod("recruitable_population"), 0.0) * maxf(1.0 + mod("recruitable_population_factor"), 0.05))

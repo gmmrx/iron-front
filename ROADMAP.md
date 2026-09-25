@@ -7,28 +7,35 @@ Başlangıç: **1 Ocak 1936**. Harita: Avrupa, Kuzey Afrika, Orta Doğu, Batı S
 Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, oynanış derinliği türün en iyileri seviyesinde.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **25 Eylül 2026**
+Son güncelleme: **25 Eylül 2026 (akşam)**
 
 ### Şu an nerede? (özet)
-- Tüm dünya haritası, 80 ülke, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor.
-- Savaş **görünür**: 3D piyade/tank/top figürleri yürüyüp ateş ediyor; filolar deniz yollarında seyrediyor, uçak kanatları
-  görev bölgesinde tur atıp dalıp bombalıyor; muharebe efektleri (namlu alevi, patlama, duman, su sütunu) var.
-- Komuta: oyuncu ve AI orduları cepheye atıyor; temas hattı dişli çizgiyle çiziliyor; uzak zoom'da sayaçlar birleşiyor.
-- Derinlik: tümen tecrübesi, planlama bonusu, kış/çamur, yakıt, araştırma birikimi eklendi.
+- Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
+  denge testi 6 koşunun 6'sında 12 kontrolün hepsini geçiyor.
+- **Hükümet modeli türün klasiği gibi**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
+  gerginlik ve savaş durumuna bağlı savaş desteği, istikrarın fabrika/SG/tüketim malı etkileri, savaş desteğine bağlı teslim sınırı,
+  şartlı yasalar, tarihli ve süreli milli ruhlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
+- **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı komuta/tecrübe kutusu, kısayol harfli menü; tüm yan paneller aynı
+  çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), odak ağacı ve olay
+  penceresi türün klasiği düzeninde.
+- **Karar oyuncuda**: oyuncunun ticareti elle (otomatik ticaret isteğe bağlı), hava kanatları elle, tümenler "son askere kadar"
+  (emir olmadan geri çekilmez), tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
+- Harita: daha koyu ve doygun; hareket okları yeşil/kırmızı, akan işaretli; uzak zoom'da sayı yerine ülke bayrakları, daha uzakta
+  birlik işareti yok.
+- Oyun wikisi: [docs/wiki](docs/wiki/README.md). Yeni ikon seti ve lider portreleri için prompt listesi:
+  [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
 
 ### Sıradaki işler (öncelik sırasıyla)
-1. **P1** 1939–41 akışının tutarlılığı (anavatan savunması, teslim formülü) — otomatik denge testiyle (sürüyor)
-2. **D4 Hava durumu**: yağmur, kar, sis animasyonları (diorama görünümüne uygun; kış/çamur cezalarıyla görsel tutarlı)
-3. **İnşaat görünürlüğü**: fabrika / tersane / altyapı / uçaksavar / rafineri haritada şehir çevresinde model olarak belirir,
-   inşaat sürerken iskele-vinç, tamamlanınca ses (şu an yalnız hava üssü ve liman görünüyor)
-4. **Ses seti** ✔ 28 prosedürel ses (arayüz, telsiz emirleri, telgraf uyarıları, savaş ilanı, 3D muharebe); kalan: ayarlarda ses/müzik seviyesi
-5. **Oynanabilirlik testi (Türkiye)**: baştan sona oynanıp kazanılabilir / kaybedilebilir olduğu görsel olarak doğrulanır;
-   anlaşılırlık eksikleri listelenip kapatılır
-6. **Karar oyuncuda**: tümen duruşu "Son askere kadar savun" (otomatik geri çekilme yok); geri çekilme yalnız oyuncu emriyle
-   - **Otomatiklik denetimi**: oyuncu adına kendiliğinden yapılan her şey (üretim/atama/ikmal/uçaksavar vb.) bulunur, kapatılır ya da açık seçime dönüştürülür
-   - **Seçenekli olaylar**: tarihî baskı ve krizler seçenekli olay olarak gelir (Türkiye: Sovyet toprak/üs talebi, Montrö, Hatay, savaşa giriş baskısı; ret / taviz / savaş)
-7. **C2** Savaş planı okları + **C1** ordu kartı ve general atama; **P2** muharebe ayrıntı penceresi
-8. **★2** geri çekilme / teslim animasyonu; **V2/B** lojistik
+1. **Gemiler karaya çıkıyor** (bilinen hata): kıyı/boğaz yakınında filo görüntüsü karaya taşıyor; 62 deniz yolu karaya değiyor
+   (en kötüleri 9033-12949, 9295-13269, 10215-13110), 12 liman–deniz yolu eksik (San Juan, Valparaíso, Newcastle…) → deniz yolu
+   üreticisini düzelt, filo grubunun konumunu suya sabitle
+2. **Yeni ikon seti ve portreler** (kullanıcı üretiyor) → geldikçe görsel kontrol
+3. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
+4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
+   Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
+   Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
+5. **Mekanik paritesi** (aşağıdaki bölüm): Subay Heyeti, savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
+6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
 
 ---
 
@@ -180,12 +187,20 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 ### P2. Oyuncuya geri bildirim
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
 - [ ] Tümen/filo seçilince yol önizlemesi ve varış süresi
-- [ ] "Neden?" ipuçları: teslim ilerlemesi, ikmal açığı, konvoy açığı, deniz hâkimiyeti
+- [◐] "Neden?" ipuçları: istikrar ve savaş desteği dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
+      kaynak açığı satırları ✔; kalan: ikmal açığı, deniz hâkimiyeti
 - [ ] Hedefler / ipucu sistemi (ilk 30 dakika için rehber)
 
 ### P3. Mikro yönetimi azaltma
 - [x] Ordu → cephe atama (C1) — temel hâli bitti; savaş planı okları (C2) sırada
-- [ ] Otomatik takviye/konuşlandırma kuyruğu, şablon kopyala
+- [ ] Takviye/konuşlandırma kuyruğu (oyuncu açarsa), şablon kopyala
+
+### P4. Karar oyuncuda (otomatiklik denetimi) ✔
+- [x] Oyuncunun ticareti elle: satıcı seç, +8/−8, iptal; "Otomatik ticaret" yalnız oyuncu açarsa; ödenemeyecek ithalat engellenir (nedeni ipucunda)
+- [x] Oyuncunun hava kanatları "Otomatik" kapalı başlar (başlangıçtakiler ve yeni konuşlandırılanlar)
+- [x] Tümenler "Son askere kadar" açık başlar: kendiliğinden geri çekilmez; organizasyon bitince yarı güçle savaşır (tümen panelinden kapatılabilir)
+- [x] Tarihî baskılar seçenekli olay; seçeneklere şart (`require`), şartsız seçenek kilitli görünür, AI da seçmez
+- [x] Her ülke testi (`game/dev/country_check.gd`): oyuncu eylemleri oyunu etkiliyor, oyuncu adına otomatik iş yok
 
 ## BÖLÜM V — REHBER VİDEOLARINDAN OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
 Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve `game-tutorial-yt2-english.txt`
@@ -326,7 +341,8 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 ### D4. Harita atmosferi
 - [x] Kış kar örtüsü (mevsime ve enleme göre, yamalı)
 - [ ] Gün/gece döngüsü (şehir ışıkları), mevsim renkleri
-- [ ] Yağmur/kar parçacıkları, sis; liman/fabrika dumanı; trenler
+- [x] Yağmur/kar parçacıkları (bölgesel, mevsime bağlı, yakın zoom'da; FPS dostu)
+- [ ] Sis; liman/fabrika dumanı; trenler
 
 ### D5. Arayüz animasyonları
 - [x] Yan panel kayma, haber animasyonu
@@ -347,9 +363,12 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 ---
 
 ## BÖLÜM F — TASARIM DİLİ VE ARAYÜZ (Faz 15) ◐
-- [ ] Tek tasarım sistemi: renk paleti, tipografi ölçeği, boşluk, ikon seti, panel şablonu
+- [x] Tek tasarım sistemi: metal doku seti (`tools/make_ui_skin.py`), tema varyasyonları, panel şablonu (`PanelLayout`)
+- [ ] Yeni ikon seti: prompt listesi hazır (`docs/art/ICON_PROMPTS.md`, 347 öğe); dosyalar `assets/ui/icons_new/` altına gelince otomatik
 - [x] Yan panel şablonu (kapatma düğmesi, tek panel), ortada haberler
-- [ ] Sekmeli içerik, kaydırma; lider portreleri; eksik 12 ülkenin gerçek bayrağı
+- [x] Sekmeli içerik (Araştırma), tam boy kaydırmalı paneller
+- [◐] Lider portreleri: yükleyici hazır (üst çubuk, Hükümet, Diplomasi; yoksa bayrak), dosyalar `assets/portraits/<TAG>.png` bekleniyor
+- [ ] Eksik 12 ülkenin gerçek bayrağı
 - [ ] İpucu içinde ipucu (türün klasiklerindeki gibi)
 - [ ] Mini harita; harita modları (ikmal, altyapı, kaynak, ideoloji, ittifak)
 - [ ] Bildirim ayarları; arayüz ölçeği
@@ -357,7 +376,7 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 ---
 
 ## BÖLÜM UI-P — TÜRÜN KLASİĞİYLE ARAYÜZ PARİTESİ (Faz 16) ◐
-Kaynak: hoi4.paradoxwikis.com/Beginner's_guide (üst çubuk, sol menüler, harita modları, temel kavramlar). Eksik/var listesi:
+Eksik/var listesi:
 - [x] Üst çubuk: siyasi güç, istikrar, savaş desteği, insan gücü, fabrikalar, yakıt, gerginlik, tarih/hız
 - [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), komuta gücü (+0,3/gün,
       savaşta +0,5; tavan 200), kara/deniz/hava tecrübesi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
@@ -371,7 +390,36 @@ Kaynak: hoi4.paradoxwikis.com/Beginner's_guide (üst çubuk, sol menüler, harit
 - [ ] Kararlar için ayrı düğme (şimdi Hükümet ekranında), İstihbarat (ajanlar), Uluslararası Pazar
 - [ ] İkmal harita modu (demiryolu/ikmal merkezi) — B3 ile; radar ve tahkimat binaları (kara/kıyı tahkimatı)
 - [ ] Savaş sonu: barış konferansı (savaş puanı ile talep), sürgün hükümetleri, kukla yönetimi
-- [ ] Kontrol edilen tüm ekranların türün klasiği düzeniyle karşılaştırmalı gözden geçirilmesi (sekmeler, kartlar, ipucu içinde ipucu)
+- [x] Tüm ekranlar türün klasiği düzeninde yenilendi: Hükümet (lider, parti, pasta, dökümlü göstergeler, yasa yuvaları), Araştırma
+      (yuvalar + sekmeler + yıllara göre), Diplomasi, Ticaret (elle anlaşma), İnşaat, Üretim, Lojistik, Ordu (tabur ızgarası),
+      Donanma, Hava, Eyalet (yuvalar + doğrudan inşa), Odak ağacı (durum renkleri), Olay penceresi, duraklatma, oyun sonu
+- [ ] İpucu içinde ipucu; ayrı Kararlar ekranı
+
+## BÖLÜM M — TÜRÜN KLASİĞİYLE MEKANİK PARİTESİ ◐
+✔ var · ◐ sade hâli var · ☐ yok
+| Sistem | Durum | Eksik |
+|---|---|---|
+| Hükümet: ideoloji, parti, seçim, istikrar, savaş desteği | ✔ | darbe, iç savaş, parti ayrılıkları, ideoloji danışmanları |
+| Yasalar (askerlik, ekonomi, ticaret) | ✔ | eğitim / basın / hükümet yasaları |
+| Danışmanlar | ◐ | ülkeye özgü danışmanlar, tasarımcılar (tank/uçak/gemi), teorisyenler |
+| Milli odak | ◐ | 9 ağaç (Türkiye 33 odak); diğer ülkeler ortak ağaç; 100+ odaklı büyük güç ağaçları |
+| Olaylar | ◐ | seçenek şartları ✔; tarihî zincirler (İspanya İç Savaşı, Kış Savaşı, Balkanlar, Kuzey Afrika) |
+| Kararlar | ◐ | ayrı Kararlar ekranı, kategoriler, görevler (mission) |
+| İnşaat, üretim, verimlilik | ✔ | ekipman varyantları/tasarımcı, lisanslı üretim |
+| Ticaret | ✔ | kanaat (opinion) etkisi, ambargo, Uluslararası Pazar |
+| Araştırma | ✔ | doktrin ağaçları (kara/deniz/hava), bilim adamları |
+| Tümen şablonu | ◐ | destek bölükleri, şablon değişimi tecrübe harcar, takviye önceliği |
+| Muharebe | ◐ | taktikler, muharebe genişliği ayrıntısı, gece/gündüz, hava durumunun muharebeye etkisi |
+| Ordular, cepheler | ◐ | savaş planı okları (taarruz hattı), ordu grupları, generaller ve özellikleri |
+| Subay Heyeti (komuta gücü, tecrübe harcama) | ☐ | generaller, doktrinler, tercihli taktikler |
+| Lojistik | ◐ | ikmal merkezleri, demiryolu, kamyon, liman kapasitesi, yakıt ayrıntısı |
+| Deniz | ◐ | görev bölgeleri stratejik bölgeye göre, deniz çıkarması planı, üslerin menzili |
+| Hava | ◐ | stratejik bombardıman, paraşütçü, hava bölgesi başına üstünlük |
+| Diplomasi | ◐ | saldırmazlık paktı, gönüllüler, lend-lease, kanaat, ittifak yönetimi |
+| Barış | ◐ | barış konferansı (savaş puanı), sürgün hükümetleri, kukla/özerklik |
+| İşgal | ☐ | direniş, uyum, garnizon |
+| İstihbarat | ☐ | ajanlar, operasyonlar, şifre çözme |
+| Dünya gerginliği | ✔ | eşikler ideolojiye göre ✔ |
 
 ## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
 - [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,
@@ -381,6 +429,8 @@ Kaynak: hoi4.paradoxwikis.com/Beginner's_guide (üst çubuk, sol menüler, harit
 - [x] Renkler masaüstüyle aynı: Compatibility'de güneş gölgesi + glow/SSAO/renk ayarı kapalı (GLES3 bunlarla ton eşlemeyi
       LDR son işlemde yapıp aşırı parlatıyor); efekt shader'larında sRGB çıkışı; ölçülen fark 9/255 (SSAO ayrıntısı)
 - [x] Web'de bölge ipucu/tıklama (RGBA8 kimlik çözümü düzeltildi)
+- [x] 25 Eyl (akşam) değişiklikleri Compatibility renderer'ında denendi: kara rengi aynı (98/137/114 ↔ 96/139/114), oklar,
+      bayraklar ve paneller aynı; deniz web'de biraz açık (önceden de böyleydi)
 - [ ] Web'de birim gölgeleri yok (GLES3 gölge geçişi parlaklığı bozduğu için kapalı)
 - [ ] Web için varlık diyeti: yükseklik haritası yarım çözünürlük, doku boyutları, ilk yükleme süresi
 - [ ] Mobil tarayıcı desteği (bellek), kayıt dosyalarının tarayıcıda kalıcılığı

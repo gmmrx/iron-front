@@ -2,7 +2,7 @@
 
 Godot 4.7 ile 2. Dünya Savaşı büyük strateji türünün en iyileri ölçeğinde büyük strateji oyunu. **Tarayıcıda oyna:** https://gmmrx.github.io/iron-front/ (masaüstü Chrome/Firefox, ~370 MB indirir; her push'ta GitHub Actions ile yeniden yayınlanır)
 
-Yol haritası: [ROADMAP.md](ROADMAP.md) · Tanıtım videosu: [docs/media/iron_front_demo_2026-09-25.mp4](docs/media/iron_front_demo_2026-09-25.mp4) (klipler: `docs/media/clips/`)
+**Oyun wikisi (nasıl oynanır, mekanikler, ülkeler):** [docs/wiki](docs/wiki/README.md) · Yol haritası: [ROADMAP.md](ROADMAP.md) · Tanıtım videosu: [docs/media/iron_front_demo_2026-09-25.mp4](docs/media/iron_front_demo_2026-09-25.mp4) (klipler: `docs/media/clips/`)
 
 ## Çalıştırma
 Godot 4.7 ile projeyi açın ve F5'e basın. Ya da:

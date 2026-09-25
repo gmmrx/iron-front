@@ -183,6 +183,268 @@
    "mods": {
     "attack": -0.15
    }
+  },
+  "kemalist_officers": {
+   "name": {
+    "en": "Kemalist Officers",
+    "tr": "Kemalist Subaylar"
+   },
+   "mods": {
+    "stability": 0.05
+   }
+  },
+  "sectarian_woes": {
+   "name": {
+    "en": "Sectarian Woes",
+    "tr": "Mezhepsel Sıkıntılar"
+   },
+   "mods": {
+    "stability": -0.15,
+    "war_support": -0.15
+   },
+   "note": "Türkiye: Kemalist Devlet odağı kaldırır"
+  },
+  "disorganized_armed_forces": {
+   "name": {
+    "en": "Disorganized Armed Forces",
+    "tr": "Dağınık Silahlı Kuvvetler"
+   },
+   "mods": {
+    "org": -0.08,
+    "speed": -0.1,
+    "war_support": -0.15
+   }
+  },
+  "widespread_illiteracy": {
+   "name": {
+    "en": "Widespread Illiteracy",
+    "tr": "Yaygın Okuma Yazma Bilmezlik"
+   },
+   "mods": {
+    "political_power_gain": -0.05,
+    "stability": -0.05,
+    "research_speed": -0.05
+   }
+  },
+  "first_five_year_plan": {
+   "name": {
+    "en": "First Five-Year Industrial Plan",
+    "tr": "Birinci Beş Yıllık Sanayi Planı"
+   },
+   "mods": {
+    "construction_speed": 0.05
+   },
+   "expires": "1938-04-17"
+  },
+  "trotskyite_plot": {
+   "name": {
+    "en": "Trotskyite Plot?",
+    "tr": "Troçkist Komplo?"
+   },
+   "mods": {
+    "political_power_gain": -0.15,
+    "stability": -0.2
+   }
+  },
+  "purged_army": {
+   "name": {
+    "en": "Purged Officer Corps",
+    "tr": "Tasfiye Edilmiş Subay Kadrosu"
+   },
+   "mods": {
+    "org": -0.1
+   }
+  },
+  "king_george_v": {
+   "name": {
+    "en": "King George V",
+    "tr": "Kral V. George"
+   },
+   "mods": {
+    "stability": 0.15
+   }
+  },
+  "war_to_end_all_wars": {
+   "name": {
+    "en": "The War to End All Wars",
+    "tr": "Bütün Savaşları Bitirecek Savaş"
+   },
+   "mods": {
+    "recruitable_population_factor": -0.3
+   }
+  },
+  "disjointed_government": {
+   "name": {
+    "en": "Disjointed Government",
+    "tr": "Dağınık Hükümet"
+   },
+   "mods": {
+    "stability": -0.1,
+    "political_power_flat": -0.8,
+    "surrender_limit": -0.3
+   }
+  },
+  "victors_of_ww1": {
+   "name": {
+    "en": "Victors of the Great War",
+    "tr": "Büyük Savaşın Galipleri"
+   },
+   "mods": {
+    "war_support": -0.05
+   }
+  },
+  "inefficient_economy": {
+   "name": {
+    "en": "Inefficient Economy",
+    "tr": "Verimsiz Ekonomi"
+   },
+   "mods": {
+    "factory_output": -0.2
+   }
+  },
+  "full_employment": {
+   "name": {
+    "en": "Full Employment",
+    "tr": "Tam İstihdam"
+   },
+   "mods": {
+    "recruitable_population_factor": -0.25
+   }
+  },
+  "victor_emmanuel": {
+   "name": {
+    "en": "Victor Emmanuel III",
+    "tr": "III. Vittorio Emanuele"
+   },
+   "mods": {
+    "stability": 0.05
+   }
+  },
+  "great_depression": {
+   "name": {
+    "en": "The Great Depression",
+    "tr": "Büyük Buhran"
+   },
+   "mods": {
+    "political_power_flat": -0.5,
+    "consumer_goods_mod": 0.15,
+    "recruitable_population_factor": -0.5
+   }
+  },
+  "state_shintoism": {
+   "name": {
+    "en": "State Shintoism",
+    "tr": "Devlet Şintoizmi"
+   },
+   "mods": {
+    "war_support": 0.2,
+    "surrender_limit": 0.1
+   }
+  },
+  "chinese_corruption": {
+   "name": {
+    "en": "Corruption in the Armed Forces",
+    "tr": "Silahlı Kuvvetlerde Yolsuzluk"
+   },
+   "mods": {
+    "recruitable_population_factor": -0.4,
+    "defense": -0.15,
+    "consumer_goods_mod": 0.1
+   }
+  },
+  "april_constitution": {
+   "name": {
+    "en": "The April Constitution",
+    "tr": "Nisan Anayasası"
+   },
+   "mods": {
+    "political_power_gain": -0.15
+   }
+  },
+  "political_violence": {
+   "name": {
+    "en": "Political Violence",
+    "tr": "Siyasi Şiddet"
+   },
+   "mods": {
+    "stability": -0.15
+   }
+  },
+  "national_strikes": {
+   "name": {
+    "en": "National Strikes",
+    "tr": "Genel Grevler"
+   },
+   "mods": {
+    "stability": -0.1,
+    "factory_output": -0.1,
+    "construction_speed": -0.1
+   }
+  },
+  "carol_lifestyle": {
+   "name": {
+    "en": "King Carol II's Lifestyle",
+    "tr": "Kral II. Carol'ün Yaşam Tarzı"
+   },
+   "mods": {
+    "stability": -0.05
+   }
+  },
+  "treaty_of_trianon": {
+   "name": {
+    "en": "Treaty of Trianon",
+    "tr": "Trianon Antlaşması"
+   },
+   "mods": {
+    "recruitable_population_factor": -0.3
+   }
+  },
+  "levente": {
+   "name": {
+    "en": "Levente Associations",
+    "tr": "Levente Dernekleri"
+   },
+   "mods": {
+    "recruitable_population_factor": 0.1
+   }
+  },
+  "divided_nation": {
+   "name": {
+    "en": "Divided Nation",
+    "tr": "Bölünmüş Ulus"
+   },
+   "mods": {
+    "stability": -0.2
+   }
+  },
+  "croatian_opposition": {
+   "name": {
+    "en": "Croatian Opposition",
+    "tr": "Hırvat Muhalefeti"
+   },
+   "mods": {
+    "stability": -0.2
+   }
+  },
+  "milli_sef": {
+   "name": {
+    "en": "National Chief",
+    "tr": "Millî Şef"
+   },
+   "mods": {
+    "stability": 0.05,
+    "political_power_gain": 0.1
+   }
+  },
+  "straits_sovereignty": {
+   "name": {
+    "en": "Sovereignty over the Straits",
+    "tr": "Boğazlarda Egemenlik"
+   },
+   "mods": {
+    "defense": 0.05,
+    "stability": 0.03
+   }
   }
  },
  "advisors": {
@@ -301,12 +563,16 @@
  },
  "start": {
   "TUR": [
-   "kemalist_reforms",
-   "armed_neutrality"
+   "kemalist_officers",
+   "sectarian_woes",
+   "disorganized_armed_forces",
+   "widespread_illiteracy",
+   "first_five_year_plan"
   ],
   "SOV": [
    "five_year_plan",
-   "great_purge"
+   "great_purge",
+   "trotskyite_plot"
   ],
   "GER": [
    "rearmament",
@@ -315,40 +581,72 @@
   ],
   "ITA": [
    "fascist_state",
-   "italian_army"
+   "italian_army",
+   "victor_emmanuel"
   ],
   "ENG": [
    "british_empire",
-   "expeditionary_doctrine"
+   "expeditionary_doctrine",
+   "king_george_v",
+   "war_to_end_all_wars"
   ],
   "FRA": [
-   "maginot_mentality"
+   "maginot_mentality",
+   "disjointed_government",
+   "victors_of_ww1",
+   "inefficient_economy",
+   "full_employment"
   ],
   "SPR": [
-   "spanish_civil_war"
+   "spanish_civil_war",
+   "political_violence",
+   "national_strikes"
   ],
   "POL": [
-   "obsolete_army"
+   "obsolete_army",
+   "april_constitution"
+  ],
+  "USA": [
+   "great_depression"
+  ],
+  "JAP": [
+   "state_shintoism"
+  ],
+  "CHI": [
+   "chinese_corruption"
+  ],
+  "ROM": [
+   "carol_lifestyle"
+  ],
+  "HUN": [
+   "treaty_of_trianon",
+   "levente"
+  ],
+  "CZE": [
+   "divided_nation"
+  ],
+  "YUG": [
+   "croatian_opposition"
   ]
  },
  "popularity": {
   "GER": {
-   "fascism": 0.8,
-   "democratic": 0.1,
-   "communism": 0.05,
-   "neutrality": 0.05
+   "democratic": 0.35,
+   "communism": 0.1,
+   "fascism": 0.4,
+   "neutrality": 0.15
   },
   "ITA": {
-   "fascism": 0.8,
-   "democratic": 0.1,
-   "communism": 0.05,
+   "democratic": 0.2,
+   "communism": 0.02,
+   "fascism": 0.73,
    "neutrality": 0.05
   },
   "SOV": {
-   "communism": 0.85,
-   "fascism": 0.05,
-   "democratic": 0.05,
-   "neutrality": 0.05
+   "democratic": 0.1,
+   "communism": 0.88,
+   "fascism": 0.02,
+   "neutrality": 0.0
   },
   "_democratic": {
    "democratic": 0.7,
@@ -373,6 +671,468 @@
    "neutrality": 0.1,
    "democratic": 0.1,
    "fascism": 0.1
+  },
+  "ENG": {
+   "democratic": 0.97,
+   "communism": 0.01,
+   "fascism": 0.02,
+   "neutrality": 0.0
+  },
+  "FRA": {
+   "democratic": 0.64,
+   "communism": 0.2,
+   "fascism": 0.01,
+   "neutrality": 0.15
+  },
+  "TUR": {
+   "democratic": 0.06,
+   "communism": 0.0,
+   "fascism": 0.0,
+   "neutrality": 0.94
+  },
+  "SPR": {
+   "democratic": 0.41,
+   "communism": 0.07,
+   "fascism": 0.37,
+   "neutrality": 0.15
+  },
+  "POR": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "POL": {
+   "democratic": 0.18,
+   "communism": 0.02,
+   "fascism": 0.15,
+   "neutrality": 0.65
+  },
+  "ROM": {
+   "democratic": 0.6,
+   "communism": 0.02,
+   "fascism": 0.18,
+   "neutrality": 0.2
+  },
+  "HUN": {
+   "democratic": 0.2,
+   "communism": 0.02,
+   "fascism": 0.34,
+   "neutrality": 0.44
+  },
+  "CZE": {
+   "democratic": 0.71,
+   "communism": 0.12,
+   "fascism": 0.03,
+   "neutrality": 0.14
+  },
+  "AUS": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "YUG": {
+   "democratic": 0.15,
+   "communism": 0.15,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "GRE": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "BUL": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "ALB": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "SWE": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "NOR": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "DEN": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "FIN": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "EST": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "LAT": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "LIT": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "HOL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "BEL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "LUX": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "SWI": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "IRE": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "ICE": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "PER": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "IRQ": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "SAU": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "OMA": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "USA": {
+   "democratic": 0.99,
+   "communism": 0.01,
+   "fascism": 0.0,
+   "neutrality": 0.0
+  },
+  "CAN": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "MEX": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "GUA": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "HON": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "ELS": {
+   "democratic": 0.1,
+   "communism": 0.05,
+   "fascism": 0.7,
+   "neutrality": 0.15
+  },
+  "NIC": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "COS": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "PAN": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "CUB": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "HAI": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "DOM": {
+   "democratic": 0.1,
+   "communism": 0.05,
+   "fascism": 0.7,
+   "neutrality": 0.15
+  },
+  "COL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "VEN": {
+   "democratic": 0.1,
+   "communism": 0.05,
+   "fascism": 0.7,
+   "neutrality": 0.15
+  },
+  "ECU": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "PRU": {
+   "democratic": 0.1,
+   "communism": 0.05,
+   "fascism": 0.7,
+   "neutrality": 0.15
+  },
+  "BOL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "CHL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "ARG": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "URU": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "PAR": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "BRA": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "JAP": {
+   "democratic": 0.23,
+   "communism": 0.02,
+   "fascism": 0.35,
+   "neutrality": 0.4
+  },
+  "MAN": {
+   "democratic": 0.1,
+   "communism": 0.05,
+   "fascism": 0.7,
+   "neutrality": 0.15
+  },
+  "CHI": {
+   "democratic": 0.2,
+   "communism": 0.05,
+   "fascism": 0.1,
+   "neutrality": 0.65
+  },
+  "PRC": {
+   "democratic": 0.05,
+   "communism": 0.85,
+   "fascism": 0.05,
+   "neutrality": 0.05
+  },
+  "SHX": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "GXC": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "YUN": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "XSM": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "SIK": {
+   "democratic": 0.05,
+   "communism": 0.85,
+   "fascism": 0.05,
+   "neutrality": 0.05
+  },
+  "TIB": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "MON": {
+   "democratic": 0.05,
+   "communism": 0.85,
+   "fascism": 0.05,
+   "neutrality": 0.05
+  },
+  "TAN": {
+   "democratic": 0.05,
+   "communism": 0.85,
+   "fascism": 0.05,
+   "neutrality": 0.05
+  },
+  "SIA": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "PHI": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "AST": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "NZL": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "SAF": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "ETH": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "LIB": {
+   "democratic": 0.7,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.1
+  },
+  "NEP": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "BHU": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "RAJ": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "AFG": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
+  },
+  "YEM": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
   }
  },
  "factions": {

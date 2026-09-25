@@ -1,46 +1,245 @@
 {
-  "_comment": "Yasalar. change_cost: siyasi güç. conscription: kullanılabilir insan gücü oranı; economy: tüketim malı oranı ve fabrika çıktısı; trade: dışa satılan kaynak oranı.",
-  "change_cost": 150,
-  "groups": {
-    "conscription": {
-      "name": {"en": "Conscription Law", "tr": "Askerlik Yasası"},
-      "laws": {
-        "disarmed_nation": {"name": {"en": "Disarmed Nation", "tr": "Silahsızlandırılmış Ulus"}, "manpower": 0.01},
-        "volunteer_only": {"name": {"en": "Volunteer Only", "tr": "Yalnız Gönüllüler"}, "manpower": 0.015},
-        "limited_conscription": {"name": {"en": "Limited Conscription", "tr": "Sınırlı Seferberlik"}, "manpower": 0.025},
-        "extensive_conscription": {"name": {"en": "Extensive Conscription", "tr": "Geniş Seferberlik"}, "manpower": 0.05, "factory_output": -0.07},
-        "service_by_requirement": {"name": {"en": "Service by Requirement", "tr": "Zorunlu Hizmet"}, "manpower": 0.1, "factory_output": -0.14}
-      }
+ "_comment": "Yasalar (150 PP). requires: war_support (asgari etkin savaş desteği), at_war, authoritarian_or_at_war (faşist/komünist ya da savaşta). Ekonomi yasalarının küçük factory_output'u Iron Front dengesi için korunmuştur.",
+ "change_cost": 150,
+ "groups": {
+  "conscription": {
+   "name": {
+    "en": "Conscription Law",
+    "tr": "Askerlik Yasası"
+   },
+   "laws": {
+    "disarmed_nation": {
+     "name": {
+      "en": "Disarmed Nation",
+      "tr": "Silahsızlandırılmış Ulus"
+     },
+     "manpower": 0.01
     },
-    "economy": {
-      "name": {"en": "Economy Law", "tr": "Ekonomi Yasası"},
-      "laws": {
-        "civilian_economy": {"name": {"en": "Civilian Economy", "tr": "Sivil Ekonomi"}, "consumer_goods": 0.35, "construction_speed": -0.3},
-        "early_mobilization": {"name": {"en": "Early Mobilization", "tr": "Erken Seferberlik"}, "consumer_goods": 0.3, "construction_speed": -0.1, "factory_output": 0.05},
-        "partial_mobilization": {"name": {"en": "Partial Mobilization", "tr": "Kısmi Seferberlik"}, "consumer_goods": 0.25, "factory_output": 0.1},
-        "war_economy": {"name": {"en": "War Economy", "tr": "Savaş Ekonomisi"}, "consumer_goods": 0.2, "factory_output": 0.15, "construction_speed": 0.1},
-        "total_mobilization": {"name": {"en": "Total Mobilization", "tr": "Topyekûn Seferberlik"}, "consumer_goods": 0.1, "factory_output": 0.2, "construction_speed": 0.2}
-      }
+    "volunteer_only": {
+     "name": {
+      "en": "Volunteer Only",
+      "tr": "Yalnız Gönüllüler"
+     },
+     "manpower": 0.015
     },
-    "trade": {
-      "name": {"en": "Trade Law", "tr": "Ticaret Yasası"},
-      "laws": {
-        "free_trade": {"name": {"en": "Free Trade", "tr": "Serbest Ticaret"}, "export": 0.8, "factory_output": 0.15, "construction_speed": 0.15},
-        "export_focus": {"name": {"en": "Export Focus", "tr": "İhracat Odaklı"}, "export": 0.5, "factory_output": 0.1, "construction_speed": 0.1},
-        "limited_exports": {"name": {"en": "Limited Exports", "tr": "Sınırlı İhracat"}, "export": 0.25, "factory_output": 0.05, "construction_speed": 0.05},
-        "closed_economy": {"name": {"en": "Closed Economy", "tr": "Kapalı Ekonomi"}, "export": 0.0}
-      }
+    "limited_conscription": {
+     "name": {
+      "en": "Limited Conscription",
+      "tr": "Sınırlı Seferberlik"
+     },
+     "manpower": 0.025
+    },
+    "extensive_conscription": {
+     "name": {
+      "en": "Extensive Conscription",
+      "tr": "Geniş Seferberlik"
+     },
+     "manpower": 0.05,
+     "training_time": 0.1
+    },
+    "service_by_requirement": {
+     "name": {
+      "en": "Service by Requirement",
+      "tr": "Zorunlu Hizmet"
+     },
+     "manpower": 0.1,
+     "factory_output": -0.1,
+     "training_time": 0.2,
+     "requires": {
+      "war_support": 0.1
+     }
+    },
+    "all_adults_serve": {
+     "name": {
+      "en": "All Adults Serve",
+      "tr": "Bütün Yetişkinler Askerde"
+     },
+     "manpower": 0.2,
+     "factory_output": -0.3,
+     "training_time": 0.3,
+     "requires": {
+      "war_support": 0.2
+     }
+    },
+    "scraping_the_barrel": {
+     "name": {
+      "en": "Scraping the Barrel",
+      "tr": "Son Kaynaklar"
+     },
+     "manpower": 0.25,
+     "factory_output": -0.4,
+     "training_time": 0.5,
+     "requires": {
+      "war_support": 0.5,
+      "authoritarian_or_at_war": true
+     }
     }
+   }
   },
-  "start": {
-    "_default": {"conscription": "volunteer_only", "economy": "civilian_economy", "trade": "export_focus"},
-    "GER": {"conscription": "limited_conscription", "economy": "partial_mobilization", "trade": "limited_exports"},
-    "SOV": {"conscription": "limited_conscription", "economy": "civilian_economy", "trade": "limited_exports"},
-    "ITA": {"conscription": "limited_conscription", "economy": "early_mobilization", "trade": "export_focus"},
-    "JAP": {"conscription": "limited_conscription", "economy": "partial_mobilization", "trade": "limited_exports"},
-    "ENG": {"conscription": "volunteer_only", "economy": "civilian_economy", "trade": "free_trade"},
-    "FRA": {"conscription": "limited_conscription", "economy": "civilian_economy", "trade": "export_focus"},
-    "POL": {"conscription": "limited_conscription", "economy": "civilian_economy", "trade": "export_focus"},
-    "TUR": {"conscription": "limited_conscription", "economy": "civilian_economy", "trade": "export_focus"}
+  "economy": {
+   "name": {
+    "en": "Economy Law",
+    "tr": "Ekonomi Yasası"
+   },
+   "laws": {
+    "civilian_economy": {
+     "name": {
+      "en": "Civilian Economy",
+      "tr": "Sivil Ekonomi"
+     },
+     "consumer_goods": 0.35,
+     "construction_speed": -0.3
+    },
+    "early_mobilization": {
+     "name": {
+      "en": "Early Mobilization",
+      "tr": "Erken Seferberlik"
+     },
+     "consumer_goods": 0.3,
+     "construction_speed": -0.1,
+     "requires": {
+      "war_support": 0.15
+     }
+    },
+    "partial_mobilization": {
+     "name": {
+      "en": "Partial Mobilization",
+      "tr": "Kısmi Seferberlik"
+     },
+     "consumer_goods": 0.25,
+     "mil_construction_speed": 0.1,
+     "factory_output": 0.05,
+     "requires": {
+      "war_support": 0.25
+     }
+    },
+    "war_economy": {
+     "name": {
+      "en": "War Economy",
+      "tr": "Savaş Ekonomisi"
+     },
+     "consumer_goods": 0.2,
+     "mil_construction_speed": 0.2,
+     "factory_output": 0.1,
+     "requires": {
+      "war_support": 0.5,
+      "authoritarian_or_at_war": true
+     }
+    },
+    "total_mobilization": {
+     "name": {
+      "en": "Total Mobilization",
+      "tr": "Topyekûn Seferberlik"
+     },
+     "consumer_goods": 0.15,
+     "mil_construction_speed": 0.3,
+     "factory_output": 0.15,
+     "recruitable_population": -0.03,
+     "requires": {
+      "war_support": 0.8,
+      "at_war": true
+     }
+    }
+   }
+  },
+  "trade": {
+   "name": {
+    "en": "Trade Law",
+    "tr": "Ticaret Yasası"
+   },
+   "laws": {
+    "free_trade": {
+     "name": {
+      "en": "Free Trade",
+      "tr": "Serbest Ticaret"
+     },
+     "export": 0.8,
+     "factory_output": 0.15,
+     "research_speed": 0.1
+    },
+    "export_focus": {
+     "name": {
+      "en": "Export Focus",
+      "tr": "İhracat Odaklı"
+     },
+     "export": 0.5,
+     "factory_output": 0.1,
+     "research_speed": 0.05
+    },
+    "limited_exports": {
+     "name": {
+      "en": "Limited Exports",
+      "tr": "Sınırlı İhracat"
+     },
+     "export": 0.25,
+     "factory_output": 0.05,
+     "research_speed": 0.01
+    },
+    "closed_economy": {
+     "name": {
+      "en": "Closed Economy",
+      "tr": "Kapalı Ekonomi"
+     },
+     "export": 0.0
+    }
+   }
   }
+ },
+ "start": {
+  "_default": {
+   "conscription": "volunteer_only",
+   "economy": "civilian_economy",
+   "trade": "export_focus"
+  },
+  "GER": {
+   "conscription": "limited_conscription",
+   "economy": "partial_mobilization",
+   "trade": "limited_exports"
+  },
+  "SOV": {
+   "conscription": "limited_conscription",
+   "economy": "civilian_economy",
+   "trade": "closed_economy"
+  },
+  "ITA": {
+   "conscription": "volunteer_only",
+   "economy": "early_mobilization",
+   "trade": "export_focus"
+  },
+  "JAP": {
+   "conscription": "limited_conscription",
+   "economy": "partial_mobilization",
+   "trade": "limited_exports"
+  },
+  "ENG": {
+   "conscription": "limited_conscription",
+   "economy": "civilian_economy",
+   "trade": "free_trade"
+  },
+  "FRA": {
+   "conscription": "limited_conscription",
+   "economy": "civilian_economy",
+   "trade": "free_trade"
+  },
+  "POL": {
+   "conscription": "limited_conscription",
+   "economy": "civilian_economy",
+   "trade": "export_focus"
+  },
+  "TUR": {
+   "conscription": "volunteer_only",
+   "economy": "civilian_economy",
+   "trade": "export_focus"
+  },
+  "USA": {
+   "conscription": "volunteer_only",
+   "economy": "civilian_economy",
+   "trade": "free_trade"
+  },
+  "CHI": {
+   "conscription": "limited_conscription",
+   "economy": "civilian_economy",
+   "trade": "export_focus"
+  }
+ }
 }

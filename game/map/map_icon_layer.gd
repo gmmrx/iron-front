@@ -78,7 +78,8 @@ func _add_icon(tex: Texture2D, pos: Vector2, level: int, rng: Vector2, _tip: Str
 		l.no_depth_test = true
 		l.render_priority = 7
 		l.outline_render_priority = 6
-		_range(l, rng)
+		# seviye sayısı yalnız orta zoom'da: uzakta haritada sayı kalmasın (birlikler de bayrağa döner)
+		_range(l, Vector2(rng.x, minf(rng.y, UnitLayer.FLAG_MODE)))
 		root.add_child(l)
 	return root
 

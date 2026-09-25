@@ -83,9 +83,14 @@ func _load_countries() -> void:
 		c.color = Color(d["color"])
 		c.ideology = d["ideology"]
 		c.leader = d["leader"]
+		c.start_leader = c.leader
 		c.stability = d["stability"]
 		c.war_support = d["war_support"]
 		c.flag_def = d.get("flag", {})
+		c.party = d.get("party", {})
+		var el: Dictionary = d.get("elections", {})
+		c.election_months = int(el.get("months", 0))
+		c.next_election = Politics.date_int(el["next"]) if el.has("next") else 0
 		countries[tag] = c
 		country_by_index.append(c)
 
@@ -387,6 +392,14 @@ func set_player(tag: String) -> void:
 
 func start_game(tag: String) -> void:
 	player_tag = tag
+	if countries.has(tag):
+		Economy.set_auto_trade(countries[tag], false)     # oyuncunun ticaretini kimse onun yerine yapmaz
+		for w in Air.wings:
+			if w.owner == tag:
+				w.auto = false                # hava kanatları da oyuncunun emrini bekler
+		for d in Military.divisions:
+			if d.owner == tag:
+				d.hold = true                 # tümenler emir olmadan geri çekilmez
 	in_game = true
 	player_changed.emit(tag)
 	game_started.emit()

@@ -165,6 +165,6 @@ func select(tag: String) -> void:
 	_rows["UI_MANPOWER"].text = UiTheme.format_number(c.recruitable_manpower())
 	_rows["SELECT_STATES"].text = str(c.states.size())
 	_rows["UI_VICTORY_POINTS"].text = str(vp)
-	_rows["UI_STABILITY_TIP"].text = "%d%%" % roundi(c.stability * 100)
-	_rows["UI_WAR_SUPPORT_TIP"].text = "%d%%" % roundi(c.war_support * 100)
+	_rows["UI_STABILITY_TIP"].text = "%d%%" % roundi(Politics.stability(c) * 100)
+	_rows["UI_WAR_SUPPORT_TIP"].text = "%d%%" % roundi(Politics.war_support(c) * 100)
 	selection_changed.emit(tag)

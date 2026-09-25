@@ -121,10 +121,21 @@ func resource_total(c: Country, res: String) -> int:
 ## Tüketim malına giden sivil fabrika sayısı (toplam fabrikanın oranı, yukarı yuvarlanır)
 func consumer_goods_factories(c: Country) -> int:
 	var total := count(c, "civilian_factory") + count(c, "military_factory")
-	return mini(int(round(total * maxf(law_value(c, "consumer_goods", 0.35) + c.mod("consumer_goods_mod"), 0.05))), count(c, "civilian_factory"))
+	return mini(int(round(total * maxf((law_value(c, "consumer_goods", 0.35) + c.mod("consumer_goods_mod")) * Politics.stability_consumer_factor(c), 0.05))), count(c, "civilian_factory"))
 
+## İnşaata ayrılan sivil fabrika. Tabanı 1: tüketim malı ve ithalat her fabrikayı yutsa da (ya da hiç fabrika yoksa)
+## devletin bir fabrikalık kamu inşaat gücü kalır — küçük ülkeler de inşaat yapabilir. Oyuncu ödeyemeyeceği ithalatı yapamaz.
 func available_civilian(c: Country) -> int:
-	return maxi(count(c, "civilian_factory") - consumer_goods_factories(c) - c.trade_factories_paid + c.trade_factories_earned, 0)
+	var n := count(c, "civilian_factory") - consumer_goods_factories(c) - c.trade_factories_paid + c.trade_factories_earned
+	return maxi(n, 1)
+
+## Elle anlaşmalar için ödenebilir mi: toplam sipariş (+ek) karşılığı fabrika, tüketim malından arta kalan + ihracat kazancını aşamaz
+func trade_affordable(c: Country, extra: float) -> bool:
+	var total := extra
+	for o: Dictionary in c.trade_orders:
+		total += float(o["amount"])
+	var cost := int(ceil(total / RESOURCES_PER_TRADE_FACTORY))
+	return count(c, "civilian_factory") - consumer_goods_factories(c) + c.trade_factories_earned - cost >= 0
 
 # ------------------------------------------------------------------ inşaat
 ## Bu binanın bu eyalete kuyruğa eklenip eklenemeyeceği; "" = uygun, aksi halde çeviri anahtarı
@@ -202,7 +213,8 @@ func _on_day_impl() -> void:
 		for p in c.construction_queue:
 			var st: StateRegion = World.states[p.state_id]
 			var infra_bonus := 1.0 + st.building_level("infrastructure") * float(params["infrastructure_speed_bonus"])
-			var speed := maxf(1.0 + c.mod("construction_speed") + Politics.stability_output_penalty(c), 0.1)
+			var mil_b := p.building in ["military_factory", "dockyard"]
+			var speed := maxf(1.0 + c.mod("construction_speed") + (c.mod("mil_construction_speed") if mil_b else 0.0) + Politics.stability_output_penalty(c), 0.1)
 			p.last_daily = p.assigned_factories * float(params["civ_factory_output"]) * infra_bonus * speed
 			p.progress += p.last_daily
 			if p.progress >= p.cost:
@@ -244,7 +256,18 @@ func law_sum(c: Country, key: String) -> float:
 	return total
 
 func can_change_law(c: Country, group: String, law: String) -> bool:
-	return c.laws.get(group) != law and c.political_power >= law_change_cost
+	return c.laws.get(group) != law and c.political_power >= law_change_cost and law_block_reason(c, group, law) == ""
+
+## Yasanın şartı sağlanmıyorsa çeviri anahtarı (savaş desteği / savaş / ideoloji), yoksa ""
+func law_block_reason(c: Country, group: String, law: String) -> String:
+	var req: Dictionary = law_def(group, law).get("requires", {})
+	if req.has("war_support") and Politics.war_support(c) < float(req["war_support"]):
+		return "LAW_REQ_WAR_SUPPORT"
+	if req.get("at_war", false) and not Diplomacy.at_war(c.tag):
+		return "LAW_REQ_AT_WAR"
+	if req.get("authoritarian_or_at_war", false) and not (c.ideology in ["fascism", "communism"] or Diplomacy.at_war(c.tag)):
+		return "LAW_REQ_AUTHORITARIAN"
+	return ""
 
 func change_law(c: Country, group: String, law: String) -> bool:
 	if not can_change_law(c, group, law):
@@ -341,6 +364,48 @@ func resource_need(c: Country) -> Dictionary:
 const RESOURCES_PER_TRADE_FACTORY := 8.0
 const SYNTHETIC_RUBBER := 3
 var _trade_dirty := true
+var market := {}                    ## tag -> {kaynak: elle alınabilecek arz} (son hesaptan)
+
+## Oyuncu için satıcılar: [[tag, arz], ...] (arz çoktan aza; düşmanlar ve kendisi hariç)
+func trade_sellers(c: Country, res: String) -> Array:
+	var out := []
+	for tag: String in market:
+		var s: Country = World.countries.get(tag)
+		if s == null or s == c or not s.exists() or Diplomacy.are_enemies(c.tag, tag):
+			continue
+		var amt := float(market[tag].get(res, 0))
+		if amt >= 1.0:
+			out.append([tag, amt])
+	out.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
+	return out
+
+## Elle ticaret anlaşması ekle / miktarını değiştir (8 kaynak = 1 sivil fabrika)
+func add_trade(c: Country, res: String, from: String, amount: float) -> bool:
+	if not trade_affordable(c, amount):
+		return false
+	for o: Dictionary in c.trade_orders:
+		if o["res"] == res and o["from"] == from:
+			o["amount"] = float(o["amount"]) + amount
+			_run_trade()
+			return true
+	c.trade_orders.append({"from": from, "res": res, "amount": amount})
+	_run_trade()
+	return true
+
+func change_trade(c: Country, idx: int, delta: float) -> void:
+	if idx < 0 or idx >= c.trade_orders.size():
+		return
+	var o: Dictionary = c.trade_orders[idx]
+	if delta > 0.0 and not trade_affordable(c, delta):
+		return
+	o["amount"] = float(o["amount"]) + delta
+	if float(o["amount"]) <= 0.0:
+		c.trade_orders.remove_at(idx)
+	_run_trade()
+
+func set_auto_trade(c: Country, on: bool) -> void:
+	c.auto_trade = on
+	_run_trade()
 
 func mark_trade_dirty() -> void:
 	_trade_dirty = true
@@ -361,8 +426,27 @@ func _run_trade() -> void:
 		for r: String in prod_:
 			o[r] = floorf(float(prod_[r]) * share)
 		offered[c.tag] = o
+	# elle yapılan anlaşmalar önce işler (sözleşme gibi): oyuncunun seçtiği satıcıdan, arz yettiği kadar
+	for c: Country in World.countries.values():
+		if c.auto_trade or c.trade_orders.is_empty():
+			continue
+		var bought_m := 0.0
+		for o: Dictionary in c.trade_orders:
+			var s: Country = World.countries.get(o["from"])
+			if s == null or s == c or not s.exists() or Diplomacy.are_enemies(c.tag, s.tag):
+				continue
+			var r: String = o["res"]
+			var amt := minf(float(o["amount"]), float(offered[s.tag].get(r, 0)))
+			if amt <= 0.0:
+				continue
+			offered[s.tag][r] -= amt
+			bought_m += amt
+			c.imports.append({"from": s.tag, "res": r, "amount": amt})
+			s.exports.append({"to": c.tag, "res": r, "amount": amt})
+		c.trade_factories_paid = int(ceil(bought_m / RESOURCES_PER_TRADE_FACTORY))
+	market = offered.duplicate(true)
 	# büyük sanayiler önce alır (türün klasiklerinde de pazar gücü sanayiye bağlı)
-	var buyers: Array = World.countries.values()
+	var buyers: Array = World.countries.values().filter(func(x: Country) -> bool: return x.auto_trade)
 	buyers.sort_custom(func(a: Country, b: Country) -> bool: return count(a, "civilian_factory") > count(b, "civilian_factory"))
 	for c: Country in buyers:
 		var need := resource_need(c)
@@ -406,7 +490,7 @@ func line_resource_need(l: ProductionLine) -> Dictionary:
 func _produce(c: Country) -> void:
 	var available := resource_available(c)
 	c.resource_use = {}
-	var output_mod := maxf(1.0 + c.mod("factory_output") + Politics.stability_output_penalty(c), 0.1)
+	var output_mod := maxf(1.0 + c.mod("factory_output") + Politics.stability_factory_mod(c), 0.1)
 	var cap := float(prod["efficiency_cap"]) + c.mod("production_efficiency_cap")
 	for l in c.production_lines:
 		if l.factories <= 0:

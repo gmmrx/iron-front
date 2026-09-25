@@ -171,6 +171,7 @@ func _create(c: Country, ti: int, pid: int, strength: float, training: int) -> D
 	d.id = _next_id
 	_next_id += 1
 	d.owner = c.tag
+	d.hold = World.in_game and c.tag == World.player_tag   # oyuncunun askeri kendiliğinden geri dönmez
 	d.template = ti
 	d.province = pid
 	d.strength = clampf(strength, 0.05, 1.0)
@@ -923,6 +924,8 @@ func _resolve_battle(pid: int, attackers: Array, defenders: Array) -> void:
 	for d: Division in dfn:
 		var s := div_stats(d)
 		var m := 1.0 + Air.bonus(pid, d.owner) - (0.0 if d.supplied else 0.35) - fuel_malus(d)
+		if d.org < s["org"] * RETREAT_ORG:
+			m -= 0.5          # organizasyonu bitmiş (bitkin) tümen yarı güçle direnir
 		def_attack += (s["soft"] * (1.0 - att_hard) + s["hard"] * att_hard) * d.strength * maxf(m, 0.15) * d.xp_mult()
 		d.xp = minf(d.xp + 0.0006, 1.0)
 	_apply_hits(dfn, att_attack, "defense", 1.0)
@@ -940,9 +943,15 @@ func _resolve_battle(pid: int, attackers: Array, defenders: Array) -> void:
 	battles[pid] = {"attackers": attackers, "defenders": defenders,
 			"att_ratio": att_org / maxf(att_max, 1.0), "def_ratio": def_org / maxf(def_max, 1.0),
 			"from": attackers[0].province}
-	# geri çekilme / yok olma
+	# geri çekilme / yok olma — "son askere kadar" duruşundaki tümen geri çekilmez, gücü bitince yok olur
 	for d: Division in defenders:
 		var s := div_stats(d)
+		if d.hold:
+			if d.strength < 0.04:
+				_notify_loss(d)
+				_remove(d)
+				division_destroyed.emit(d.owner)
+			continue
 		if d.org < s["org"] * RETREAT_ORG or d.strength < 0.1:
 			_retreat(d)
 	for d: Division in attackers:

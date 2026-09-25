@@ -8,32 +8,20 @@ signal pick_zone_requested(fleet: Fleet)
 const MISSION_ICONS := ["building_naval_base", "equipment_battleship", "equipment_submarine", "equipment_convoy"]
 
 var selected_id := 0
-var _summary: Label
+var _cells: Array[Label] = []
 var _list: VBoxContainer
 var _pending := false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
-	custom_minimum_size = Vector2(470, 0)
 	visible = false
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 8)
-	add_child(v)
-	var title := UiTheme.make_label(tr("NAVY_TITLE"), 24, UiTheme.ACCENT)
-	title.add_theme_font_override("font", UiTheme.title_font())
-	v.add_child(title)
-	_summary = UiTheme.make_label("", 16, UiTheme.TEXT_DIM)
-	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_summary)
-	v.add_child(HSeparator.new())
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 560)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_list = VBoxContainer.new()
-	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_list.add_theme_constant_override("separation", 8)
-	scroll.add_child(_list)
-	v.add_child(scroll)
+	_list = PanelLayout.frame(self, tr("NAVY_TITLE"), "navy", 500.0)
+	var top := PanelLayout.fixed(self)
+	_cells = PanelLayout.info_cells(top, [
+		["navy", tr("NAV_CELL_POWER"), tr("NAV_CELL_POWER_TIP")],
+		["equipment_destroyer", tr("NAV_CELL_FLEETS"), tr("NAV_CELL_FLEETS_TIP")],
+		["equipment_convoy", tr("NAV_CELL_CONVOY"), tr("NAV_CELL_CONVOY_TIP")],
+		["trade", tr("TRD_CELL_CONVOY"), tr("TRD_CELL_CONVOY_TIP")]])
 	Navy.fleets_changed.connect(_queue_refresh)
 	Navy.naval_battles_changed.connect(_queue_refresh)
 	World.daily_update.connect(_queue_refresh)
@@ -60,17 +48,20 @@ func refresh() -> void:
 	var c := World.player()
 	if c == null:
 		return
-	_summary.text = tr("NAVY_SUMMARY") % [roundi(Navy.power(c.tag)), roundi(float(c.stockpile.get("convoy", 0.0)))]
+	if _cells.is_empty():
+		return
+	var own := Navy.fleets_of(c.tag)
+	_cells[0].text = str(roundi(Navy.power(c.tag)))
+	_cells[1].text = str(own.size())
+	_cells[2].text = str(roundi(float(c.stockpile.get("convoy", 0.0))))
 	var cf := Economy.convoy_factor(c)
-	if cf < 0.999:
-		_summary.text += "\n" + tr("NAVY_CONVOY_FACTOR") % roundi(cf * 100.0)
+	_cells[3].text = "%d%%" % roundi(cf * 100.0)
+	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if cf >= 0.999 else UiTheme.BAD)
 	for ch in _list.get_children():
 		ch.queue_free()
-	var own := Navy.fleets_of(c.tag)
+	PanelLayout.section(_list, tr("NAV_FLEETS") % own.size())
 	if own.is_empty():
-		var l := UiTheme.make_label(tr("NAVY_NO_FLEETS"), 16, UiTheme.TEXT_DIM)
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_list.add_child(l)
+		PanelLayout.empty(_list, tr("NAVY_NO_FLEETS"))
 		return
 	for f in own:
 		_list.add_child(_card(f))
@@ -78,10 +69,7 @@ func refresh() -> void:
 func _card(f: Fleet) -> Control:
 	var sel := f.id == selected_id
 	var panel := PanelContainer.new()
-	var sb := UiTheme.panel_style(Color(1, 1, 1, 0.08 if sel else 0.035), UiTheme.ACCENT if sel else UiTheme.BORDER_DIM, 2 if sel else 1)
-	sb.shadow_size = 0
-	sb.set_content_margin_all(8)
-	panel.add_theme_stylebox_override("panel", sb)
+	panel.theme_type_variation = "SlotGold" if sel else "Row"
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.tooltip_text = tr("TIP_FLEET_CARD")
 	panel.gui_input.connect(func(e: InputEvent) -> void:
@@ -95,6 +83,8 @@ func _card(f: Fleet) -> Control:
 
 	# başlık: ad + durum
 	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	head.add_child(UiTheme.icon_texture(UiTheme.icon("navy"), 26))
 	var name := UiTheme.make_label(f.name, 18, UiTheme.ACCENT)
 	name.add_theme_font_override("font", UiTheme.bold_font())
 	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -125,20 +115,14 @@ func _card(f: Fleet) -> Control:
 	v.add_child(comp)
 
 	# organizasyon
-	var bar := ProgressBar.new()
-	bar.min_value = 0.0
-	bar.max_value = 1.0
-	bar.value = f.org
-	bar.show_percentage = false
-	bar.custom_minimum_size.y = 7
-	bar.tooltip_text = "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)]
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color(0.45, 0.85, 0.35) if f.org > 0.5 else UiTheme.BAD
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.5)
-	bar.add_theme_stylebox_override("fill", fill)
-	bar.add_theme_stylebox_override("background", bg)
-	v.add_child(bar)
+	var orow := HBoxContainer.new()
+	orow.add_child(UiTheme.make_label(tr("NAVY_ORG"), 13, UiTheme.TEXT_DIM))
+	var bar := PanelLayout.progress(f.org, Color(0.45, 0.85, 0.35) if f.org > 0.5 else UiTheme.BAD, 7.0)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	orow.add_child(bar)
+	orow.add_child(UiTheme.make_label("%d%%" % roundi(f.org * 100.0), 13, UiTheme.TEXT))
+	orow.tooltip_text = "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)]
+	v.add_child(orow)
 
 	# görevler
 	var missions := HBoxContainer.new()
@@ -147,10 +131,12 @@ func _card(f: Fleet) -> Control:
 	for m in 4:
 		var b := Button.new()
 		b.toggle_mode = true
+		b.theme_type_variation = "Tab"
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
 		b.icon = UiTheme.icon(MISSION_ICONS[m])
 		b.add_theme_constant_override("icon_max_width", 20)
+		b.clip_text = true
 		b.text = tr("MISSION_%d" % m)
 		b.add_theme_font_size_override("font_size", 13)
 		b.tooltip_text = tr("TIP_MISSION_%d" % m)

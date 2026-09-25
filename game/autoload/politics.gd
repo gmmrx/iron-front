@@ -42,9 +42,12 @@ func _ready() -> void:
 	World.daily_update.connect(_on_day)
 	reset()
 
+var fired_events: Array = []       ## tarihli olaylardan tetiklenenler (bir kez)
+
 func reset() -> void:
 	factions.clear()
 	pending_events.clear()
+	fired_events.clear()
 	for c: Country in World.countries.values():
 		c.spirits.clear()
 		for sp: String in _data["start"].get(c.tag, []):
@@ -80,16 +83,51 @@ func focus_def(c: Country, id: String) -> Dictionary:
 func faction_display(leader: String) -> String:
 	return loc(faction_names.get(leader, {"en": leader, "tr": leader}))
 
-## Etkin istikrar/savaş desteği (taban + modifier), 0..1
+## Etkin istikrar (0..1): taban + ruh/danışman/yasa modifier'ları + iktidar ideolojisinin popülerliği (%100'de +%15)
+const PARTY_STABILITY := 0.15
 func stability(c: Country) -> float:
-	return clampf(c.stability + c.mod("stability"), 0.0, 1.0)
+	return clampf(c.stability + c.mod("stability") + party_stability_bonus(c), 0.0, 1.0)
 
+func party_stability_bonus(c: Country) -> float:
+	return PARTY_STABILITY * float(c.popularity.get(c.ideology, 0.0))
+
+## Etkin savaş desteği (0..1): taban + modifier + dünya gerginliği (%1 başına +%0,4, en çok +%40)
+## + savaş durumu (savunma savaşı +%20, saldırı savaşı −%20)
 func war_support(c: Country) -> float:
-	return clampf(c.war_support + c.mod("war_support"), 0.0, 1.0)
+	return clampf(c.war_support + c.mod("war_support") + tension_war_support() + war_state_support(c), 0.0, 1.0)
 
-## İstikrar %50'nin altındaysa fabrika çıktısı cezası
+func tension_war_support() -> float:
+	return minf(World.world_tension * 0.004, 0.4)
+
+func war_state_support(c: Country) -> float:
+	var att := false
+	var dfn := false
+	for w: Dictionary in Diplomacy.wars:
+		if c.tag in w["attackers"]: att = true
+		if c.tag in w["defenders"]: dfn = true
+	if dfn: return 0.2
+	if att: return -0.2
+	return 0.0
+
+## İstikrarın etkileri (türün klasiği): %100'de fabrika çıktısı +%20, PP +%10, tüketim malı −%20;
+## %0'da fabrika çıktısı −%50, PP −%20
+func stability_factory_mod(c: Country) -> float:
+	var s := stability(c)
+	return (s - 0.5) * 0.4 if s >= 0.5 else -(0.5 - s) * 1.0
+
+func stability_pp_mod(c: Country) -> float:
+	var s := stability(c)
+	return (s - 0.5) * 0.2 if s >= 0.5 else -(0.5 - s) * 0.4
+
+func stability_consumer_factor(c: Country) -> float:
+	return 1.0 - maxf(stability(c) - 0.5, 0.0) * 0.4
+
+## İstikrar %50'nin altındaysa inşaat hızı cezası (en çok −%25)
 func stability_output_penalty(c: Country) -> float:
 	return minf(0.0, (stability(c) - 0.5) * 0.5)
+
+func date_int(s: String) -> int:
+	return _date(s)
 
 func can_start_focus(c: Country, id: String) -> bool:
 	var fo := focus_def(c, id)
@@ -149,6 +187,12 @@ func check(c: Country, cond: Dictionary) -> bool:
 				if World.world_tension < float(v): return false
 			"ideology":
 				if c.ideology != v: return false
+			"leader":
+				if c.leader != v: return false
+			"allied_with":
+				if not Diplomacy.are_allies(c.tag, v): return false
+			"at_war_with":
+				if not Diplomacy.are_enemies(c.tag, v): return false
 			"has_flag":
 				if not c.decisions_active.has("flag_" + str(v)): return false
 			"at_war":
@@ -228,6 +272,9 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 				var t: Country = World.countries.get(e.get("target", c.tag))
 				if t: t.decisions_active["flag_" + str(v)] = 1 << 30
 			"news": _news(v, [c.display_name()])
+			"set_leader":
+				c.leader = v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v)
+				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader], "info")
 
 func _news(key: String, args: Array) -> void:
 	var text := tr(key)
@@ -281,26 +328,45 @@ func fire_event(target: Country, id: String, from_tag: String) -> void:
 		pending_events.append({"id": id, "from": from_tag})
 		event_fired.emit(target.tag, id, from_tag)
 	else:
-		var opt := _ai_option(id)
+		var opt := _ai_option(id, target)
 		if id == "faction_invite":
 			opt = 0 if Diplomacy.ai_accepts_invite(target, World.countries[from_tag]) else 1
 		elif id == "call_to_arms":
 			opt = 0 if target.ideology == World.countries[from_tag].ideology or randf() < 0.3 else 1
 		choose_option(target, id, opt, from_tag)
 
-func _ai_option(id: String) -> int:
+func _ai_option(id: String, c: Country = null) -> int:
 	var opts: Array = events[id]["options"]
-	var r := randf()
-	var acc := 0.0
+	var total := 0.0
 	for i in opts.size():
+		if option_available(c, id, i):
+			total += float(opts[i]["ai"])
+	var r := randf() * maxf(total, 0.0001)
+	var acc := 0.0
+	var first := -1
+	for i in opts.size():
+		if not option_available(c, id, i):
+			continue
+		if first < 0:
+			first = i
 		acc += float(opts[i]["ai"])
 		if r <= acc:
 			return i
-	return 0
+	return maxi(first, 0)
+
+## Seçeneğin şartı (ör. yalnız Atatürk liderken) sağlanıyor mu
+func option_available(c: Country, id: String, option: int) -> bool:
+	var opt: Dictionary = events[id]["options"][option]
+	if c == null or not opt.has("require"):
+		return true
+	return check_all(c, opt["require"])
 
 func choose_option(c: Country, id: String, option: int, from_tag: String) -> void:
 	var opts: Array = events[id]["options"]
-	apply_effects(c, opts[clampi(option, 0, opts.size() - 1)]["effects"], from_tag)
+	option = clampi(option, 0, opts.size() - 1)
+	if not option_available(c, id, option):
+		option = _ai_option(id, c)
+	apply_effects(c, opts[option]["effects"], from_tag)
 
 # ------------------------------------------------------------------ danışman / karar
 func can_hire(c: Country, id: String) -> bool:
@@ -356,9 +422,73 @@ func _on_day_impl() -> void:
 			if not d.begins_with("flag_") and World.day_count >= int(c.decisions_active[d]):
 				c.decisions_active.erase(d)
 				c.spirits.erase(d)
+	_scheduled_events()
+	_elections()
+	_expire_spirits()
 	# gerginlik yavaşça düşer (savaş yoksa)
 	if not Diplomacy.any_war():
 		World.world_tension = maxf(World.world_tension - 0.02, 0.0)
+
+## Süreli milli ruhlar: tanımında "expires": "YYYY-MM-DD" olanlar tarih gelince kalkar
+func _expire_spirits() -> void:
+	if World.day_count % 7 != 0:
+		return
+	var today := World.date_value()
+	for c: Country in World.countries.values():
+		for sp: String in c.spirits.duplicate():
+			var d: Dictionary = spirits.get(sp, {})
+			if d.has("expires") and today >= _date(str(d["expires"])):
+				c.spirits.erase(sp)
+				if c.tag == World.player_tag:
+					World.notify(tr("NEWS_SPIRIT_EXPIRED") % loc(d["name"]), "info")
+
+## Tarihli olaylar: events.json'da "trigger": {tag, date, from?, require[]} olanlar tarih gelince bir kez tetiklenir.
+## Oyuncuya pencere açılır; AI olasılık ağırlıklarına göre seçer.
+func _scheduled_events() -> void:
+	var today := World.date_value()
+	for id: String in events:
+		var tr_: Variant = events[id].get("trigger")
+		if tr_ == null or id in fired_events:
+			continue
+		var t: Dictionary = tr_
+		if today < _date(str(t.get("date", "1936-01-01"))):
+			continue
+		var target: Country = World.countries.get(str(t.get("tag", "")))
+		if target == null or not target.exists():
+			fired_events.append(id)
+			continue
+		if not check_all(target, t.get("require", [])):
+			continue
+		fired_events.append(id)
+		fire_event(target, id, str(t.get("from", target.tag)))
+
+## Seçimler (demokrasiler ve seçim yapan diğer rejimler): tarih gelince popülerliği %50'yi aşan ideoloji iktidara gelir;
+## kimse aşmıyorsa iktidar kalır. Oyuncuya sonuç penceresi gösterilir.
+func _elections() -> void:
+	var today := World.date_value()
+	for c: Country in World.countries.values():
+		if c.election_months <= 0 or c.next_election <= 0 or today < c.next_election or not c.exists():
+			continue
+		var y := c.next_election / 10000
+		var m := (c.next_election / 100) % 100 + c.election_months
+		y += (m - 1) / 12
+		m = (m - 1) % 12 + 1
+		c.next_election = y * 10000 + m * 100 + (c.next_election % 100)
+		if Diplomacy.at_war(c.tag):
+			continue          # savaşta seçim ertelenir
+		var winner := c.ideology
+		for ideo: String in c.popularity:
+			if ideo != c.ideology and float(c.popularity[ideo]) > 0.5:
+				winner = ideo
+		if winner != c.ideology:
+			c.ideology = winner
+			World.notify(tr("NEWS_ELECTION_CHANGE") % [c.display_name(), tr("IDEOLOGY_" + winner)], "info")
+		elif c.tag == World.player_tag:
+			World.notify(tr("NEWS_ELECTION_HOLD") % c.display_name(), "good")
+		if c.tag == World.player_tag and World.in_game:
+			pending_events.append({"id": "election", "from": c.tag})
+			event_fired.emit(c.tag, "election", c.tag)
+		politics_changed.emit(c.tag)
 
 # ------------------------------------------------------------------ açıklama metni
 func _cname(tag: String) -> String:
@@ -408,6 +538,7 @@ func describe_effects(effects: Array, from_tag := "") -> String:
 						t = tr("EFF_POPULARITY") % [roundi(float(v[ideo]) * 100), tr("IDEOLOGY_" + ideo)]
 				"white_peace_with": t = tr("EFF_WHITE_PEACE") % _cname(_resolve(v, from_tag, World.player()))
 				"grant_access": t = tr("EFF_ACCESS") % _cname(_resolve(v, from_tag, World.player()))
+				"set_leader": t = tr("EFF_SET_LEADER") % (v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v))
 			if t != "":
 				lines.append("• " + t)
 	return "\n".join(lines)

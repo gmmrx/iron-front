@@ -8,79 +8,49 @@ const ORDER := ["civilian_factory", "military_factory", "dockyard", "infrastruct
 
 var selected := ""
 var _buttons := {}
-var _summary: Label
+var _cells: Array[Label] = []
 var _queue_box: VBoxContainer
+var _queue_head: PanelContainer
 var _message: Label
-var _scroll: ScrollContainer
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(520, 0)
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
-	position = Vector2(12, 120)
-	size = Vector2(480, 760)
 	visible = false
-
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 8)
-	add_child(v)
-	var title := UiTheme.make_label(tr("CONSTRUCTION_TITLE"), 24, UiTheme.ACCENT)
-	title.add_theme_font_override("font", UiTheme.title_font())
-	v.add_child(title)
-	_summary = UiTheme.make_label("", 16, UiTheme.TEXT_DIM)
-	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_summary)
-	v.add_child(HSeparator.new())
-
-	var grid := PanelLayout.grid()
+	_queue_box = PanelLayout.frame(self, tr("CONSTRUCTION_TITLE"), "construction", 500.0)
+	var top := PanelLayout.fixed(self)
+	_cells = PanelLayout.info_cells(top, [
+		["building_civilian_factory", tr("CON_CELL_CIV"), tr("CON_CELL_CIV_TIP")],
+		["production", tr("CON_CELL_CONSUMER"), tr("CON_CELL_CONSUMER_TIP")],
+		["construction", tr("CON_CELL_FREE"), tr("CON_CELL_FREE_TIP")],
+		["stability", tr("CON_CELL_SPEED"), tr("CON_CELL_SPEED_TIP")]])
+	PanelLayout.section(top, tr("CON_BUILDINGS"))
+	var grid := PanelLayout.grid(4)
 	var group := ButtonGroup.new()
 	group.allow_unpress = true
 	for b in ORDER:
-		var btn := Button.new()
+		var btn := PanelLayout.tile(UiTheme.building_icon(b), Economy.building_name(b), UiTheme.format_number(Economy.defs[b]["cost"]),
+			"%s\n%s\n\n%s" % [Economy.building_name(b), tr("BDESC_" + b), tr("TIP_BUILD_COST") % UiTheme.format_number(Economy.defs[b]["cost"])])
 		btn.toggle_mode = true
 		btn.button_group = group
-		btn.focus_mode = Control.FOCUS_NONE
-		btn.custom_minimum_size = Vector2(224, 82)
-		btn.text = "%s\n%s" % [Economy.building_name(b), UiTheme.format_number(Economy.defs[b]["cost"])]
-		btn.icon = UiTheme.building_icon(b)
-		btn.expand_icon = true
-		btn.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_constant_override("icon_max_width", 68)
-		btn.tooltip_text = "%s\n%s\n\n%s" % [Economy.building_name(b), tr("BDESC_" + b), tr("TIP_BUILD_COST") % UiTheme.format_number(Economy.defs[b]["cost"])]
-		PanelLayout.card(btn, 238, 88)
 		btn.toggled.connect(func(on: bool) -> void: _on_toggle(b, on))
 		grid.add_child(btn)
 		_buttons[b] = btn
-	v.add_child(grid)
+	top.add_child(grid)
 	_message = UiTheme.make_label(tr("CONSTRUCTION_HINT"), 15, UiTheme.TEXT_DIM)
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_message)
-	v.add_child(HSeparator.new())
-	PanelLayout.section(v, tr("CONSTRUCTION_QUEUE"))
-
-	var scroll := ScrollContainer.new()
-	_scroll = scroll
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size.y = 360
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_queue_box = VBoxContainer.new()
-	_queue_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_queue_box.add_theme_constant_override("separation", 6)
-	scroll.add_child(_queue_box)
-	v.add_child(scroll)
-
+	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	top.add_child(_message)
+	_queue_head = PanelLayout.section(top, tr("CONSTRUCTION_QUEUE"))
 	Economy.construction_changed.connect(func(tag: String) -> void:
 		if tag == World.player_tag and visible:
 			refresh())
+	World.daily_update.connect(func() -> void:
+		if visible: refresh())
 	World.player_changed.connect(func(_t: String) -> void: refresh())
-	get_viewport().size_changed.connect(_fit)
 
 func open() -> void:
 	visible = true
 	refresh()
-	_fit.call_deferred()
-
-func _fit() -> void:
-	PanelLayout.fit_scroll(self, _scroll, 300)
 
 func close() -> void:
 	visible = false
@@ -102,51 +72,51 @@ func show_result(err: String) -> void:
 
 func refresh() -> void:
 	var c := World.player()
-	if c == null:
+	if c == null or _cells.is_empty():
 		return
-	_summary.text = tr("CONSTRUCTION_SUMMARY") % [Economy.count(c, "civilian_factory"), Economy.consumer_goods_factories(c), Economy.available_civilian(c)]
+	var civ := Economy.count(c, "civilian_factory")
+	_cells[0].text = str(civ)
+	_cells[1].text = str(Economy.consumer_goods_factories(c))
+	_cells[2].text = str(Economy.available_civilian(c))
+	_cells[2].add_theme_color_override("font_color", UiTheme.GOOD if Economy.available_civilian(c) > 0 else UiTheme.BAD)
+	var sp := c.mod("construction_speed") + Politics.stability_output_penalty(c)
+	_cells[3].text = ("+" if sp >= 0 else "") + "%d%%" % roundi(sp * 100)
+	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if sp >= 0 else UiTheme.BAD)
+	(_queue_head.get_child(0) as Label).text = (tr("CONSTRUCTION_QUEUE") + "  (%d)" % c.construction_queue.size()).to_upper()
 	for ch in _queue_box.get_children():
 		ch.queue_free()
+	if c.construction_queue.is_empty():
+		PanelLayout.empty(_queue_box, tr("CON_QUEUE_EMPTY"))
 	for i in c.construction_queue.size():
-		_queue_box.add_child(_row(c, i))
-	_fit.call_deferred()
+		_row(c, i)
 
-func _row(c: Country, i: int) -> Control:
+func _row(c: Country, i: int) -> void:
 	var p := c.construction_queue[i]
 	var st: StateRegion = World.states[p.state_id]
-	var panel := PanelContainer.new()
-	var sb := UiTheme.panel_style(Color(1, 1, 1, 0.04), UiTheme.BORDER_DIM)
-	sb.shadow_size = 0
-	sb.set_content_margin_all(6)
-	panel.add_theme_stylebox_override("panel", sb)
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 2)
-	panel.add_child(v)
-	var head := HBoxContainer.new()
-	var name := UiTheme.make_label("%s — %s" % [Economy.building_name(p.building), st.display_name()], 16)
-	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name.custom_minimum_size.x = 220
-	head.add_child(name)
-	head.add_child(UiTheme.icon_button("up", tr("TIP_QUEUE_UP"), func() -> void: Economy.move_project(c, i, -1), 26))
-	head.add_child(UiTheme.icon_button("down", tr("TIP_QUEUE_DOWN"), func() -> void: Economy.move_project(c, i, 1), 26))
-	head.add_child(UiTheme.icon_button("close", tr("TIP_QUEUE_REMOVE"), func() -> void: Economy.remove_project(c, i), 26))
-	panel.tooltip_text = tr("TIP_PROJECT") % [Economy.building_name(p.building), st.display_name(), roundi(p.fraction() * 100), p.assigned_factories]
-	v.add_child(head)
-	var bar := ProgressBar.new()
-	bar.min_value = 0.0
-	bar.max_value = 1.0
-	bar.value = p.fraction()
-	bar.show_percentage = false
-	bar.custom_minimum_size.y = 8
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = UiTheme.ACCENT if p.assigned_factories > 0 else UiTheme.TEXT_DIM
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.5)
-	bar.add_theme_stylebox_override("fill", fill)
-	bar.add_theme_stylebox_override("background", bg)
-	v.add_child(bar)
+	var tip := tr("TIP_PROJECT") % [Economy.building_name(p.building), st.display_name(), roundi(p.fraction() * 100), p.assigned_factories]
+	var col := PanelLayout.row(_queue_box, UiTheme.building_icon(p.building), Economy.building_name(p.building), st.display_name(), tip,
+		"Row" if p.assigned_factories > 0 else "Slot")
+	col.add_child(PanelLayout.progress(p.fraction(), UiTheme.ACCENT if p.assigned_factories > 0 else UiTheme.TEXT_DIM))
 	var days := p.days_left()
-	var info := tr("CONSTRUCTION_ROW") % [p.assigned_factories, ("%d" % days) if days >= 0 else "—"]
-	v.add_child(UiTheme.make_label(info, 14, UiTheme.TEXT_DIM))
-	return panel
+	var info := HBoxContainer.new()
+	info.add_theme_constant_override("separation", 2)
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for k in 15:
+		if k >= p.assigned_factories:
+			break
+		var dot := UiTheme.icon_texture(UiTheme.building_icon("civilian_factory"), 14)
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		info.add_child(dot)
+	var dl := UiTheme.make_label("  " + tr("CONSTRUCTION_ROW") % [p.assigned_factories, ("%d" % days) if days >= 0 else "—"], 13, UiTheme.TEXT_DIM)
+	dl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	info.add_child(dl)
+	col.add_child(info)
+	var btns := VBoxContainer.new()
+	btns.add_theme_constant_override("separation", 0)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 0)
+	hb.add_child(UiTheme.icon_button("up", tr("TIP_QUEUE_UP"), func() -> void: Economy.move_project(c, i, -1), 24))
+	hb.add_child(UiTheme.icon_button("down", tr("TIP_QUEUE_DOWN"), func() -> void: Economy.move_project(c, i, 1), 24))
+	hb.add_child(UiTheme.icon_button("close", tr("TIP_QUEUE_REMOVE"), func() -> void: Economy.remove_project(c, i), 24))
+	btns.add_child(hb)
+	PanelLayout.row_action(col, btns)

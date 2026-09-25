@@ -3,6 +3,7 @@ extends Control
 ## Üst bar: oyuncu ülkesi, temel göstergeler, tarih ve hız kontrolü.
 
 var _flag: TextureRect
+var _mini_flag: TextureRect
 var _name: Label
 var _leader: Label
 var _pp: Label
@@ -56,6 +57,13 @@ static func _metal(bg: Color, border: Color, radius: int = 3, bw: int = 1) -> St
 	sb.shadow_offset = Vector2(0, 2)
 	return sb
 
+## Metal doku kutusu (arayüzün geri kalanıyla aynı set): margin doku kenarı, h/v iç boşluk
+static func _tex(name: String, margin: int, h: int, v: int) -> StyleBoxTexture:
+	var sb := UiTheme.skin(name, margin, v)
+	sb.content_margin_left = h
+	sb.content_margin_right = h
+	return sb
+
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	custom_minimum_size.y = 120
@@ -68,7 +76,7 @@ func _ready() -> void:
 
 	# --- bayrak: çift çerçeve (dış koyu metal, iç altın hat)
 	var flag_frame := PanelContainer.new()
-	flag_frame.add_theme_stylebox_override("panel", _metal(Color(0.09, 0.095, 0.10), Color(0.02, 0.02, 0.02), 3, 2))
+	flag_frame.add_theme_stylebox_override("panel", _tex("panel", 14, 6, 6))
 	flag_frame.mouse_filter = Control.MOUSE_FILTER_STOP
 	var inner := PanelContainer.new()
 	var isb := StyleBoxFlat.new()
@@ -84,6 +92,18 @@ func _ready() -> void:
 	_flag.stretch_mode = TextureRect.STRETCH_SCALE
 	_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inner.add_child(_flag)
+	# portre varsa bayrak köşede küçük
+	_mini_flag = TextureRect.new()
+	_mini_flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_mini_flag.stretch_mode = TextureRect.STRETCH_SCALE
+	_mini_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_mini_flag.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_mini_flag.offset_left = -30
+	_mini_flag.offset_top = -20
+	_mini_flag.offset_right = -1
+	_mini_flag.offset_bottom = -1
+	_mini_flag.visible = false
+	_flag.add_child(_mini_flag)
 	flag_frame.add_child(inner)
 	block.add_child(flag_frame)
 	_name = UiTheme.make_label("", 12)      # yalnız ipucu metni için tutulur
@@ -94,17 +114,15 @@ func _ready() -> void:
 	right.add_theme_constant_override("separation", 2)
 	block.add_child(right)
 
+	var stats_line := HBoxContainer.new()
+	stats_line.add_theme_constant_override("separation", 4)
+	right.add_child(stats_line)
 	var strip := PanelContainer.new()
-	var ssb := _metal(Color(0.11, 0.115, 0.12, 0.97), Color(0.03, 0.03, 0.03), 2, 1)
-	ssb.content_margin_left = 6
-	ssb.content_margin_right = 8
-	ssb.content_margin_top = 3
-	ssb.content_margin_bottom = 3
-	strip.add_theme_stylebox_override("panel", ssb)
+	strip.add_theme_stylebox_override("panel", _tex("strip", 12, 8, 4))
 	strip.mouse_filter = Control.MOUSE_FILTER_STOP
-	right.add_child(strip)
+	stats_line.add_child(strip)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
+	row.add_theme_constant_override("separation", 3)
 	strip.add_child(row)
 
 	_pp = _stat(row, ResourceIcon.Kind.POLITICAL_POWER, "UI_POLITICAL_POWER_TIP")
@@ -119,23 +137,21 @@ func _ready() -> void:
 	_war = _stat(row, ResourceIcon.Kind.WAR, "TIP_AT_WAR_SHORT")
 	_war.add_theme_color_override("font_color", UiTheme.BAD)
 	_cell_of(_war).visible = false
-	# ayrı grup: komuta gücü + tecrübe (referanstaki sağ kutu)
-	var gap := Control.new()
-	gap.custom_minimum_size.x = 14
-	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(gap)
-	_command = _stat(row, ResourceIcon.Kind.COMMAND, "UI_COMMAND_TIP")
-	_xp_army = _stat(row, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
-	_xp_navy = _stat(row, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
-	_xp_air = _stat(row, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
+	# ayrı kutu: komuta gücü + tecrübe (referanstaki sağ kutu)
+	var strip2 := PanelContainer.new()
+	strip2.add_theme_stylebox_override("panel", _tex("strip", 12, 8, 4))
+	strip2.mouse_filter = Control.MOUSE_FILTER_STOP
+	stats_line.add_child(strip2)
+	var row2 := HBoxContainer.new()
+	row2.add_theme_constant_override("separation", 3)
+	strip2.add_child(row2)
+	_command = _stat(row2, ResourceIcon.Kind.COMMAND, "UI_COMMAND_TIP")
+	_xp_army = _stat(row2, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
+	_xp_navy = _stat(row2, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
+	_xp_air = _stat(row2, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
 
 	var tray := PanelContainer.new()
-	var tsb := _metal(Color(0.13, 0.135, 0.14, 0.97), Color(0.03, 0.03, 0.03), 2, 1)
-	tsb.content_margin_left = 4
-	tsb.content_margin_right = 6
-	tsb.content_margin_top = 3
-	tsb.content_margin_bottom = 3
-	tray.add_theme_stylebox_override("panel", tsb)
+	tray.add_theme_stylebox_override("panel", _tex("strip", 12, 6, 4))
 	tray.mouse_filter = Control.MOUSE_FILTER_STOP
 	tray.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	right.add_child(tray)
@@ -145,7 +161,7 @@ func _ready() -> void:
 
 	# --- tarih & hız: sağ üst köşe, ayrı panel
 	var date_panel := PanelContainer.new()
-	date_panel.add_theme_stylebox_override("panel", _metal(Color(0.11, 0.115, 0.12, 0.97), Color(0.03, 0.03, 0.03), 2, 1))
+	date_panel.add_theme_stylebox_override("panel", _tex("strip", 12, 10, 5))
 	add_child(date_panel)
 	date_panel.anchor_left = 1.0
 	date_panel.anchor_right = 1.0
@@ -199,15 +215,8 @@ var _bars := {}   ## kind -> [arka, dolgu] (yakıt, ikmal)
 
 func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label:
 	var cell := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.035, 0.038, 0.04, 0.95)
-	sb.border_color = Color(0.0, 0.0, 0.0, 0.9)
-	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(2)
-	sb.content_margin_left = 7
-	sb.content_margin_right = 9
-	sb.content_margin_top = 3
-	sb.content_margin_bottom = 3
+	var sb := _tex("cell", 5, 7, 3)
+	sb.content_margin_right = 10
 	cell.add_theme_stylebox_override("panel", sb)
 	cell.tooltip_text = tr(tip_key)
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -216,7 +225,7 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 	box.add_theme_constant_override("separation", 4)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cell.add_child(box)
-	if ResourceIcon.FILES.has(kind):
+	if ResourceIcon.FILES.has(kind) and UiTheme.icon(ResourceIcon.FILES[kind]) != null:
 		var icon := TextureRect.new()
 		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
 		icon.custom_minimum_size = Vector2(28, 28)
@@ -268,16 +277,33 @@ func _update_country() -> void:
 	var c := World.player()
 	if c == null:
 		return
-	_flag.texture = FlagFactory.get_flag(c)
+	var por := UiTheme.portrait(c)
+	if por:
+		_flag.texture = por
+		_flag.custom_minimum_size = Vector2(FLAG_H * 0.8, FLAG_H)
+		_flag.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		_mini_flag.texture = FlagFactory.get_flag(c)
+		_mini_flag.visible = true
+	else:
+		_flag.texture = FlagFactory.get_flag(c)
+		_flag.custom_minimum_size = Vector2(FLAG_W, FLAG_H)
+		_flag.stretch_mode = TextureRect.STRETCH_SCALE
+		_mini_flag.visible = false
 	_name.text = c.display_name()
 	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
 	_leader.text = "%s — %s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
 	_pp.text = "%d" % int(c.political_power)
 	_cell_of(_pp).tooltip_text = tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()]
-	_stability.text = "%d%%" % roundi(c.stability * 100)
-	_war_support.text = "%d%%" % roundi(c.war_support * 100)
-	_cell_of(_stability).tooltip_text = tr("TIP_STABILITY")
-	_cell_of(_war_support).tooltip_text = tr("TIP_WAR_SUPPORT")
+	var stab := Politics.stability(c)
+	var ws := Politics.war_support(c)
+	_stability.text = "%d%%" % roundi(stab * 100)
+	_war_support.text = "%d%%" % roundi(ws * 100)
+	_stability.add_theme_color_override("font_color", UiTheme.BAD if stab < 0.3 else UiTheme.TEXT)
+	var sg := func(v: float) -> String: return ("+" if v >= 0 else "") + "%d%%" % roundi(v * 100)
+	_cell_of(_stability).tooltip_text = tr("POL_STAB_BREAKDOWN") % [roundi(c.stability * 100), sg.call(c.mod("stability")), sg.call(Politics.party_stability_bonus(c)),
+		roundi(stab * 100), sg.call(Politics.stability_factory_mod(c)), sg.call(Politics.stability_pp_mod(c))]
+	_cell_of(_war_support).tooltip_text = tr("POL_WS_BREAKDOWN") % [roundi(c.war_support * 100), sg.call(c.mod("war_support")), sg.call(Politics.tension_war_support()),
+		sg.call(Politics.war_state_support(c)), roundi(ws * 100), roundi(Diplomacy.capitulation_threshold(c) * 100)]
 	_cell_of(_manpower).tooltip_text = tr("TIP_MANPOWER") % [UiTheme.format_number(c.recruitable_manpower()), Economy.law_name("conscription", c.laws["conscription"])]
 	_manpower.text = UiTheme.format_number(c.recruitable_manpower())
 	_factories.text = "%d / %d" % [Economy.count(c, "civilian_factory"), Economy.count(c, "military_factory")]

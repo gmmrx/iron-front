@@ -266,6 +266,890 @@
     }
    ],
    "trigger": null
+  },
+  "tur_montreux": {
+   "title": {
+    "tr": "Montrö Boğazlar Sözleşmesi",
+    "en": "The Montreux Convention"
+   },
+   "desc": {
+    "tr": "Lozan'ın Boğazları silahsızlandıran hükümleri Montrö'de yeniden görüşülüyor. Büyük güçler Türkiye'nin Boğazlar üzerinde tam egemenliğini tanımaya hazır; karşılığında savaş gemilerinin geçişine kurallar konacak. Sovyetler Karadeniz'e kıyısı olan devletlerin ayrıcalığını, İngiltere serbest geçişi istiyor.",
+    "en": "The demilitarisation clauses of Lausanne are being renegotiated at Montreux. The powers are ready to recognise full Turkish sovereignty over the Straits in exchange for rules on warship passage. The Soviets want privileges for Black Sea states, Britain wants free passage."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Sözleşmeyi imzala: egemenlik ve barış",
+      "en": "Sign the convention: sovereignty and peace"
+     },
+     "effects": [
+      {
+       "spirit": "straits_sovereignty"
+      },
+      {
+       "stability": 0.05
+      },
+      {
+       "tension": -2
+      },
+      {
+       "news": "NEWS_MONTREUX"
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Boğazları derhal tahkim et, pazarlık etme",
+      "en": "Fortify the Straits at once, no bargaining"
+     },
+     "effects": [
+      {
+       "spirit": "straits_sovereignty"
+      },
+      {
+       "war_support": 0.1
+      },
+      {
+       "stability": -0.03
+      },
+      {
+       "tension": 3
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": null
+  },
+  "ataturk_death": {
+   "title": {
+    "tr": "Atatürk'ün Ölümü",
+    "en": "The Death of Atatürk"
+   },
+   "desc": {
+    "tr": "10 Kasım 1938. Cumhuriyetin kurucusu Mustafa Kemal Atatürk Dolmabahçe'de hayata gözlerini yumdu. Büyük Millet Meclisi yeni cumhurbaşkanını seçmek üzere toplanıyor; seçim Türkiye'nin yaklaşan savaştaki yolunu belirleyecek.",
+    "en": "10 November 1938. Mustafa Kemal Atatürk, founder of the Republic, has died at Dolmabahçe. The Grand National Assembly convenes to elect a new president; the choice will set Turkey's course in the coming war."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "İsmet İnönü: Millî Şef, temkinli tarafsızlık",
+      "en": "İsmet İnönü: the National Chief, cautious neutrality"
+     },
+     "effects": [
+      {
+       "set_leader": {
+        "tr": "İsmet İnönü",
+        "en": "İsmet İnönü"
+       }
+      },
+      {
+       "spirit": "milli_sef"
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Mareşal Fevzi Çakmak: ordu öne çıksın",
+      "en": "Marshal Fevzi Çakmak: the army takes the lead"
+     },
+     "effects": [
+      {
+       "set_leader": {
+        "tr": "Fevzi Çakmak",
+        "en": "Fevzi Çakmak"
+       }
+      },
+      {
+       "war_support": 0.1
+      },
+      {
+       "stability": -0.05
+      }
+     ],
+     "ai": 0.1
+    },
+    {
+     "name": {
+      "tr": "Celâl Bayar: liberal reformlar",
+      "en": "Celâl Bayar: liberal reforms"
+     },
+     "effects": [
+      {
+       "set_leader": {
+        "tr": "Celâl Bayar",
+        "en": "Celâl Bayar"
+       }
+      },
+      {
+       "popularity": {
+        "democratic": 0.25,
+        "neutrality": -0.25
+       }
+      },
+      {
+       "stability": -0.05
+      }
+     ],
+     "ai": 0.1
+    }
+   ],
+   "trigger": {
+    "tag": "TUR",
+    "date": "1938-11-10",
+    "require": [
+     {
+      "leader": "Mustafa Kemal Atatürk"
+     }
+    ]
+   }
+  },
+  "soviet_straits_demand": {
+   "title": {
+    "tr": "Sovyet Baskısı: Boğazlar",
+    "en": "Soviet Pressure: the Straits"
+   },
+   "desc": {
+    "tr": "Montrö görüşmeleri yaklaşırken Moskova Ankara'yı sıkıştırıyor: Sovyetler Boğazların yalnız Karadeniz devletlerinin savaş gemilerine açık olmasını ve Boğazların ortak savunmasını istiyor. Büyükelçi Karahan her gün Dışişleri'nin kapısında. Stalin, Atatürk'e duyduğu saygı yüzünden nazik bir cevapla yetinebilir; ama boyun eğmek de, meydan okumak da mümkün.",
+    "en": "With the Montreux talks approaching, Moscow presses Ankara: the Soviets want the Straits open only to the warships of Black Sea states and a joint defence of the Straits. Ambassador Karakhan is at the Foreign Ministry every day. Out of respect for Atatürk, Stalin may settle for a polite answer; but we may also yield or defy."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Atatürk'ün dostluğunu hatırlat, nazikçe reddet",
+      "en": "Recall Atatürk's friendship, politely refuse"
+     },
+     "effects": [
+      {
+       "pp": -25
+      },
+      {
+       "stability": 0.03
+      }
+     ],
+     "ai": 0.7,
+     "require": [
+      {
+       "leader": "Mustafa Kemal Atatürk"
+      }
+     ]
+    },
+    {
+     "name": {
+      "tr": "Ortak savunmayı kabul et, Sovyet üslerine izin ver",
+      "en": "Accept joint defence, allow Soviet bases"
+     },
+     "effects": [
+      {
+       "grant_access": "FROM"
+      },
+      {
+       "stability": -0.15
+      },
+      {
+       "war_support": -0.1
+      },
+      {
+       "remove_spirit": "straits_sovereignty"
+      }
+     ],
+     "ai": 0.1
+    },
+    {
+     "name": {
+      "tr": "Reddet ve seferberlik ilan et",
+      "en": "Refuse and mobilise"
+     },
+     "effects": [
+      {
+       "war_support": 0.15
+      },
+      {
+       "give_war_goal": "FROM"
+      },
+      {
+       "tension": 3
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "TUR",
+    "from": "SOV",
+    "date": "1936-05-15",
+    "require": [
+     {
+      "exists": "SOV"
+     },
+     {
+      "not": {
+       "allied_with": "SOV"
+      }
+     },
+     {
+      "not": {
+       "at_war_with": "SOV"
+      }
+     }
+    ]
+   }
+  },
+  "rhineland_crisis": {
+   "title": {
+    "tr": "Ren Bölgesi Askerîleştirildi",
+    "en": "The Rhineland Remilitarised"
+   },
+   "desc": {
+    "tr": "Alman birlikleri Versay'ın silahsız bıraktığı Ren bölgesine girdi. Hükümet bölünmüş; bir kısım seferberlik istiyor, İngiltere ise itidal çağrısında.",
+    "en": "German troops have marched into the Rhineland, demilitarised by Versailles. The cabinet is split; some demand mobilisation while Britain urges restraint."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Protesto et, ama savaşa girme",
+      "en": "Protest, but do not go to war"
+     },
+     "effects": [
+      {
+       "stability": -0.03
+      }
+     ],
+     "ai": 0.9
+    },
+    {
+     "name": {
+      "tr": "Seferberlik ilan et",
+      "en": "Mobilise"
+     },
+     "effects": [
+      {
+       "war_support": 0.1
+      },
+      {
+       "stability": -0.05
+      },
+      {
+       "tension": 3
+      }
+     ],
+     "ai": 0.1
+    }
+   ],
+   "trigger": null
+  },
+  "abdication_crisis": {
+   "title": {
+    "tr": "Tahttan Feragat Krizi",
+    "en": "The Abdication Crisis"
+   },
+   "desc": {
+    "tr": "Kral VIII. Edward, boşanmış bir Amerikalıyla evlenmekte kararlı. Hükümet ve Kilise karşı; kral ya aşkından ya tahtından vazgeçecek.",
+    "en": "King Edward VIII is determined to marry a divorced American. Government and Church object; the King must give up either his love or his throne."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Feragati kabul et, VI. George tahta çıksın",
+      "en": "Accept the abdication, George VI succeeds"
+     },
+     "effects": [
+      {
+       "stability": -0.03
+      }
+     ],
+     "ai": 0.95
+    },
+    {
+     "name": {
+      "tr": "Kralı destekle (Kral Partisi)",
+      "en": "Back the King (the King's Party)"
+     },
+     "effects": [
+      {
+       "stability": -0.1
+      },
+      {
+       "popularity": {
+        "neutrality": 0.2,
+        "democratic": -0.2
+       }
+      }
+     ],
+     "ai": 0.05
+    }
+   ],
+   "trigger": {
+    "tag": "ENG",
+    "date": "1936-12-10",
+    "require": []
+   }
+  },
+  "sov_purge_end": {
+   "title": {
+    "tr": "Büyük Temizliğin Sonu",
+    "en": "The End of the Great Purge"
+   },
+   "desc": {
+    "tr": "Yejov'un NKVD'si binlerce parti üyesini ve subayı ortadan kaldırdı. Parti kadroları sindirildi; ordu komutasız kaldı. Temizlik ya sona erecek ya orduya kadar uzanacak.",
+    "en": "Yezhov's NKVD has eliminated thousands of party members and officers. The cadres are cowed; the army is leaderless. The purge will either end or reach the army itself."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Temizliği sona erdir",
+      "en": "End the purge"
+     },
+     "effects": [
+      {
+       "remove_spirit": "trotskyite_plot"
+      },
+      {
+       "stability": 0.05
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Orduyu da temizle",
+      "en": "Purge the army as well"
+     },
+     "effects": [
+      {
+       "remove_spirit": "trotskyite_plot"
+      },
+      {
+       "spirit": "purged_army"
+      },
+      {
+       "stability": 0.1
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "SOV",
+    "date": "1938-11-17",
+    "require": []
+   }
+  },
+  "election": {
+   "title": {
+    "tr": "Genel Seçimler",
+    "en": "General Election"
+   },
+   "desc": {
+    "tr": "Sandıklar kapandı; meclis dağılımı ve yeni hükümet belli oldu.",
+    "en": "The polls have closed; the new parliament and government are decided."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Tamam",
+      "en": "OK"
+     },
+     "effects": [],
+     "ai": 1.0
+    }
+   ],
+   "trigger": null
+  },
+  "soviet_moscow_talks": {
+   "title": {
+    "tr": "Moskova Görüşmeleri",
+    "en": "The Moscow Talks"
+   },
+   "desc": {
+    "tr": "Dışişleri Bakanı Saracoğlu haftalardır Moskova'da bekletiliyor. Almanya ile pakt imzalayan Sovyetler, Boğazların Karadeniz dışı devletlerin savaş gemilerine kapatılmasını ve Boğazların savunmasında söz hakkı istiyor. İngiltere ve Fransa ise bizimle karşılıklı yardım antlaşması imzalamaya hazır.",
+    "en": "Foreign Minister Saracoğlu has been kept waiting in Moscow for weeks. Having signed a pact with Germany, the Soviets demand that the Straits be closed to non-Black Sea warships and a say in their defence. Britain and France are ready to sign a mutual assistance treaty with us."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Talepleri reddet, İngiltere ve Fransa ile antlaşma imzala",
+      "en": "Refuse, sign the treaty with Britain and France"
+     },
+     "effects": [
+      {
+       "pp": -20
+      },
+      {
+       "war_support": 0.05
+      },
+      {
+       "stability": 0.02
+      },
+      {
+       "tension": 1
+      }
+     ],
+     "ai": 0.7
+    },
+    {
+     "name": {
+      "tr": "Sovyet taleplerini kabul et",
+      "en": "Accept the Soviet demands"
+     },
+     "effects": [
+      {
+       "grant_access": "FROM"
+      },
+      {
+       "stability": -0.15
+      },
+      {
+       "war_support": -0.1
+      },
+      {
+       "remove_spirit": "straits_sovereignty"
+      }
+     ],
+     "ai": 0.1
+    },
+    {
+     "name": {
+      "tr": "Reddet ve Doğu'da seferberlik ilan et",
+      "en": "Refuse and mobilise in the East"
+     },
+     "effects": [
+      {
+       "war_support": 0.15
+      },
+      {
+       "give_war_goal": "FROM"
+      },
+      {
+       "tension": 3
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "TUR",
+    "from": "SOV",
+    "date": "1939-10-01",
+    "require": [
+     {
+      "exists": "SOV"
+     },
+     {
+      "not": {
+       "allied_with": "SOV"
+      }
+     },
+     {
+      "not": {
+       "at_war_with": "SOV"
+      }
+     }
+    ]
+   }
+  },
+  "jap_february_26": {
+   "title": {
+    "tr": "26 Şubat Olayı",
+    "en": "The February 26 Incident"
+   },
+   "desc": {
+    "tr": "Genç subaylar Tokyo'da ayaklandı; bakanlar öldürüldü, Başbakan Okada saklanarak kurtuldu. İmparator isyancıların bastırılmasını istiyor, ordu ise bu fırsatla siyasette söz hakkı talep ediyor.",
+    "en": "Young officers have risen in Tokyo; ministers are dead and Prime Minister Okada survived in hiding. The Emperor wants the rebels crushed, while the army wants a say in politics in return."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "İsyanı bastır, anayasal düzeni koru",
+      "en": "Crush the rebellion, keep constitutional order"
+     },
+     "effects": [
+      {
+       "stability": 0.03
+      },
+      {
+       "pp": -20
+      }
+     ],
+     "ai": 0.3
+    },
+    {
+     "name": {
+      "tr": "Orduyla uzlaş: militarist kabine",
+      "en": "Compromise with the army: a militarist cabinet"
+     },
+     "effects": [
+      {
+       "war_support": 0.1
+      },
+      {
+       "stability": -0.03
+      },
+      {
+       "pp": 30
+      }
+     ],
+     "ai": 0.7
+    }
+   ],
+   "trigger": {
+    "tag": "JAP",
+    "from": "JAP",
+    "date": "1936-02-26",
+    "require": []
+   }
+  },
+  "eng_defence_white_paper": {
+   "title": {
+    "tr": "Savunma Beyaz Kitabı",
+    "en": "The Defence White Paper"
+   },
+   "desc": {
+    "tr": "Hükümet, Almanya'nın yeniden silahlanması karşısında savunma harcamalarını artırmayı öneriyor. Kamuoyu hâlâ Büyük Savaş'ın acısını taşıyor ve barıştan yana.",
+    "en": "The government proposes higher defence spending in the face of German rearmament. The public still remembers the Great War and wants peace."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Yeniden silahlanmaya başla",
+      "en": "Begin rearmament"
+     },
+     "effects": [
+      {
+       "war_support": 0.05
+      },
+      {
+       "stability": -0.02
+      },
+      {
+       "building": "military_factory",
+       "count": 1
+      }
+     ],
+     "ai": 0.7
+    },
+    {
+     "name": {
+      "tr": "Bütçeyi koru, barışa güven",
+      "en": "Keep the budget, trust in peace"
+     },
+     "effects": [
+      {
+       "stability": 0.03
+      },
+      {
+       "pp": 25
+      }
+     ],
+     "ai": 0.3
+    }
+   ],
+   "trigger": {
+    "tag": "ENG",
+    "from": "ENG",
+    "date": "1936-03-03",
+    "require": []
+   }
+  },
+  "fra_popular_front": {
+   "title": {
+    "tr": "Halk Cephesi",
+    "en": "The Popular Front"
+   },
+   "desc": {
+    "tr": "Léon Blum'un Halk Cephesi seçimi kazandı; fabrikalar grevde, işçiler 40 saatlik çalışma haftası ve ücretli izin istiyor. Patronlar ve ordu yeniden silahlanmanın gecikmesinden endişeli.",
+    "en": "Léon Blum's Popular Front has won the election; the factories are on strike and workers demand a 40-hour week and paid holidays. Employers and the army fear rearmament will be delayed."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Matignon Anlaşmaları: işçilere taviz",
+      "en": "The Matignon Agreements: concessions to workers"
+     },
+     "effects": [
+      {
+       "stability": 0.06
+      },
+      {
+       "popularity": {
+        "democratic": 0.03
+       }
+      }
+     ],
+     "ai": 0.7
+    },
+    {
+     "name": {
+      "tr": "Grevleri kır, silahlanmayı öne al",
+      "en": "Break the strikes, put rearmament first"
+     },
+     "effects": [
+      {
+       "stability": -0.06
+      },
+      {
+       "war_support": 0.05
+      },
+      {
+       "building": "military_factory",
+       "count": 1
+      }
+     ],
+     "ai": 0.3
+    }
+   ],
+   "trigger": {
+    "tag": "FRA",
+    "from": "FRA",
+    "date": "1936-06-04",
+    "require": []
+   }
+  },
+  "ger_berlin_olympics": {
+   "title": {
+    "tr": "Berlin Olimpiyatları",
+    "en": "The Berlin Olympics"
+   },
+   "desc": {
+    "tr": "Dünya Berlin'e geliyor. Olimpiyatlar rejimin gücünü göstermek için eşsiz bir fırsat; ama yabancı basının gözü de üzerimizde.",
+    "en": "The world comes to Berlin. The Games are a unique chance to show the regime's strength, but the foreign press is watching too."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Büyük bir propaganda gösterisi",
+      "en": "A grand propaganda spectacle"
+     },
+     "effects": [
+      {
+       "stability": 0.03
+      },
+      {
+       "war_support": 0.03
+      },
+      {
+       "pp": -15
+      }
+     ],
+     "ai": 0.7
+    },
+    {
+     "name": {
+      "tr": "Ölçülü ev sahipliği, dünyayı yatıştır",
+      "en": "Modest hosting, reassure the world"
+     },
+     "effects": [
+      {
+       "tension": -1
+      },
+      {
+       "pp": 20
+      }
+     ],
+     "ai": 0.3
+    }
+   ],
+   "trigger": {
+    "tag": "GER",
+    "from": "GER",
+    "date": "1936-08-01",
+    "require": []
+   }
+  },
+  "sov_1936_constitution": {
+   "title": {
+    "tr": "1936 Anayasası",
+    "en": "The 1936 Constitution"
+   },
+   "desc": {
+    "tr": "Yeni anayasa sosyalizmin zaferini ilan ediyor: genel oy hakkı ve geniş haklar kâğıt üzerinde. Parti içinde ise tasfiyeler hızlanıyor.",
+    "en": "The new constitution proclaims the victory of socialism: universal suffrage and broad rights on paper. Inside the Party, the purges are accelerating."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Anayasayı kutla, istikrarı öne çıkar",
+      "en": "Celebrate the constitution, stress stability"
+     },
+     "effects": [
+      {
+       "stability": 0.04
+      }
+     ],
+     "ai": 0.4
+    },
+    {
+     "name": {
+      "tr": "Tasfiyeleri sürdür: iç düşmanlar temizlensin",
+      "en": "Continue the purges: root out internal enemies"
+     },
+     "effects": [
+      {
+       "pp": 50
+      },
+      {
+       "stability": -0.03
+      }
+     ],
+     "ai": 0.6
+    }
+   ],
+   "trigger": {
+    "tag": "SOV",
+    "from": "SOV",
+    "date": "1936-12-05",
+    "require": []
+   }
+  },
+  "chi_xian_incident": {
+   "title": {
+    "tr": "Xi'an Olayı",
+    "en": "The Xi'an Incident"
+   },
+   "desc": {
+    "tr": "Genç Mareşal Zhang Xueliang, Generalissimo'yu Xi'an'da alıkoydu ve iç savaşı bitirip Japonya'ya karşı komünistlerle birleşik cephe kurulmasını istiyor.",
+    "en": "The Young Marshal Zhang Xueliang has detained the Generalissimo at Xi'an and demands an end to the civil war and a united front with the communists against Japan."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Birleşik Cephe'yi kabul et",
+      "en": "Accept the United Front"
+     },
+     "effects": [
+      {
+       "war_support": 0.1
+      },
+      {
+       "stability": 0.03
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Reddet: önce komünistler",
+      "en": "Refuse: the communists first"
+     },
+     "effects": [
+      {
+       "stability": -0.05
+      },
+      {
+       "pp": 30
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "CHI",
+    "from": "CHI",
+    "date": "1936-12-12",
+    "require": []
+   }
+  },
+  "pol_rambouillet_loan": {
+   "title": {
+    "tr": "Rambouillet Kredisi",
+    "en": "The Rambouillet Loan"
+   },
+   "desc": {
+    "tr": "Fransa, Polonya ordusunun modernleşmesi için büyük bir kredi öneriyor. Karşılığında iki ülke arasındaki ittifak bağları güçlenecek.",
+    "en": "France offers a large loan to modernise the Polish army. In return, the alliance between the two countries will be strengthened."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Krediyi kabul et: silah sanayisi",
+      "en": "Accept the loan: an arms industry"
+     },
+     "effects": [
+      {
+       "building": "military_factory",
+       "count": 1
+      },
+      {
+       "war_support": 0.03
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Bağımsız kal, krediyi reddet",
+      "en": "Stay independent, refuse the loan"
+     },
+     "effects": [
+      {
+       "pp": 40
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "POL",
+    "from": "POL",
+    "date": "1936-09-06",
+    "require": []
+   }
+  },
+  "ita_league_sanctions": {
+   "title": {
+    "tr": "Milletler Cemiyeti Yaptırımları",
+    "en": "League of Nations Sanctions"
+   },
+   "desc": {
+    "tr": "Habeşistan'daki savaş nedeniyle Milletler Cemiyeti ekonomik yaptırımlar uyguluyor. Petrol henüz yaptırım listesinde değil; ama İngiltere ve Fransa geri adım bekliyor.",
+    "en": "Because of the war in Abyssinia the League of Nations imposes economic sanctions. Oil is not yet on the list, but Britain and France expect us to step back."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Cemiyete meydan oku",
+      "en": "Defy the League"
+     },
+     "effects": [
+      {
+       "war_support": 0.05
+      },
+      {
+       "stability": 0.02
+      },
+      {
+       "tension": 1
+      }
+     ],
+     "ai": 0.8
+    },
+    {
+     "name": {
+      "tr": "Sessiz diplomasi, gerginliği düşür",
+      "en": "Quiet diplomacy, lower tension"
+     },
+     "effects": [
+      {
+       "pp": -25
+      },
+      {
+       "tension": -1
+      },
+      {
+       "stability": -0.02
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": {
+    "tag": "ITA",
+    "from": "ITA",
+    "date": "1936-03-02",
+    "require": []
+   }
   }
  }
 }

@@ -3,8 +3,8 @@ extends Node3D
 ## Tümen sayaçları (bölge + ülke başına bir sayaç), seçim, hareket okları ve muharebe işaretleri.
 
 const PIXEL := 0.00042
-const FAR_ALL := 2400.0            ## bu mesafeden uzakta yalnız oyuncu ve düşmanları gösterilir
-const WORLD_VIEW := 6500.0         ## bu mesafeden uzakta (dünya görünümü) sayaç gösterilmez
+const FLAG_MODE := 1250.0          ## bu mesafeden uzakta sayı yerine küçük ülke bayrağı (her ülke için, türün klasiği gibi)
+const HIDE_ALL := 3000.0           ## bu mesafeden uzakta hiç işaret yok: harita okunur, kare hızı korunur
 const LIFT := 5.0
 
 var map: MapView3D
@@ -14,6 +14,7 @@ var selected: Array[Division] = []
 
 var _counters := {}                ## "pid:tag" -> {root, label, org, str, divs}
 var _counter_tex := {}             ## tag -> Texture2D
+static var _flag_tex := {}         ## "tag:seçili" -> çerçeveli küçük bayrak
 var _battle_nodes := {}            ## pid -> Node3D
 var _arrows: MeshInstance3D
 var _arrow_mat: ShaderMaterial
@@ -49,7 +50,9 @@ func _process(delta: float) -> void:
 		_dirty = false
 		_rebuild()
 		_vis_dirty = true
-	_follow_anchors()
+	var hide_all: bool = camera != null and camera.distance > HIDE_ALL
+	if not hide_all:
+		_follow_anchors()
 	_draw_arrows()
 	_pulse += delta
 	var k := 1.0 + 0.07 * sin(_pulse * 5.0)
@@ -58,22 +61,22 @@ func _process(delta: float) -> void:
 	for key: String in _sel_keys:
 		if _counters.has(key):
 			_counters[key]["root"].scale = Vector3.ONE * k
-	# 0 yakın: hepsi, 1 uzak: oyuncu + düşmanları, 2 dünya görünümü: hiçbiri (yığılma olmasın)
+	# 0 yakın: sayılı sayaçlar; 1 uzak: sayı yok, yalnız küçük ülke bayrakları (askerler nerede, her ülke)
 	var far := 0
 	if camera:
-		far = 2 if camera.distance > WORLD_VIEW else (1 if camera.distance > FAR_ALL else 0)
+		far = 2 if hide_all else (1 if camera.distance > FLAG_MODE else 0)
 	if far != _was_far or _vis_dirty:
 		_was_far = far
 		_vis_dirty = false
-		var shown := {World.player_tag: true}
-		for t in Diplomacy.enemies_of(World.player_tag):
-			shown[t] = true
 		for key: String in _counters:
 			var c: Dictionary = _counters[key]
-			c["base_vis"] = far == 0 or (far == 1 and shown.has(c["tag"]))
+			c["base_vis"] = far < 2
+			c["bg"].visible = far == 0
+			c["label"].visible = far == 0
+			c["flag"].visible = far == 1
 			c["root"].visible = c["base_vis"] and not c.get("merged", false)
 	_cluster_timer -= delta
-	if _cluster_timer <= 0.0:
+	if _cluster_timer <= 0.0 and not hide_all:
 		_cluster_timer = 0.25
 		_cluster()
 
@@ -138,6 +141,37 @@ func _tex_for(tag: String, ob: int = 10, sb: int = 10, selected := false) -> Tex
 	_counter_tex[ck] = tex
 	return tex
 
+## Uzak zoom işareti: ülke bayrağı, koyu çerçeve + pirinç hat (seçiliyse kalın altın)
+static func flag_marker(tag: String, selected := false) -> Texture2D:
+	var ck := "%s:%s" % [tag, selected]
+	if _flag_tex.has(ck):
+		return _flag_tex[ck]
+	var w := 54
+	var h := 36
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.05, 0.05, 0.045, 1.0))
+	var ft := FlagFactory.get_flag(World.countries[tag])
+	var fi: Image = ft.get_image() if ft else null
+	if fi:
+		fi = fi.duplicate()
+		if fi.is_compressed():
+			fi.decompress()
+		fi.convert(Image.FORMAT_RGBA8)
+		fi.resize(w - 6, h - 6, Image.INTERPOLATE_BILINEAR)
+		img.blit_rect(fi, Rect2i(0, 0, w - 6, h - 6), Vector2i(3, 3))
+	var brass := Color(1.0, 0.84, 0.36) if selected else Color(0.72, 0.6, 0.34)
+	var bw := 3 if selected else 1
+	for k in bw:
+		for x in w:
+			img.set_pixel(x, 1 + k, brass)
+			img.set_pixel(x, h - 2 - k, brass)
+		for y in h:
+			img.set_pixel(1 + k, y, brass)
+			img.set_pixel(w - 2 - k, y, brass)
+	var tex := ImageTexture.create_from_image(img)
+	_flag_tex[ck] = tex
+	return tex
+
 func _group_pos(pid: int, tag: String, index: int, count: int) -> Vector3:
 	var p := World.province(pid).center
 	var off := Vector2((index - (count - 1) * 0.5) * 14.0, 0.0)
@@ -187,6 +221,7 @@ func _rebuild() -> void:
 					sel = true
 			c["label"].text = str(divs.size())
 			c["bg"].texture = _tex_for(tag, clampi(roundi(org / divs.size() * 10.0), 0, 10), clampi(roundi(strn / divs.size() * 10.0), 0, 10), sel)
+			c["flag"].texture = flag_marker(tag, sel)
 			c["selected"] = sel
 			if sel:
 				_sel_keys.append(key)
@@ -223,7 +258,11 @@ func _make_counter(tag: String) -> Dictionary:
 	lbl.outline_render_priority = 11
 	lbl.offset = Vector2(22, 7)
 	root.add_child(lbl)
-	return {"root": root, "label": lbl, "bg": bg, "tag": tag, "divs": [], "selected": false}
+	var flag := _sprite(flag_marker(tag), PIXEL * 0.74, 10)
+	flag.visible = false
+	root.add_child(flag)
+	_vis_dirty = true
+	return {"root": root, "label": lbl, "bg": bg, "flag": flag, "tag": tag, "divs": [], "selected": false}
 
 # ------------------------------------------------------------------ muharebe işaretleri
 func _update_battles() -> void:
@@ -276,7 +315,7 @@ func clear_selection() -> void:
 ## Ekrandaki noktaya en yakın oyuncu sayacı (30 px içinde)
 ## Uzak zoom: aynı ülkenin yakın sayaçları tek sayaçta birleşir. Harita üstünde sabit ızgara (kaydırınca değişmez),
 ## yalnız 3 zoom eşiğinde değişir; birleşik sayaç en büyük yığının kendi yerinde durur (kayma / ortalama yok)
-const CLUSTER_TIERS := [[800.0, 75.0], [1500.0, 140.0], [2600.0, 240.0]]
+const CLUSTER_TIERS := [[800.0, 75.0], [1500.0, 130.0], [2400.0, 210.0]]
 
 func _cluster() -> void:
 	var cam := camera as MapCamera3D
@@ -376,6 +415,9 @@ func prune_selection() -> void:
 	selected = selected.filter(func(d: Division) -> bool: return d in Military.divisions)
 
 # ------------------------------------------------------------------ oklar
+const ARROW_MOVE := Color(0.27, 0.62, 0.2)
+const ARROW_ATTACK := Color(0.78, 0.16, 0.11)
+
 ## Seçili tümenlerin okları (her karede): tümenin bulunduğu yerden başlar, eğri boyunca sivrilir
 func _draw_arrows() -> void:
 	if selected.is_empty():
@@ -387,7 +429,7 @@ func _draw_arrows() -> void:
 	var any := false
 	var drawn := {}
 	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
-	var width := clampf(cam_d * 0.017, 1.8, 50.0)
+	var width := clampf(cam_d * 0.015, 1.6, 44.0)
 	var arrows: Array = []
 	for d in selected:
 		if d.path.is_empty():
@@ -406,9 +448,9 @@ func _draw_arrows() -> void:
 		for pid in d.path:
 			if Diplomacy.are_enemies(World.controller_tag(pid), d.owner):
 				hostile = true
-		# ülke renginde, haritaya boyanmış gibi yarı saydam
-		var cc: Color = World.countries[d.owner].color
-		arrows.append([_curve(pts), Color(cc.r, cc.g, cc.b, 1.0), d.path[d.path.size() - 1]])
+		# türün klasiği: hareket yeşil, düşman toprağına taarruz kırmızı
+		var cc := ARROW_ATTACK if hostile else ARROW_MOVE
+		arrows.append([_curve(pts), cc, d.path[d.path.size() - 1]])
 	if arrows.is_empty():
 		_arrows.mesh = null
 		return
@@ -463,6 +505,7 @@ func _ribbon(im: ImmediateMesh, pts: Array[Vector2], col: Color, width: float, h
 	var prev_l := Vector3.ZERO
 	var prev_r := Vector3.ZERO
 	var prev_u := 0.0
+	var prev_a := 0.0
 	var have := false
 	var neck := pts[n - 1]
 	var neck_dir := (pts[n - 1] - pts[n - 2]).normalized()
@@ -480,17 +523,18 @@ func _ribbon(im: ImmediateMesh, pts: Array[Vector2], col: Color, width: float, h
 			clip = true
 		var d0 := (pts[mini(i + 1, n - 1)] - pts[maxi(i - 1, 0)]).normalized()
 		var nrm := Vector2(-d0.y, d0.x)
-		var taper := lerpf(0.35, 1.0, smoothstep(0.0, total * 0.18, along))
+		var taper := lerpf(0.6, 1.0, smoothstep(0.0, total * 0.15, along))
 		var w := width * 0.5 * taper
 		var y := maxf(map.height_at(p), 0.0) + lift
 		var l := Vector3(p.x + nrm.x * w, y, p.y + nrm.y * w)
 		var r := Vector3(p.x - nrm.x * w, y, p.y - nrm.y * w)
 		var u := along / total
 		if have:
-			_quad(im, prev_l, prev_r, r, l, prev_u, u, col)
+			_quad(im, prev_l, prev_r, r, l, prev_u, u, col, prev_a / width, along / width)
 		prev_l = l
 		prev_r = r
 		prev_u = u
+		prev_a = along
 		have = true
 		if clip:
 			neck = p
@@ -515,12 +559,14 @@ func _ribbon(im: ImmediateMesh, pts: Array[Vector2], col: Color, width: float, h
 		for k in 3:
 			im.surface_set_color(col)
 			im.surface_set_uv(Vector2(1.0, tri[k * 2 + 1]))
+			im.surface_set_uv2(Vector2(body_end / width, 0.0))
 			im.surface_add_vertex(tri[k * 2])
 
-func _quad(im: ImmediateMesh, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u0: float, u1: float, col: Color) -> void:
-	# a=önceki sol, b=önceki sağ, c=şimdiki sağ, d=şimdiki sol
-	var q := [[a, Vector2(u0, 0.0)], [b, Vector2(u0, 1.0)], [c, Vector2(u1, 1.0)], [d, Vector2(u1, 0.0)]]
+func _quad(im: ImmediateMesh, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u0: float, u1: float, col: Color, s0: float = 0.0, s1: float = 0.0) -> void:
+	# a=önceki sol, b=önceki sağ, c=şimdiki sağ, d=şimdiki sol; s: gövde boyunca mesafe (genişlik cinsinden)
+	var q := [[a, Vector2(u0, 0.0), s0], [b, Vector2(u0, 1.0), s0], [c, Vector2(u1, 1.0), s1], [d, Vector2(u1, 0.0), s1]]
 	for k in [0, 1, 2, 0, 2, 3]:
 		im.surface_set_color(col)
 		im.surface_set_uv(q[k][1])
+		im.surface_set_uv2(Vector2(q[k][2], 0.0))
 		im.surface_add_vertex(q[k][0])

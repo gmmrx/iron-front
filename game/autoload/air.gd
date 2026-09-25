@@ -92,6 +92,7 @@ func deploy(c: Country, type: String, base: int, n: int = WING_SIZE) -> AirWing:
 	w.type = type
 	w.planes = n
 	w.base = base
+	w.auto = not (World.in_game and c.tag == World.player_tag)   # oyuncunun kanadını yapay zekâ yönetmez
 	var k := 1
 	for o in wings:
 		if o.owner == c.tag and o.type == type:

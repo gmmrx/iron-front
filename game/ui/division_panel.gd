@@ -8,6 +8,7 @@ var _list: VBoxContainer
 var _timer := 0.0
 var _army_row: HBoxContainer
 var _army_key := ""
+var _hold: CheckButton
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
@@ -40,6 +41,15 @@ func _ready() -> void:
 		for d in units.selected.duplicate(): Military.disband(d)
 		units.clear_selection())
 	head.add_child(dis)
+	_hold = CheckButton.new()
+	_hold.text = tr("DIV_HOLD")
+	_hold.tooltip_text = tr("TIP_DIV_HOLD")
+	_hold.focus_mode = Control.FOCUS_NONE
+	_hold.toggled.connect(func(on: bool) -> void:
+		for d in units.selected:
+			if d.owner == World.player_tag:
+				d.hold = on)
+	head.add_child(_hold)
 	head.add_child(UiTheme.icon_button("close", tr("TIP_CLOSE"), func() -> void: units.clear_selection()))
 	v.add_child(head)
 	_army_row = HBoxContainer.new()
@@ -57,6 +67,14 @@ func _process(delta: float) -> void:
 	units.prune_selection()
 	visible = not units.selected.is_empty()
 	if visible:
+		var all_hold := true
+		var mine := false
+		for d in units.selected:
+			if d.owner == World.player_tag:
+				mine = true
+				all_hold = all_hold and d.hold
+		_hold.visible = mine
+		_hold.set_pressed_no_signal(mine and all_hold)
 		_refresh()
 
 ## Ordu satırı: ortak ordu yoksa "Ordu kur"; hepsi aynı ordudaysa cephe seçimi, savun/taarruz, orduyu seç, dağıt

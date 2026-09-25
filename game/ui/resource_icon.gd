@@ -12,7 +12,10 @@ func _init(k: Kind = Kind.POLITICAL_POWER) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 const FILES := {Kind.POLITICAL_POWER: "political_power", Kind.STABILITY: "stability",
-	Kind.WAR_SUPPORT: "war_support", Kind.MANPOWER: "manpower", Kind.FACTORY: "factory"}
+	Kind.WAR_SUPPORT: "war_support", Kind.MANPOWER: "manpower", Kind.FACTORY: "factory",
+	# yeni ikon setinde gelirse kullanılır (yoksa vektörel çizim)
+	Kind.FUEL: "fuel", Kind.CONVOY: "convoy_count", Kind.SUPPLY: "supply", Kind.COMMAND: "command_power",
+	Kind.XP_ARMY: "xp_army", Kind.XP_NAVY: "xp_navy", Kind.XP_AIR: "xp_air", Kind.TENSION: "world_tension", Kind.WAR: "at_war"}
 
 func _draw() -> void:
 	var tex := UiTheme.icon(FILES.get(kind, ""))

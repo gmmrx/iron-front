@@ -67,7 +67,7 @@ func save_game(slot: String) -> bool:
 		"day_count": World.day_count, "tension": World.world_tension,
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
-		"factions": Politics.factions, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
+		"factions": Politics.factions, "fired_events": Politics.fired_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
 		"fleets": Navy.to_save(), "fleet_id": Navy._next_id, "wings": Air.to_save(), "wing_id": Air._next_id,
 	}
 	for st: StateRegion in World.states.values():
@@ -83,16 +83,17 @@ func save_game(slot: String) -> bool:
 			"pp": c.political_power, "stability": c.stability, "war_support": c.war_support, "ideology": c.ideology,
 			"capital": c.capital_state, "laws": c.laws, "spirits": Array(c.spirits), "advisors": Array(c.advisors),
 			"focus_done": Array(c.focus_done), "focus_current": c.focus_current, "focus_progress": c.focus_progress,
-			"cp": c.command_power, "axp": c.army_xp, "nxp": c.navy_xp, "airxp": c.air_xp,
+			"leader": c.leader, "next_election": c.next_election, "cp": c.command_power, "axp": c.army_xp, "nxp": c.navy_xp, "airxp": c.air_xp,
 			"research_slots": c.research_slots, "fuel": c.fuel, "rstore": c.research_stored, "research_current": c.research_current, "research_done": Array(c.research_done),
 			"research_bonus": c.research_bonus, "decisions": c.decisions_active, "manpower_used": c.manpower_used,
 			"templates": c.templates, "faction": c.faction, "war_goals": c.war_goals, "justify": c.justify_progress,
 			"guarantees": Array(c.guarantees), "access": Array(c.access), "capitulated": c.capitulated,
+			"auto_trade": c.auto_trade, "trade_orders": c.trade_orders,
 			"popularity": c.popularity, "stockpile": c.stockpile, "lines": lines, "queue": queue,
 		}
 	for d in Military.divisions:
 		data["divisions"].append({"id": d.id, "o": d.owner, "t": d.template, "n": d.name, "p": d.province,
-			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army})
+			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold})
 	data["armies"] = []
 	for a in Military.armies:
 		data["armies"].append({"id": a.id, "o": a.owner, "n": a.name, "e": a.enemy, "m": int(a.mode), "c": a.color.to_html()})
@@ -149,6 +150,8 @@ func load_game(slot: String) -> bool:
 		c.ideology = cd["ideology"]; c.capital_state = int(cd["capital"]); c.laws = cd["laws"]
 		c.spirits.assign(cd["spirits"]); c.advisors.assign(cd["advisors"]); c.focus_done.assign(cd["focus_done"])
 		c.focus_current = cd["focus_current"]; c.focus_progress = float(cd["focus_progress"])
+		c.leader = str(cd.get("leader", c.leader)); c.next_election = int(cd.get("next_election", c.next_election))
+		c.auto_trade = bool(cd.get("auto_trade", true)); c.trade_orders = cd.get("trade_orders", [])
 		c.command_power = float(cd.get("cp", 0.0)); c.army_xp = float(cd.get("axp", 0.0)); c.navy_xp = float(cd.get("nxp", 0.0)); c.air_xp = float(cd.get("airxp", 0.0))
 		c.research_slots = int(cd["research_slots"]); c.fuel = float(cd.get("fuel", -1.0)); c.research_stored = float(cd.get("rstore", 0.0)); c.research_current = cd["research_current"]
 		c.research_done.clear()
@@ -175,6 +178,7 @@ func load_game(slot: String) -> bool:
 	Diplomacy._next_id = int(data["war_id"])
 	Diplomacy._start_vp = data.get("start_vp", {})
 	Politics.factions = data["factions"]
+	Politics.fired_events = data.get("fired_events", [])
 	Military.divisions.clear()
 	Military._stats_cache.clear()
 	for dd: Dictionary in data["divisions"]:
@@ -182,7 +186,7 @@ func load_game(slot: String) -> bool:
 		d.id = int(dd["id"]); d.owner = dd["o"]; d.template = int(dd["t"]); d.name = dd["n"]; d.province = int(dd["p"])
 		d.path = PackedInt32Array(dd["path"]); d.progress = float(dd["pr"]); d.strength = float(dd["s"])
 		d.org = float(dd["org"]); d.attacking = int(dd["a"]); d.training = int(dd["tr"])
-		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0))
+		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0)); d.hold = bool(dd.get("h", false))
 		Military.divisions.append(d)
 	Military._next_id = int(data["div_id"])
 	if data.has("wings"):

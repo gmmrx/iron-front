@@ -3,38 +3,19 @@ extends PanelContainer
 ## Lojistik ekranı (türün klasiklerindeki gibi): ekipman envanteri — stok, tümenlerde kullanımda, günlük üretim,
 ## ihtiyaç (eksik + takviye), denge; kaynak üretimi/kullanımı; fabrika ve tersane kullanımı.
 
-var _summary: Label
-var _grid: GridContainer
-var _res_grid: GridContainer
+var _cells: Array[Label] = []
+var _body: VBoxContainer
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
-	position = Vector2(12, 120)
-	custom_minimum_size = Vector2(560, 0)
 	visible = false
-	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 8)
-	add_child(v)
-	var title := UiTheme.make_label(tr("LOG_TITLE"), 24, UiTheme.ACCENT)
-	title.add_theme_font_override("font", UiTheme.title_font())
-	v.add_child(title)
-	_summary = UiTheme.make_label("", 15, UiTheme.TEXT_DIM)
-	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(_summary)
-	v.add_child(HSeparator.new())
-	v.add_child(UiTheme.make_label(tr("LOG_EQUIPMENT"), 16, UiTheme.TEXT_DIM))
-	_grid = GridContainer.new()
-	_grid.columns = 6
-	_grid.add_theme_constant_override("h_separation", 14)
-	_grid.add_theme_constant_override("v_separation", 3)
-	v.add_child(_grid)
-	v.add_child(HSeparator.new())
-	v.add_child(UiTheme.make_label(tr("LOG_RESOURCES"), 16, UiTheme.TEXT_DIM))
-	_res_grid = GridContainer.new()
-	_res_grid.columns = 4
-	_res_grid.add_theme_constant_override("h_separation", 14)
-	_res_grid.add_theme_constant_override("v_separation", 3)
-	v.add_child(_res_grid)
+	_body = PanelLayout.frame(self, tr("LOG_TITLE"), "army", 560.0)
+	var top := PanelLayout.fixed(self)
+	_cells = PanelLayout.info_cells(top, [
+		["military_factory", tr("PRO_CELL_MIL"), tr("PRO_CELL_MIL_TIP")],
+		["building_dockyard", tr("PRO_CELL_DOCK"), tr("PRO_CELL_DOCK_TIP")],
+		["resource_oil", tr("LOG_CELL_FUEL"), tr("LOG_CELL_FUEL_TIP")],
+		["manpower", tr("LOG_CELL_MANPOWER"), tr("LOG_CELL_MANPOWER_TIP")]])
 	World.daily_update.connect(func() -> void:
 		if visible: refresh())
 	Economy.production_changed.connect(func(_t: String) -> void:
@@ -47,16 +28,10 @@ func open() -> void:
 func close() -> void:
 	visible = false
 
-func _cell(text: String, color: Color = UiTheme.TEXT, grid: GridContainer = null) -> void:
-	var l := UiTheme.make_label(text, 15, color)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if grid != _res_grid or true else HORIZONTAL_ALIGNMENT_LEFT
-	(grid if grid else _grid).add_child(l)
-
 func refresh() -> void:
 	var c := World.player()
-	if c == null:
+	if c == null or _cells.is_empty():
 		return
-	# fabrika / tersane kullanımı
 	var mil_used := 0
 	var dock_used := 0
 	for l: ProductionLine in c.production_lines:
@@ -64,47 +39,49 @@ func refresh() -> void:
 			dock_used += l.factories
 		else:
 			mil_used += l.factories
-	_summary.text = tr("LOG_SUMMARY") % [mil_used, Economy.count(c, "military_factory"), dock_used, Economy.count(c, "dockyard")]
-	for ch in _grid.get_children():
+	_cells[0].text = "%d / %d" % [mil_used, Economy.count(c, "military_factory")]
+	_cells[1].text = "%d / %d" % [dock_used, Economy.count(c, "dockyard")]
+	_cells[2].text = UiTheme.format_number(maxf(c.fuel, 0.0))
+	_cells[3].text = UiTheme.format_number(c.available_manpower())
+	for ch in _body.get_children():
 		ch.queue_free()
-	for h in ["LOG_EQUIPMENT", "LOG_STOCK", "LOG_IN_USE", "LOG_DAILY", "LOG_NEED", "LOG_BALANCE"]:
-		var l := UiTheme.make_label(tr(h), 15, UiTheme.TEXT_DIM)
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if h == "LOG_EQUIPMENT" else HORIZONTAL_ALIGNMENT_RIGHT
-		_grid.add_child(l)
-	# kullanımda: tümenlerin taşıdığı ekipman; ihtiyaç: eksik güç için gereken + kuyruktaki eksikler
+	# kullanımda: tümenlerin taşıdığı ekipman; ihtiyaç: eksik güç için gereken
 	var in_use := {}
 	var need := {}
 	for d in Military.country_divisions(c.tag):
-		var s := Military.div_stats(d)
-		for e: String in s["equipment"]:
-			var full := float(s["equipment"][e])
+		var st := Military.div_stats(d)
+		for e: String in st["equipment"]:
+			var full := float(st["equipment"][e])
 			in_use[e] = float(in_use.get(e, 0.0)) + full * d.strength
 			need[e] = float(need.get(e, 0.0)) + full * (1.0 - d.strength)
 	var daily := {}
 	for l: ProductionLine in c.production_lines:
 		daily[l.equipment] = float(daily.get(l.equipment, 0.0)) + l.last_output
-	var names: Array = []
+	PanelLayout.section(_body, tr("LOG_EQUIPMENT"))
+	var t := PanelLayout.table(_body, [tr("LOG_EQUIPMENT"), tr("LOG_STOCK"), tr("LOG_IN_USE"), tr("LOG_DAILY"), tr("LOG_NEED"), tr("LOG_BALANCE")],
+		[150, 62, 70, 58, 62, 70])
+	var any := false
 	for e: String in Economy.equipment.keys():
-		if float(c.stockpile.get(e, 0.0)) > 0.0 or in_use.has(e) or daily.has(e):
-			names.append(e)
-	for e: String in names:
+		if not (float(c.stockpile.get(e, 0.0)) > 0.0 or in_use.has(e) or daily.has(e)):
+			continue
+		any = true
 		var stock := float(c.stockpile.get(e, 0.0))
 		var nd := float(need.get(e, 0.0))
 		var bal := stock - nd
-		var nl := UiTheme.make_label(Economy.equipment_name(e), 15)
-		_grid.add_child(nl)
-		_cell(UiTheme.format_number(roundi(stock)))
-		_cell(UiTheme.format_number(roundi(float(in_use.get(e, 0.0)))))
-		_cell("+%.1f" % float(daily.get(e, 0.0)) if daily.has(e) else "—", UiTheme.GOOD if daily.has(e) else UiTheme.TEXT_DIM)
-		_cell(UiTheme.format_number(roundi(nd)), UiTheme.BAD if nd > stock else UiTheme.TEXT)
-		_cell(("+" if bal >= 0 else "") + UiTheme.format_number(roundi(bal)), UiTheme.GOOD if bal >= 0 else UiTheme.BAD)
-	# kaynaklar
-	for ch in _res_grid.get_children():
-		ch.queue_free()
-	for h in ["LOG_RESOURCES", "LOG_RES_PROD", "LOG_RES_USE", "LOG_BALANCE"]:
-		var l := UiTheme.make_label(tr(h), 15, UiTheme.TEXT_DIM)
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if h == "LOG_RESOURCES" else HORIZONTAL_ALIGNMENT_RIGHT
-		_res_grid.add_child(l)
+		var row := PanelLayout.table_row(t, [
+			PanelLayout.icon_label(UiTheme.equipment_icon(e), Economy.equipment_name(e), 26),
+			UiTheme.format_number(roundi(stock)),
+			UiTheme.format_number(roundi(float(in_use.get(e, 0.0)))),
+			["+%.1f" % float(daily.get(e, 0.0)) if daily.has(e) else "—", UiTheme.GOOD if daily.has(e) else UiTheme.TEXT_DIM],
+			[UiTheme.format_number(roundi(nd)), UiTheme.BAD if nd > stock else UiTheme.TEXT],
+			[("+" if bal >= 0 else "") + UiTheme.format_number(roundi(bal)), UiTheme.GOOD if bal >= 0 else UiTheme.BAD]],
+			tr("LOG_ROW_TIP") % [Economy.equipment_name(e), roundi(stock), roundi(float(in_use.get(e, 0.0))), roundi(nd)])
+		if bal < 0:
+			row.theme_type_variation = "SlotBad"
+	if not any:
+		PanelLayout.empty(_body, "—")
+	PanelLayout.section(_body, tr("LOG_RESOURCES"))
+	var rt := PanelLayout.table(_body, [tr("LOG_RESOURCES"), tr("LOG_RES_PROD"), tr("LOG_RES_USE"), tr("LOG_BALANCE")], [180, 90, 90, 90])
 	var avail := Economy.resource_available(c)
 	var used := Economy.resource_need(c)
 	for r: String in Economy.resource_names:
@@ -112,7 +89,6 @@ func refresh() -> void:
 		var u := float(used.get(r, 0.0))
 		if a <= 0.0 and u <= 0.0:
 			continue
-		_res_grid.add_child(UiTheme.make_label(tr("RES_" + r), 15))
-		_cell("%d" % roundi(a), UiTheme.TEXT, _res_grid)
-		_cell("%d" % roundi(u), UiTheme.TEXT, _res_grid)
-		_cell(("+" if a - u >= 0 else "") + "%d" % roundi(a - u), UiTheme.GOOD if a - u >= 0 else UiTheme.BAD, _res_grid)
+		PanelLayout.table_row(rt, [PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 24),
+			"%d" % roundi(a), "%d" % roundi(u),
+			[("+" if a - u >= 0 else "") + "%d" % roundi(a - u), UiTheme.GOOD if a - u >= 0 else UiTheme.BAD]])

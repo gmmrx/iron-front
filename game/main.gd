@@ -235,6 +235,14 @@ func _handle_dev_args() -> void:
 		camera.focus_on(Vector2(float(xy[0]), float(xy[1])))
 	if args.has("dist"):
 		camera.focus_on(Vector2(camera.target.x, camera.target.z), float(args["dist"]))
+	if args.has("pause_menu"):
+		hud.pause_menu.toggle()
+	if args.has("gameover"):
+		Game._end(args["gameover"] != "lose", "GAMEOVER_TIME" if args["gameover"] != "lose" else "GAMEOVER_CAPITULATED")
+	if args.has("event"):
+		# test: oyuncuya olay gönder --event=id[,from]
+		var ea: PackedStringArray = args["event"].split(",")
+		Politics.fire_event(World.player(), ea[0], ea[1] if ea.size() > 1 else World.player_tag)
 	if args.has("select"):
 		World.select_province(int(args["select"]))
 	if args.has("mode"):
@@ -256,6 +264,8 @@ func _handle_dev_args() -> void:
 			"research": hud.toggle_research()
 			"focus": hud.toggle_focus()
 			"logistics": hud.toggle_logistics()
+			"navy": hud.toggle_navy()
+			"air": hud.toggle_air()
 			"diplomacy": hud.diplomacy.open_for(args.get("target", ""))
 	if args.has("build"):
 		hud.toggle_construction()
@@ -505,6 +515,9 @@ func _handle_dev_args() -> void:
 		for i in (int(args["wait"]) if args.has("wait") else 40):
 			await get_tree().process_frame
 		# Görsel QA: belirli bir bölgenin bilgi kartını ve gerçek cursor dokusunu kadraja ekle.
+		if not args.has("hover") and not args.has("hover_route"):
+			set_process(false)          # gerçek imlecin harita ipucu kareye girmesin
+			hud.tooltip.visible = false
 		if args.has("hover"):
 			var hv: PackedStringArray = args["hover"].split(",")
 			var hp := Vector2(float(hv[1]), float(hv[2])) if hv.size() >= 3 else Vector2(960, 540)

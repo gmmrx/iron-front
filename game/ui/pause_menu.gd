@@ -41,11 +41,13 @@ func close() -> void:
 func _clear(title: String) -> void:
 	for ch in _box.get_children():
 		ch.queue_free()
-	var t := UiTheme.make_label(title, 26, UiTheme.ACCENT)
+	var hp := PanelContainer.new()
+	hp.theme_type_variation = "Header"
+	var t := UiTheme.make_label(title.to_upper(), 22, UiTheme.ACCENT)
 	t.add_theme_font_override("font", UiTheme.title_font())
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_box.add_child(t)
-	_box.add_child(HSeparator.new())
+	hp.add_child(t)
+	_box.add_child(hp)
 
 func _btn(text: String, fn: Callable, tip := "") -> Button:
 	var b := Button.new()

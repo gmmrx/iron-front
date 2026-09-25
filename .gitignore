@@ -5,3 +5,7 @@ tools/cache/
 data/map/heightmap.r32
 build/
 topbar.png
+topbar.png.import
+
+# yerel referans notları: commit edilmez
+docs/reference/

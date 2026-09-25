@@ -226,6 +226,32 @@ const PAINTED_ATLAS: Dictionary = {
 ## Ikincil icerik ayni sanatsal dilde, anlamca en yakin ozgun illüstrasyonu kullanir.
 ## Boylece arastirma, yasa, danisman ve olay ekranlarinda eski 3B rozetler gorunmez.
 const PAINTED_ALIASES: Dictionary = {
+	"event_tur_montreux": "focus_tur_montreux", "event_ataturk_death": "focus_tur_kemalism",
+	"event_soviet_straits_demand": "focus_sov_defense", "event_rhineland_crisis": "focus_ger_rhineland",
+	"event_abdication_crisis": "focus_eng_guarantee", "event_sov_purge_end": "focus_sov_purge",
+	"event_election": "focus_g_politics",
+	"event_jap_february_26": "focus_jap_army", "event_eng_defence_white_paper": "focus_eng_rearm",
+	"event_fra_popular_front": "focus_g_unity", "event_ger_berlin_olympics": "focus_g_propaganda",
+	"event_sov_1936_constitution": "focus_sov_plan", "event_chi_xian_incident": "focus_chi_united_front",
+	"event_pol_rambouillet_loan": "focus_g_arms", "event_ita_league_sanctions": "focus_ita_war",
+	"event_soviet_moscow_talks": "focus_sov_defense",
+	"law_all_adults_serve": "manpower", "law_scraping_the_barrel": "event_call_to_arms",
+	"spirit_kemalist_officers": "focus_tur_army", "spirit_sectarian_woes": "focus_tur_kemalism",
+	"spirit_disorganized_armed_forces": "focus_g_army", "spirit_widespread_illiteracy": "focus_tur_village",
+	"spirit_first_five_year_plan": "focus_tur_five_year", "spirit_trotskyite_plot": "focus_sov_purge",
+	"spirit_purged_army": "focus_sov_purge", "spirit_king_george_v": "focus_eng_guarantee",
+	"spirit_war_to_end_all_wars": "focus_fra_maginot", "spirit_disjointed_government": "focus_g_politics",
+	"spirit_victors_of_ww1": "focus_fra_mobilize", "spirit_inefficient_economy": "focus_g_industry",
+	"spirit_full_employment": "focus_g_construction", "spirit_victor_emmanuel": "focus_ita_mare",
+	"spirit_great_depression": "focus_usa_new_deal", "spirit_state_shintoism": "focus_jap_army",
+	"spirit_chinese_corruption": "focus_chi_united_front", "spirit_april_constitution": "focus_g_politics",
+	"spirit_political_violence": "focus_g_propaganda", "spirit_national_strikes": "focus_g_industry",
+	"spirit_carol_lifestyle": "focus_g_politics", "spirit_treaty_of_trianon": "focus_g_army",
+	"spirit_levente": "focus_g_army", "spirit_divided_nation": "focus_g_unity",
+	"spirit_croatian_opposition": "focus_g_unity", "spirit_milli_sef": "focus_tur_kemalism",
+	"spirit_straits_sovereignty": "focus_tur_montreux", "spirit_blitzkrieg_doctrine": "focus_g_doctrine",
+	"spirit_obsolete_army": "focus_g_army", "spirit_italian_army": "focus_ita_war",
+	"spirit_expeditionary_doctrine": "focus_g_doctrine",
 	"political_power": "focus_g_politics", "politics": "focus_g_politics",
 	"stability": "focus_g_unity", "war_support": "focus_g_propaganda",
 	"manpower": "focus_g_army", "research": "focus_g_research",
@@ -340,7 +366,18 @@ static func textured(name: String, margin: int = 12, content: int = 10) -> Style
 	sb.set_content_margin_all(content)
 	return sb
 
+static var _new_icon_cache := {}
+
 static func icon(name: String) -> Texture2D:
+	# yeni ikon seti (docs/art/ICON_PROMPTS.md): assets/ui/icons_new/<ad>.png varsa her şeyin önüne geçer
+	if _new_icon_cache.has(name):
+		if _new_icon_cache[name] != null:
+			return _new_icon_cache[name]
+	else:
+		var np := "res://assets/ui/icons_new/%s.png" % name
+		_new_icon_cache[name] = load(np) if ResourceLoader.exists(np) else null
+		if _new_icon_cache[name] != null:
+			return _new_icon_cache[name]
 	var painted_name: String = name if PAINTED_ATLAS.has(name) else PAINTED_ALIASES.get(name, name)
 	if PAINTED_ATLAS.has(painted_name):
 		return _painted_icon(painted_name)
@@ -349,6 +386,45 @@ static func icon(name: String) -> Texture2D:
 		return load(vector_path)
 	var hd_path := "res://assets/ui/icons_hd/%s.png" % name
 	return load(hd_path) if ResourceLoader.exists(hd_path) else null
+
+## Lider portresi (docs/art/ICON_PROMPTS.md bölüm 12): 1936 lideri assets/portraits/<TAG>.png, sonradan gelen lider
+## assets/portraits/<ad_soyad>.png (ör. ismet_inonu). Yoksa null (çağıran bayrağı gösterir).
+static var _portrait_cache := {}
+static func portrait(c: Country) -> Texture2D:
+	if c == null:
+		return null
+	var names: Array[String] = [leader_slug(c.leader)]
+	if c.leader == c.start_leader:
+		names.push_front(c.tag)
+	for n in names:
+		if not _portrait_cache.has(n):
+			var path := "res://assets/portraits/%s.png" % n
+			_portrait_cache[n] = load(path) if ResourceLoader.exists(path) else null
+		if _portrait_cache[n] != null:
+			return _portrait_cache[n]
+	return null
+
+const _FOLD := {"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u", "â": "a", "î": "i", "û": "u", "é": "e", "è": "e",
+	"ê": "e", "ë": "e", "á": "a", "à": "a", "ä": "a", "å": "a", "ā": "a", "ă": "a", "ã": "a", "í": "i", "ï": "i", "ó": "o", "ò": "o",
+	"ô": "o", "õ": "o", "ø": "o", "ú": "u", "ù": "u", "ñ": "n", "ś": "s", "š": "s", "ș": "s", "ž": "z", "ź": "z", "ż": "z", "č": "c",
+	"ć": "c", "ł": "l", "ř": "r", "ț": "t", "ý": "y", "ő": "o", "ű": "u"}
+static func leader_slug(name: String) -> String:
+	var s := name.to_lower()
+	var out := ""
+	for ch in s:
+		var code := ch.unicode_at(0)
+		if code >= 0x300 and code <= 0x36F:
+			continue          # birleşik işaretler (İ -> i + nokta)
+		var f: String = _FOLD.get(ch, ch)
+		out += f if (f >= "a" and f <= "z") or (f >= "0" and f <= "9") else "_"
+	while out.contains("__"):
+		out = out.replace("__", "_")
+	return out.strip_edges().trim_prefix("_").trim_suffix("_")
+
+## İlk bulunan ikon (yeni setteki ad, yoksa eski ad)
+static func icon_or(primary: String, fallback: String) -> Texture2D:
+	var t := icon(primary)
+	return t if t else icon(fallback)
 
 static func _painted_icon(name: String) -> Texture2D:
 	if _painted_icon_cache.has(name):
@@ -446,34 +522,94 @@ static func _button_style(bg: Color, border: Color) -> StyleBoxFlat:
 	sb.content_margin_bottom = 4
 	return sb
 
+## Arayüz dokuları (assets/ui/skin, tools/make_ui_skin.py)
+static func skin(name: String, margin: int = 10, content: int = 8) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = load("res://assets/ui/skin/%s.png" % name)
+	sb.set_texture_margin_all(margin)
+	sb.set_content_margin_all(content)
+	return sb
+
 static func _build() -> Theme:
 	var t := Theme.new()
 	t.default_font = load("res://assets/fonts/BarlowCondensed-Medium.ttf")
 	t.default_font_size = 18
 
 	t.set_color("font_color", "Label", TEXT)
-	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.6))
+	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.7))
 	t.set_constant("shadow_offset_x", "Label", 1)
 	t.set_constant("shadow_offset_y", "Label", 1)
 
-	var pnl := textured("panel", 22, 18)
+	var pnl := skin("panel", 16, 14)
 	t.set_stylebox("panel", "PanelContainer", pnl)
 	t.set_stylebox("panel", "Panel", pnl)
 	for pair: Array in [["normal", "button"], ["hover", "button_hover"], ["pressed", "button_pressed"],
 			["hover_pressed", "button_pressed"], ["disabled", "button_disabled"]]:
-		var b := textured(pair[1], 10, 6)
+		var b := skin(pair[1], 8, 6)
 		b.content_margin_left = 12
 		b.content_margin_right = 12
 		t.set_stylebox(pair[0], "Button", b)
 		t.set_stylebox(pair[0], "MenuButton", b)
+		t.set_stylebox(pair[0], "OptionButton", b)
 	t.set_stylebox("focus", "Button", StyleBoxEmpty.new())
+	t.set_stylebox("focus", "OptionButton", StyleBoxEmpty.new())
 	t.set_color("font_color", "Button", TEXT)
 	t.set_color("font_hover_color", "Button", Color.WHITE)
 	t.set_color("font_pressed_color", "Button", ACCENT)
 	t.set_color("font_hover_pressed_color", "Button", ACCENT)
 	t.set_color("font_disabled_color", "Button", TEXT_DIM)
 
-	var tip := textured("tooltip", 10, 8)
+	# --- tür varyasyonları (control.theme_type_variation = "...")
+	for v: Array in [["Header", "PanelContainer", "header", 8, 6], ["Section", "PanelContainer", "section", 6, 3],
+			["Slot", "PanelContainer", "slot", 6, 3], ["SlotGold", "PanelContainer", "slot_gold", 6, 3],
+			["SlotGood", "PanelContainer", "slot_good", 6, 3], ["SlotBad", "PanelContainer", "slot_bad", 6, 3],
+			["Cell", "PanelContainer", "cell", 6, 3], ["Strip", "PanelContainer", "strip", 12, 6],
+			["PanelFlat", "PanelContainer", "panel_flat", 14, 12]]:
+		t.set_type_variation(v[0], v[1])
+		t.set_stylebox("panel", v[0], skin(v[2], v[3], v[4]))
+	# liste satırı: koyu gömük zemin, ince kenar; tablo için kenarsız açık/koyu sıralar
+	var row_sb := StyleBoxFlat.new()
+	row_sb.bg_color = Color(0.085, 0.09, 0.092, 0.92)
+	row_sb.border_color = Color(0.29, 0.26, 0.2)
+	row_sb.set_border_width_all(1)
+	row_sb.border_width_top = 0
+	row_sb.border_color = Color(0.26, 0.24, 0.19)
+	row_sb.set_content_margin_all(6)
+	row_sb.content_margin_left = 6
+	row_sb.set_corner_radius_all(2)
+	t.set_type_variation("Row", "PanelContainer")
+	t.set_stylebox("panel", "Row", row_sb)
+	var alt := StyleBoxFlat.new()
+	alt.bg_color = Color(0.15, 0.155, 0.15, 0.55)
+	alt.set_content_margin_all(4)
+	alt.content_margin_left = 6
+	alt.content_margin_right = 6
+	t.set_type_variation("CellAlt", "PanelContainer")
+	t.set_stylebox("panel", "CellAlt", alt)
+	var cell0 := StyleBoxFlat.new()
+	cell0.bg_color = Color(0.05, 0.055, 0.057, 0.55)
+	cell0.set_content_margin_all(4)
+	cell0.content_margin_left = 6
+	cell0.content_margin_right = 6
+	t.set_type_variation("CellRow", "PanelContainer")
+	t.set_stylebox("panel", "CellRow", cell0)
+	for v: Array in [["Card", "card", "card_hover", "card_selected"], ["Tab", "tab", "tab", "tab_active"],
+			["MenuTile", "menu_btn", "menu_btn_hover", "menu_btn_pressed"]]:
+		t.set_type_variation(v[0], "Button")
+		var n := skin(v[1], 8, 6)
+		var h := skin(v[2], 8, 6)
+		var p2 := skin(v[3], 8, 6)
+		for sb: StyleBoxTexture in [n, h, p2]:
+			sb.content_margin_left = 10
+			sb.content_margin_right = 10
+		t.set_stylebox("normal", v[0], n)
+		t.set_stylebox("hover", v[0], h)
+		t.set_stylebox("pressed", v[0], p2)
+		t.set_stylebox("hover_pressed", v[0], p2)
+		t.set_stylebox("disabled", v[0], n)
+		t.set_stylebox("focus", v[0], StyleBoxEmpty.new())
+
+	var tip := skin("tooltip", 8, 10)
 	t.set_stylebox("panel", "TooltipPanel", tip)
 	t.set_color("font_color", "TooltipLabel", TEXT)
 	t.set_color("font_shadow_color", "TooltipLabel", Color(0, 0, 0, 0.9))
@@ -482,9 +618,34 @@ static func _build() -> Theme:
 	t.set_constant("line_spacing", "TooltipLabel", 4)
 	t.set_font_size("font_size", "TooltipLabel", 18)
 
+	# ilerleme çubukları: gömük koyu zemin, altın/yeşil dolgu
+	var pb_bg := StyleBoxFlat.new()
+	pb_bg.bg_color = Color(0.03, 0.035, 0.04, 0.95)
+	pb_bg.border_color = Color(0, 0, 0)
+	pb_bg.set_border_width_all(1)
+	var pb_fg := StyleBoxFlat.new()
+	pb_fg.bg_color = Color("b89a52")
+	t.set_stylebox("background", "ProgressBar", pb_bg)
+	t.set_stylebox("fill", "ProgressBar", pb_fg)
+	t.set_color("font_color", "ProgressBar", TEXT)
+
+	# kaydırma çubuğu: ince, koyu
+	var sgrab := StyleBoxFlat.new()
+	sgrab.bg_color = Color(0.42, 0.40, 0.34, 0.9)
+	sgrab.set_corner_radius_all(2)
+	sgrab.content_margin_left = 4
+	sgrab.content_margin_right = 4
+	var strack := StyleBoxFlat.new()
+	strack.bg_color = Color(0, 0, 0, 0.45)
+	strack.content_margin_left = 4
+	strack.content_margin_right = 4
+	for st: String in ["grabber", "grabber_highlight", "grabber_pressed"]:
+		t.set_stylebox(st, "VScrollBar", sgrab)
+	t.set_stylebox("scroll", "VScrollBar", strack)
+
 	var sep := StyleBoxLine.new()
-	sep.color = BORDER_DIM
-	sep.thickness = 1
+	sep.color = Color(0.02, 0.02, 0.02)
+	sep.thickness = 2
 	t.set_stylebox("separator", "HSeparator", sep)
 	var vsep := StyleBoxLine.new()
 	vsep.color = BORDER_DIM

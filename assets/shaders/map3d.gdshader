@@ -61,6 +61,9 @@ uniform bool marks_enabled = false;   // ülke seçim ekranında vurgulanan ülk
 
 uniform bool wrap_x = false;           // dünya haritası doğu-batı sarmalanır
 uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
+uniform float land_brightness = 0.8;   // kara parlaklığı (koyu, doygun ton)
+uniform float water_brightness = 0.9;
+uniform float political_saturation = 1.18;
 
 float height_at(vec2 uv) {
 	if (wrap_x) { uv.x = fract(uv.x); }
@@ -188,7 +191,7 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	vec3 cc = texelFetch(palette_tex, ivec2(owner, 0), 0).rgb;
 	// yakın zoom: makro arazi rengi detay dokusuyla işlenir (tarla yamaları, orman, kaya...)
 	terr = mix(terr, clamp(terr * dratio, 0.0, 1.0), close);
-	// HOI4 tonu: koyu, doygun, kontrastlı arazi
+	// koyu, doygun, kontrastlı arazi
 	float tl = dot(terr, vec3(0.299, 0.587, 0.114));
 	terr = mix(vec3(tl), terr, 1.35);
 	terr = pow(clamp(terr, 0.0, 1.0), vec3(1.45)) * 0.82;
@@ -199,6 +202,8 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 		float far = smoothstep(2.0, 5.0, tpp);
 		vec3 pol = cc * 0.74 * mix(1.0, 0.5 + lum * 1.6, 0.5 * (1.0 - far * 0.6));
 		col = mix(terr, pol, mix(0.66, 0.9, smoothstep(0.12, 1.3, tpp)) + far * 0.06);
+		float pg = dot(col, vec3(0.299, 0.587, 0.114));
+		col = max(mix(vec3(pg), col, political_saturation), vec3(0.0));
 		if (map_mode == 3) {
 			// yollar: rotalar öne çıksın diye soluk, koyu zemin
 			float g = dot(col, vec3(0.299, 0.587, 0.114));
@@ -365,7 +370,8 @@ void fragment() {
 		float fres = pow(1.0 - clamp(dot(nv, VIEW), 0.0, 1.0), 4.0);
 		col = mix(col, vec3(0.55, 0.66, 0.76), fres * 0.35);
 	}
-	if (land_a > 0.0) { col = mix(col, land_color(uv, land_pid, terr, bt, tpp, TIME, dratio, close), land_a); }
+	col *= water_brightness;
+	if (land_a > 0.0) { col = mix(col, land_color(uv, land_pid, terr, bt, tpp, TIME, dratio, close) * land_brightness, land_a); }
 	vec3 n_final = normalize(mix(n_water, n_land, land_a));
 	NORMAL = normalize((VIEW_MATRIX * vec4(n_final, 0.0)).xyz);
 	// kıyı çizgisi

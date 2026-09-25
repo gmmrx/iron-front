@@ -220,8 +220,8 @@ func _update_counters() -> void:
 		if _positions.has(f.id):
 			var gk: String = _positions[f.id][5]
 			_group_ships[gk] = int(_group_ships.get(gk, 0)) + f.total()
-	var far := camera.distance > UnitLayer.FAR_ALL
-	var world := camera.distance > UnitLayer.WORLD_VIEW
+	var far := camera.distance > UnitLayer.FLAG_MODE     # uzak: sayı yok, küçük ülke bayrağı
+	var hidden := camera.distance > UnitLayer.HIDE_ALL   # çok uzak: hiç işaret yok (harita okunur, kare hızı korunur)
 	for f in Navy.fleets:
 		var c: Dictionary = _counters.get(f.id, {})
 		if c.is_empty():
@@ -234,8 +234,14 @@ func _update_counters() -> void:
 		if idx > 0:
 			root.visible = false
 			continue
-		root.visible = not world and (not far or f.owner == World.player_tag or Diplomacy.are_enemies(f.owner, World.player_tag))
+		root.visible = not hidden
+		if hidden:
+			continue
+		c["bg"].visible = not far
+		c["label"].visible = not far
+		c["flag"].visible = far
 		var sel := f == selected
+		c["flag"].texture = UnitLayer.flag_marker(f.owner, sel)
 		var key := "%s:%d:%s:%s" % [f.owner, roundi(f.org * 10.0), sel, f.is_sub_fleet()]
 		if c["key"] != key:
 			c["key"] = key
@@ -269,7 +275,17 @@ func _make_counter(tag: String) -> Dictionary:
 	lbl.outline_render_priority = 11
 	lbl.offset = Vector2(22, 7)
 	root.add_child(lbl)
-	return {"root": root, "bg": bg, "label": lbl, "key": ""}
+	var flag := Sprite3D.new()
+	flag.texture = UnitLayer.flag_marker(tag)
+	flag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	flag.fixed_size = true
+	flag.pixel_size = PIXEL * 0.74
+	flag.no_depth_test = true
+	flag.render_priority = 10
+	flag.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	flag.visible = false
+	root.add_child(flag)
+	return {"root": root, "bg": bg, "label": lbl, "flag": flag, "key": ""}
 
 ## Deniz sayacı: ülke renginde plaka, lacivert şerit, gemi silueti (denizaltıda periskop), org çubuğu
 func _tex_for(tag: String, ob: int, selected_: bool, sub: bool) -> Texture2D:

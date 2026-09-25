@@ -2,8 +2,8 @@ class_name FocusPanel
 extends PanelContainer
 ## Milli odak ağacı (F): tam ekran, kaydırılabilir grafik; odaklar önkoşul çizgileriyle bağlı.
 
-const CELL := Vector2(270, 158)
-const NODE := Vector2(248, 122)
+const CELL := Vector2(236, 168)
+const NODE := Vector2(212, 140)
 
 var _canvas: Control
 var _status: Label
@@ -24,15 +24,24 @@ func _ready() -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
 	add_child(v)
+	var hp := PanelContainer.new()
+	hp.theme_type_variation = "Header"
+	v.add_child(hp)
 	var head := HBoxContainer.new()
-	var title := UiTheme.make_label(tr("FOCUS_TITLE"), 26, UiTheme.ACCENT)
+	head.add_theme_constant_override("separation", 10)
+	hp.add_child(head)
+	head.add_child(UiTheme.icon_texture(UiTheme.icon("focus_g_unity"), 30))
+	var title := UiTheme.make_label(tr("FOCUS_TITLE").to_upper(), 22, UiTheme.ACCENT)
 	title.add_theme_font_override("font", UiTheme.title_font())
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	_status = UiTheme.make_label("", 17)
+	_status.add_theme_font_override("font", UiTheme.bold_font())
 	head.add_child(_status)
-	head.add_child(UiTheme.icon_button("close", tr("TIP_CLOSE"), close))
-	v.add_child(head)
+	head.add_child(UiTheme.icon_button("close", tr("TIP_CLOSE"), close, 28))
+	var help := UiTheme.make_label(tr("FOCUS_HELP"), 14, UiTheme.TEXT_DIM)
+	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(help)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(scroll)
@@ -81,25 +90,42 @@ func refresh() -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.clip_text = true
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override("font_size", 16)
+		b.add_theme_font_size_override("font_size", 14)
 		b.icon = UiTheme.focus_icon(id)
 		b.expand_icon = true
-		b.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
-		b.add_theme_constant_override("icon_max_width", 88)
+		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+		b.add_theme_constant_override("icon_max_width", 74)
 		var done := id in c.focus_done
 		var current := id == c.focus_current
 		var can := Politics.can_start_focus(c, id)
 		b.text = "%s\n%d %s" % [Politics.loc(fo["name"]), int(fo["days"]), tr("UI_DAYS")]
+		# durum: bitti (yeşil), yürüyor (altın + ilerleme), seçilebilir (parlak), kilitli (soluk)
+		var style := "card"
 		if done:
+			style = "slot_good"
 			b.text = "✓ " + Politics.loc(fo["name"])
-			b.add_theme_stylebox_override("normal", UiTheme.textured("button_pressed", 10, 6))
-			b.add_theme_color_override("font_color", Color("f6e2a4"))
+			b.add_theme_color_override("font_color", Color("b9e6a0"))
 		elif current:
-			b.add_theme_stylebox_override("normal", UiTheme.textured("button_primary", 10, 6))
-			b.text = "%s\n%d / %d" % [Politics.loc(fo["name"]), int(c.focus_progress), int(fo["days"])]
-		elif not can:
-			b.modulate = Color(0.62, 0.62, 0.62)
+			style = "slot_gold"
+			b.text = "%s\n%d / %d %s" % [Politics.loc(fo["name"]), int(c.focus_progress), int(fo["days"]), tr("UI_DAYS")]
+			b.add_theme_color_override("font_color", UiTheme.ACCENT)
+			var pb := PanelLayout.progress(c.focus_progress / maxf(float(fo["days"]), 1.0), UiTheme.ACCENT, 6.0)
+			pb.position = Vector2(10, NODE.y - 12)
+			pb.size = Vector2(NODE.x - 20, 6)
+			b.add_child(pb)
+		elif can:
+			style = "card_hover"
+			b.add_theme_color_override("font_color", Color("f3e7c4"))
+		else:
+			style = "slot"
+			b.self_modulate = Color(0.75, 0.75, 0.75)
+			b.add_theme_color_override("icon_normal_color", Color(0.55, 0.55, 0.55))
+			b.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		for st: String in ["normal", "hover", "pressed", "disabled"]:
+			var sb := UiTheme.skin(style if st != "hover" or not can else "card_selected", 8, 6)
+			sb.content_margin_top = 8
+			b.add_theme_stylebox_override(st, sb)
 		var tip := Politics.loc(fo["name"])
 		var desc := Politics.loc(fo.get("desc", {}))
 		if desc != "":
