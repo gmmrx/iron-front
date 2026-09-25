@@ -34,7 +34,16 @@ func _ready() -> void:
 	_build_models()
 	_build_labels()
 	_build_straits_and_airbases()
+	_build_industry()
 	Economy.building_completed.connect(_on_building_completed)
+	Economy.building_completed.connect(func(_t: String, _s: int, _b: String) -> void: _industry_dirty = true)
+	Economy.construction_changed.connect(func(_t: String) -> void: _industry_dirty = true)
+	World.ownership_changed.connect(func() -> void: _industry_dirty = true)
+
+func _process(_delta: float) -> void:
+	if _industry_dirty:
+		_industry_dirty = false
+		_refresh_industry()
 
 ## Şehrin zemindeki yaklaşık yarıçapı (dünya birimi): düzleştirme ve liman uzaklığı için
 static func footprint_radius(c: City) -> float:
@@ -333,3 +342,119 @@ func _build_labels() -> void:
 		l.visibility_range_end_margin = LABEL_RANGE[tier] * 0.1
 		l.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(l)
+
+
+# ------------------------------------------------------------------ sanayi ve inşaat görünürlüğü
+## Eyaletin fabrikaları (sivil + askerî + tersane) ana şehrin çevresinde küçük fabrika modelleri olarak görünür
+## (2 fabrika ≈ 1 model, en çok 8); kuyruktaki inşaat için turuncu iskele işareti. Oyuncu "ne inşa ettim,
+## nerede?" sorusunun cevabını haritada görür; sanayi bölgeleri uzaktan da okunur.
+## MultiMesh'ler şehirler gibi CHUNK parçalarına bölünür (görünürlük mesafesi parça başına hesaplanır).
+const INDUSTRY_SCALE := 2.8
+const INDUSTRY_RANGE := 620.0
+const INDUSTRY_MAX := 8
+var _industry_dirty := false
+var _industry_slots := {}          ## sid -> [[Vector2, yaw], ...]
+var _industry_style := {}          ## sid -> "west" | "east" | ...
+var _industry_nodes := {}          ## [stil|"scaffold", Vector2i chunk] -> MultiMeshInstance3D
+var _scaffold_mesh: BoxMesh
+
+func _build_industry() -> void:
+	for st: StateRegion in World.states.values():
+		if st.cities.is_empty():
+			continue
+		var main: City = st.cities[0]
+		for c: City in st.cities:
+			if c.victory_points > main.victory_points:
+				main = c
+		var center: Vector2 = _visual_positions.get(main.id, main.position)
+		var r := footprint_radius(main) * 1.12 + 3.2
+		var phase := float(_hash(main.id + 77) % 628) / 100.0
+		var slots: Array = []
+		for ring: float in [1.0, 1.3]:
+			for i in 12:
+				if slots.size() >= INDUSTRY_MAX + 3:
+					break
+				var a: float = phase + TAU * float(i) / 12.0 + (0.26 if ring > 1.2 else 0.0)
+				var p: Vector2 = center + Vector2(cos(a), sin(a)) * r * ring
+				var cell := _cell_of(p)
+				if _occupied.has(cell) or not _is_land(p):
+					continue
+				if map.province_at(p) <= 0 or World.province(map.province_at(p)).state_id != st.id:
+					continue
+				_occupied[cell] = true
+				slots.append([p, -a + PI * 0.5])
+		if slots.is_empty():
+			continue
+		_industry_slots[st.id] = slots
+		_industry_style[st.id] = main.style
+	_scaffold_mesh = BoxMesh.new()
+	_scaffold_mesh.size = Vector3(0.6, 0.9, 0.6)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.95, 0.62, 0.15)
+	mat.emission_enabled = true
+	mat.emission = Color(1.0, 0.55, 0.1)
+	mat.emission_energy_multiplier = 0.9
+	mat.roughness = 0.7
+	_scaffold_mesh.material = mat
+	_refresh_industry()
+
+func _industry_count(st: StateRegion) -> int:
+	var n := st.building_level("civilian_factory") + st.building_level("military_factory") + st.building_level("dockyard")
+	return clampi(ceili(n / 2.0), 0, INDUSTRY_MAX)
+
+func _industry_node(key: Array) -> MultiMeshInstance3D:
+	if _industry_nodes.has(key):
+		return _industry_nodes[key]
+	var mesh: Mesh = _scaffold_mesh if key[0] == "scaffold" else _building_mesh("%s_factory_0" % key[0])
+	if mesh == null:
+		return null
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = mesh
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	mmi.visibility_range_end = INDUSTRY_RANGE
+	mmi.visibility_range_end_margin = INDUSTRY_RANGE * 0.12
+	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	add_child(mmi)
+	_industry_nodes[key] = mmi
+	return mmi
+
+func _refresh_industry() -> void:
+	var lists := {}                    # key -> [Transform3D]
+	var building_now := {}
+	for c: Country in World.countries.values():
+		for pr: ConstructionProject in c.construction_queue:
+			if pr.building in ["civilian_factory", "military_factory", "dockyard", "synthetic_refinery", "anti_air"]:
+				building_now[pr.state_id] = int(building_now.get(pr.state_id, 0)) + 1
+	for sid: int in _industry_slots:
+		var st: StateRegion = World.states[sid]
+		var slots: Array = _industry_slots[sid]
+		var n := mini(_industry_count(st), slots.size())
+		var style: String = _industry_style[sid]
+		for i in n:
+			var p: Vector2 = slots[i][0]
+			var key := [style, Vector2i(int(p.x / CHUNK), int(p.y / CHUNK))]
+			if not lists.has(key):
+				lists[key] = []
+			lists[key].append(Transform3D(Basis(Vector3.UP, float(slots[i][1])).scaled(Vector3.ONE * INDUSTRY_SCALE), Vector3(p.x, _ground(p), p.y)))
+		if building_now.has(sid) and n < slots.size():
+			var p: Vector2 = slots[n][0]
+			var key := ["scaffold", Vector2i(int(p.x / CHUNK), int(p.y / CHUNK))]
+			if not lists.has(key):
+				lists[key] = []
+			lists[key].append(Transform3D(Basis(Vector3.UP, float(slots[n][1])).scaled(Vector3.ONE * INDUSTRY_SCALE), Vector3(p.x, _ground(p) + 0.45 * INDUSTRY_SCALE, p.y)))
+	for key: Array in _industry_nodes:
+		if not lists.has(key):
+			(_industry_nodes[key] as MultiMeshInstance3D).multimesh.instance_count = 0
+	for key: Array in lists:
+		var node := _industry_node(key)
+		if node == null:
+			continue
+		var arr: Array = lists[key]
+		var mm := node.multimesh
+		mm.instance_count = arr.size()
+		for i in arr.size():
+			mm.set_instance_transform(i, arr[i])
+	if OS.has_environment("INDDBG"):
+		print("INDDBG nodes=%d states=%d" % [_industry_nodes.size(), _industry_slots.size()])
