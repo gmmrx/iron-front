@@ -1,0 +1,14 @@
+{
+  "mesh_vertices": 53490,
+  "polygons": 53462,
+  "triangles": 106280,
+  "height_metres": 1.769,
+  "textures": [
+    "/Users/bugra/Desktop/work/history-strategy/art/prototypes/turkish_infantry_v01/textures/turkish_infantry_basecolor_2k.png",
+    "/Users/bugra/Desktop/work/history-strategy/art/prototypes/turkish_infantry_v01/textures/turkish_infantry_normal_2k.png",
+    "/Users/bugra/Desktop/work/history-strategy/art/prototypes/turkish_infantry_v01/textures/turkish_infantry_roughness_2k.png"
+  ],
+  "rigged": false,
+  "automated_image_to_3d": false,
+  "method": "manual volume construction and reference albedo projection; procedural materials baked to 2K atlases"
+}

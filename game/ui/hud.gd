@@ -64,8 +64,8 @@ func _ready() -> void:
 	feed = NotificationFeed.new()
 	root.add_child(feed)
 	task_bar = HBoxContainer.new()
-	task_bar.position = Vector2(12, 70)
-	task_bar.add_theme_constant_override("separation", 6)
+	task_bar.position = Vector2(114, 46)
+	task_bar.add_theme_constant_override("separation", 3)
 	root.add_child(task_bar)
 	var tasks := [
 		["TASK_POLITICS", "politics", toggle_politics], ["TASK_FOCUS", "politics", toggle_focus],
@@ -79,7 +79,7 @@ func _ready() -> void:
 		b.icon = UiTheme.icon(t[1])
 		b.expand_icon = true
 		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.add_theme_constant_override("icon_max_width", 40)
+		b.add_theme_constant_override("icon_max_width", 24)
 		for stn: String in ["normal", "hover", "pressed"]:
 			var sb2 := StyleBoxFlat.new()
 			sb2.bg_color = Color(0.07, 0.08, 0.1, 0.96) if stn == "normal" else Color(0.14, 0.15, 0.18, 0.98)
@@ -92,13 +92,13 @@ func _ready() -> void:
 		var label: String = tr(t[0])
 		var tipkey: String = "TIP_" + String(t[0]).replace("_KEY", "")
 		b.tooltip_text = "%s\n%s" % [label, tr(tipkey)]
-		b.custom_minimum_size = Vector2(48, 48)
+		b.custom_minimum_size = Vector2(56, 34)
 		b.pressed.connect(t[2])
 		var m := RegEx.create_from_string("\\(([^)]+)\\)").search(label)
 		if m:
-			var k := UiTheme.make_label(m.get_string(1), 12, UiTheme.ACCENT)
+			var k := UiTheme.make_label(m.get_string(1), 11, UiTheme.ACCENT)
 			k.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			k.position = Vector2(34, 30)
+			k.position = Vector2(40, 17)
 			k.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 			b.add_child(k)
 		task_bar.add_child(b)
@@ -132,7 +132,7 @@ func _ready() -> void:
 		diplomacy.open_for(tag))
 
 const SIDE_X := 12.0
-const SIDE_Y := 122.0
+const SIDE_Y := 96.0
 
 ## Yan paneller: sol kenara sabit, başlıkta kapatma düğmesi, açılırken kayarak gelir
 func _decorate_side_panel(p: Control) -> void:

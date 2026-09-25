@@ -361,6 +361,8 @@ Kaynak: hoi4.paradoxwikis.com/Beginner's_guide (üst çubuk, sol menüler, harit
 - [x] Üst çubuk: siyasi güç, istikrar, savaş desteği, insan gücü, fabrikalar, yakıt, gerginlik, tarih/hız
 - [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), komuta gücü (+0,3/gün,
       savaşta +0,5; tavan 200), kara/deniz/hava tecrübesi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
+- [x] HUD düzeni türün klasiği gibi (25 Eyl): bayrak · kompakt gösterge hücreleri (yakıt/ikmal çubuklu) · komuta+tecrübe grubu;
+      altında kısayol harfli menü düğmeleri (Q F I O R T Y U N H L) ve uyarı kutuları; yan paneller ikinci satırın altında
 - [x] Lojistik ekranı (L): ekipman stok / kullanımda / günlük üretim / ihtiyaç / denge, kaynak üretim-kullanım, fabrika kullanımı
 - [x] Mevcut ekranlar: Hükümet (yasalar, danışmanlar, ruhlar, kararlar), Odak, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim,
       Ordu, Donanma, Hava

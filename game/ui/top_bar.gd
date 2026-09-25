@@ -41,42 +41,54 @@ class PlayPauseIcon extends Control:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	custom_minimum_size.y = 58
+	custom_minimum_size.y = 84
 	var sb := UiTheme.textured("topbar", 10, 8)
 	sb.content_margin_top = 5
 	sb.content_margin_bottom = 5
 	sb.content_margin_left = 10
 	add_theme_stylebox_override("panel", sb)
 
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 14)
-	add_child(row)
+	var outer := HBoxContainer.new()
+	outer.add_theme_constant_override("separation", 10)
+	add_child(outer)
 
 	# --- ülke
 	var flag_frame := PanelContainer.new()
 	var fsb := UiTheme.panel_style(Color.BLACK, UiTheme.ACCENT)
-	fsb.set_content_margin_all(1)
-	fsb.shadow_size = 0
+	fsb.set_content_margin_all(2)
 	flag_frame.add_theme_stylebox_override("panel", fsb)
+	flag_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	flag_frame.mouse_filter = Control.MOUSE_FILTER_STOP
+	var fcol := VBoxContainer.new()
+	fcol.add_theme_constant_override("separation", 0)
 	_flag = TextureRect.new()
-	_flag.custom_minimum_size = Vector2(66, 44)
+	_flag.custom_minimum_size = Vector2(88, 52)
 	_flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_flag.stretch_mode = TextureRect.STRETCH_SCALE
-	flag_frame.add_child(_flag)
-	flag_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(flag_frame)
+	_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fcol.add_child(_flag)
+	_name = UiTheme.make_label("", 12, UiTheme.ACCENT)
+	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_name.clip_text = true
+	_name.custom_minimum_size.x = 88
+	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fcol.add_child(_name)
+	_leader = UiTheme.make_label("", 12, UiTheme.TEXT_DIM)   # yalnız ipucunda kullanılır
+	flag_frame.add_child(fcol)
+	outer.add_child(flag_frame)
 
-	var name_box := VBoxContainer.new()
-	name_box.add_theme_constant_override("separation", -4)
-	name_box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	name_box.custom_minimum_size.x = 230
-	_name = UiTheme.make_label("", 22, UiTheme.ACCENT)
-	_name.add_theme_font_override("font", UiTheme.title_font())
-	_leader = UiTheme.make_label("", 15, UiTheme.TEXT_DIM)
-	name_box.add_child(_name)
-	name_box.add_child(_leader)
-	row.add_child(name_box)
-	row.add_child(VSeparator.new())
+	# bayrağın sağı: üstte göstergeler, altta görev düğmeleri için boşluk (HUD görev çubuğu buraya oturur)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 4)
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	outer.add_child(stack)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
+	stack.add_child(row)
+	var task_slot := Control.new()
+	task_slot.custom_minimum_size.y = 36
+	task_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(task_slot)
 
 	# --- göstergeler
 	_pp = _stat(row, ResourceIcon.Kind.POLITICAL_POWER, "UI_POLITICAL_POWER_TIP")
@@ -84,23 +96,23 @@ func _ready() -> void:
 	_war_support = _stat(row, ResourceIcon.Kind.WAR_SUPPORT, "UI_WAR_SUPPORT_TIP")
 	_manpower = _stat(row, ResourceIcon.Kind.MANPOWER, "UI_MANPOWER_TIP")
 	_factories = _stat(row, ResourceIcon.Kind.FACTORY, "UI_FACTORIES_TIP")
-	_factories.custom_minimum_size.x = 70
 	_fuel = _stat(row, ResourceIcon.Kind.FUEL, "UI_FUEL_TIP")
 	_supply = _stat(row, ResourceIcon.Kind.SUPPLY, "UI_SUPPLY_TIP")
 	_convoys = _stat(row, ResourceIcon.Kind.CONVOY, "UI_CONVOY_TIP")
+	var gap := Control.new()
+	gap.custom_minimum_size.x = 10
+	row.add_child(gap)
 	_command = _stat(row, ResourceIcon.Kind.COMMAND, "UI_COMMAND_TIP")
 	_xp_army = _stat(row, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
 	_xp_navy = _stat(row, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
 	_xp_air = _stat(row, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
-	for l: Label in [_xp_army, _xp_navy, _xp_air, _command, _supply, _convoys]:
-		l.custom_minimum_size.x = 30
 
-	_tension = UiTheme.make_label("", 18, UiTheme.TEXT)
+	_tension = UiTheme.make_label("", 15, UiTheme.TEXT)
 	_tension.add_theme_font_override("font", UiTheme.bold_font())
 	_tension.mouse_filter = Control.MOUSE_FILTER_STOP
 	_tension.tooltip_text = tr("TIP_TENSION")
 	row.add_child(_tension)
-	_war = UiTheme.make_label("", 18, UiTheme.BAD)
+	_war = UiTheme.make_label("", 15, UiTheme.BAD)
 	_war.add_theme_font_override("font", UiTheme.bold_font())
 	_war.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.add_child(_war)
@@ -111,8 +123,8 @@ func _ready() -> void:
 	# --- tarih & hız
 	var date_panel := PanelContainer.new()
 	date_panel.add_theme_stylebox_override("panel", UiTheme.panel_style(Color(0, 0, 0, 0.35), UiTheme.BORDER_DIM))
-	date_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(date_panel)
+	date_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	outer.add_child(date_panel)
 	var drow := HBoxContainer.new()
 	drow.add_theme_constant_override("separation", 10)
 	date_panel.add_child(drow)
@@ -122,8 +134,8 @@ func _ready() -> void:
 
 	var dcol := VBoxContainer.new()
 	dcol.add_theme_constant_override("separation", -2)
-	dcol.custom_minimum_size.x = 190
-	_date = UiTheme.make_label("", 20)
+	dcol.custom_minimum_size.x = 170
+	_date = UiTheme.make_label("", 17)
 	_date.add_theme_font_override("font", UiTheme.bold_font())
 	_date.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	dcol.add_child(_date)
@@ -152,28 +164,73 @@ func _ready() -> void:
 	_update_date()
 	_update_time_state()
 
+var _bars := {}   ## kind -> [arka, dolgu] (yakıt, ikmal)
+
 func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label:
+	var cell := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.02, 0.03, 0.04, 0.55)
+	sb.border_color = UiTheme.BORDER_DIM
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(3)
+	sb.content_margin_left = 6
+	sb.content_margin_right = 7
+	sb.content_margin_top = 2
+	sb.content_margin_bottom = 2
+	cell.add_theme_stylebox_override("panel", sb)
+	cell.tooltip_text = tr(tip_key)
+	cell.mouse_filter = Control.MOUSE_FILTER_STOP
+	cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var box := HBoxContainer.new()
-	box.add_theme_constant_override("separation", 5)
-	box.tooltip_text = tr(tip_key)
-	box.mouse_filter = Control.MOUSE_FILTER_STOP
-	box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	box.add_theme_constant_override("separation", 4)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cell.add_child(box)
 	if ResourceIcon.FILES.has(kind):
 		var icon := TextureRect.new()
 		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
-		icon.custom_minimum_size = Vector2(34, 34)
+		icon.custom_minimum_size = Vector2(22, 22)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		box.add_child(icon)
 	else:
-		box.add_child(ResourceIcon.new(kind))   # simge dosyası yoksa vektörel çizim
-	var l := UiTheme.make_label("", 20)
+		var ri := ResourceIcon.new(kind)
+		ri.custom_minimum_size = Vector2(22, 22)
+		ri.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		box.add_child(ri)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 1)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(col)
+	var l := UiTheme.make_label("", 15)
 	l.add_theme_font_override("font", UiTheme.bold_font())
-	l.custom_minimum_size.x = 64
-	box.add_child(l)
-	parent.add_child(box)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(l)
+	if kind in [ResourceIcon.Kind.FUEL, ResourceIcon.Kind.SUPPLY]:
+		var back := ColorRect.new()
+		back.color = Color(0, 0, 0, 0.6)
+		back.custom_minimum_size = Vector2(40, 4)
+		back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var fill := ColorRect.new()
+		fill.color = UiTheme.GOOD
+		fill.size = Vector2(40, 4)
+		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		back.add_child(fill)
+		col.add_child(back)
+		_bars[kind] = [back, fill]
+	parent.add_child(cell)
 	return l
+
+func _set_bar(kind: ResourceIcon.Kind, ratio: float) -> void:
+	if not _bars.has(kind):
+		return
+	var fill: ColorRect = _bars[kind][1]
+	fill.size.x = 40.0 * clampf(ratio, 0.0, 1.0)
+	fill.color = UiTheme.GOOD if ratio > 0.5 else (Color(0.9, 0.75, 0.3) if ratio > 0.2 else UiTheme.BAD)
+
+func _cell_of(l: Label) -> Control:
+	return l.get_parent().get_parent().get_parent()
 
 func _update_country() -> void:
 	var c := World.player()
@@ -184,12 +241,12 @@ func _update_country() -> void:
 	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
 	_leader.text = "%s — %s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
 	_pp.text = "%d" % int(c.political_power)
-	_pp.get_parent().tooltip_text = tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()]
+	_cell_of(_pp).tooltip_text = tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()]
 	_stability.text = "%d%%" % roundi(c.stability * 100)
 	_war_support.text = "%d%%" % roundi(c.war_support * 100)
-	_stability.get_parent().tooltip_text = tr("TIP_STABILITY")
-	_war_support.get_parent().tooltip_text = tr("TIP_WAR_SUPPORT")
-	_manpower.get_parent().tooltip_text = tr("TIP_MANPOWER") % [UiTheme.format_number(c.recruitable_manpower()), Economy.law_name("conscription", c.laws["conscription"])]
+	_cell_of(_stability).tooltip_text = tr("TIP_STABILITY")
+	_cell_of(_war_support).tooltip_text = tr("TIP_WAR_SUPPORT")
+	_cell_of(_manpower).tooltip_text = tr("TIP_MANPOWER") % [UiTheme.format_number(c.recruitable_manpower()), Economy.law_name("conscription", c.laws["conscription"])]
 	_manpower.text = UiTheme.format_number(c.recruitable_manpower())
 	_factories.text = "%d / %d" % [Economy.count(c, "civilian_factory"), Economy.count(c, "military_factory")]
 	var tip := tr("UI_FACTORIES_TIP") + "\n" + tr("CONSTRUCTION_SUMMARY") % [Economy.count(c, "civilian_factory"), Economy.consumer_goods_factories(c), Economy.available_civilian(c)]
@@ -198,11 +255,12 @@ func _update_country() -> void:
 		var n := Economy.resource_total(c, r)
 		if n > 0:
 			tip += "\n%s: %d" % [tr("RES_" + r), n]
-	_factories.get_parent().tooltip_text = tip
+	_cell_of(_factories).tooltip_text = tip
 	var fcap := maxf(c.fuel_cap, 1.0)
 	_fuel.text = "%d%%" % roundi(maxf(c.fuel, 0.0) / fcap * 100.0)
+	_set_bar(ResourceIcon.Kind.FUEL, maxf(c.fuel, 0.0) / fcap)
 	_fuel.add_theme_color_override("font_color", Color(0.95, 0.4, 0.3) if c.fuel <= fcap * 0.1 and c.fuel >= 0.0 else UiTheme.TEXT)
-	_fuel.get_parent().tooltip_text = tr("UI_FUEL_TIP") + "\n" + tr("UI_FUEL_DETAIL") % [UiTheme.format_number(roundi(maxf(c.fuel, 0.0))), UiTheme.format_number(roundi(fcap))]
+	_cell_of(_fuel).tooltip_text = tr("UI_FUEL_TIP") + "\n" + tr("UI_FUEL_DETAIL") % [UiTheme.format_number(roundi(maxf(c.fuel, 0.0))), UiTheme.format_number(roundi(fcap))]
 	# ikmal doluluğu: ikmalli tümen oranı
 	var divs := Military.country_divisions(c.tag)
 	var sup := 0
@@ -211,8 +269,9 @@ func _update_country() -> void:
 			sup += 1
 	var sup_pct := 100 if divs.is_empty() else roundi(100.0 * sup / divs.size())
 	_supply.text = "%d%%" % sup_pct
+	_set_bar(ResourceIcon.Kind.SUPPLY, sup_pct / 100.0)
 	_supply.add_theme_color_override("font_color", UiTheme.BAD if sup_pct < 80 else UiTheme.TEXT)
-	_supply.get_parent().tooltip_text = tr("UI_SUPPLY_TIP") + "\n" + tr("UI_SUPPLY_DETAIL") % [sup, divs.size()]
+	_cell_of(_supply).tooltip_text = tr("UI_SUPPLY_TIP") + "\n" + tr("UI_SUPPLY_DETAIL") % [sup, divs.size()]
 	# konvoylar: stok / ithalat ihtiyacı
 	var conv := int(c.stockpile.get("convoy", 0.0))
 	var need := 0.0
@@ -220,9 +279,9 @@ func _update_country() -> void:
 		need += float(i["amount"]) * 0.5
 	_convoys.text = "%d" % conv
 	_convoys.add_theme_color_override("font_color", UiTheme.BAD if float(conv) < need else UiTheme.TEXT)
-	_convoys.get_parent().tooltip_text = tr("UI_CONVOY_TIP") + "\n" + tr("UI_CONVOY_DETAIL") % [conv, ceili(need)]
+	_cell_of(_convoys).tooltip_text = tr("UI_CONVOY_TIP") + "\n" + tr("UI_CONVOY_DETAIL") % [conv, ceili(need)]
 	_command.text = "%d" % int(c.command_power)
-	_command.get_parent().tooltip_text = tr("UI_COMMAND_TIP") % (0.5 if Diplomacy.at_war(c.tag) else 0.3)
+	_cell_of(_command).tooltip_text = tr("UI_COMMAND_TIP") % (0.5 if Diplomacy.at_war(c.tag) else 0.3)
 	_xp_army.text = "%d" % int(c.army_xp)
 	_xp_navy.text = "%d" % int(c.navy_xp)
 	_xp_air.text = "%d" % int(c.air_xp)
