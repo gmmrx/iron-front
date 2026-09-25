@@ -487,6 +487,9 @@ func _fronts(c: Country) -> Dictionary:
 						var city := World.province(n).city
 						var value := 1.0 + (city.victory_points if city else 0) * 0.5
 						var sc := value / (1.0 + foes * 1.5)
+						var oc: Country = World.owner_of_province(n)
+						if oc and not oc.is_major():
+							sc *= 2.0   # küçük komşu önce (Belçika/Hollanda yolu)
 						var k: int = ctl[n]
 						if not spear.has(k):
 							spear[k] = []
@@ -546,7 +549,8 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 			continue
 		if fronts.has(d.province):
 			own[d.province] = int(own[d.province]) + 1
-			if int(own[d.province]) <= 3:
+			# ana taarruz noktasında (Schwerpunkt, tehdit ×6) 6 tümene kadar yığınak, diğer cephe bölgelerinde 3
+			if int(own[d.province]) <= (6 if float(fronts[d.province]) >= 6.0 else 3):
 				continue
 		if d.is_moving():
 			if fronts.has(d.path[d.path.size() - 1]):
@@ -608,6 +612,21 @@ func _cautious_vs_major(c: Country, enemy_tag: String) -> bool:
 	var e: Country = World.countries.get(enemy_tag)
 	return e != null and e.is_major() and e.surrender_progress < 0.4
 
+## Büyük güçler birbirinin anavatanına savaşın ilk 240 gününde taarruz etmez (seferberlik + plan: Almanya
+## Fransa'ya Eylül 1939'da değil Mayıs 1940'ta saldırdı); düşman kendi toprağımıza girdiyse serbest
+func _holds_fire(c: Country, enemy_tag: String) -> bool:
+	if not c.is_major():
+		return false
+	var e: Country = World.countries.get(enemy_tag)
+	if e == null or not e.is_major():
+		return false
+	if Diplomacy.days_at_war(c.tag) >= 240:
+		return false
+	for sid in c.states:
+		if World.controller_tag(World.states[sid].provinces[0]) == enemy_tag:
+			return false
+	return true
+
 func _flank_safe(tag: String, target: int, from: int) -> bool:
 	var city := World.province(target).city
 	if city and city.is_capital:
@@ -640,7 +659,7 @@ func _attack(c: Country) -> void:
 			var ctl := World.controller_tag(n)
 			if not Diplomacy.are_enemies(ctl, c.tag):
 				continue
-			if phoney or _cautious_vs_major(c, ctl):
+			if phoney or _cautious_vs_major(c, ctl) or _holds_fire(c, ctl):
 				var st := World.state_of_province(n)
 				if st == null or not (st.owner == c.tag or Diplomacy.are_allies(st.owner, c.tag)):
 					continue
@@ -658,7 +677,9 @@ func _attack(c: Country) -> void:
 			if ratio > best_ratio:
 				best_ratio = ratio
 				best = n
-		if best == 0 or best_ratio < 1.25:
+		# demokrasiler 1,25; saldırgan büyük güçler (Blitzkrieg) 1,1 yerel üstünlükte taarruz eder
+		var need := 1.25 if c.ideology == "democratic" or not c.is_major() else 1.1
+		if best == 0 or best_ratio < need:
 			continue
 		# en az bir tümen savunmada kalsın (tek başına değilse)
 		var go := here.size() - (1 if here.size() > 2 else 0)

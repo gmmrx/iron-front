@@ -168,9 +168,12 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
       teslim oluyor. Düzeltmeler: AI cephe bütünlüğü (yalnız dost bölgeye de değen boş bölgeye ilerler),
       deniz güçleri küçük ordu (İngiltere ×0,5, ABD ×0,6), demokrasilere ilk 270 gün saldırı cezası (−%25)
       → Almanya ayakta 0/6 → 2/6, Fransa düşer 1/6 → 3/6
-- [ ] 1939–41 akışı tutarlı olmalı (sıradaki): anavatan savunması / cephe atama (C1) ile birlikte çözülecek: şu an simülasyonların bir kısmında Almanya Şubat 1940'ta, İngiltere
-      Haziran 1940'ta teslim oluyor (donanmadan bağımsız, eski sürümde de var) → teslim formülü, AI saldırı
-      yoğunluğu, sömürge ağırlığı, ikmal etkisi ayarlanacak; 10 simülasyonluk otomatik denge testi
+- [x] 1939–41 akışı (25 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6 — Polonya Eyl–Ara 1939 düşer, Almanya/İngiltere/SSCB/İtalya
+      ayakta, Barbarossa 1941-07. Düzeltmeler: AI ordusu tek düşmanı hedefler (müttefik cephesine yayılmaz), ordu başına
+      tavan, her cephe bölgesine garnizon, büyük güçler arası ilk 240 gün taarruz yok, demokrasiler sağlam büyük güce
+      saldırmaz ("garip savaş"), tümenler dolmadan yenisi kurulmaz, doktrin ruhları (Blitzkrieg +%25 saldırı, Maginot −%30,
+      Büyük Temizlik −%30, hazırlıksız ordu), Alman odak süreleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
+- [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
 - [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
 - [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
 
