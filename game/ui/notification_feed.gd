@@ -9,7 +9,7 @@ const BIG_LIFE := 9.0
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	grow_horizontal = Control.GROW_DIRECTION_BOTH
-	offset_top = 106
+	offset_top = 130
 	custom_minimum_size.x = 640
 	alignment = BoxContainer.ALIGNMENT_BEGIN
 	mouse_filter = Control.MOUSE_FILTER_IGNORE

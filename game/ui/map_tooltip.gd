@@ -54,6 +54,7 @@ func _ready() -> void:
 func _section(parent: VBoxContainer, font_size: int, color: Color) -> Label:
 	var l := UiTheme.make_label("", font_size, color)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size.x = 392.0   # sarmalama genişliği sabit: yerleşimden önce yükseklik binlerce satıra fırlıyordu (dev boş kart)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(l)
 	return l

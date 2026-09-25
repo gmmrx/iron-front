@@ -4,3 +4,4 @@ tools/cache/
 .DS_Store
 data/map/heightmap.r32
 build/
+topbar.png

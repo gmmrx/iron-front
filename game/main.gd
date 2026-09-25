@@ -481,6 +481,26 @@ func _handle_dev_args() -> void:
 				st.append_array(nd.get_children())
 		get_tree().quit()
 		return
+	if args.has("click"):
+		# test: ekran koordinatına sol tık (basma + bırakma) enjekte et: --click=x,y[;x2,y2]
+		for i in 20:
+			await get_tree().process_frame
+		for pt: String in args["click"].split(";"):
+			var xy: PackedStringArray = pt.split(",")
+			var pos := Vector2(float(xy[0]), float(xy[1]))
+			var mv := InputEventMouseMotion.new()
+			mv.position = pos
+			mv.global_position = pos
+			Input.parse_input_event(mv)
+			await get_tree().process_frame
+			for pressed in [true, false]:
+				var ev := InputEventMouseButton.new()
+				ev.button_index = MOUSE_BUTTON_LEFT
+				ev.pressed = pressed
+				ev.position = pos
+				ev.global_position = pos
+				Input.parse_input_event(ev)
+				await get_tree().process_frame
 	if args.has("screenshot"):
 		for i in (int(args["wait"]) if args.has("wait") else 40):
 			await get_tree().process_frame
@@ -758,7 +778,10 @@ func _setup_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT:
-			var owner := World.owner_of_province(_pick(mb.position))
+			var pid := _pick(mb.position)
+			var owner := World.owner_of_province(pid)
+			if OS.has_environment("SETUPDBG"):
+				print("SETUPDBG click ", mb.position, " pid=", pid, " owner=", owner.tag if owner else "-")
 			if owner:
 				_select.select(owner.tag)
 		elif mb.button_index == MOUSE_BUTTON_WHEEL_UP:

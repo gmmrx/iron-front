@@ -1,5 +1,5 @@
 class_name TopBar
-extends PanelContainer
+extends Control
 ## Üst bar: oyuncu ülkesi, temel göstergeler, tarih ve hız kontrolü.
 
 var _flag: TextureRect
@@ -39,50 +39,74 @@ class PlayPauseIcon extends Control:
 			draw_rect(Rect2(c + Vector2(-6, -7), Vector2(4, 14)), col)
 			draw_rect(Rect2(c + Vector2(2, -7), Vector2(4, 14)), col)
 
+## Türün klasiği düzeni: sol üstte blok — büyük çerçeveli bayrak; sağında üstte koyu metal şeritte gösterge hücreleri
+## (sağda komuta/tecrübe grubu ayrı), altında bayrağa dayalı menü düğmeleri (HUD `task_row`a ekler). Tarih/hız sağ üstte ayrı.
+var task_row: HBoxContainer
+const FLAG_W := 100
+const FLAG_H := 66
+
+static func _metal(bg: Color, border: Color, radius: int = 3, bw: int = 1) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(bw)
+	sb.set_corner_radius_all(radius)
+	sb.shadow_color = Color(0, 0, 0, 0.55)
+	sb.shadow_size = 3
+	sb.shadow_offset = Vector2(0, 2)
+	return sb
+
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	custom_minimum_size.y = 52
-	var sb := UiTheme.textured("topbar", 10, 8)
-	sb.content_margin_top = 5
-	sb.content_margin_bottom = 5
-	sb.content_margin_left = 10
-	add_theme_stylebox_override("panel", sb)
+	custom_minimum_size.y = 120
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var outer := HBoxContainer.new()
-	outer.add_theme_constant_override("separation", 10)
-	add_child(outer)
+	var block := HBoxContainer.new()
+	block.add_theme_constant_override("separation", 0)
+	block.position = Vector2(8, 6)
+	add_child(block)
 
-	# --- ülke
+	# --- bayrak: çift çerçeve (dış koyu metal, iç altın hat)
 	var flag_frame := PanelContainer.new()
-	var fsb := UiTheme.panel_style(Color.BLACK, UiTheme.ACCENT)
-	fsb.set_content_margin_all(2)
-	flag_frame.add_theme_stylebox_override("panel", fsb)
-	flag_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	flag_frame.add_theme_stylebox_override("panel", _metal(Color(0.09, 0.095, 0.10), Color(0.02, 0.02, 0.02), 3, 2))
 	flag_frame.mouse_filter = Control.MOUSE_FILTER_STOP
-	var fcol := VBoxContainer.new()
-	fcol.add_theme_constant_override("separation", 0)
+	var inner := PanelContainer.new()
+	var isb := StyleBoxFlat.new()
+	isb.bg_color = Color.BLACK
+	isb.border_color = UiTheme.BORDER
+	isb.set_border_width_all(1)
+	isb.set_content_margin_all(2)
+	inner.add_theme_stylebox_override("panel", isb)
+	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_flag = TextureRect.new()
-	_flag.custom_minimum_size = Vector2(64, 40)
+	_flag.custom_minimum_size = Vector2(FLAG_W, FLAG_H)
 	_flag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_flag.stretch_mode = TextureRect.STRETCH_SCALE
 	_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	fcol.add_child(_flag)
-	_name = UiTheme.make_label("", 16, UiTheme.ACCENT)
-	_name.add_theme_font_override("font", UiTheme.title_font())
-	_name.clip_text = true
-	_name.custom_minimum_size.x = 150
-	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_leader = UiTheme.make_label("", 12, UiTheme.TEXT_DIM)   # yalnız ipucunda kullanılır
-	flag_frame.add_child(fcol)
-	outer.add_child(flag_frame)
+	inner.add_child(_flag)
+	flag_frame.add_child(inner)
+	block.add_child(flag_frame)
+	_name = UiTheme.make_label("", 12)      # yalnız ipucu metni için tutulur
+	_leader = UiTheme.make_label("", 12)
 
+	# --- bayrağın sağı: üstte gösterge şeridi, altta menü düğmeleri
+	var right := VBoxContainer.new()
+	right.add_theme_constant_override("separation", 2)
+	block.add_child(right)
+
+	var strip := PanelContainer.new()
+	var ssb := _metal(Color(0.11, 0.115, 0.12, 0.97), Color(0.03, 0.03, 0.03), 2, 1)
+	ssb.content_margin_left = 6
+	ssb.content_margin_right = 8
+	ssb.content_margin_top = 3
+	ssb.content_margin_bottom = 3
+	strip.add_theme_stylebox_override("panel", ssb)
+	strip.mouse_filter = Control.MOUSE_FILTER_STOP
+	right.add_child(strip)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 5)
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer.add_child(row)
+	row.add_theme_constant_override("separation", 4)
+	strip.add_child(row)
 
-	# --- göstergeler
 	_pp = _stat(row, ResourceIcon.Kind.POLITICAL_POWER, "UI_POLITICAL_POWER_TIP")
 	_stability = _stat(row, ResourceIcon.Kind.STABILITY, "UI_STABILITY_TIP")
 	_war_support = _stat(row, ResourceIcon.Kind.WAR_SUPPORT, "UI_WAR_SUPPORT_TIP")
@@ -91,37 +115,58 @@ func _ready() -> void:
 	_fuel = _stat(row, ResourceIcon.Kind.FUEL, "UI_FUEL_TIP")
 	_supply = _stat(row, ResourceIcon.Kind.SUPPLY, "UI_SUPPLY_TIP")
 	_convoys = _stat(row, ResourceIcon.Kind.CONVOY, "UI_CONVOY_TIP")
+	_tension = _stat(row, ResourceIcon.Kind.TENSION, "TIP_TENSION")
+	_war = _stat(row, ResourceIcon.Kind.WAR, "TIP_AT_WAR_SHORT")
+	_war.add_theme_color_override("font_color", UiTheme.BAD)
+	_cell_of(_war).visible = false
+	# ayrı grup: komuta gücü + tecrübe (referanstaki sağ kutu)
 	var gap := Control.new()
-	gap.custom_minimum_size.x = 10
+	gap.custom_minimum_size.x = 14
+	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(gap)
 	_command = _stat(row, ResourceIcon.Kind.COMMAND, "UI_COMMAND_TIP")
 	_xp_army = _stat(row, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
 	_xp_navy = _stat(row, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
 	_xp_air = _stat(row, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
 
-	_tension = _stat(row, ResourceIcon.Kind.TENSION, "TIP_TENSION")
-	_war = _stat(row, ResourceIcon.Kind.WAR, "TIP_AT_WAR_SHORT")
-	_war.add_theme_color_override("font_color", UiTheme.BAD)
-	_cell_of(_war).visible = false
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer)
+	var tray := PanelContainer.new()
+	var tsb := _metal(Color(0.13, 0.135, 0.14, 0.97), Color(0.03, 0.03, 0.03), 2, 1)
+	tsb.content_margin_left = 4
+	tsb.content_margin_right = 6
+	tsb.content_margin_top = 3
+	tsb.content_margin_bottom = 3
+	tray.add_theme_stylebox_override("panel", tsb)
+	tray.mouse_filter = Control.MOUSE_FILTER_STOP
+	tray.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	right.add_child(tray)
+	task_row = HBoxContainer.new()
+	task_row.add_theme_constant_override("separation", 3)
+	tray.add_child(task_row)
 
-	# --- tarih & hız
+	# --- tarih & hız: sağ üst köşe, ayrı panel
 	var date_panel := PanelContainer.new()
-	date_panel.add_theme_stylebox_override("panel", UiTheme.panel_style(Color(0, 0, 0, 0.35), UiTheme.BORDER_DIM))
-	date_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	outer.add_child(date_panel)
+	date_panel.add_theme_stylebox_override("panel", _metal(Color(0.11, 0.115, 0.12, 0.97), Color(0.03, 0.03, 0.03), 2, 1))
+	add_child(date_panel)
+	date_panel.anchor_left = 1.0
+	date_panel.anchor_right = 1.0
+	date_panel.anchor_top = 0.0
+	date_panel.anchor_bottom = 0.0
+	date_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	var place_date := func() -> void:
+		date_panel.offset_right = -8
+		date_panel.offset_left = -8 - date_panel.get_combined_minimum_size().x
+		date_panel.offset_top = 6
+		date_panel.offset_bottom = 6 + date_panel.get_combined_minimum_size().y
+	date_panel.minimum_size_changed.connect(place_date)
+	place_date.call_deferred()
 	var drow := HBoxContainer.new()
-	drow.add_theme_constant_override("separation", 10)
+	drow.add_theme_constant_override("separation", 8)
 	date_panel.add_child(drow)
-
-	_pause_btn = UiTheme.icon_button("play", tr("UI_PAUSE_TIP"), GameClock.toggle_pause, 34)
+	_pause_btn = UiTheme.icon_button("play", tr("UI_PAUSE_TIP"), GameClock.toggle_pause, 32)
 	drow.add_child(_pause_btn)
-
 	var dcol := VBoxContainer.new()
 	dcol.add_theme_constant_override("separation", -2)
-	dcol.custom_minimum_size.x = 170
+	dcol.custom_minimum_size.x = 168
 	_date = UiTheme.make_label("", 17)
 	_date.add_theme_font_override("font", UiTheme.bold_font())
 	_date.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -138,7 +183,6 @@ func _ready() -> void:
 	pips_row.add_child(_pause_label)
 	dcol.add_child(pips_row)
 	drow.add_child(dcol)
-
 	drow.add_child(UiTheme.icon_button("minus", tr("TIP_SPEED_DOWN"), func() -> void: GameClock.change_speed(-1)))
 	drow.add_child(UiTheme.icon_button("plus", tr("TIP_SPEED_UP"), func() -> void: GameClock.change_speed(1)))
 
@@ -156,10 +200,10 @@ var _bars := {}   ## kind -> [arka, dolgu] (yakıt, ikmal)
 func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label:
 	var cell := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.02, 0.03, 0.04, 0.55)
-	sb.border_color = UiTheme.BORDER_DIM
+	sb.bg_color = Color(0.035, 0.038, 0.04, 0.95)
+	sb.border_color = Color(0.0, 0.0, 0.0, 0.9)
 	sb.set_border_width_all(1)
-	sb.set_corner_radius_all(3)
+	sb.set_corner_radius_all(2)
 	sb.content_margin_left = 7
 	sb.content_margin_right = 9
 	sb.content_margin_top = 3
@@ -175,7 +219,8 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 	if ResourceIcon.FILES.has(kind):
 		var icon := TextureRect.new()
 		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
-		icon.custom_minimum_size = Vector2(27, 27)
+		icon.custom_minimum_size = Vector2(28, 28)
+		icon.modulate = Color(1.25, 1.2, 1.1)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
