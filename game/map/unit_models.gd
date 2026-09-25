@@ -517,6 +517,7 @@ func _vquad(size: float, kind: int, tint := Color.WHITE, intensity := 1.0) -> Qu
 	if not _vfx_cache.has(key):
 		var m := ShaderMaterial.new()
 		m.shader = preload("res://assets/shaders/vfx.gdshader")
+		UnitModels.compat_material(m)
 		m.set_shader_parameter("kind", kind)
 		m.set_shader_parameter("tint", tint)
 		m.set_shader_parameter("intensity", intensity)

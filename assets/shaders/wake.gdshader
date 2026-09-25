@@ -1,6 +1,7 @@
 // Gemi seyir izi: kıçtan açılan V köpük + ortada çalkantı; UV.y = 0 kıç, 1 iz sonu. Akan gürültü.
 shader_type spatial;
 render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
+uniform bool srgb_out = false;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -26,6 +27,6 @@ void fragment() {
 	float c = smoothstep(0.22, 0.0, x) * (0.6 + 0.4 * noise(vec2(UV.x * 12.0, y * 20.0 - TIME * 3.0)));
 	float n = 0.55 + 0.45 * noise(vec2(UV.x * 30.0, y * 40.0 - TIME * 2.0));
 	float a = max(v * 0.8, c) * fade * n;
-	ALBEDO = vec3(0.92, 0.96, 1.0);
+	ALBEDO = srgb_out ? vec3(0.96, 0.98, 1.0) : vec3(0.92, 0.96, 1.0);
 	ALPHA = clamp(a * inten, 0.0, 0.85);
 }

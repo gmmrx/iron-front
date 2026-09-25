@@ -188,6 +188,13 @@ func _setup_environment() -> void:
 	env.fog_depth_begin = 3500.0
 	env.fog_depth_end = 12000.0
 	env.fog_density = 0.35
+	if UnitModels.COMPAT:
+		# Compatibility (web): glow/SSAO/renk ayarı açıkken GLES3 ton eşlemeyi LDR son işlemde yapar ve
+		# güneş gölgesi ayrı toplamalı geçişte çizilir; ikisi de görüntüyü Forward+'a göre çok parlatır.
+		# Kapatılınca iki renderer aynı sonucu verir (ölçüldü: ort. fark 9/255, kalan SSAO ayrıntısı).
+		env.ssao_enabled = false
+		env.glow_enabled = false
+		env.adjustment_enabled = false
 	_env = env
 	var we := WorldEnvironment.new()
 	we.environment = env
@@ -196,7 +203,7 @@ func _setup_environment() -> void:
 	sun.rotation = Vector3(deg_to_rad(-52), deg_to_rad(-35), 0)
 	sun.light_energy = 0.88
 	sun.light_color = Color(1.0, 0.96, 0.88)
-	sun.shadow_enabled = true
+	sun.shadow_enabled = not UnitModels.COMPAT
 	_sun = sun
 	sun.directional_shadow_max_distance = 450.0
 	add_child(sun)
@@ -344,6 +351,8 @@ func _handle_dev_args() -> void:
 				"msaa": get_viewport().msaa_3d = Viewport.MSAA_DISABLED
 				"clouds": map_view.set_camera_distance(0.0); map_view.process_mode = Node.PROCESS_MODE_DISABLED
 				"ui": hud.visible = false
+				"sun": _sun.light_energy = 0.0
+				"ambient": _env.ambient_light_energy = 0.0
 	if args.has("fps"):
 		# performans ölçümü: n saniye oyun akarken ortalama FPS ve süreler
 		var secs := float(args["fps"]) if args["fps"] != "" else 10.0

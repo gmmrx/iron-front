@@ -38,14 +38,16 @@ var airbase_sites: Dictionary = {}     ## eyalet id -> [konum (Vector2), yön (f
 const AIRBASE_RADIUS := 12.5           ## büyütülmüş pist için tamamen düzleştirilen yarıçap
 var _data_texture: ImageTexture
 var _palette_texture: ImageTexture
+var _province_la := false            ## bölge kimliği L + A*256 olarak kodlu (RGBA8'e çevrilse de)
 var labels: CountryLabels3D
 
 func _ready() -> void:
 	var terrain := Image.load_from_file(TERRAIN_PATH)
 	terrain.generate_mipmaps()
 	_province_image = Image.load_from_file(PROVINCES_PATH)
-	if _province_image.get_format() == Image.FORMAT_LA8 and OS.has_feature("web"):
-		_province_image.convert(Image.FORMAT_RGBA8)   # WebGL2'de LA8 yok; R=L, A=A korunur, çözümleme aynı kalır
+	_province_la = _province_image.get_format() == Image.FORMAT_LA8
+	if _province_la and UnitModels.COMPAT:
+		_province_image.convert(Image.FORMAT_RGBA8)   # GLES3/WebGL2'de LA8 yok; R=L, A=A korunur, çözümleme (R + A*256) aynı kalır
 	var borders := Image.load_from_file(BORDERS_PATH)
 	map_size = Vector2(_province_image.get_size())
 	_height_image = _load_heightmap()
@@ -272,7 +274,7 @@ func province_at(world_xz: Vector2) -> int:
 	if p.x < 0 or p.y < 0 or p.x >= _province_image.get_width() or p.y >= _province_image.get_height():
 		return 0
 	var c := _province_image.get_pixelv(p)
-	if _province_image.get_format() == Image.FORMAT_LA8:
+	if _province_la:
 		return c.r8 + c.a8 * 256
 	return c.r8 + c.g8 * 256 + c.b8 * 65536
 

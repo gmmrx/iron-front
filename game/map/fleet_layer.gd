@@ -69,6 +69,7 @@ func _ready() -> void:
 	q.orientation = PlaneMesh.FACE_Y
 	var wmat := ShaderMaterial.new()
 	wmat.shader = preload("res://assets/shaders/wake.gdshader")
+	UnitModels.compat_material(wmat)
 	q.material = wmat
 	wm.mesh = q
 	_wake = MultiMeshInstance3D.new()

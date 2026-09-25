@@ -5,6 +5,7 @@ render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabl
 
 uniform int kind = 0;
 uniform vec4 tint : source_color = vec4(1.0);
+uniform bool srgb_out = false;   // Compatibility (web) renderer: çıkış sRGB, koddan açılır
 uniform float intensity = 1.0;
 
 varying float seed;
@@ -85,5 +86,6 @@ void fragment() {
 		a = body * (1.0 - age);
 	}
 	ALBEDO = col * intensity;
+	if (srgb_out) { ALBEDO = pow(max(ALBEDO, vec3(0.0)), vec3(1.0 / 2.2)); }
 	ALPHA = clamp(a, 0.0, 1.0);
 }
