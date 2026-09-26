@@ -203,6 +203,12 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [x] Her ülke testi (`game/dev/country_check.gd`): oyuncu eylemleri oyunu etkiliyor, oyuncu adına otomatik iş yok
 - [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/odak/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
       çeviri tablosu), `tools/run_tests.sh`, GitHub Actions; dev betikleri sorun bulunca 1 ile çıkar
+- [x] Sistem senaryo testleri (73 test): ekonomi, ticaret, siyaset, diplomasi, kara savaşı, deniz/hava, kayıt/yükleme
+      (200 gün, alan alan), belirlenimcilik; bulunan hatalar düzeltildi (düşmanla ticaret, üyenin beyaz barışı, yüklemede
+      tercihlerin/bekleyen olayların/siperin kaybı, yüklemede 1936 ticareti, yeni oyunda eski önbellek)
+- [ ] Yapay zekânın "fırsat kollayıp sonra katılma" kuralı (`Diplomacy.ai_answers_call`) yazılmış ama bağlanmamış
+      (ittifak çağrısında İtalya'nın Haziran 1940'ı beklemesi); bağlamak dengeyi değiştirir — karar bekliyor
+- [ ] Oyuncu ordusu karadan ayrı cephe parçalarına (ör. Doğu Prusya) kendiliğinden deniz aşırı tümen göndermez
 
 ## BÖLÜM V — REHBER VİDEOLARINDAN OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
 Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve `game-tutorial-yt2-english.txt`

@@ -22,6 +22,23 @@ Test sırasında basılan motor/betik hatası (`push_error`, SCRIPT ERROR) da te
 Veri testleri (`tests/test_data.gd`) motorun tanıdığı etki ve koşul anahtarlarını `politics.gd`'den okur; yeni etki
 eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı olur.
 
+| Dosya | Kapsam |
+|---|---|
+| `test_data.gd` | Veri başvuruları, etki sözlüğü, çeviri tablosu |
+| `test_economy.gd` | İnşaat, bina yuvası, kamu inşaat tabanı, üretim verimliliği, kaynak açığı, tüketim malı |
+| `test_trade.gd` | Elle anlaşma, ödeme sınırı, düşmanla ticaret yok (oyuncu ve AI), otomatik ticaret, konvoy |
+| `test_politics.gd` | İstikrar/savaş desteği formülleri, yasa şartları, danışman, karar, süreli ruh, seçim, tarihli olay, kilitli seçenek |
+| `test_diplomacy.gd` | Gerekçe, gerginlik eşikleri, savaşa katılım, teslim ilerlemesi ve sınırı, eyalet devri, beyaz barış |
+| `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
+| `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
+| `test_military.gd` | Eğitim süresi (askerlik yasası) |
+| `test_save_load.gd` | 200 gün → kaydet → yükle: tüm alanlar aynı (fark eden alan adıyla yazılır) |
+| `test_determinism.gd` | Aynı tohumla iki koşu aynı dünya |
+
+Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıttaki tercihleri korunur);
+`World.start_game(tag)` yalnız yeni oyunda oyuncu varsayılanlarını kurar. Yeni bir ülke/tümen alanı eklerken kayda da ekle:
+`test_save_load.gd` kaydedilmeyen alanı adıyla yakalar (her gün yeniden hesaplanan alanlar `tests/snapshot.gd` DERIVED listesinde).
+
 ## Geliştirici argümanları (`godot --path . -- ...`)
 `--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
 `--target=TAG` (diplomasi), `--event=id[,FROM]`, `--select=PID`, `--days=N`, `--dist=N` (kamera), `--demo_order`,

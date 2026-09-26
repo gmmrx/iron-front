@@ -48,7 +48,7 @@ Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değişt
    açık tip yaz (`var x: bool = ...`). Autoload'lar: World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI,
    Game, GameClock, Audio.
 9. Oyuncunun ülkesi `World.player_tag`; `World.start_game(tag)` oyuncuya özgü varsayılanları (elle ticaret, elle kanat,
-   "son askere kadar") ayarlar. Kayıt/yükleme: `game/autoload/game.gd` — yeni ülke/tümen alanını kayda ekle.
+   "son askere kadar") ayarlar; kayıttan devamda `World.resume_game(tag)` (tercihler korunur). Kayıt/yükleme: `game/autoload/game.gd` — yeni ülke/tümen alanını kayda ekle.
 
 ## İş akışı
 - Her görev **ayrı branch + pull request**. **main'e doğrudan push yok** (main'e push web sürümünü yeniden yayınlar).
