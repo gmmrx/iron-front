@@ -601,7 +601,7 @@ func _local_power(divs: Array) -> float:
 	return p
 
 ## "Garip Savaş": demokrasiler savaşın ilk 8 ayında düşman anavatanına taarruz etmez,
-## yalnız kendi / müttefik toprağını geri alır (türün klasiklerinde 1939-40 müttefik AI'ı gibi)
+## yalnız kendi / müttefik toprağını geri alır (1939-40'taki tarihî müttefik tutumu gibi)
 const PHONEY_WAR_DAYS := 270          ## demokrasiler ilk 9 ay yalnız kendi/müttefik toprağını geri alır
 
 ## Demokrasiler sağlam bir büyük gücün anavatanına taarruz etmez (tarihte Müttefikler ancak Almanya çökerken

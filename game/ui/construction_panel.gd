@@ -1,6 +1,6 @@
 class_name ConstructionPanel
 extends PanelContainer
-## İnşaat ekranı (türün klasikleri "Construction"): bina seç, haritada eyalete tıkla -> kuyruk.
+## İnşaat ekranı: bina seç, haritada eyalete tıkla -> kuyruk.
 
 signal building_selected(building: String)
 

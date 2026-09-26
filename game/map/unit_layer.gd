@@ -3,7 +3,7 @@ extends Node3D
 ## Tümen sayaçları (bölge + ülke başına bir sayaç), seçim, hareket okları ve muharebe işaretleri.
 
 const PIXEL := 0.00042
-const FLAG_MODE := 1250.0          ## bu mesafeden uzakta sayı yerine küçük ülke bayrağı (her ülke için, türün klasiği gibi)
+const FLAG_MODE := 1250.0          ## bu mesafeden uzakta sayı yerine küçük ülke bayrağı (her ülke için)
 const HIDE_ALL := 3000.0           ## bu mesafeden uzakta hiç işaret yok: harita okunur, kare hızı korunur
 const LIFT := 5.0
 
@@ -448,7 +448,7 @@ func _draw_arrows() -> void:
 		for pid in d.path:
 			if Diplomacy.are_enemies(World.controller_tag(pid), d.owner):
 				hostile = true
-		# türün klasiği: hareket yeşil, düşman toprağına taarruz kırmızı
+		# hareket yeşil, düşman toprağına taarruz kırmızı
 		var cc := ARROW_ATTACK if hostile else ARROW_MOVE
 		arrows.append([_curve(pts), cc, d.path[d.path.size() - 1]])
 	if arrows.is_empty():

@@ -22,12 +22,12 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
 ### Şu an nerede? (özet)
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
   denge testi 6 koşunun 6'sında 12 kontrolün hepsini geçiyor.
-- **Hükümet modeli türün klasiği gibi**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
+- **Hükümet modeli**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
   gerginlik ve savaş durumuna bağlı savaş desteği, istikrarın fabrika/SG/tüketim malı etkileri, savaş desteğine bağlı teslim sınırı,
   şartlı yasalar, tarihli ve süreli milli ruhlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
 - **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı komuta/tecrübe kutusu, kısayol harfli menü; tüm yan paneller aynı
   çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), odak ağacı ve olay
-  penceresi türün klasiği düzeninde.
+  penceresi (arayüz kimliği BÖLÜM Ö Katman 2 ile yeniden tasarlanacak).
 - **Karar oyuncuda**: oyuncunun ticareti elle (otomatik ticaret isteğe bağlı), hava kanatları elle, tümenler "son askere kadar"
   (emir olmadan geri çekilmez), tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
 - Harita: daha koyu ve doygun; hareket okları yeşil/kırmızı, akan işaretli; uzak zoom'da sayı yerine ülke bayrakları, daha uzakta
@@ -46,7 +46,7 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
    Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
-5. **Mekanik paritesi** (aşağıdaki bölüm): Subay Heyeti, savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
+5. **Eksik mekanikler** (BÖLÜM M): genelkurmay (generaller, doktrinler), savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
 6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
 
 ---
@@ -85,7 +85,7 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
 ---
 
 ## BÖLÜM W — TÜM DÜNYA ✔ (Faz 11c)
-- [x] Miller silindirik projeksiyon (türün klasiklerindeki gibi), 16384 px; dikiş Bering Boğazı'nda, komşuluk dikişten sarmalanır
+- [x] Miller silindirik projeksiyon, 16384 px; dikiş Bering Boğazı'nda, komşuluk dikişten sarmalanır
 - [x] Değişken bölge yoğunluğu: Avrupa ayrıntılı; Doğu Asya/Hindistan 2–2,5x, Sibirya/Afrika/okyanus 5x
       → 13.414 bölge (8.812 kara, 1.901 ada, 2.134 deniz, 567 göl), 1.652 eyalet, 1.847 şehir
 - [x] Dünya yükseltisi (Terrarium z5 + Avrupa z6), enleme göre kar çizgisi, güney yarıküre biyomları
@@ -95,7 +95,7 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
 - [x] Bellek bütçesi (~750 MB): 16 bit bölge dokusu, yarım çözünürlük SDF/arazi, 128 parçalı harita ağı
 - [x] Kamera: görüş alanı hiçbir zoom'da haritadan taşmaz (kenar boşluğu yok); en uzak zoom tüm dünya; bulut yok
 - [x] Asya odakları: Japonya (Marco Polo 1937, Üçlü Pakt, Güneye Saldırı 1941), ABD, Çin
-- [x] Sömürge nüfusu insan gücüne %15 katılır (türün klasiklerindeki gibi)
+- [x] Sömürge nüfusu insan gücüne %15 katılır
 - [x] Almanya Balkan/Barbarossa ve İtalya Yunanistan odakları Fransa savaşı bitmeden açılmaz
 - [x] Dünya denge testi 12 kontrol ≥5/6: Polonya 1940-02, Fransa 1940 Tem–Eyl, Barbarossa 1941-09,
       Japonya–Çin 1937-08, Pasifik Savaşı 1941-12, Çin/İngiltere/SSCB ayakta
@@ -159,7 +159,7 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
 - [x] Günlük it dalaşı + uçaksavar kayıpları; bölgesel hava üstünlüğü ve yakın destek kara muharebesine bonus
 - [x] AI: en sıcak cepheye üs değiştirir ve görev verir; oyuncu kanatları "Otomatik" ile AI'a bırakılabilir
 - [x] Hava paneli (H): kanat kur (stoktan, seçilen üsse), görev, bölge seçimi, otomatik mod, takviye, dağıt
-- [x] türün klasiklerindeki gibi: oyuncunun ürettiği uçaklar stokta bekler, elle kanat olarak konuşlandırılır
+- [x] Karar oyuncuda: oyuncunun ürettiği uçaklar stokta bekler, elle kanat olarak konuşlandırılır
 - [x] Görünüm: üslerde park etmiş uçaklar, görev bölgesi üstünde V düzeninde tur atan filolar,
       it dalaşı (iz mermisi), düşen uçak, yakın destek bombaları + yer patlamaları
 - [x] Deniz aşırı harekette tümen nakliye gemisi olarak görünür
@@ -246,9 +246,9 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [x] Hareket ve animasyon mantığı testleri: deniz yolları, filo köşe/liman çıkışı/düzen, tümen yolu sürekliliği, hareket
       okları, hava durumu (belirlenimci; önbellek hatası düzeltildi), zoom kiplerinde sayaç/bayrak/gizli
 
-## BÖLÜM V — REHBER VİDEOLARINDAN OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
-Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve `game-tutorial-yt2-english.txt`
-(Almanya ile açılış: araştırma, inşaat kuralı, üretim, odak). Her madde oyunda nasıl karşılık bulacağıyla yazıldı.
+## BÖLÜM V — OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
+Kendi tasarım hedeflerimiz; kaynak tarih ve kendi denge testimiz (BÖLÜM Ö kuralları). Her madde oyunda nasıl karşılık
+bulacağıyla yazıldı.
 
 ### V1. Savaş hissi ve muharebe matematiği ◐
 - [x] Tümen tecrübesi: Yeşil −%25 · Eğitimli · Düzenli +%25 · Kıdemli +%50 · Seçkin +%75; muharebe ile artar,
@@ -258,7 +258,7 @@ Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve
 - [x] Hava ve mevsim: kış (Ara–Şub, 45°K üstü) saldırı −%9…−%15, kış donanımı yoksa yıpranma; sonbahar çamuru (Eki–Kas,
       Doğu Avrupa) hız −%45; çölde sıcak yıpranması; haritada kış örtüsü (her modda, yamalı)
 - [x] Yakıt: taban gelir (sanayi) + petrol → yakıt deposu; zırhlı/motorlu hareket ve muharebe, uçak görevleri, denizdeki
-      gemiler tüketir; yakıt yoksa zırhlı/motorlu güç −%35, hız −%50 ("petrol yoksa eğlence de yok"); üst barda yakıt, uyarı
+      gemiler tüketir; yakıt yoksa zırhlı/motorlu güç −%35, hız −%50; üst barda yakıt, uyarı
 - [x] Araştırma birikimi: boş yuva 30 güne kadar araştırma biriktirir (fazlası kaybolur), yeni araştırmaya aktarılır
 - [ ] Kuşatma cezası: çembere alınan birim −%30 (ikmalsizliğe ek); general yakalama (ileride)
 - [ ] Muharebe ayrıntı penceresi (P2 ile): iki taraf, genişlik, arazi/nehir/hava/planlama/tecrübe/yakıt çarpanları
@@ -275,15 +275,15 @@ Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve
 - [ ] Özel kuvvetler: deniz piyadesi (çıkarma/nehir), dağcı, paraşütçü, ormancı; arazi bonusları
 - [ ] Generaller ve mareşaller: özellikler (hücum, savunma, lojistik, planlama), seviye; komuta gücü (command power)
       ile özellik alma; ordu → cephe atama (C1), savaş planı okları (C2) ile birlikte
-- [ ] Doktrinler: kara (Seyyar Harp / Üstün Ateş Gücü / Büyük Savaş Planı / Toplu Hücum), deniz, hava;
-      ordu/donanma/hava tecrübesi ile açılır
+- [ ] Doktrinler: kara, deniz, hava; yapı ve adlar bizim, dönemin gerçek kavramlarından (hareket savaşı, derin harekât,
+      metodik muharebe, sızma taktikleri); kara/deniz/hava birikimi ile açılır
 - [ ] Taarruz tavrı: temkinli / dengeli / "ne olursa olsun" (plan saldırganlığı)
 
 ### V4. Ekonomi ve siyaset ayrıntıları ◐
 - [x] Sivil/askerî fabrika, inşaat, altyapının inşaat hızı bonusu, ticaret yasası (ihracat payı), üretim verimliliği
 - [ ] Altyapı eyaletin kaynak çıktısını artırır (seviye başına +%10), eyalet başına bina yuvası teknolojiyle artar
 - [ ] Tüketim malları (consumer goods): seferberlik yasası + istikrar → sivil fabrikaların bir kısmı halka gider
-- [ ] Kaynak açığında üretim hattı sırası: öndeki hat az, arkadakiler çok ceza (türün klasiklerindeki gibi sıralı)
+- [ ] Kaynak açığında üretim hattı sırası: öndeki hat az, arkadakiler çok ceza
 - [ ] Siyasi güç 200'de birikmesin uyarısı; danışmanlar ve şirketler (tasarımcılar: tank/uçak/gemi bonusu)
 - [ ] İstikrar ve savaş desteği etkileri: savaş desteği <50 → teslim sınırı düşer, askere alım yavaşlar
 - [ ] Barış konferansı: ilhak / kukla / kaynak ve fabrika talebi; kukla haraç öder
@@ -298,11 +298,11 @@ Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve
 - [ ] Mayınlama; çıkarma teknolojisi (aynı anda çıkarma sayısı); deniz piyadesi bonusu
 
 ### V6. Daha sonra
-- [ ] İstihbarat ve ajanlar, kripto; atom bombası (teslim sınırını düşürür); trenle hava/füze saldırıları
+- [ ] İstihbarat ve ajanlar, şifre çözme; atom bombası (teslim sınırını düşürür); füze saldırıları
 - [ ] Tank/uçak tasarımcısı (modüller, güvenilirlik, maliyet)
 
 ## BÖLÜM B — ULAŞIM VE LOJİSTİK (Faz 12) ◐
-Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taşıma buna bağlı.
+Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taşıma buna bağlı.
 
 ### B0. Yollar harita modu (F4) ✔
 - [x] Soluk siyasi zemin üstünde: deniz yolu ağı, ticaret yolları (kaynak renginde, ithalatçıya akan dalga;
@@ -360,7 +360,7 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 - [ ] Taarruz oku çizme (sürükleyerek, kıvrımlı), mızrak ucu birlikleri
 - [ ] Planlama bonusu, planı yürüt/durdur
 - [ ] Savunma hattı, tahkimat hattı, deniz çıkarma planı, hava indirme
-- [x] klasik strateji tarzı hareket oku: birimin bulunduğu yerden başlar, kesintisiz eğri gövde, kuyrukta incelir,
+- [x] Hareket oku: birimin bulunduğu yerden başlar, kesintisiz eğri gövde, kuyrukta incelir,
       çentikli geniş uç, gölge, degrade + kontur + akan parlaklık, kalınlık zoom'a göre; aynı hedefte tek uç
 - [ ] İlerleme göstergesi
 
@@ -413,57 +413,56 @@ Türün klasiklerinde ekonominin ve savaşın omurgası: ikmal, hareket hızı, 
 - [x] Sekmeli içerik (Araştırma), tam boy kaydırmalı paneller
 - [◐] Lider portreleri: yükleyici hazır (üst çubuk, Hükümet, Diplomasi; yoksa bayrak), dosyalar `assets/portraits/<TAG>.png` bekleniyor
 - [ ] Eksik 12 ülkenin gerçek bayrağı
-- [ ] İpucu içinde ipucu (türün klasiklerindeki gibi)
+- [ ] İç içe ipuçları (terimin üstüne gelince açıklaması)
 - [ ] Mini harita; harita modları (ikmal, altyapı, kaynak, ideoloji, ittifak)
 - [ ] Bildirim ayarları; arayüz ölçeği
 
 ---
 
-## BÖLÜM UI-P — TÜRÜN KLASİĞİYLE ARAYÜZ PARİTESİ (Faz 16) ◐
-Eksik/var listesi:
-- [x] Üst çubuk: siyasi güç, istikrar, savaş desteği, insan gücü, fabrikalar, yakıt, gerginlik, tarih/hız
-- [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), komuta gücü (+0,3/gün,
-      savaşta +0,5; tavan 200), kara/deniz/hava tecrübesi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
-- [x] HUD düzeni türün klasiği gibi (25 Eyl): bayrak · kompakt gösterge hücreleri (yakıt/ikmal çubuklu) · komuta+tecrübe grubu;
-      altında kısayol harfli menü düğmeleri (Q F I O R T Y U N H L) ve uyarı kutuları; yan paneller ikinci satırın altında
+## BÖLÜM UI — ARAYÜZ DURUMU (Faz 16) ◐
+Bugünkü arayüz ilk sürümlerden kalma bir düzeni izliyor; kendi arayüz kimliğimiz BÖLÜM Ö Katman 2'de tasarlanacak
+(yerleşim, kısayollar, ikon ve renk dili). Aşağıdakiler bugün çalışan işlevlerdir.
+- [x] Üst çubuk: nüfuz, istikrar, iç cephe, insan gücü, fabrikalar, yakıt, kriz endeksi, tarih/hız
+- [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), karargâh kapasitesi
+      (+0,3/gün, savaşta +0,5; tavan 200), kara/deniz/hava birikimi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
+- [x] HUD (25 Eyl): bayrak · kompakt gösterge hücreleri (yakıt/ikmal çubuklu) · karargâh+birikim grubu; altında kısayol
+      harfli menü düğmeleri (Q F I O R T Y U N H L) ve uyarı kutuları; yan paneller ikinci satırın altında
 - [x] Lojistik ekranı (L): ekipman stok / kullanımda / günlük üretim / ihtiyaç / denge, kaynak üretim-kullanım, fabrika kullanımı
-- [x] Mevcut ekranlar: Hükümet (yasalar, danışmanlar, ruhlar, kararlar), Odak, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim,
-      Ordu, Donanma, Hava
-- [ ] Komuta gücü ve tecrübenin harcanacağı yer: **Subay Heyeti** (generaller, doktrinler, tercihli taktikler) — V3/C3
-- [ ] **Kur & Konuşlandır**: tümen şablonu düzenleyici (tabur/destek bölüğü, kara tecrübesi harcar), takviye/yükseltme önceliği
-- [ ] Kararlar için ayrı düğme (şimdi Hükümet ekranında), İstihbarat (ajanlar), Uluslararası Pazar
+- [x] Ekranlar: Hükümet (lider, parti, pasta, dökümlü göstergeler, yasalar, danışmanlar, ulusal durumlar, kararlar), Devlet
+      Programı ağacı, Araştırma (yuvalar + sekmeler + yıllara göre), Diplomasi, Ticaret (elle anlaşma), İnşaat, Üretim,
+      Lojistik, Ordu (tabur ızgarası), Donanma, Hava, Eyalet (yuvalar + doğrudan inşa), Olay penceresi, duraklatma, oyun sonu
+- [ ] Karargâh kapasitesi ve birikimin harcanacağı yer: **Genelkurmay** ekranı (generaller, doktrinler) — V3/C3
+- [ ] Tümen tasarımı ve eğitim: şablon düzenleyici (tabur/destek bölüğü, kara birikimi harcar), takviye/yükseltme önceliği
+- [ ] Ayrı Kararlar ekranı, İstihbarat (ajanlar), dünya kaynak pazarı
 - [ ] İkmal harita modu (demiryolu/ikmal merkezi) — B3 ile; radar ve tahkimat binaları (kara/kıyı tahkimatı)
-- [ ] Savaş sonu: barış konferansı (savaş puanı ile talep), sürgün hükümetleri, kukla yönetimi
-- [x] Tüm ekranlar türün klasiği düzeninde yenilendi: Hükümet (lider, parti, pasta, dökümlü göstergeler, yasa yuvaları), Araştırma
-      (yuvalar + sekmeler + yıllara göre), Diplomasi, Ticaret (elle anlaşma), İnşaat, Üretim, Lojistik, Ordu (tabur ızgarası),
-      Donanma, Hava, Eyalet (yuvalar + doğrudan inşa), Odak ağacı (durum renkleri), Olay penceresi, duraklatma, oyun sonu
-- [ ] İpucu içinde ipucu; ayrı Kararlar ekranı
+- [ ] Savaş sonu: barış konferansı, sürgün hükümetleri, kukla yönetimi
+- [ ] İç içe ipuçları
 
-## BÖLÜM M — TÜRÜN KLASİĞİYLE MEKANİK PARİTESİ ◐
+## BÖLÜM M — MEKANİK KAPSAMI ◐
 ✔ var · ◐ sade hâli var · ☐ yok
 | Sistem | Durum | Eksik |
 |---|---|---|
-| Hükümet: ideoloji, parti, seçim, istikrar, savaş desteği | ✔ | darbe, iç savaş, parti ayrılıkları, ideoloji danışmanları |
+| Hükümet: ideoloji, parti, seçim, istikrar, iç cephe | ✔ | darbe, iç savaş, parti ayrılıkları |
 | Yasalar (askerlik, ekonomi, ticaret) | ✔ | eğitim / basın / hükümet yasaları |
-| Danışmanlar | ◐ | ülkeye özgü danışmanlar, tasarımcılar (tank/uçak/gemi), teorisyenler |
-| Milli odak | ◐ | 9 ağaç (Türkiye 33 odak); diğer ülkeler ortak ağaç; 100+ odaklı büyük güç ağaçları |
+| Danışmanlar | ◐ | ülkeye özgü tarihî danışmanlar, tasarım büroları (tank/uçak/gemi) |
+| Devlet programı | ◐ | 9 ağaç (Türkiye 33 program); diğer ülkeler ortak ağaç; büyük güçlere geniş ağaçlar |
 | Olaylar | ◐ | seçenek şartları ✔; tarihî zincirler (İspanya İç Savaşı, Kış Savaşı, Balkanlar, Kuzey Afrika) |
-| Kararlar | ◐ | ayrı Kararlar ekranı, kategoriler, görevler (mission) |
-| İnşaat, üretim, verimlilik | ✔ | ekipman varyantları/tasarımcı, lisanslı üretim |
-| Ticaret | ✔ | kanaat (opinion) etkisi, ambargo, Uluslararası Pazar |
-| Araştırma | ✔ | doktrin ağaçları (kara/deniz/hava), bilim adamları |
-| Tümen şablonu | ◐ | destek bölükleri, şablon değişimi tecrübe harcar, takviye önceliği |
-| Muharebe | ◐ | taktikler, muharebe genişliği ayrıntısı, gece/gündüz, hava durumunun muharebeye etkisi |
-| Ordular, cepheler | ◐ | savaş planı okları (taarruz hattı), ordu grupları, generaller ve özellikleri |
-| Subay Heyeti (komuta gücü, tecrübe harcama) | ☐ | generaller, doktrinler, tercihli taktikler |
+| Kararlar | ◐ | ayrı Kararlar ekranı, kategoriler, süreli görevler |
+| İnşaat, üretim, verimlilik | ✔ | ekipman varyantları, lisanslı üretim |
+| Ticaret | ✔ | ilişkilerin etkisi, ambargo, dünya kaynak pazarı |
+| Araştırma | ✔ | doktrin ağaçları (kara/deniz/hava), bilim insanları |
+| Tümen şablonu | ◐ | destek bölükleri, şablon değişimi birikim harcar, takviye önceliği |
+| Muharebe | ◐ | taktikler, cephe genişliği ayrıntısı, gece/gündüz, hava durumunun muharebeye etkisi |
+| Ordular, cepheler | ◐ | taarruz planı okları, ordu grupları, generaller ve özellikleri |
+| Genelkurmay (karargâh kapasitesi, birikim harcama) | ☐ | generaller, doktrinler |
 | Lojistik | ◐ | ikmal merkezleri, demiryolu, kamyon, liman kapasitesi, yakıt ayrıntısı |
-| Deniz | ◐ | görev bölgeleri stratejik bölgeye göre, deniz çıkarması planı, üslerin menzili |
+| Deniz | ◐ | görev bölgeleri, deniz çıkarması planı, üslerin menzili |
 | Hava | ◐ | stratejik bombardıman, paraşütçü, hava bölgesi başına üstünlük |
-| Diplomasi | ◐ | saldırmazlık paktı, gönüllüler, lend-lease, kanaat, ittifak yönetimi |
-| Barış | ◐ | barış konferansı (savaş puanı), sürgün hükümetleri, kukla/özerklik |
+| Diplomasi | ◐ | saldırmazlık paktı, gönüllüler, ödünç verme ve kiralama, ilişkiler, ittifak yönetimi |
+| Barış | ◐ | barış konferansı, sürgün hükümetleri, kukla/özerklik |
 | İşgal | ☐ | direniş, uyum, garnizon |
 | İstihbarat | ☐ | ajanlar, operasyonlar, şifre çözme |
-| Dünya gerginliği | ✔ | eşikler ideolojiye göre ✔ |
+| Kriz endeksi | ✔ | eşikler ideolojiye göre ✔ |
 
 ## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
 - [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,

@@ -1,6 +1,6 @@
 class_name MapCamera3D
 extends Camera3D
-## klasik strateji tarzı strateji kamerası: uzakta tepeden, yaklaştıkça eğilen bakış.
+## Strateji kamerası: uzakta tepeden, yaklaştıkça eğilen bakış.
 ## Hedef nokta zeminde (x, z); mesafe tekerlekle imlece doğru yumuşak değişir.
 
 const MIN_DIST := 55.0

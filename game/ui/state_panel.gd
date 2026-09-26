@@ -1,6 +1,6 @@
 class_name StatePanel
 extends PanelContainer
-## Seçili eyalet (türün klasiği "eyalet görünümü"): sahibi, nüfus/insan gücü/zafer puanı, bina yuvaları (ortak yuvalar
+## Seçili eyalet: sahibi, nüfus/insan gücü/zafer puanı, bina yuvaları (ortak yuvalar
 ## simgelerle, bölge binaları seviye çubuğuyla), kaynaklar; oyuncunun eyaletinde doğrudan inşa düğmeleri.
 
 signal diplomacy_requested(tag: String)

@@ -1155,7 +1155,7 @@ func _fuel() -> void:
 		var gain := 20.0 + mil * 1.5 + oil * FUEL_PER_OIL
 		c.fuel = clampf(c.fuel + gain - float(use.get(c.tag, 0.0)), 0.0, c.fuel_cap)
 
-## İkmal (türün klasikleri ikmal menzili gibi): kaynak = kendi/müttefik sahipliğindeki ve kontrolündeki topraklar + limanlar;
+## İkmal menzili: kaynak = kendi/müttefik sahipliğindeki ve kontrolündeki topraklar + limanlar;
 ## işgal edilen topraklarda kaynaktan en fazla SUPPLY_RANGE bölge içeri ikmal ulaşır, ötesi ikmalsiz.
 const SUPPLY_RANGE := 9
 

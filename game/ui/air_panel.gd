@@ -1,6 +1,6 @@
 class_name AirPanel
 extends PanelContainer
-## Hava Kuvvetleri (H): stoktaki uçakları üslere kanat olarak konuşlandırma (türün klasiklerindeki gibi elle), kanat görevleri,
+## Hava Kuvvetleri (H): stoktaki uçakları üslere kanat olarak konuşlandırma (oyuncu elle yapar), kanat görevleri,
 ## görev bölgesi seçimi, otomatik (AI) mod, takviye ve dağıtma.
 
 signal pick_zone_requested(wing: AirWing)

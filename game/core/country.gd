@@ -17,7 +17,7 @@ var capital_state: int = 0
 var flag_def: Dictionary
 var states: Array[int] = []
 var population: int = 0
-var manpower_pop: int = 0                  ## insan gücü nüfusu: anavatan tam, sömürge/işgal %15 (türün klasiklerindeki gibi)
+var manpower_pop: int = 0                  ## insan gücü nüfusu: anavatan tam, sömürge/işgal %15
 var core_adm0 := ""                        ## anavatanın modern ülke kodu
 var construction_queue: Array[ConstructionProject] = []
 var consumer_goods: float = 0.35          ## sivil fabrikaların tüketim malına giden oranı (ekonomi yasası)
@@ -97,7 +97,7 @@ func map_name() -> String:
 	var loc := TranslationServer.get_locale().substr(0, 2)
 	return map_names.get(loc, display_name()) if not map_names.is_empty() else display_name()
 
-## Günlük siyasi güç: taban 2 × (1 + modifier + istikrar etkisi) + sabit (türün klasiği: istikrar %100'de +%10, %0'da −%20)
+## Günlük siyasi güç: taban 2 × (1 + modifier + istikrar etkisi) + sabit (istikrar %100'de +%10, %0'da −%20)
 func daily_political_power_gain() -> float:
 	return maxf(2.0 * (1.0 + mod("political_power_gain") + Politics.stability_pp_mod(self)) + mod("political_power_flat"), 0.1)
 

@@ -1,6 +1,6 @@
 class_name StateRegion
 extends RefCounted
-## türün klasiklerindeki "state": bina slotları, nüfus ve sahiplik birimi.
+## Eyalet: bina slotları, nüfus ve sahiplik birimi.
 
 var id: int
 var name: String

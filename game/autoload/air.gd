@@ -78,7 +78,7 @@ func _home_base(tag: String) -> int:
 			best = sid
 	return best
 
-## Oyuncu (türün klasiklerindeki gibi): stoktaki uçakları seçtiği hava üssüne kanat olarak konuşlandırır
+## Oyuncu: stoktaki uçakları seçtiği hava üssüne kanat olarak konuşlandırır
 func deploy(c: Country, type: String, base: int, n: int = WING_SIZE) -> AirWing:
 	var eq: String = TYPES[type]["eq"]
 	n = mini(n, int(c.stockpile.get(eq, 0.0)))

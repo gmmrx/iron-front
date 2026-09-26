@@ -1,6 +1,6 @@
 class_name CountryLabels3D
 extends Node3D
-## klasik strateji tarzı ülke adları: her harf araziye yatırılmış ayrı bir Label3D (her zoom'da keskin).
+## Ülke adları: her harf araziye yatırılmış ayrı bir Label3D (her zoom'da keskin).
 ## Yerleşim hesabı CountryLabels'tan gelir; yakın zoom'da söner, küçük ülkeler daha yakında belirir.
 
 const GLYPH_FONT_SIZE := 160          ## tek önbellek boyutu; dünya boyutu pixel_size ile ayarlanır

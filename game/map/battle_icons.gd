@@ -1,6 +1,6 @@
 class_name BattleIcons
 extends Node3D
-## Uzak zoom'da muharebe işaretleri (türün klasiklerindeki gibi): çatışan sınırın ortasında çapraz kılıç plakası ve
+## Uzak zoom'da muharebe işaretleri: çatışan sınırın ortasında çapraz kılıç plakası ve
 ## altında iki tarafın organizasyon dengesi çubuğu. Oyuncu saldırıyorsa yeşil, savunuyorsa kırmızı çerçeve.
 
 const PIXEL := 0.00042

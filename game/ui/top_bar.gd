@@ -40,7 +40,7 @@ class PlayPauseIcon extends Control:
 			draw_rect(Rect2(c + Vector2(-6, -7), Vector2(4, 14)), col)
 			draw_rect(Rect2(c + Vector2(2, -7), Vector2(4, 14)), col)
 
-## Türün klasiği düzeni: sol üstte blok — büyük çerçeveli bayrak; sağında üstte koyu metal şeritte gösterge hücreleri
+## Düzen: sol üstte blok — büyük çerçeveli bayrak; sağında üstte koyu metal şeritte gösterge hücreleri
 ## (sağda komuta/tecrübe grubu ayrı), altında bayrağa dayalı menü düğmeleri (HUD `task_row`a ekler). Tarih/hız sağ üstte ayrı.
 var task_row: HBoxContainer
 const FLAG_W := 100

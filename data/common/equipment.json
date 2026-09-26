@@ -1,5 +1,5 @@
 {
- "_comment": "klasik strateji temelli ekipmanlar. cost: birim başına IC; resources: fabrika başına kaynak ihtiyacı (üretim hattında).",
+ "_comment": "Ekipmanlar. cost: birim başına IC; resources: fabrika başına kaynak ihtiyacı (üretim hattında).",
  "equipment": {
   "infantry_equipment": {
    "cost": 0.5,

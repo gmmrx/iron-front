@@ -1,6 +1,6 @@
 class_name ArmyPanel
 extends PanelContainer
-## Ordu (U): tümen şablonları (türün klasiğindeki "Eğit ve Konuşlandır" gibi), şablon tasarımcısı (tabur dizilişi,
+## Ordu (U): tümen şablonları, şablon tasarımcısı (tabur dizilişi,
 ## +/- tabur, hesaplanan değerler), konuşlandırma şartları ipucunda.
 
 var _cells: Array[Label] = []
@@ -105,7 +105,7 @@ func _template_row(c: Country, i: int) -> void:
 func _build_designer(c: Country, i: int) -> void:
 	var t: Dictionary = c.templates[i]
 	PanelLayout.section(_body, tr("ARMY_DESIGNER") % t["name"])
-	# tabur ızgarası (türün klasiğindeki 5x5 düzenin sade hali)
+	# tabur ızgarası (5x5)
 	var grid := GridContainer.new()
 	grid.columns = 10
 	grid.add_theme_constant_override("h_separation", 3)

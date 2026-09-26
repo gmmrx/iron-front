@@ -1,6 +1,6 @@
 class_name ProductionPanel
 extends PanelContainer
-## Üretim ekranı (türün klasikleri "Production"): hatlar, fabrika atama, verimlilik, stok.
+## Üretim ekranı: hatlar, fabrika atama, verimlilik, stok.
 
 var _cells: Array[Label] = []
 var _lines_box: VBoxContainer
@@ -122,7 +122,7 @@ func _row(c: Country, i: int) -> void:
 	var col := PanelLayout.row(_lines_box, UiTheme.equipment_icon(l.equipment), Economy.equipment_name(l.equipment),
 		tr("PRODUCTION_ROW") % [roundi(l.efficiency * 100), "%.2f" % l.last_output, UiTheme.format_number(c.stockpile.get(l.equipment, 0.0))],
 		tip, "SlotBad" if short else "Row")
-	# fabrika simgeleri (türün klasiğindeki gibi hattaki her fabrika bir simge)
+	# fabrika simgeleri (hattaki her fabrika bir simge)
 	var fac := HBoxContainer.new()
 	fac.add_theme_constant_override("separation", 1)
 	fac.mouse_filter = Control.MOUSE_FILTER_IGNORE

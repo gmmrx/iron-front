@@ -1,5 +1,5 @@
 {
- "_comment": "Tabur türleri (klasik 1936 değerlerine yakın). equipment: tabur başına ekipman ihtiyacı. category: araştırma modifier'larının hedefi.",
+ "_comment": "Tabur türleri. equipment: tabur başına ekipman ihtiyacı. category: araştırma modifier'larının hedefi.",
  "battalions": {
   "infantry": {
    "name": {

@@ -1,5 +1,5 @@
 {
-  "_comment": "türün klasik değerleri. cost: inşaat puanı; shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
+  "_comment": "cost: inşaat puanı; shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
   "buildings": {
     "civilian_factory": {"cost": 10800, "shared_slots": true, "max": 20, "name": {"en": "Civilian Factory", "tr": "Sivil Fabrika"}},
     "military_factory": {"cost": 7200, "shared_slots": true, "max": 20, "name": {"en": "Military Factory", "tr": "Askeri Fabrika"}},

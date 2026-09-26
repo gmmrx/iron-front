@@ -1,6 +1,6 @@
 extends Node
 ## Ekonomi: bina tanımları, fabrika sayımları, inşaat kuyruğu (günlük tick).
-## türün klasikleri modeli: her sivil fabrika günde 5 inşaat puanı üretir; bir projeye en fazla 15 fabrika çalışır;
+## İnşaat modeli: her sivil fabrika günde 5 inşaat puanı üretir; bir projeye en fazla 15 fabrika çalışır;
 ## tüketim malları için sivil fabrikaların bir kısmı ayrılır.
 
 signal construction_changed(tag: String)
@@ -361,7 +361,7 @@ func resource_need(c: Country) -> Dictionary:
 			need[r] = float(need.get(r, 0.0)) + n[r]
 	return need
 
-# ------------------------------------------------------------------ ticaret (otomatik, klasik kural)
+# ------------------------------------------------------------------ ticaret (otomatik)
 const RESOURCES_PER_TRADE_FACTORY := 8.0
 const SYNTHETIC_RUBBER := 3
 var _trade_dirty := true
@@ -459,7 +459,7 @@ func _run_trade() -> void:
 			s.exports.append({"to": c.tag, "res": r, "amount": amt})
 		c.trade_factories_paid = int(ceil(bought_m / RESOURCES_PER_TRADE_FACTORY))
 	market = offered.duplicate(true)
-	# büyük sanayiler önce alır (türün klasiklerinde de pazar gücü sanayiye bağlı)
+	# büyük sanayiler önce alır (pazar gücü sanayiye bağlı)
 	var buyers: Array = World.countries.values().filter(func(x: Country) -> bool: return x.auto_trade)
 	buyers.sort_custom(func(a: Country, b: Country) -> bool: return count(a, "civilian_factory") > count(b, "civilian_factory"))
 	for c: Country in buyers:

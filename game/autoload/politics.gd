@@ -109,7 +109,7 @@ func war_state_support(c: Country) -> float:
 	if att: return -0.2
 	return 0.0
 
-## İstikrarın etkileri (türün klasiği): %100'de fabrika çıktısı +%20, PP +%10, tüketim malı −%20;
+## İstikrarın etkileri: %100'de fabrika çıktısı +%20, PP +%10, tüketim malı −%20;
 ## %0'da fabrika çıktısı −%50, PP −%20
 func stability_factory_mod(c: Country) -> float:
 	var s := stability(c)
