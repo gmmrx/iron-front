@@ -1,13 +1,23 @@
 # Yol Haritası — "Iron Front" (çalışma adı)
 
-2. Dünya Savaşı büyük strateji türünün en iyileri ölçeğinde, Godot 4.7 ile yapılan büyük strateji oyunu.
+Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu.
 Başlangıç: **1 Ocak 1936**. Harita: Avrupa, Kuzey Afrika, Orta Doğu, Batı SSCB (sonra tüm dünya).
 
 İlke: **veri güdümlü mimari** — içerik `data/` altında JSON/CSV; motor kodu içerikten bağımsız.
-Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, oynanış derinliği türün en iyileri seviyesinde.
+Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özgü oynanış.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
 Son güncelleme: **25 Eylül 2026 (akşam)**
+
+> ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
+> Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
+> düzeni büyük ölçüde oradan geliyordu. Dava riskini kaldırmak için **oynanış kalır, ifade bizim olur**. Kurallar ve plan:
+> [docs/OZGUNLUK.md](docs/OZGUNLUK.md) (BÖLÜM Ö). Özetle:
+> - Başka bir oyunun dosyası, wikisi, ekran görüntüsü ya da rehber videosu kaynak olarak kullanılmaz (temiz oda).
+> - Adlar tarihî gerçek adlardır ya da bizimdir; sayılar kendi formülümüzden ve tarihî veriden türetilir, gerekçesi yazılır.
+> - Kod, yorum, belge ve commit'te başka bir oyun ne adıyla ne "türün klasiği" gibi örtmeceyle anılır; "parite" hedefi yok.
+> - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Yayından önce ad
+>   değişecek; yeni ad marka araştırması yapılmadan kullanılmaz.
 
 ### Şu an nerede? (özet)
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
@@ -26,6 +36,8 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
   [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
 
 ### Sıradaki işler (öncelik sırasıyla)
+0. ◐ **Özgünlük (BÖLÜM Ö)**: terimler, yasalar, danışmanlar, ruhlar, teknoloji/odak adları ve sayılar kendi ifademizle;
+   kopya izleri temizlenir; yeni oyun adı ve marka araştırması
 1. ✔ **Gemiler karaya çıkmıyor**: deniz yolları tam çözünürlükte doğrulanıp onarıldı (kara teması 236 → 0 rota, eksik liman–deniz
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
@@ -36,6 +48,21 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
    Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
 5. **Mekanik paritesi** (aşağıdaki bölüm): Subay Heyeti, savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
 6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
+
+---
+
+## BÖLÜM Ö — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET ◐ ← HER İŞTEN ÖNCE
+Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki inceleme listesinden geçer.
+- [◐] Katman 1 — İfade: terim sözlüğü, yasalar, danışmanlar, milli ruhlar, teknoloji ve ortak odak adları, birim/bina/üretim
+      sayıları kendi formülümüzden
+- [ ] Katman 2 — Arayüz kimliği: kendi yerleşim, kısayol ve renk dili; harita sayaçları için açık sembol standardı
+      (insan gözü gerekir)
+- [ ] Katman 3 — İmza mekanikler: seçenekli kriz pazarlıkları, tarafsız ülke denge diplomasisi, hava/mevsim ve cephe sistemi
+- [◐] Katman 4 — Süreç: "türün klasiği" ifadeleri ve parite/rehber videosu bölümleri temizlenir, üçüncü taraf atıfları
+      tamamlanır; ticari yayın geçmişi olmayan temiz bir depodan yapılır
+- [ ] **Oyun adı**: "Iron Front" çalışma adı. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar oyunu (2012) ve bir
+      mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adı. Aday adlar TÜRKPATENT, EUIPO, USPTO, WIPO
+      (Nice 9, 28, 41), mağazalar ve alan adlarında aranır; seçilen ad tek bir çeviri anahtarından okunur
 
 ---
 
