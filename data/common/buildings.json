@@ -1,18 +1,18 @@
 {
-  "_comment": "cost: inşaat puanı; shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
+  "_comment": "cost: fabrika-gün (bir sivil fabrikanın bir günlük işi; civ_factory_output = 1). Sivil/askerî fabrika ve tersane oranı 3:2:1,8; bir projede en çok 12 fabrika (bir şantiyede verimli çalışan ekip sınırı); shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
   "buildings": {
-    "civilian_factory": {"cost": 10800, "shared_slots": true, "max": 20, "name": {"en": "Civilian Factory", "tr": "Sivil Fabrika"}},
-    "military_factory": {"cost": 7200, "shared_slots": true, "max": 20, "name": {"en": "Military Factory", "tr": "Askeri Fabrika"}},
-    "dockyard": {"cost": 6400, "shared_slots": true, "max": 20, "coastal": true, "name": {"en": "Dockyard", "tr": "Tersane"}},
-    "synthetic_refinery": {"cost": 14500, "shared_slots": true, "max": 3, "name": {"en": "Synthetic Refinery", "tr": "Sentetik Rafineri"}},
-    "infrastructure": {"cost": 6000, "shared_slots": false, "max": 5, "name": {"en": "Infrastructure", "tr": "Altyapı"}},
-    "air_base": {"cost": 1250, "shared_slots": false, "max": 10, "name": {"en": "Air Base", "tr": "Hava Üssü"}},
-    "naval_base": {"cost": 2500, "shared_slots": false, "max": 10, "coastal": true, "name": {"en": "Naval Base", "tr": "Deniz Üssü"}},
-    "anti_air": {"cost": 1850, "shared_slots": false, "max": 5, "name": {"en": "Anti-Air", "tr": "Uçaksavar"}}
+    "civilian_factory": {"cost": 2160, "shared_slots": true, "max": 20, "name": {"en": "Civilian Factory", "tr": "Sivil Fabrika"}},
+    "military_factory": {"cost": 1440, "shared_slots": true, "max": 20, "name": {"en": "Military Factory", "tr": "Askeri Fabrika"}},
+    "dockyard": {"cost": 1280, "shared_slots": true, "max": 20, "coastal": true, "name": {"en": "Dockyard", "tr": "Tersane"}},
+    "synthetic_refinery": {"cost": 3000, "shared_slots": true, "max": 3, "name": {"en": "Synthetic Refinery", "tr": "Sentetik Rafineri"}},
+    "infrastructure": {"cost": 1100, "shared_slots": false, "max": 5, "name": {"en": "Infrastructure", "tr": "Altyapı"}},
+    "air_base": {"cost": 300, "shared_slots": false, "max": 10, "name": {"en": "Air Base", "tr": "Hava Üssü"}},
+    "naval_base": {"cost": 450, "shared_slots": false, "max": 10, "coastal": true, "name": {"en": "Naval Base", "tr": "Deniz Üssü"}},
+    "anti_air": {"cost": 400, "shared_slots": false, "max": 5, "name": {"en": "Anti-Air", "tr": "Uçaksavar"}}
   },
   "economy": {
-    "civ_factory_output": 5.0,
-    "max_factories_per_project": 15,
+    "civ_factory_output": 1.0,
+    "max_factories_per_project": 12,
     "infrastructure_speed_bonus": 0.05
   },
   "resources": ["oil", "steel", "aluminium", "tungsten", "chromium", "rubber"]

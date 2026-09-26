@@ -128,14 +128,15 @@ TIP_CLOSE,Close,Kapat
 TIP_QUEUE_UP,Move up in the queue (higher priority gets factories first),Kuyrukta yukarı taşı (üsttekiler fabrikaları önce alır)
 TIP_QUEUE_DOWN,Move down in the queue,Kuyrukta aşağı taşı
 TIP_QUEUE_REMOVE,Cancel this project (progress is lost),Bu projeyi iptal et (ilerleme kaybolur)
-"TIP_PROJECT","%s in %s\nProgress: %d%%\nCivilian factories working: %d (max 15)","%s — %s\nİlerleme: %%%d\nÇalışan sivil fabrika: %d (en fazla 15)"
-"TIP_BUILD_COST","Cost: %s construction points","Maliyet: %s inşaat puanı"
+"TIP_PROJECT","%s in %s\nProgress: %d%%\nCivilian factories working: %d (max 12)","%s — %s\nİlerleme: %%%d\nÇalışan sivil fabrika: %d (en fazla 12)"
+"TIP_BUILD_COST","Cost: %s factory-days","Maliyet: %s fabrika-gün"
 TIP_LINE_MINUS,Remove one military factory from this line,Bu hattan bir askeri fabrika çıkar
-TIP_LINE_PLUS,Assign one more military factory (max 15),Bu hatta bir askeri fabrika daha ata (en fazla 15)
+TIP_LINE_PLUS,Assign one more military factory (max 12),Bu hatta bir askeri fabrika daha ata (en fazla 12)
 TIP_LINE_FACTORIES,Military factories on this line,Bu hattaki askeri fabrika sayısı
+PRO_COST_HOURS,%s factory-hours,%s fabrika-saat
 TIP_LINE_REMOVE,Remove this production line (efficiency is lost),Bu üretim hattını kaldır (verimlilik kaybolur)
 TIP_LINE_ADD,Start producing a new type of equipment,Yeni bir ekipman türü üretmeye başla
-"TIP_LINE","%s\nCost per unit: %s IC\nResources per factory: %s\nEfficiency grows daily; changing the line resets it.\nCurrent efficiency: %d%%","%s\nBirim maliyeti: %s IC\nFabrika başına kaynak: %s\nVerimlilik her gün artar; hat değiştirilirse sıfırlanır.\nŞu anki verimlilik: %%%d"
+"TIP_LINE","%s\nCost per unit: %s factory-hours\nResources per factory: %s\nEfficiency grows daily; changing the line resets it.\nCurrent efficiency: %d%%","%s\nBirim maliyeti: %s fabrika-saat\nFabrika başına kaynak: %s\nVerimlilik her gün artar; hat değiştirilirse sıfırlanır.\nŞu anki verimlilik: %%%d"
 "TIP_SPEED_DOWN","DECREASE GAME SPEED\nReduces simulation speed by one step.\nShortcut: -","OYUN HIZINI DÜŞÜR\nSimülasyon hızını bir kademe azaltır.\nKısayol: -"
 "TIP_SPEED_UP","INCREASE GAME SPEED\nRaises simulation speed by one step. Higher speeds process battles and production faster.\nShortcut: +","OYUN HIZINI ARTIR\nSimülasyon hızını bir kademe yükseltir. Yüksek hızda savaşlar ve üretim daha hızlı ilerler.\nKısayol: +"
 "TIP_COUNTRY","%s\nLeader: %s  ·  Ideology: %s\nPopulation: %s  ·  Controlled states: %d\nNational statistics are recalculated each day.","%s\nLider: %s  ·  İdeoloji: %s\nNüfus: %s  ·  Denetlenen eyalet: %d\nUlusal istatistikler her gün yeniden hesaplanır."
@@ -635,7 +636,7 @@ CON_CELL_CIV_TIP,All civilian factories you own.,Sahip olduğunuz tüm sivil fab
 CON_CELL_CONSUMER,Consumer goods,Tüketim malı
 CON_CELL_CONSUMER_TIP,Civilian factories that must produce consumer goods for the population (set by the economy law and stability).,Halk için tüketim malı üretmek zorunda olan sivil fabrikalar (ekonomi yasası ve istikrara bağlı).
 CON_CELL_FREE,For construction,İnşaata ayrılan
-CON_CELL_FREE_TIP,Civilian factories working on the queue. Each project can use at most 15; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.,Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 15 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
+CON_CELL_FREE_TIP,Civilian factories working on the queue. Each project can use at most 12; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.,Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 12 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
 CON_CELL_SPEED,Construction speed,İnşaat hızı
 CON_CELL_SPEED_TIP,"Bonus from laws, conditions, advisors and technology, minus the low-stability penalty.","Yasalar, ulusal durumlar, danışmanlar ve teknolojiden gelen katkı; düşük istikrar cezası düşülmüş."
 CON_BUILDINGS,Buildings,Binalar

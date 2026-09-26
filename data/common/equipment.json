@@ -1,8 +1,8 @@
 {
- "_comment": "Ekipmanlar. cost: birim başına IC; resources: fabrika başına kaynak ihtiyacı (üretim hattında).",
+ "_comment": "Ekipmanlar. cost: birim başına fabrika-saat (bir fabrika günde 24 fabrika-saat çalışır; tersaneler de öyle). resources: fabrika başına günlük kaynak ihtiyacı (üretim hattında). Verimlilik %15'ten başlar, tavana (%50 + teknoloji) yaklaştıkça yavaşlayarak artar.",
  "equipment": {
   "infantry_equipment": {
-   "cost": 0.5,
+   "cost": 2.7,
    "resources": {
     "steel": 2
    },
@@ -13,7 +13,7 @@
    }
   },
   "support_equipment": {
-   "cost": 4.0,
+   "cost": 21,
    "resources": {
     "steel": 1,
     "aluminium": 1
@@ -25,7 +25,7 @@
    }
   },
   "artillery_equipment": {
-   "cost": 3.5,
+   "cost": 19,
    "resources": {
     "steel": 2,
     "tungsten": 1
@@ -37,7 +37,7 @@
    }
   },
   "anti_tank_equipment": {
-   "cost": 4.0,
+   "cost": 21,
    "resources": {
     "steel": 2,
     "tungsten": 1
@@ -49,7 +49,7 @@
    }
   },
   "anti_air_equipment": {
-   "cost": 4.0,
+   "cost": 21,
    "resources": {
     "steel": 1,
     "aluminium": 1
@@ -61,7 +61,7 @@
    }
   },
   "motorized_equipment": {
-   "cost": 2.5,
+   "cost": 13,
    "resources": {
     "steel": 1,
     "rubber": 1
@@ -73,7 +73,7 @@
    }
   },
   "light_tank_equipment": {
-   "cost": 8.0,
+   "cost": 43,
    "resources": {
     "steel": 2,
     "chromium": 1
@@ -85,7 +85,7 @@
    }
   },
   "medium_tank_equipment": {
-   "cost": 12.0,
+   "cost": 64,
    "resources": {
     "steel": 2,
     "chromium": 2
@@ -97,7 +97,7 @@
    }
   },
   "fighter_equipment": {
-   "cost": 22.0,
+   "cost": 117,
    "resources": {
     "aluminium": 2,
     "rubber": 1
@@ -109,7 +109,7 @@
    }
   },
   "cas_equipment": {
-   "cost": 24.0,
+   "cost": 128,
    "resources": {
     "aluminium": 2,
     "rubber": 1
@@ -121,7 +121,7 @@
    }
   },
   "tactical_bomber_equipment": {
-   "cost": 36.0,
+   "cost": 192,
    "resources": {
     "aluminium": 3,
     "rubber": 1
@@ -133,7 +133,7 @@
    }
   },
   "convoy": {
-   "cost": 30.0,
+   "cost": 290,
    "resources": {
     "steel": 2
    },
@@ -145,7 +145,7 @@
    }
   },
   "destroyer": {
-   "cost": 60.0,
+   "cost": 580,
    "resources": {
     "steel": 2
    },
@@ -157,7 +157,7 @@
    }
   },
   "submarine": {
-   "cost": 45.0,
+   "cost": 430,
    "resources": {
     "steel": 1,
     "chromium": 1
@@ -170,7 +170,7 @@
    }
   },
   "cruiser": {
-   "cost": 180.0,
+   "cost": 1730,
    "resources": {
     "steel": 3,
     "chromium": 1
@@ -183,7 +183,7 @@
    }
   },
   "battleship": {
-   "cost": 500.0,
+   "cost": 4800,
    "resources": {
     "steel": 5,
     "chromium": 2
@@ -197,13 +197,13 @@
   }
  },
  "production": {
-  "mil_factory_output": 4.5,
-  "max_factories_per_line": 15,
-  "efficiency_start": 0.1,
+  "mil_factory_output": 24.0,
+  "max_factories_per_line": 12,
+  "efficiency_start": 0.15,
   "efficiency_cap": 0.5,
-  "efficiency_gain_per_day": 0.012,
+  "efficiency_gain_per_day": 0.01,
   "resource_shortage_floor": 0.25,
-  "dockyard_output": 2.5
+  "dockyard_output": 24.0
  },
  "start_fleets": {
   "ENG": {

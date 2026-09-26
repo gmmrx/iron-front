@@ -88,7 +88,7 @@ func _production(c: Country) -> void:
 				break
 			var line: ProductionLine = null
 			for l in c.production_lines:
-				if l.equipment == best and l.factories < 15:
+				if l.equipment == best and l.factories < int(Economy.prod["max_factories_per_line"]):
 					line = l
 			if line == null:
 				line = Economy.add_line(c, best)
@@ -104,7 +104,7 @@ func _production(c: Country) -> void:
 				opts.append(eq)
 		if not opts.is_empty():
 			var line := Economy.add_line(c, opts[randi() % opts.size()])
-			line.factories = mini(yards, 15)
+			line.factories = mini(yards, int(Economy.prod["max_factories_per_line"]))
 	Economy.mark_trade_dirty()
 
 func _research(c: Country) -> void:
@@ -437,7 +437,7 @@ func _declare(c: Country) -> void:
 func _army_power(tag: String) -> float:
 	var p := 0.0
 	for d in Military.country_divisions(tag):
-		p += d.strength * (1.0 + Military.div_stats(d)["soft"] / 100.0)
+		p += d.strength * (1.0 + Military.div_stats(d)["soft"] / 500.0)
 	return p
 
 var _owned_day := -1

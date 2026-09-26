@@ -1,5 +1,5 @@
 {
- "_comment": "Tabur türleri. equipment: tabur başına ekipman ihtiyacı. category: araştırma modifier'larının hedefi.",
+ "_comment": "Tabur türleri. soft/hard: personele/zırha karşı ateş, defense: savunurken, breakthrough: saldırırken karşılanan ateş (taburun 1939 silah donanımına göre, piyade taburu = 30 personel ateşi); org: bütünlük (piyade 100); hp: dayanıklılık; width: cephe genişliği (göreli birim; arazi genişliğiyle karşılaştırılır); armor/piercing: zırh kalınlığı / 500 m'de delme (mm, bilgi amaçlı); equipment: tabur başına ekipman ihtiyacı. category: araştırma modifier'larının hedefi.",
  "battalions": {
   "infantry": {
    "name": {
@@ -7,17 +7,17 @@
     "tr": "Piyade"
    },
    "category": "infantry",
-   "soft": 6,
-   "hard": 1,
-   "defense": 22,
-   "breakthrough": 3,
-   "hp": 25,
-   "org": 60,
-   "width": 2,
+   "soft": 30,
+   "hard": 5,
+   "defense": 110,
+   "breakthrough": 15,
+   "hp": 50,
+   "org": 100,
+   "width": 4,
    "speed": 4,
    "hardness": 0.0,
    "armor": 0,
-   "piercing": 4,
+   "piercing": 15,
    "manpower": 1000,
    "equipment": {
     "infantry_equipment": 100
@@ -29,17 +29,17 @@
     "tr": "Topçu"
    },
    "category": "artillery",
-   "soft": 25,
-   "hard": 2,
-   "defense": 10,
-   "breakthrough": 6,
-   "hp": 0.6,
+   "soft": 125,
+   "hard": 10,
+   "defense": 50,
+   "breakthrough": 30,
+   "hp": 1.2,
    "org": 0,
-   "width": 3,
+   "width": 6,
    "speed": 4,
    "hardness": 0.0,
    "armor": 0,
-   "piercing": 5,
+   "piercing": 40,
    "manpower": 500,
    "equipment": {
     "artillery_equipment": 12
@@ -51,17 +51,17 @@
     "tr": "Tanksavar"
    },
    "category": "artillery",
-   "soft": 2,
-   "hard": 16,
-   "defense": 8,
-   "breakthrough": 2,
-   "hp": 0.6,
+   "soft": 10,
+   "hard": 80,
+   "defense": 40,
+   "breakthrough": 10,
+   "hp": 1.2,
    "org": 0,
-   "width": 1,
+   "width": 2,
    "speed": 4,
    "hardness": 0.0,
    "armor": 0,
-   "piercing": 60,
+   "piercing": 48,
    "manpower": 500,
    "equipment": {
     "anti_tank_equipment": 12
@@ -73,17 +73,17 @@
     "tr": "Motorize Piyade"
    },
    "category": "infantry",
-   "soft": 6,
-   "hard": 1,
-   "defense": 22,
-   "breakthrough": 3,
-   "hp": 25,
-   "org": 60,
-   "width": 2,
+   "soft": 30,
+   "hard": 5,
+   "defense": 110,
+   "breakthrough": 15,
+   "hp": 50,
+   "org": 100,
+   "width": 4,
    "speed": 12,
    "hardness": 0.1,
    "armor": 0,
-   "piercing": 4,
+   "piercing": 15,
    "manpower": 1200,
    "equipment": {
     "infantry_equipment": 100,
@@ -96,16 +96,16 @@
     "tr": "Hafif Tank"
    },
    "category": "armor",
-   "soft": 16,
-   "hard": 4,
-   "defense": 4,
-   "breakthrough": 22,
-   "hp": 2,
-   "org": 10,
-   "width": 2,
+   "soft": 80,
+   "hard": 20,
+   "defense": 20,
+   "breakthrough": 110,
+   "hp": 4,
+   "org": 17,
+   "width": 4,
    "speed": 10,
    "hardness": 0.8,
-   "armor": 12,
+   "armor": 13,
    "piercing": 20,
    "manpower": 500,
    "equipment": {
@@ -118,17 +118,17 @@
     "tr": "Orta Tank"
    },
    "category": "armor",
-   "soft": 22,
-   "hard": 12,
-   "defense": 6,
-   "breakthrough": 34,
-   "hp": 2,
-   "org": 10,
-   "width": 2,
+   "soft": 110,
+   "hard": 60,
+   "defense": 30,
+   "breakthrough": 170,
+   "hp": 4,
+   "org": 17,
+   "width": 4,
    "speed": 9,
    "hardness": 0.9,
-   "armor": 45,
-   "piercing": 55,
+   "armor": 30,
+   "piercing": 40,
    "manpower": 500,
    "equipment": {
     "medium_tank_equipment": 50
@@ -172,37 +172,37 @@
  ],
  "terrain": {
   "plains": {
-   "width": 90,
+   "width": 180,
    "attack": 0.0,
    "move": 1.0
   },
   "forest": {
-   "width": 84,
+   "width": 168,
    "attack": -0.15,
    "move": 0.8
   },
   "hills": {
-   "width": 80,
+   "width": 160,
    "attack": -0.25,
    "move": 0.8
   },
   "mountain": {
-   "width": 75,
+   "width": 150,
    "attack": -0.5,
    "move": 0.6
   },
   "marsh": {
-   "width": 78,
+   "width": 156,
    "attack": -0.4,
    "move": 0.6
   },
   "desert": {
-   "width": 90,
+   "width": 180,
    "attack": 0.0,
    "move": 0.9
   },
   "urban": {
-   "width": 96,
+   "width": 192,
    "attack": -0.3,
    "move": 1.0
   }

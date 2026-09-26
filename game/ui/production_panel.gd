@@ -27,7 +27,7 @@ func _ready() -> void:
 	var pm := _add.get_popup()
 	var i := 0
 	for eq: String in Economy.equipment:
-		pm.add_icon_item(UiTheme.equipment_icon(eq), "%s  (%s IC)" % [Economy.equipment_name(eq), str(Economy.equipment[eq]["cost"])], i)
+		pm.add_icon_item(UiTheme.equipment_icon(eq), "%s  (%s)" % [Economy.equipment_name(eq), tr("PRO_COST_HOURS") % str(Economy.equipment[eq]["cost"])], i)
 		pm.set_item_icon_max_width(i, 28)
 		pm.set_item_metadata(i, eq)
 		i += 1

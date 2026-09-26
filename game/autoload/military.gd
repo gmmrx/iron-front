@@ -7,8 +7,8 @@ signal battles_changed
 signal division_destroyed(tag: String)
 
 const UNITS_PATH := "res://data/common/units.json"
-const ORG_DMG := 0.11                  ## isabet başına organizasyon hasarı
-const STR_DMG := 0.055                 ## isabet başına can (hp) hasarı
+const ORG_DMG := 0.0367                ## isabet başına bütünlük hasarı (piyade bütünlüğü 100)
+const STR_DMG := 0.022                 ## isabet başına dayanıklılık (hp) hasarı
 const HIT_DEF := 0.1                   ## savunmayla karşılanan saldırının isabet oranı
 const HIT_OPEN := 0.4                  ## savunmayı aşan saldırının isabet oranı
 const RETREAT_ORG := 0.12
