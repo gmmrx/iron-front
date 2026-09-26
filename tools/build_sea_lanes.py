@@ -449,8 +449,90 @@ for key in sorted(lanes):
         log("  onarılan", repaired, key, f"{time.time() - t:.1f}s")
 log("onarılan rota", repaired, "onarılamayan", len(broken))
 
+# ---------------------------------------------------------------- köşe yarıçapları
+# PathMotion.sea_pose düğümlerde gelen ve giden rotayı ikinci derece Bézier ile yuvarlar (a: gelen rotada r geride,
+# c: düğüm, b: giden rotada r ileride). Kavis küçük ada / dar kıyıyı kesmesin: her düğüm için tüm (gelen, giden)
+# çiftlerinde kavisin suda kaldığı en büyük yarıçap. Varsayılan (CORNER) dışındakiler "corner" altında yazılır.
+CORNER = 22.0
+RADII = [22.0, 16.0, 11.0, 7.0, 4.0, 2.0, 0.0]
+adj = {}
+for key in lanes:
+    a, b = map(int, key.split("-"))
+    adj.setdefault(a, []).append(b)
+    adj.setdefault(b, []).append(a)
+_lane_cache = {}
+
+
+def lane_arr(a, b):
+    """SeaLanes.lane ile aynı: a'dan b'ye noktalar ve kümülatif uzunluk"""
+    k = (a, b)
+    if k not in _lane_cache:
+        pts = np.array(lanes[f"{min(a, b)}-{max(a, b)}"], float)
+        if a > b:
+            pts = pts[::-1]
+        cum = np.concatenate([[0.0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))])
+        _lane_cache[k] = (pts, cum)
+    return _lane_cache[k]
+
+
+def lane_at(l, s):
+    """SeaLanes.at ile aynı (yay uzunluğu s'deki nokta)"""
+    pts, cum = l
+    s = min(max(s, 0.0), cum[-1])
+    i = int(np.searchsorted(cum, s, side="left")) - 1
+    i = min(max(i, 0), len(pts) - 2)
+    seg = max(cum[i + 1] - cum[i], 1e-4)
+    t = (s - cum[i]) / seg
+    return pts[i] + (pts[i + 1] - pts[i]) * t
+
+
+def unwrap_near(a, b):
+    b = b.copy()
+    if b[0] - a[0] > W * 0.5:
+        b[0] -= W
+    elif b[0] - a[0] < -W * 0.5:
+        b[0] += W
+    return b
+
+
+U_IN = np.linspace(0.0, 0.5, 48)      # varış yarısı (gelen rotanın sonu)
+U_OUT = np.linspace(0.5, 1.0, 48)     # çıkış yarısı (giden rotanın başı)
+
+
+def bezier_sea(a, c, b, u):
+    v = 1.0 - u
+    xs = a[0] * v * v + c[0] * 2 * u * v + b[0] * u * u
+    ys = a[1] * v * v + c[1] * 2 * u * v + b[1] * u * u
+    return bool(on_sea(xs, ys).all())
+
+
+def corner_ok(frm, c, nxt, r):
+    """PathMotion._lane_point ile birebir: varış yarısı gelen rotanın çerçevesinde (c = gelen rotanın son noktası),
+    çıkış yarısı giden rotanın çerçevesinde (c = giden rotanın ilk noktası; liman: farklı rıhtım olabilir)"""
+    li, lo = lane_arr(frm, c), lane_arr(c, nxt)
+    rr = min(r, li[1][-1] * 0.5, lo[1][-1] * 0.5)
+    if rr <= 0.0:
+        return True
+    c1 = li[0][-1]
+    if not bezier_sea(lane_at(li, li[1][-1] - rr), c1, unwrap_near(c1, lane_at(lo, rr)), U_IN):
+        return False
+    c2 = lo[0][0]
+    return bezier_sea(unwrap_near(c2, lane_at(li, li[1][-1] - rr)), c2, lane_at(lo, rr), U_OUT)
+
+
+corner = {}
+for c, nb in adj.items():
+    best = 0.0
+    for r in RADII:
+        if all(corner_ok(f, c, n, r) for f in nb for n in nb if f != n):
+            best = r
+            break
+    if best < CORNER:
+        corner[str(c)] = best
+log("köşe yarıçapı küçültülen düğüm", len(corner))
+
 json.dump({"grid": F, "nodes": {str(k): [v[0] * F + F / 2 + 0.5, v[1] * F + F / 2 + 0.5] for k, v in nodes.items()},
-           "docks": docks, "lanes": lanes}, open(OUT, "w"), separators=(",", ":"))
+           "docks": docks, "lanes": lanes, "corner": corner}, open(OUT, "w"), separators=(",", ":"))
 log("yazıldı", OUT)
 for a, b, p in FAILS: print("FAIL", (a[0]*F, a[1]*F), (b[0]*F, b[1]*F), p)
 for k in broken: print("KARA", k)

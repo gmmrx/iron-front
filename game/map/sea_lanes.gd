@@ -7,6 +7,8 @@ static var _loaded := false
 static var _nodes := {}          ## pid -> Vector2
 static var _docks := {}          ## "port-sea" -> Vector2
 static var _raw := {}            ## "a-b" (a<b) -> Array (json)
+static var _corner := {}         ## düğüm (deniz / liman) -> köşe yuvarlama yarıçapı (yoksa CORNER)
+const CORNER := 22.0             ## düğümlerde köşe yumuşatma yarıçapı (piksel)
 static var _cache := {}          ## "from-to" -> [PackedVector2Array, PackedFloat32Array kümülatif uzunluk]
 
 static func _ensure() -> void:
@@ -24,11 +26,19 @@ static func _ensure() -> void:
 		var p: Array = d["docks"][k]
 		_docks[k] = Vector2(p[0], p[1])
 	_raw = d.get("lanes", {})
+	for k: String in d.get("corner", {}):
+		_corner[int(k)] = float(d["corner"][k])
 
 ## Deniz bölgesinin açık denizdeki düğümü (yoksa merkez)
 static func node(pid: int) -> Vector2:
 	_ensure()
 	return _nodes.get(pid, World.province(pid).center)
+
+## Düğümde gelen ve giden rotayı birleştiren kavisin en büyük yarıçapı: üretici (tools/build_sea_lanes.py) kavisin
+## suda kaldığını doğrular; ada / dar kıyı yanındaki düğümlerde küçüktür, çok rıhtımlı limanlarda 0 (keskin dönüş)
+static func corner(pid: int) -> float:
+	_ensure()
+	return _corner.get(pid, CORNER)
 
 ## Limanın verilen denize açılan rıhtımı (yoksa INF)
 static func dock(port: int, sea: int) -> Vector2:

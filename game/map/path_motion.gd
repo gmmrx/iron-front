@@ -80,7 +80,7 @@ static func fleet(f: Fleet, from_pos: Vector2) -> Array:
 	return [s[0], s[1], true, kmh / km * GameClock.hours_per_second()]
 
 # ------------------------------------------------------------------ deniz yolları
-const CORNER := 22.0            ## düğümlerde köşe yumuşatma yarıçapı (piksel)
+const CORNER := SeaLanes.CORNER ## düğümlerde köşe yumuşatma yarıçapı (piksel); düğüme göre SeaLanes.corner ile küçülür
 static var _prev := {}           ## nesne id -> [şimdiki bölge, önceki bölge]
 
 ## Bir önceki bölge (köşe yumuşatma için; yalnız görsel)
@@ -117,8 +117,8 @@ static func _lane_point(prev: int, from: int, to: int, nxt: int, l: Array, s: fl
 	if nxt >= 0 and s > L * 0.5:
 		var n := SeaLanes.lane(to, nxt)
 		if not n.is_empty():
-			var r := minf(CORNER, minf(L * 0.5, SeaLanes.length(n) * 0.5))
-			if s > L - r:
+			var r := minf(SeaLanes.corner(to), minf(L * 0.5, SeaLanes.length(n) * 0.5))
+			if r > 0.0 and s > L - r:
 				var a: Vector2 = SeaLanes.at(l, L - r)[0]
 				var c := pts[pts.size() - 1]
 				var b: Vector2 = SeaLanes.at(n, r)[0]
@@ -129,8 +129,8 @@ static func _lane_point(prev: int, from: int, to: int, nxt: int, l: Array, s: fl
 		var pl := SeaLanes.lane(prev, from)
 		if not pl.is_empty():
 			var PL := SeaLanes.length(pl)
-			var r := minf(CORNER, minf(PL * 0.5, L * 0.5))
-			if s < r:
+			var r := minf(SeaLanes.corner(from), minf(PL * 0.5, L * 0.5))
+			if r > 0.0 and s < r:
 				var a: Vector2 = SeaLanes.at(pl, PL - r)[0]
 				var c := pts[0]
 				a = World.unwrap_near(c, a)
