@@ -204,8 +204,12 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/odak/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
       çeviri tablosu), `tools/run_tests.sh`, GitHub Actions; dev betikleri sorun bulunca 1 ile çıkar
 - [x] Sistem senaryo testleri (73 test): ekonomi, ticaret, siyaset, diplomasi, kara savaşı, deniz/hava, kayıt/yükleme
-      (200 gün, alan alan), belirlenimcilik; bulunan hatalar düzeltildi (düşmanla ticaret, üyenin beyaz barışı, yüklemede
-      tercihlerin/bekleyen olayların/siperin kaybı, yüklemede 1936 ticareti, yeni oyunda eski önbellek)
+      (200 gün, alan alan), belirlenimcilik; bulunan hatalar düzeltildi (oyuncunun düşmanla ticareti, üyenin beyaz barışı,
+      yüklemede tercihlerin/bekleyen olayların/siperin kaybı, yüklemede 1936 ticareti, yeni oyunda eski önbellek)
+- [ ] Yapay zekânın otomatik ticareti savaştığı ülkeden de alıyor (1940 ortasında Almanya ~57, İtalya ~53 kaynak/gün,
+      çoğu İngiliz/Fransız sömürgelerinden). Kesmek (abluka) gerçekçi ama Almanya'yı kaynaksız bırakıp denge testinde
+      "Fransa 1940–41'de düşer" kontrolünü 4/6'ya indiriyor — abluka + telafi (ör. Sovyet/İsveç/Romanya ticareti) birlikte
+      ele alınmalı
 - [ ] Yapay zekânın "fırsat kollayıp sonra katılma" kuralı (`Diplomacy.ai_answers_call`) yazılmış ama bağlanmamış
       (ittifak çağrısında İtalya'nın Haziran 1940'ı beklemesi); bağlamak dengeyi değiştirir — karar bekliyor
 - [ ] Oyuncu ordusu karadan ayrı cephe parçalarına (ör. Doğu Prusya) kendiliğinden deniz aşırı tümen göndermez

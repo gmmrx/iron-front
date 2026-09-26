@@ -36,7 +36,7 @@
 - **Oyuncunun ticareti elle yapılır**: açığı olan kaynakta **Satın al** → satıcı ülke. Anlaşma listesinde +8 / −8 / iptal.
   Ödeyemeyeceğin ithalat yapılamaz (tüketim malından arta kalan fabrika + ihracat kazancı kadar).
   Satıcının arzı yetmezse anlaşma kısmen karşılanır ("satıcı tamamını karşılayamıyor"). Savaştığın ülkeden alınmaz; savaş başladığı gün
-  o ülkeyle anlaşmalar kesilir (otomatik ticaret dahil, yapay zekâ da düşmanından almaz).
+  o ülkeyle anlaşmaların kesilir.
 - **Otomatik ticaret** kutusu yalnız açarsan çalışır (eksikler en büyük satıcılardan alınır). Yapay zekâ ülkeleri hep otomatiktir.
 - İthalat denizden gelir: **2 kaynak başına 1 konvoy**; konvoy yetmezse ithalatın yalnız bir kısmı ulaşır (en az %25).
 

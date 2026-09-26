@@ -79,8 +79,8 @@ func test_no_trade_with_enemy() -> void:
 		check(im["from"] != seller, "savaş başlayınca düşmandan ithalat biter")
 	check(not Economy.add_trade(c, d[0], seller, 8.0), "düşmanla yeni anlaşma yapılmaz")
 
-## Yapay zekânın otomatik ticareti de düşmandan almaz
-func test_ai_auto_trade_skips_enemy() -> void:
+## Yapay zekânın otomatik ticareti düşmandan alıyor mu — bilinen durum (abluka dengeyi değiştirir, ROADMAP P1): uyarı
+func test_ai_auto_trade_with_enemy_known() -> void:
 	Economy._run_trade()
 	var buyer: Country = null
 	var seller := ""
@@ -92,10 +92,13 @@ func test_ai_auto_trade_skips_enemy() -> void:
 	if not check(buyer != null, "ithalat yapan AI ülkesi bulunmalı"):
 		return
 	_war(buyer.tag, seller)
+	Economy._run_trade()
+	var n := 0
 	for im: Dictionary in buyer.imports:
-		check(im["from"] != seller, "%s düşmanı %s'den almamalı" % [buyer.tag, seller])
-	for ex: Dictionary in country(seller).exports:
-		check(ex["to"] != buyer.tag, "%s düşmanı %s'e satmamalı" % [seller, buyer.tag])
+		if Diplomacy.are_enemies(buyer.tag, str(im["from"])):
+			n += 1
+	if n > 0:
+		warn("bilinen: yapay zekâ savaştığı ülkeden alıyor (%s ← %s); kesmek denge kararı" % [buyer.tag, seller])
 
 func test_convoy_shortage_reduces_imports() -> void:
 	var c := player()
