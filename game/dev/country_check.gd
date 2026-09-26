@@ -142,4 +142,4 @@ func _init() -> void:
 		line += "  tümen=%d eyalet=%d" % [M.country_divisions(tag).size(), c.states.size()]
 		print(line)
 	print("== %d ülke, %d sorunlu, %.0f sn ==" % [tags.size(), fails, (Time.get_ticks_msec() - t0) / 1000.0])
-	quit()
+	quit(1 if fails > 0 else 0)
