@@ -112,7 +112,7 @@ func _ready() -> void:
 	_handle_dev_args()
 	if Game.loaded:
 		Game.loaded = false
-		_enter_playing(World.player_tag)
+		_enter_playing(World.player_tag, true)
 	elif phase == Phase.MENU:
 		_enter_menu()
 
@@ -156,10 +156,14 @@ func _start_game(tag: String) -> void:
 	_enter_playing(tag)
 	World.notify(tr("NOTE_WELCOME") % World.player().display_name(), "good")
 
-func _enter_playing(tag: String) -> void:
+## resumed: kayıttan devam — oyuncunun kayıttaki tercihleri korunur (yeni oyun varsayılanları kurulmaz)
+func _enter_playing(tag: String, resumed := false) -> void:
 	_clear_menu_layer()
 	map_view.set_highlight_country("")
-	World.start_game(tag)
+	if resumed:
+		World.resume_game(tag)
+	else:
+		World.start_game(tag)
 	phase = Phase.PLAYING
 	hud.set_game_ui_visible(true)
 	camera.focus_on(World.capital_position(tag), 700.0)
@@ -225,7 +229,7 @@ func _handle_dev_args() -> void:
 	if args.has("load"):
 		if Game.load_game(args["load"]):
 			Game.loaded = false
-			_enter_playing(World.player_tag)
+			_enter_playing(World.player_tag, true)
 	if args.has("play"):
 		_start_game(args["play"] if args["play"] != "" else World.player_tag)
 	elif args.has("setup"):

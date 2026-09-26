@@ -390,8 +390,8 @@ func set_player(tag: String) -> void:
 		player_tag = tag
 		player_changed.emit(tag)
 
+## Yeni oyun: oyuncuya özgü varsayılanlar kurulur (elle ticaret, elle kanat, "son askere kadar")
 func start_game(tag: String) -> void:
-	player_tag = tag
 	if countries.has(tag):
 		Economy.set_auto_trade(countries[tag], false)     # oyuncunun ticaretini kimse onun yerine yapmaz
 		for w in Air.wings:
@@ -400,6 +400,11 @@ func start_game(tag: String) -> void:
 		for d in Military.divisions:
 			if d.owner == tag:
 				d.hold = true                 # tümenler emir olmadan geri çekilmez
+	resume_game(tag)
+
+## Kayıttan devam: oyuncunun kayıttaki tercihleri (otomatik ticaret, kanat, "son askere kadar") korunur
+func resume_game(tag: String) -> void:
+	player_tag = tag
 	in_game = true
 	player_changed.emit(tag)
 	game_started.emit()
