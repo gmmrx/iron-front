@@ -895,6 +895,37 @@ func fuel_malus(d: Division) -> float:
 		return 0.0
 	return 0.35 if float(div_stats(d).get("fuel_use", 0.0)) > 0.0 else 0.0
 
+const UNSUPPLIED_MALUS := 0.35         ## ikmalsiz tümenin muharebe cezası
+const EXHAUSTED_MALUS := 0.5           ## organizasyonu bitmiş savunanın cezası
+const MIN_COMBAT_MOD := 0.15
+
+## Saldıranın muharebe çarpanı: arazi, hava desteği, çıkarma/nehir, ikmal, garip savaş, planlama, mevsim, yakıt
+func attack_mod(d: Division, pid: int) -> float:
+	var p := World.province(pid)
+	var tinfo: Dictionary = terrain.get(p.terrain, terrain["plains"])
+	var m := 1.0 + float(tinfo["attack"]) + Air.bonus(pid, d.owner)
+	var from := World.province(d.province)
+	if from and not from.is_land():
+		m += amphibious_attack
+	elif from and pid in from.river_adjacent:
+		m += river_attack
+	if not d.supplied:
+		m -= UNSUPPLIED_MALUS
+	m -= _phoney_war_malus(d.owner)
+	m += d.planning * 0.2 - season_attack_malus(pid) - fuel_malus(d)
+	return maxf(m, MIN_COMBAT_MOD)
+
+## Savunanın karşı saldırı çarpanı: hava desteği, ikmal, yakıt; organizasyonu bitmiş (bitkin) tümen yarı güçle direnir
+func defend_mod(d: Division, pid: int) -> float:
+	var m := 1.0 + Air.bonus(pid, d.owner) - (0.0 if d.supplied else UNSUPPLIED_MALUS) - fuel_malus(d)
+	if d.org < div_stats(d)["org"] * RETREAT_ORG:
+		m -= EXHAUSTED_MALUS
+	return maxf(m, MIN_COMBAT_MOD)
+
+## Siper: bekleyen tümenin savunması 10 günde (240 saat) +%15 (+ siper modifier'ları) artar
+func entrenchment(d: Division) -> float:
+	return 1.0 + minf(d.idle_hours / 240.0, 1.0) * (0.15 + World.countries[d.owner].mod("entrenchment"))
+
 func _resolve_battle(pid: int, attackers: Array, defenders: Array) -> void:
 	var p := World.province(pid)
 	var tinfo: Dictionary = terrain.get(p.terrain, terrain["plains"])
@@ -911,27 +942,14 @@ func _resolve_battle(pid: int, attackers: Array, defenders: Array) -> void:
 	var att_attack := 0.0
 	for d: Division in att:
 		var s := div_stats(d)
-		var m := 1.0 + float(tinfo["attack"]) + Air.bonus(pid, d.owner)
-		var from := World.province(d.province)
-		if from and not from.is_land():
-			m += amphibious_attack
-		elif from and pid in from.river_adjacent:
-			m += river_attack
-		if not d.supplied:
-			m -= 0.35
-		m -= _phoney_war_malus(d.owner)
-		m += d.planning * 0.2 - season_attack_malus(pid) - fuel_malus(d)
-		att_attack += (s["soft"] * (1.0 - def_hard) + s["hard"] * def_hard) * d.strength * maxf(m, 0.15) * d.xp_mult()
+		att_attack += (s["soft"] * (1.0 - def_hard) + s["hard"] * def_hard) * d.strength * attack_mod(d, pid) * d.xp_mult()
 		# saldırdıkça planlama erir, tecrübe artar
 		d.planning = maxf(d.planning - 0.02, 0.0)
 		d.xp = minf(d.xp + 0.0008, 1.0)
 	var def_attack := 0.0
 	for d: Division in dfn:
 		var s := div_stats(d)
-		var m := 1.0 + Air.bonus(pid, d.owner) - (0.0 if d.supplied else 0.35) - fuel_malus(d)
-		if d.org < s["org"] * RETREAT_ORG:
-			m -= 0.5          # organizasyonu bitmiş (bitkin) tümen yarı güçle direnir
-		def_attack += (s["soft"] * (1.0 - att_hard) + s["hard"] * att_hard) * d.strength * maxf(m, 0.15) * d.xp_mult()
+		def_attack += (s["soft"] * (1.0 - att_hard) + s["hard"] * att_hard) * d.strength * defend_mod(d, pid) * d.xp_mult()
 		d.xp = minf(d.xp + 0.0006, 1.0)
 	_apply_hits(dfn, att_attack, "defense", 1.0)
 	_apply_hits(att, def_attack, "breakthrough", 1.0)
@@ -973,7 +991,7 @@ func _apply_hits(targets: Array, attack: float, def_key: String, _m: float) -> v
 		var s := div_stats(d)
 		var defense: float = s[def_key] * d.strength
 		if def_key == "defense":
-			defense *= 1.0 + minf(d.idle_hours / 240.0, 1.0) * (0.15 + World.countries[d.owner].mod("entrenchment"))
+			defense *= entrenchment(d)
 		var hits := HIT_DEF * minf(per, defense) + HIT_OPEN * maxf(per - defense, 0.0)
 		hits *= randf_range(0.8, 1.2)
 		d.org = maxf(d.org - hits * ORG_DMG, 0.0)
