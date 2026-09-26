@@ -34,7 +34,7 @@
       "en": "Two-Year Service",
       "tr": "İki Yıllık Mükellefiyet"
      },
-     "manpower": 0.045,
+     "manpower": 0.052,
      "training_time": -0.05
     },
     "reserve_callup": {
@@ -42,7 +42,7 @@
       "en": "Reserve Call-Up",
       "tr": "İhtiyat Celbi"
      },
-     "manpower": 0.09,
+     "manpower": 0.11,
      "factory_output": -0.08,
      "training_time": 0.15,
      "requires": {
@@ -84,10 +84,9 @@
       "en": "Rearmament Program",
       "tr": "Yeniden Silahlanma Programı"
      },
-     "consumer_goods": 0.27,
-     "construction_speed": -0.05,
-     "mil_construction_speed": 0.08,
-     "factory_output": 0.03,
+     "consumer_goods": 0.26,
+     "mil_construction_speed": 0.1,
+     "factory_output": 0.04,
      "requires": {
       "war_support": 0.12
      }
@@ -98,8 +97,8 @@
       "tr": "Savaş Ekonomisi"
      },
      "consumer_goods": 0.19,
-     "mil_construction_speed": 0.18,
-     "factory_output": 0.09,
+     "mil_construction_speed": 0.2,
+     "factory_output": 0.11,
      "requires": {
       "war_support": 0.4,
       "authoritarian_or_at_war": true
