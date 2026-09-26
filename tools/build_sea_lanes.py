@@ -8,9 +8,16 @@ Girdi : data/map/provinces.png (LA8 bölge kimliği), provinces.json, cities.jso
     docks: {"port-sea": [x, y]}     — limanın o denize açılan rıhtım noktası
     lanes: {"a-b": [[x, y], ...]}   — a < b, noktalar a'dan b'ye (dikişte sarmalanmamış, a'ya göre)
 Oyun rota görünümü ve filo hareketi bu ağı kullanır.
+
+Son aşama her rotayı tam çözünürlükte doğrular (yarım pikselden sık örnek, her nokta deniz pikseli olmalı):
+karaya değen rota tam çözünürlükte, kıyıdan uzak durmayı ödüllendiren maliyetle yeniden bulunur, yalnız suda kalan
+kısaltma ve doğrulanmış yumuşatma uygulanır. Sonuç: kara teması 0 (tests/test_sea_lanes.gd aynı ölçütle denetler).
+
+    python3 tools/build_sea_lanes.py [çıktı.json]
 """
 import json
 import heapq
+import sys
 import time
 import numpy as np
 from PIL import Image
@@ -18,7 +25,7 @@ from scipy import ndimage
 
 Image.MAX_IMAGE_PIXELS = None
 F = 4                     # yol bulma ızgarası küçültme katsayısı
-OUT = "data/map/sea_lanes.json"
+OUT = sys.argv[1] if len(sys.argv) > 1 else "data/map/sea_lanes.json"
 T0 = time.time()
 
 
@@ -163,7 +170,8 @@ def chaikin(pts, it=2):
 
 
 def to_full(pts):
-    return [[round(x * F + F / 2, 1), round(y * F + F / 2, 1)] for x, y in pts]
+    """Izgara hücresi -> tam çözünürlük: hücrenin örneklenen pikselinin merkezi (kenarda değil: kayan nokta güvenli)"""
+    return [[round(x * F + F / 2 + 0.5, 2), round(y * F + F / 2 + 0.5, 2)] for x, y in pts]
 
 
 SEA_LUT = np.zeros(65536, bool)
@@ -269,6 +277,17 @@ for i, (a, b) in enumerate(sorted(pairs)):
 log("deniz rotaları", stats)
 
 # ---------------------------------------------------------------- limanlar
+def nearest_cell(cx, cy, targets, r):
+    """(cx, cy) çevresinde r hücre içinde targets bölgelerinden birine ait en yakın ızgara hücresi; yoksa None"""
+    x0, y0 = max(cx - r, 0), max(cy - r, 0)
+    sub = ids[y0:cy + r + 1, x0:cx + r + 1]
+    ys, xs = np.nonzero(np.isin(sub, list(targets)))
+    if len(xs) == 0:
+        return None
+    k = int(np.argmin((xs + x0 - cx) ** 2 + (ys + y0 - cy) ** 2))
+    return (int(xs[k] + x0), int(ys[k] + y0))
+
+
 docks = {}
 pstats = {}
 for c in cities:
@@ -276,19 +295,18 @@ for c in cities:
         continue
     pid = c["province"]
     cx, cy = c["pos"][0] // F, c["pos"][1] // F
-    for s in provs[pid]["adj"]:
-        if s not in sea or s not in nodes:
+    port_seas = [s for s in provs[pid]["adj"] if s in sea and s in nodes]
+    for s in port_seas:
+        # rıhtım: şehre en yakın, o denize ait su hücresi; o deniz şehirden uzaksa (büyük kıyı bölgesi) şehrin
+        # ana rıhtımından (en yakın komşu deniz) o denizin düğümüne gidilir
+        allowed = {s}
+        dock = nearest_cell(cx, cy, {s}, 40)
+        if dock is None:
+            dock = nearest_cell(cx, cy, set(port_seas), 120)
+            allowed = set(port_seas)
+        if dock is None:
             continue
-        # rıhtım: şehre en yakın, o denize ait su hücresi
-        r = 40
-        x0, y0 = max(cx - r, 0), max(cy - r, 0)
-        sub = ids[y0:cy + r + 1, x0:cx + r + 1]
-        ys, xs = np.nonzero(sub == s)
-        if len(xs) == 0:
-            continue
-        k = int(np.argmin((xs + x0 - cx) ** 2 + (ys + y0 - cy) ** 2))
-        dock = (int(xs[k] + x0), int(ys[k] + y0))
-        pts, kind = route(dock, nodes[s], {s})
+        pts, kind = route(dock, nodes[s], allowed)
         pstats[kind] = pstats.get(kind, 0) + 1
         key = f"{min(pid, s)}-{max(pid, s)}"
         full = to_full(pts)
@@ -296,7 +314,143 @@ for c in cities:
         docks[f"{pid}-{s}"] = full[0]
 log("liman rotaları", pstats)
 
-json.dump({"grid": F, "nodes": {str(k): [v[0] * F + F / 2, v[1] * F + F / 2] for k, v in nodes.items()},
+# ---------------------------------------------------------------- tam çözünürlükte doğrulama ve onarım
+EPS = 0.02
+
+
+def seg_samples(p, q, step=0.1):
+    n = int(max(abs(q[0] - p[0]), abs(q[1] - p[1])) / step) + 2
+    return np.linspace(p[0], q[0], n), np.linspace(p[1], q[1], n)
+
+
+def on_sea(xs, ys):
+    """Her örnek (±EPS kaydırmalarıyla) deniz pikselinde mi — piksel sınırındaki kayan nokta farkına dayanıklı"""
+    ok = np.ones(len(xs), bool)
+    for dx in (-EPS, EPS):
+        for dy in (-EPS, EPS):
+            xi = np.floor(xs + dx).astype(np.int64) % W
+            yi = np.clip(np.floor(ys + dy).astype(np.int64), 0, H - 1)
+            ok &= SEA_LUT[full_ids[yi, xi]]
+    return ok
+
+
+def seg_ok(p, q):
+    return bool(on_sea(*seg_samples(p, q)).all())
+
+
+def lane_ok(pts):
+    return all(seg_ok(p, q) for p, q in zip(pts[:-1], pts[1:]))
+
+
+def pull(path):
+    """Suda kalan en uzak noktaya atlayarak kısalt (ip çekme): her parça seg_ok"""
+    out = [path[0]]
+    i = 0
+    n = len(path)
+    while i < n - 1:
+        good = i + 1
+        step = 1
+        while i + step < n and seg_ok(path[i], path[i + step]):
+            good = i + step
+            step *= 2
+        lo, hi = good, min(i + step, n - 1)
+        while hi - lo > 1:
+            mid = (lo + hi) // 2
+            if seg_ok(path[i], path[mid]):
+                lo = mid
+            else:
+                hi = mid
+        out.append(path[lo])
+        i = lo
+    return out
+
+
+def smooth_ok(pts):
+    for it in (2, 1):
+        sm = chaikin([tuple(p) for p in pts], it)
+        if lane_ok(sm):
+            return sm
+    return pts
+
+
+def full_route(a, b):
+    """Tam çözünürlükte a -> b (piksel koordinatı, b a'ya göre sarmalanmış olabilir): kıyıdan uzak duran,
+    önce 1 piksel güvenlik payıyla, olmazsa yalnız suda. Dönüş: nokta listesi (b tarafı a'ya göre) ya da None"""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import dijkstra as sp_dijkstra
+    for margin in (60, 200, 600):
+        x0 = int(min(a[0], b[0])) - margin
+        x1 = int(max(a[0], b[0])) + margin + 1
+        y0 = max(int(min(a[1], b[1])) - margin, 0)
+        y1 = min(int(max(a[1], b[1])) + margin + 1, H)
+        cols = np.arange(x0, x1) % W                       # dikişten taşan pencere sarmalanır
+        win = SEA_LUT[full_ids[y0:y1][:, cols]]
+        h, w = win.shape
+        sx, sy = int(np.floor(a[0])) - x0, int(np.floor(a[1])) - y0
+        tx, ty = int(np.floor(b[0])) - x0, int(np.floor(b[1])) - y0
+        if not (0 <= sx < w and 0 <= sy < h and 0 <= tx < w and 0 <= ty < h):
+            continue
+        safe = ndimage.binary_erosion(win, structure=np.ones((3, 3), bool), border_value=1)
+        for mask in (safe, win):
+            m = mask.copy()
+            m[sy, sx] = m[ty, tx] = True
+            lab, _ = ndimage.label(m, structure=np.ones((3, 3), bool))
+            if lab[sy, sx] != lab[ty, tx]:
+                continue
+            keep = lab == lab[sy, sx]
+            edt = ndimage.distance_transform_edt(keep)
+            cost = 1.0 + 12.0 / (1.0 + edt / F) ** 1.5
+            idx = np.full((h, w), -1, np.int64)
+            ys, xs = np.nonzero(keep)
+            idx[ys, xs] = np.arange(len(ys))
+            rows, cls, wts = [], [], []
+            for dx, dy, L in NB:
+                nx, ny = xs + dx, ys + dy
+                ok = (nx >= 0) & (nx < w) & (ny >= 0) & (ny < h)
+                ok[ok] = keep[ny[ok], nx[ok]]
+                rows.append(idx[ys[ok], xs[ok]])
+                cls.append(idx[ny[ok], nx[ok]])
+                wts.append(L * 0.5 * (cost[ys[ok], xs[ok]] + cost[ny[ok], nx[ok]]))
+            g = coo_matrix((np.concatenate(wts), (np.concatenate(rows), np.concatenate(cls))), shape=(len(ys), len(ys))).tocsr()
+            s0, t0 = idx[sy, sx], idx[ty, tx]
+            dist, pred = sp_dijkstra(g, indices=s0, return_predecessors=True)
+            if not np.isfinite(dist[t0]):
+                continue
+            out = []
+            k = t0
+            while k >= 0:
+                out.append((float(xs[k] + x0) + 0.5, float(ys[k] + y0) + 0.5))
+                k = pred[k]
+            out = out[::-1]
+            out[0] = (float(a[0]), float(a[1]))
+            out[-1] = (float(b[0]), float(b[1]))
+            return out
+    return None
+
+
+repaired = 0
+broken = []
+for key in sorted(lanes):
+    pts = [tuple(p) for p in lanes[key]]
+    if lane_ok(pts):
+        continue
+    t = time.time()
+    path = full_route(pts[0], pts[-1])
+    if path is None or not lane_ok(path):
+        broken.append(key)
+        log("  ONARILAMADI", key)
+        continue
+    fixed = smooth_ok(pull(path))
+    lanes[key] = [[round(x, 2), round(y, 2)] for x, y in fixed]
+    if not lane_ok([tuple(p) for p in lanes[key]]):          # yuvarlama sonrası
+        lanes[key] = [[x, y] for x, y in fixed]
+    repaired += 1
+    if repaired % 20 == 0:
+        log("  onarılan", repaired, key, f"{time.time() - t:.1f}s")
+log("onarılan rota", repaired, "onarılamayan", len(broken))
+
+json.dump({"grid": F, "nodes": {str(k): [v[0] * F + F / 2 + 0.5, v[1] * F + F / 2 + 0.5] for k, v in nodes.items()},
            "docks": docks, "lanes": lanes}, open(OUT, "w"), separators=(",", ":"))
 log("yazıldı", OUT)
 for a, b, p in FAILS: print("FAIL", (a[0]*F, a[1]*F), (b[0]*F, b[1]*F), p)
+for k in broken: print("KARA", k)
