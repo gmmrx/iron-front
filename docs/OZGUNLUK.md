@@ -44,12 +44,27 @@ türün ortak fikirleridir; bunlar serbest. Başka bir oyunun kendine özgü ad�
 Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
 
 ### Katman 1 — İfade (veri ve metin; bulutta test edilebilir)
-- ◐ Kendi terim sözlüğümüz (siyasi güç, milli odak, milli ruh, dünya gerginliği, komuta gücü, muharebe değerleri...)
-- ◐ Yasalar: kendi basamakları, adları ve değerleri; mümkün olduğunca 1930'ların gerçek düzenlemelerinden
-- ◐ Danışmanlar: tarihî kişiler ya da kendi arketiplerimiz
-- ◐ Milli ruhlar: kendi adlarımız ve değerlerimiz
-- ◐ Teknoloji ağacı ve ortak odak ağacı: kendi adlarımız ve yapımız
-- ◐ Sayılar: birim, bina, üretim ve inşaat değerleri kendi formüllerimizden
+- ✔ Kendi terim sözlüğümüz (EN + TR): nüfuz, iç cephe, kriz endeksi, devlet programı, ulusal durum, karargâh kapasitesi,
+  kara/deniz/hava birikimi; personel/tanksavar ateşi, şok, bütünlük, cephe genişliği, hazırlık; savaş gerekçesi (casus belli);
+  tümen tecrübesi: Acemi → Talimli → Pişkin → Sınanmış → Seçme
+- ✔ Yasalar: 6 askerlik (antlaşmayla sınırlı ordu → kitlesel celp), 4 ekonomi (barış ekonomisi → topyekûn savaş), 4 dış ticaret
+  (açık pazar, kliring, otarşi, dış ticaret tekeli); başlangıç yasaları tarihe göre
+- ✔ Danışmanlar: gerçek devlet makamları (Başbakanlık Müsteşarı, Planlama Komiseri, Silahlanma Bakanı...)
+- ✔ Ulusal durumlar: uydurma adlar tarihî olgularla değişti (Reformlara Direnç, Moskova Duruşmaları, Barış Oylaması, Kısa Ömürlü
+  Kabineler, Laval'in Deflasyon Kararnameleri, Saray Kamarillası, Südet Almanları Meselesi...)
+- ✔ Teknoloji adları tarihî kavramlarla; ortak devlet programları kendi adlarımız ve 6–12 haftalık sürelerle
+- ✔ Sayılar kendi ölçeğimizde: inşaat fabrika-gün, üretim fabrika-saat, proje/hat başına 12 fabrika, muharebe değerleri
+  (piyade taburu 30 / 110 / 100 bütünlük), zırh ve delme mm
+- ☐ Kalanlar (denge testiyle birlikte yapılmalı):
+  - Nüfuz ölçeği (günde 2, yasa ve danışman 150, gerekçe 30) ve kararların bedelleri
+  - Ticarette "8 kaynak = 1 fabrika", ithalatta "2 kaynak = 1 konvoy"
+  - Kriz endeksi eşikleri (bağlantısız %50, demokrasi %100 / %25 / %80) ve iç cepheye etkisi (%1 başına +%0,4)
+  - İstikrar etkileri tablosu (%100'de +%20 fabrika, +%10 nüfuz...) ve teslim sınırı formülü (%80, iç cephe < %50)
+  - Tabur insan gücü ve ekipman sayıları (piyade 1000 kişi / 100 tüfek, topçu 500 kişi / 12 top), hızlar, zırh oranları
+  - Ekipman kaynak ihtiyaçları (fabrika başına çelik, tungsten...); araştırmada "yıl başına +%150" erken araştırma cezası
+  - 1936 başlangıç değerleri (istikrar, iç cephe, ideoloji popülerliği): `tools/setup_1936_government.py`'deki tablo tarihî
+    seçim sonuçlarından ve kendi hesabımızdan yeniden türetilmeli
+  - Ülke kodları (GXC, XSM, RAJ, AST...) yalnız iç kimlik; oyuncuya görünmez, düşük öncelik
 
 ### Katman 2 — Arayüz kimliği (insan gözü gerekir)
 - ☐ Kendi yerleşimimiz ve ekran akışımız, kendi kısayol düzenimiz ve renk dilimiz
@@ -61,8 +76,9 @@ Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
 - ☐ Hava ve mevsim, ordu → cephe sistemi öne çıkar
 
 ### Katman 4 — Süreç ve geçmiş
-- ◐ "Türün klasiği" ifadeleri, parite bölümleri ve rehber videosu kaynakları temizlenir
-- ◐ `THIRD_PARTY_LICENSES.md`: harita, yükseklik ve bayrak kaynakları; her bayrağın lisansı tek tek doğrulanır
+- ✔ "Türün klasiği" ifadeleri, parite bölümleri ve rehber videosu kaynakları temizlendi; ikon prompt aracında "klasik strateji
+  oyunu tarzı" ifadeleri çıkarıldı
+- ◐ `THIRD_PARTY_LICENSES.md`: harita, yükseklik ve bayrak kaynakları yazıldı; her bayrağın lisansı tek tek doğrulanacak
 - ☐ Herkese açık git geçmişinde eski ifadeler duruyor (ilk commit'teki bir shader yorumu başka oyunun adını anıyor).
   Ticari yayın, geçmişi olmayan temiz bir depodan yapılır.
 - ☐ Tasarım günlüğü: önemli sayıların ve adların gerekçesi yazılı tutulur (JSON `_comment`, wiki)

@@ -1,18 +1,18 @@
 # Ülkeler
 
 Oyunda 80 ülke oynanabilir. Her biri 1936 başındaki lideri, ideolojisi ve iktidar partisiyle başlar. Tüm ülkeler için
-`game/dev/country_check.gd` testi oyunu o ülkeyle başlatıp yasa, ticaret, üretim, inşaat, araştırma, odak ve danışman
+`game/dev/country_check.gd` testi oyunu o ülkeyle başlatıp yasa, ticaret, üretim, inşaat, araştırma, devlet programı ve danışman
 eylemlerinin oyuna etki ettiğini ölçer.
 
 ## Büyük güçler (1936 başı, etkin değerler)
-| Ülke | Lider | İstikrar | Savaş desteği | Başlangıç ruhları |
+| Ülke | Lider | İstikrar | İç cephe | Başlangıç ulusal durumları |
 |---|---|---|---|---|
-| Türkiye | Mustafa Kemal Atatürk (CHP) | %50 | %20 | Kemalist Subaylar, Mezhepsel Sıkıntılar, Dağınık Silahlı Kuvvetler, Yaygın Okuma Yazma Bilmezlik, Birinci Beş Yıllık Sanayi Planı |
+| Türkiye | Mustafa Kemal Atatürk (CHP) | %50 | %20 | Kemalist Subaylar, Reformlara Direnç, Yeniden Yapılanan Ordu, Düşük Okuryazarlık, Birinci Beş Yıllık Sanayi Planı |
 | Almanya | Adolf Hitler (NSDAP) | %81 | %35 | Mihver lideri; Ren → Anschluss → Südet → Danzig → Barbarossa zinciri |
-| İngiltere | Stanley Baldwin | %89 | %15 | Kral V. George, Bütün Savaşları Bitirecek Savaş (−%30 askere alınabilir nüfus); seçim 1939 |
-| Fransa | Pierre Laval | %50 | %10 | Dağınık Hükümet (teslim sınırı −%30), Verimsiz Ekonomi, Tam İstihdam, Büyük Savaşın Galipleri |
+| İngiltere | Stanley Baldwin | %89 | %15 | Kral V. George, Barış Oylaması (−%30 askere alınabilir nüfus); seçim 1939 |
+| Fransa | Pierre Laval | %50 | %10 | Kısa Ömürlü Kabineler (teslim sınırı −%30), Laval'in Deflasyon Kararnameleri |
 | İtalya | Benito Mussolini | %42 | %55 | III. Vittorio Emanuele |
-| SSCB | Josef Stalin | %30 | %40 | Troçkist Komplo, Tasfiye Edilmiş Subay Kadrosu, Beş Yıllık Plan |
+| SSCB | Josef Stalin | %30 | %40 | Moskova Duruşmaları, Büyük Terör, İkinci Beş Yıllık Plan |
 | ABD | Franklin D. Roosevelt | %90 | %5 | Büyük Buhran; seçimler 1936/1940/1944 |
 | Japonya | Keisuke Okada | %70 | %20 | Devlet Şintoizmi |
 

@@ -124,7 +124,7 @@ L = {
  "one_year_service": "a queue of young men with call-up papers at a conscription office", "two_year_service": "second-year conscripts drilling recruits on a parade ground",
  "reserve_callup": "reservists in civilian coats collecting uniforms at a depot, call-up posters on the wall",
  "levee_en_masse": "civilians of all ages drilling with rifles in a town square, mass levy",
- "peacetime_economy": "a busy peacetime shop street with consumer goods in windows", "rearmament_drive": "a factory switching from tractors to trucks, rearmament program",
+ "peacetime_economy": "a busy peacetime shop street with consumer goods in windows", "rearmament": "a factory switching from tractors to trucks, rearmament program",
  "war_economy": "an arms factory working at night under floodlights, war economy",
  "total_war": "women and men in a vast munitions factory producing shells, total war",
  "open_markets": "cargo ships of many nations crowding an open port", "clearing_agreements": "two officials exchanging a ledger over a table of stacked goods, clearing agreement",
@@ -150,7 +150,7 @@ for k, v in DEC.items(): row("decision_" + k, v)
 SPIRIT = {
  "kemalist_reforms": "a Turkish school blackboard with the Latin alphabet and a Republic cockade", "armed_neutrality": "a soldier guarding a border post with a white-red barrier",
  "village_institutes": "village students building their own school in Anatolia", "five_year_plan": "a Soviet-style factory under construction with a plan chart",
- "great_purge": "an empty officers' chair and scattered epaulettes", "rearmament": "rows of new rifles and helmets in an armory",
+ "great_purge": "an empty officers' chair and scattered epaulettes", "rearmament_drive": "rows of new rifles and helmets in an armory",
  "maginot_mentality": "a concrete Maginot Line bunker with a retractable turret", "british_empire": "a globe with shipping lanes and a Royal Navy ensign",
  "fascist_state": "a marble balcony with banners over a massed rally", "war_propaganda": "a wall of war posters and a radio loudspeaker",
  "industrial_drive": "a blast furnace pouring molten steel", "military_modernization": "old cavalry replaced by new trucks and tanks",

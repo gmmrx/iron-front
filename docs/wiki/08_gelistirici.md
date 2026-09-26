@@ -9,7 +9,7 @@ Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde v
 | `GODOT=godot tools/run_tests.sh` | İçe aktarma + `tests/run.gd` + `country_check` (60 gün); adım adım ve toplam sonuç |
 | `godot --headless --path . -s tests/run.gd [-- --file=test_data] [--filter=hatay]` | Test paketi: `tests/test_*.gd` içindeki her `test_*` fonksiyonu temiz bir oyunla koşar |
 | `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyunu başlatır; oyuncu eylemlerinin oyunu etkilediğini ve oyuncu adına otomatik iş yapılmadığını ölçer |
-| `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/savaş desteği, tarihli olaylar, seçimler |
+| `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/iç cephe, tarihli olaylar, seçimler |
 | `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
 
@@ -27,8 +27,8 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_data.gd` | Veri başvuruları, etki sözlüğü, çeviri tablosu |
 | `test_economy.gd` | İnşaat, bina yuvası, kamu inşaat tabanı, üretim verimliliği, kaynak açığı, tüketim malı |
 | `test_trade.gd` | Elle anlaşma, ödeme sınırı, düşmanla ticaret yok (oyuncu ve AI), otomatik ticaret, konvoy |
-| `test_politics.gd` | İstikrar/savaş desteği formülleri, yasa şartları, danışman, karar, süreli ruh, seçim, tarihli olay, kilitli seçenek |
-| `test_diplomacy.gd` | Gerekçe, gerginlik eşikleri, savaşa katılım, teslim ilerlemesi ve sınırı, eyalet devri, beyaz barış |
+| `test_politics.gd` | İstikrar/iç cephe formülleri, yasa şartları, danışman, karar, süreli ulusal durum, seçim, tarihli olay, kilitli seçenek |
+| `test_diplomacy.gd` | Gerekçe, kriz endeksi eşikleri, savaşa katılım, teslim ilerlemesi ve sınırı, eyalet devri, beyaz barış |
 | `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
 | `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
 | `test_military.gd` | Eğitim süresi (askerlik yasası) |
@@ -59,5 +59,5 @@ Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-meth
   ör. `ismet_inonu.png`) → üst çubukta bayrak yerine, Hükümet ve Diplomasi ekranlarında görünür; yoksa bayrak.
 
 ## Veri
-İçerik `data/common/*.json` (ülkeler, yasalar, ruhlar, olaylar, odaklar, teknolojiler, birimler, binalar, ekipman).
+İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman).
 Olay seçeneğine `"require": [koşullar]` eklenirse şart sağlanmadıkça seçenek kilitli görünür; yapay zekâ da seçmez.

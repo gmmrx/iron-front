@@ -7,7 +7,7 @@ Başlangıç: **1 Ocak 1936**. Harita: Avrupa, Kuzey Afrika, Orta Doğu, Batı S
 Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özgü oynanış.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **25 Eylül 2026 (akşam)**
+Son güncelleme: **26 Eylül 2026**
 
 > ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
 > Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
@@ -23,8 +23,8 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
   denge testi 6 koşunun 6'sında 12 kontrolün hepsini geçiyor.
 - **Hükümet modeli**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
-  gerginlik ve savaş durumuna bağlı savaş desteği, istikrarın fabrika/SG/tüketim malı etkileri, savaş desteğine bağlı teslim sınırı,
-  şartlı yasalar, tarihli ve süreli milli ruhlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
+  kriz endeksi ve savaş durumuna bağlı iç cephe, istikrarın fabrika/nüfuz/tüketim malı etkileri, iç cepheye bağlı teslim sınırı,
+  şartlı yasalar, tarihli ve süreli ulusal durumlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
 - **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı karargâh/birikim kutusu, kısayol harfli menü; tüm yan paneller aynı
   çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), devlet programı ağacı ve olay
   penceresi (arayüz kimliği BÖLÜM Ö Katman 2 ile yeniden tasarlanacak).
@@ -36,8 +36,9 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
   [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
 
 ### Sıradaki işler (öncelik sırasıyla)
-0. ◐ **Özgünlük (BÖLÜM Ö)**: terimler, yasalar, danışmanlar, ruhlar, teknoloji/odak adları ve sayılar kendi ifademizle;
-   kopya izleri temizlenir; yeni oyun adı ve marka araştırması
+0. ◐ **Özgünlük (BÖLÜM Ö)**: ✔ terimler, yasalar, danışmanlar, ulusal durumlar, teknoloji/program adları, inşaat/üretim/muharebe
+   sayıları kendi ifademizle, kopya izleri temizlendi; ☐ kalan sayılar (docs/OZGUNLUK.md), arayüz kimliği, yeni oyun adı ve
+   marka araştırması
 1. ✔ **Gemiler karaya çıkmıyor**: deniz yolları tam çözünürlükte doğrulanıp onarıldı (kara teması 236 → 0 rota, eksik liman–deniz
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
@@ -53,13 +54,14 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
 
 ## BÖLÜM Ö — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET ◐ ← HER İŞTEN ÖNCE
 Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki inceleme listesinden geçer.
-- [◐] Katman 1 — İfade: terim sözlüğü, yasalar, danışmanlar, milli ruhlar, teknoloji ve ortak odak adları, birim/bina/üretim
-      sayıları kendi formülümüzden
+- [◐] Katman 1 — İfade: ✔ terim sözlüğü, yasalar, danışmanlar, ulusal durumlar, teknoloji ve ortak program adları, inşaat
+      (fabrika-gün), üretim (fabrika-saat), muharebe değerleri; ☐ nüfuz ölçeği, ticaret/konvoy oranları, kriz endeksi eşikleri,
+      istikrar etkileri, tabur insan gücü/ekipman, 1936 başlangıç değerleri (liste: docs/OZGUNLUK.md)
 - [ ] Katman 2 — Arayüz kimliği: kendi yerleşim, kısayol ve renk dili; harita sayaçları için açık sembol standardı
       (insan gözü gerekir)
 - [ ] Katman 3 — İmza mekanikler: seçenekli kriz pazarlıkları, tarafsız ülke denge diplomasisi, hava/mevsim ve cephe sistemi
-- [◐] Katman 4 — Süreç: "türün klasiği" ifadeleri ve parite/rehber videosu bölümleri temizlenir, üçüncü taraf atıfları
-      tamamlanır; ticari yayın geçmişi olmayan temiz bir depodan yapılır
+- [◐] Katman 4 — Süreç: ✔ "türün klasiği" ifadeleri ve parite/rehber videosu bölümleri temizlendi; ◐ üçüncü taraf atıfları
+      (bayrak lisansları tek tek doğrulanacak); ☐ ticari yayın geçmişi olmayan temiz bir depodan yapılır
 - [ ] **Oyun adı**: "Iron Front" çalışma adı. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar oyunu (2012) ve bir
       mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adı. Aday adlar TÜRKPATENT, EUIPO, USPTO, WIPO
       (Nice 9, 28, 41), mağazalar ve alan adlarında aranır; seçilen ad tek bir çeviri anahtarından okunur
@@ -73,7 +75,7 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
 | 0 | Proje, harita üretim hattı, kamera, saat, temel arayüz | ✔ |
 | 1 | 3D harita, kabartma, nehir/göl/boğaz, şehirler, ülke adları | ✔ (tüm dünya ✔, bkz. W) |
 | 2 | Ekonomi: fabrikalar, inşaat, kaynaklar, ticaret, üretim hatları, yasalar | ✔ |
-| 3 | Siyaset: odak ağaçları, olaylar, ruhlar, danışmanlar, kararlar | ◐ |
+| 3 | Siyaset: devlet programı ağaçları, olaylar, ulusal durumlar, danışmanlar, kararlar | ◐ |
 | 4 | Araştırma: 33 teknoloji, slotlar, yıl cezası | ◐ |
 | 5 | Kara savaşı: tümenler, A*, muharebe, kuşatma, basit ikmal, ordular/cepheler (C1) | ◐ |
 | 6 | Hava (gerçek kanatlar, ★4) & deniz (gerçek filolar, deniz yolları, ★3) | ◐ |
@@ -101,7 +103,7 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
       Japonya–Çin 1937-08, Pasifik Savaşı 1941-12, Çin/İngiltere/SSCB ayakta
 - [x] Doğu–batı kesintisiz kaydırma: dikişte harita kopyası, kamera sarmalanır, dikiş çizgisi/karartma yok
 - [x] Messina / Küçük Belt / Panama kanalları (harita yeniden üretimi; 11 boğaz, Manş karadan geçilmez)
-- [ ] Diğer büyük güçler için ayrıntılı odak ağaçları (ABD, Japonya, Çin genişletilecek)
+- [ ] Diğer büyük güçler için ayrıntılı devlet programı ağaçları (ABD, Japonya, Çin genişletilecek)
 
 ## BÖLÜM ★ — GÖRÜNÜR SAVAŞ (Faz 11) ◐ ← EN ÖNCELİKLİ
 Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada gerçek, hareket eden 3D modeller.
@@ -130,7 +132,7 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
 ### ★3. Donanma birimleri (sistem + görünüm) ◐
 - [x] Filo birimi (`Navy` + `Fleet`): gemiler stok yerine filolarda; liman ya da deniz bölgesinde; yedek filo
 - [x] Görevler: limanda, deniz üstünlüğü, konvoy baskını (denizaltı), konvoy koruma; görev bölgesi (≈420 km)
-- [x] Deniz muharebesi: saatlik ateş/hasar, denizaltı tespiti, organizasyon, geri çekilme, batan gemiler
+- [x] Deniz muharebesi: saatlik ateş/hasar, denizaltı tespiti, bütünlük, geri çekilme, batan gemiler
 - [x] Deniz hâkimiyeti: nakliyedeki tümenler düşman hâkimiyetinde kayıp verir; rota düşman denizinden geçmez
 - [x] Konvoylar: baskınla batar, açık ithalatı düşürür; AI konvoy üretir
 - [x] Donanma paneli (N), haritada filo seçimi, sağ tıkla bölge/üs emri, filo ipucu
@@ -177,7 +179,7 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
 - [x] Piyade/makineli iz mermileri düşmana doğru; namlu alevleri
 - [x] Yön değiştiren tümen geri dönmez (gittiği bölgeden devam eder)
 - [x] Tek bilgi kartı (bozuk tooltip gecikme ayarı düzeltildi); alttaki düğmelerin (harita modları) kartı düğmenin üstünde açılır
-- [x] Üst görev çubuğu kare simge düğmeleri + kare uyarı şeridi (olay, boş araştırma, odak, boş fabrika/tersane,
+- [x] Üst görev çubuğu kare simge düğmeleri + kare uyarı şeridi (olay, boş araştırma, devlet programı, boş fabrika/tersane,
       boş inşaat, ikmalsiz tümen, konvoy açığı, stokta uçak, insan gücü, teslim tehlikesi)
 - [x] Donanma: büyük güçler 6 filoya kadar, 12+ gemilik yedek filoya dönüşür; oyuncu her zaman çıkarma yapabilir
       (düşman hâkimiyetindeki denizden geçemez)
@@ -208,8 +210,8 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [x] 1939–41 akışı (25 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6 — Polonya Eyl–Ara 1939 düşer, Almanya/İngiltere/SSCB/İtalya
       ayakta, Barbarossa 1941-07. Düzeltmeler: AI ordusu tek düşmanı hedefler (müttefik cephesine yayılmaz), ordu başına
       tavan, her cephe bölgesine garnizon, büyük güçler arası ilk 240 gün taarruz yok, demokrasiler sağlam büyük güce
-      saldırmaz ("garip savaş"), tümenler dolmadan yenisi kurulmaz, doktrin ruhları (Blitzkrieg +%25 saldırı, Maginot −%30,
-      Büyük Temizlik −%30, hazırlıksız ordu), Alman odak süreleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
+      saldırmaz ("garip savaş"), tümenler dolmadan yenisi kurulmaz, doktrin durumları (Blitzkrieg +%25 saldırı, Maginot −%30,
+      Büyük Terör −%30, hazırlıksız ordu), Alman program tarihleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
 - [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
 - [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
 - [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
@@ -217,7 +219,7 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 ### P2. Oyuncuya geri bildirim
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
 - [ ] Tümen/filo seçilince yol önizlemesi ve varış süresi
-- [◐] "Neden?" ipuçları: istikrar ve savaş desteği dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
+- [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
       kaynak açığı satırları ✔; kalan: ikmal açığı, deniz hâkimiyeti
 - [ ] Hedefler / ipucu sistemi (ilk 30 dakika için rehber)
 
@@ -228,10 +230,10 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 ### P4. Karar oyuncuda (otomatiklik denetimi) ✔
 - [x] Oyuncunun ticareti elle: satıcı seç, +8/−8, iptal; "Otomatik ticaret" yalnız oyuncu açarsa; ödenemeyecek ithalat engellenir (nedeni ipucunda)
 - [x] Oyuncunun hava kanatları "Otomatik" kapalı başlar (başlangıçtakiler ve yeni konuşlandırılanlar)
-- [x] Tümenler "Son askere kadar" açık başlar: kendiliğinden geri çekilmez; organizasyon bitince yarı güçle savaşır (tümen panelinden kapatılabilir)
+- [x] Tümenler "Son askere kadar" açık başlar: kendiliğinden geri çekilmez; bütünlük bitince yarı güçle savaşır (tümen panelinden kapatılabilir)
 - [x] Tarihî baskılar seçenekli olay; seçeneklere şart (`require`), şartsız seçenek kilitli görünür, AI da seçmez
 - [x] Her ülke testi (`game/dev/country_check.gd`): oyuncu eylemleri oyunu etkiliyor, oyuncu adına otomatik iş yok
-- [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/odak/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
+- [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/program/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
       çeviri tablosu), `tools/run_tests.sh`, GitHub Actions; dev betikleri sorun bulunca 1 ile çıkar
 - [x] Sistem senaryo testleri (73 test): ekonomi, ticaret, siyaset, diplomasi, kara savaşı, deniz/hava, kayıt/yükleme
       (200 gün, alan alan), belirlenimcilik; bulunan hatalar düzeltildi (oyuncunun düşmanla ticareti, üyenin beyaz barışı,
@@ -284,8 +286,8 @@ bulacağıyla yazıldı.
 - [ ] Altyapı eyaletin kaynak çıktısını artırır (seviye başına +%10), eyalet başına bina yuvası teknolojiyle artar
 - [ ] Tüketim malları (consumer goods): seferberlik yasası + istikrar → sivil fabrikaların bir kısmı halka gider
 - [ ] Kaynak açığında üretim hattı sırası: öndeki hat az, arkadakiler çok ceza
-- [ ] Siyasi güç 200'de birikmesin uyarısı; danışmanlar ve şirketler (tasarımcılar: tank/uçak/gemi bonusu)
-- [ ] İstikrar ve savaş desteği etkileri: savaş desteği <50 → teslim sınırı düşer, askere alım yavaşlar
+- [ ] Nüfuz birikip boşa gitmesin uyarısı; ülkeye özgü tarihî danışmanlar ve tasarım büroları (tank/uçak/gemi)
+- [ ] İstikrar ve iç cephe etkileri: iç cephe zayıflayınca askere alım yavaşlar
 - [ ] Barış konferansı: ilhak / kukla / kaynak ve fabrika talebi; kukla haraç öder
 - [ ] İşgal yönetimi: direniş ve uyum; işgal yasası (sivil gözetim … askerî yönetim), garnizon ister
 
@@ -327,7 +329,7 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 - [ ] İkmal merkezleri (inşa edilebilir, demiryoluna bağlı)
 - [ ] Başkent/limanlar → demiryolu → ikmal merkezi → kamyonlarla cephe
 - [ ] Kamyon tüketimi, atlı ikmal
-- [ ] Bölge ikmal kapasitesi vs. tüketim → açık: organizasyon/saldırı/yıpranma cezası
+- [ ] Bölge ikmal kapasitesi vs. tüketim → açık: bütünlük/saldırı/yıpranma cezası
 - [ ] İkmal harita modu (akış, darboğazlar)
 - [ ] Deniz ikmali: konvoylar; denizaltılar konvoy batırır
 
@@ -490,7 +492,7 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 ---
 
 ## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
-- [ ] Her büyük güç için tam odak ağacı (100+ odak), orta güçlere özel ağaçlar
+- [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar
 - [ ] Tarihî olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar, Kuzey Afrika)
 - [ ] Seçimler, darbe, iç savaş
 - [ ] Kukla devletler, barış konferansı ekranı, lend-lease, gönüllüler

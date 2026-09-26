@@ -1,16 +1,16 @@
 # Diplomasi
 
-## Dünya gerginliği
-Saldırganlıkla artar (gerekçe hazırlama, ilhak, savaş). Herkesin savaş desteğini artırır (%1 başına +%0,4, en çok +%40).
+## Kriz endeksi
+Dünyanın genel savaşa ne kadar yaklaştığı. Saldırganlıkla artar (gerekçe hazırlama, ilhak, savaş). Herkesin iç cephesini güçlendirir (%1 başına +%0,4, en çok +%40).
 
 | İdeoloji | Savaş gerekçesi | Garanti verebilmek | İttifaka girmek |
 |---|---|---|---|
 | Faşist / komünist | her zaman | her zaman | her zaman |
-| Bağlantısız | gerginlik ≥ %50 | gerginlik ≥ %40 | gerginlik ≥ %40 |
-| Demokratik | gerginlik %100 ve hedef demokrasi değil | gerginlik ≥ %25 | gerginlik ≥ %80 (savaştaysa %50) |
+| Bağlantısız | endeks ≥ %50 | endeks ≥ %40 | endeks ≥ %40 |
+| Demokratik | endeks %100 ve hedef demokrasi değil | endeks ≥ %25 | endeks ≥ %80 (savaştaysa %50) |
 
 ## Eylemler (O ya da haritada ülke → Diplomasi)
-- **Savaş gerekçesi**: 30 siyasi güç, 30 gün. Hazır olunca savaş ilan edilebilir.
+- **Savaş gerekçesi**: 30 nüfuz, 30 gün. Hazır olunca savaş ilan edilebilir.
 - **Savaş ilanı**: hedefin müttefikleri ve garantörleri katılır.
 - **Bağımsızlık garantisi**: ona saldırana karşı savaşa girersin.
 - **Askerî geçiş**: tümenlerin topraklarından geçer (aynı ideoloji ya da müttefik kabul eder, diğerleri %30).
@@ -21,6 +21,6 @@ Saldırganlıkla artar (gerekçe hazırlama, ilhak, savaş). Herkesin savaş des
 
 ## Teslim
 - Teslim ilerlemesi = şehirlerin zafer puanlarından düşman elindeki pay (sömürgeler ¼ sayılır) + başkent düştüyse %10.
-- Sınır %80; savaş desteği %50'nin altındaysa (0,5 − savaş desteği) × 0,6 kadar düşer; bazı ruhlar değiştirir
-  (ör. Fransa'nın Dağınık Hükümet ruhu −%30). En düşük %20.
+- Sınır %80; iç cephe %50'nin altındaysa (0,5 − iç cephe) × 0,6 kadar düşer; bazı ulusal durumlar değiştirir
+  (ör. Fransa'nın Kısa Ömürlü Kabineler durumu −%30). En düşük %20.
 - Teslim olan ülkenin işgal edilen eyaletleri işgalciye geçer.
