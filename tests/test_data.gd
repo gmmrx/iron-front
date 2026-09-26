@@ -376,7 +376,15 @@ func test_strings_used_in_code() -> void:
 		for item in fam[prefix]:
 			if not keys.has(prefix + str(item)):
 				p.append("%s%s çeviri tablosunda yok" % [prefix, item])
-	for k in _regex_set("\"news\":\\s*\"([A-Z0-9_]+)\"", _data_text()):
+	var suffixes := _suffix_families()
+	for k in _regex_set("\\btr\\([^()\"]*\\+\\s*\"(_[A-Z0-9_]+)\"\\)"):
+		if not suffixes.has(k):
+			p.append("son ekli anahtar ailesi '%s' testte tanımlı değil (tests/test_data.gd _suffix_families)" % k)
+	for suffix: String in suffixes:
+		for item in suffixes[suffix]:
+			if not keys.has(str(item) + suffix):
+				p.append("%s%s çeviri tablosunda yok" % [item, suffix])
+	for k in _regex_in("\"news\":\\s*\"([A-Z0-9_]+)\"", _data_text()):
 		if not keys.has(k):
 			p.append("veri: news '%s' çeviri tablosunda yok" % k)
 	none(p, "çeviri")
@@ -420,6 +428,11 @@ func _families() -> Dictionary:
 		"TIP_": map_modes,
 	}
 
+## Son ekli anahtar aileleri: tr(x + "SONEK") biçimindeki kullanımların alabileceği değerler
+func _suffix_families() -> Dictionary:
+	# army_panel: [["ARM_SOFT", değer], ...] → tr(pair[0] + "_TIP")
+	return {"_TIP": _regex_in("\\[\"(ARM_[A-Z]+)\",", FileAccess.get_file_as_string("res://game/ui/army_panel.gd"))}
+
 ## Arayüzde ya da olay penceresinde gösterilen JSON metinleri iki dilde dolu mu (açıklamalar uyarı)
 func test_json_texts() -> void:
 	var missing := 0
@@ -448,7 +461,7 @@ func _check_text(d: Variant, ctx: String, p: Array) -> void:
 
 func _check_effects(effects: Array, ctx: String, allow_from: bool, p: Array) -> void:
 	var known := _match_keys(POLITICS_SRC, "_apply")
-	var params := _regex_set("e\\.get\\(\"([a-z_]+)\"", _func_body(POLITICS_SRC, "_apply"))
+	var params := _regex_in("e\\.get\\(\"([a-z_]+)\"", _func_body(POLITICS_SRC, "_apply"))
 	for e: Dictionary in effects:
 		var main := 0
 		for k: String in e:
@@ -631,9 +644,13 @@ func _data_text() -> String:
 			parts.append(FileAccess.get_file_as_string("res://data/common/" + f))
 	return "\n".join(parts)
 
-func _regex_set(pattern: String, text: String = "") -> Array[String]:
+## Oyun kodunda (game/**/*.gd) desenin ilk grubunun farklı değerleri
+func _regex_set(pattern: String) -> Array[String]:
+	return _regex_in(pattern, _all_code())
+
+func _regex_in(pattern: String, text: String) -> Array[String]:
 	var out: Array[String] = []
-	for m in RegEx.create_from_string(pattern).search_all(text if text != "" else _all_code()):
+	for m in RegEx.create_from_string(pattern).search_all(text):
 		var s := m.get_string(1)
 		if not s in out:
 			out.append(s)
@@ -650,7 +667,7 @@ func _func_body(path: String, fname: String) -> String:
 
 ## Fonksiyondaki match kollarının anahtarları:  <sekmeler>"anahtar":
 func _match_keys(path: String, fname: String) -> Array[String]:
-	return _regex_set("(?m)^\\t+\"([a-z_]+)\":", _func_body(path, fname))
+	return _regex_in("(?m)^\\t+\"([a-z_]+)\":", _func_body(path, fname))
 
 ## Kaynaktaki bir dizi sabitinin/değişkeninin dizgileri:  NAME := ["A", "B"]
 func _const_array(path: String, name: String) -> Array[String]:

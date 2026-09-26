@@ -71,6 +71,7 @@ func _init() -> void:
 				_print_lines(errs)
 			for w in warns:
 				print("        uyarı: %s" % w)
+		inst = null          # sonraki dosyadan önce bırak (çıkışta sızıntı uyarısı olmasın)
 	print("")
 	print("== %d test: %d geçti, %d kaldı, %d uyarı (%.1f sn) ==" % [passed + failed.size(), passed, failed.size(), warnings,
 		(Time.get_ticks_msec() - t0) / 1000.0])
