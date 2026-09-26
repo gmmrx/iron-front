@@ -35,7 +35,7 @@ IDEOLOGY = {
     "YUG": "neutrality", "YUN": "neutrality",
 }
 
-# ------------------------------------------------------------------ lider, parti, popülerlik, hedefler (wiki ülke sayfaları)
+# ------------------------------------------------------------------ lider, parti, popülerlik, hedefler
 # pop: (demokrasi, komünizm, faşizm, bağlantısız) yüzde
 GOV = {
     "TUR": dict(leader="Mustafa Kemal Atatürk", party=("Republican People's Party (CHP)", "Cumhuriyet Halk Partisi (CHP)"),
@@ -64,43 +64,41 @@ GOV = {
 DEFAULT_POP = {"democratic": (70, 10, 10, 10), "communism": (5, 85, 5, 5), "fascism": (10, 5, 70, 15), "neutrality": (20, 10, 10, 60)}
 DEM_ELECTIONS = 48    # varsayılan: demokrasiler 4 yılda bir, ilk seçim 1937-06
 
-# ------------------------------------------------------------------ yeni başlangıç ruhları (etkiler bizim modifier dilimizde)
+# ------------------------------------------------------------------ başlangıç ulusal durumları (tarihî olgular; etkiler bizim)
 NEW_SPIRITS = {
     "kemalist_officers": ("Kemalist Officers", "Kemalist Subaylar", {"stability": 0.05}),
-    "sectarian_woes": ("Sectarian Woes", "Mezhepsel Sıkıntılar", {"stability": -0.15, "war_support": -0.15}),
-    "disorganized_armed_forces": ("Disorganized Armed Forces", "Dağınık Silahlı Kuvvetler", {"org": -0.08, "speed": -0.10, "war_support": -0.15}),
-    "widespread_illiteracy": ("Widespread Illiteracy", "Yaygın Okuma Yazma Bilmezlik", {"political_power_gain": -0.05, "stability": -0.05, "research_speed": -0.05}),
+    "reform_resistance": ("Resistance to the Reforms", "Reformlara Direnç", {"stability": -0.15, "war_support": -0.15}),
+    "army_in_reorganization": ("Army in Reorganization", "Yeniden Yapılanan Ordu", {"org": -0.08, "speed": -0.10, "war_support": -0.15}),
+    "low_literacy": ("Low Literacy (19% in 1935)", "Düşük Okuryazarlık (1935'te %19)", {"political_power_gain": -0.05, "stability": -0.05, "research_speed": -0.05}),
     "first_five_year_plan": ("First Five-Year Industrial Plan", "Birinci Beş Yıllık Sanayi Planı", {"construction_speed": 0.05}),
-    "trotskyite_plot": ("Trotskyite Plot?", "Troçkist Komplo?", {"political_power_gain": -0.15, "stability": -0.20}),
-    "purged_army": ("Purged Officer Corps", "Tasfiye Edilmiş Subay Kadrosu", {"org": -0.10}),
+    "moscow_trials": ("The Moscow Trials", "Moskova Duruşmaları", {"political_power_gain": -0.15, "stability": -0.20}),
+    "purged_army": ("Officer Corps Decimated", "Kırılan Subay Kadrosu", {"org": -0.10}),
     "king_george_v": ("King George V", "Kral V. George", {"stability": 0.15}),
-    "war_to_end_all_wars": ("The War to End All Wars", "Bütün Savaşları Bitirecek Savaş", {"recruitable_population_factor": -0.30}),
-    "disjointed_government": ("Disjointed Government", "Dağınık Hükümet", {"stability": -0.10, "political_power_flat": -0.8, "surrender_limit": -0.30}),
-    "victors_of_ww1": ("Victors of the Great War", "Büyük Savaşın Galipleri", {"war_support": -0.05}),
-    "inefficient_economy": ("Inefficient Economy", "Verimsiz Ekonomi", {"factory_output": -0.20}),
-    "full_employment": ("Full Employment", "Tam İstihdam", {"recruitable_population_factor": -0.25}),
+    "peace_ballot": ("The Peace Ballot", "Barış Oylaması", {"recruitable_population_factor": -0.30}),
+    "cabinet_instability": ("Revolving-Door Cabinets", "Kısa Ömürlü Kabineler", {"stability": -0.10, "political_power_flat": -0.8, "surrender_limit": -0.30, "war_support": -0.05}),
+    "laval_deflation": ("Laval's Deflation Decrees", "Laval'in Deflasyon Kararnameleri", {"factory_output": -0.20, "recruitable_population_factor": -0.25}),
     "victor_emmanuel": ("Victor Emmanuel III", "III. Vittorio Emanuele", {"stability": 0.05}),
     "great_depression": ("The Great Depression", "Büyük Buhran", {"political_power_flat": -0.5, "consumer_goods_mod": 0.15, "recruitable_population_factor": -0.5}),
-    "state_shintoism": ("State Shintoism", "Devlet Şintoizmi", {"war_support": 0.20, "surrender_limit": 0.10}),
-    "chinese_corruption": ("Corruption in the Armed Forces", "Silahlı Kuvvetlerde Yolsuzluk", {"recruitable_population_factor": -0.40, "defense": -0.15, "consumer_goods_mod": 0.10}),
+    "state_shintoism": ("State Shinto", "Devlet Şintoizmi", {"war_support": 0.20, "surrender_limit": 0.10}),
+    "divided_army_loyalties": ("Divided Loyalties in the Army", "Orduda Bölünmüş Sadakat", {"recruitable_population_factor": -0.40, "defense": -0.15, "consumer_goods_mod": 0.10}),
     "april_constitution": ("The April Constitution", "Nisan Anayasası", {"political_power_gain": -0.15}),
-    "political_violence": ("Political Violence", "Siyasi Şiddet", {"stability": -0.15}),
-    "national_strikes": ("National Strikes", "Genel Grevler", {"stability": -0.10, "factory_output": -0.10, "construction_speed": -0.10}),
-    "carol_lifestyle": ("King Carol II's Lifestyle", "Kral II. Carol'ün Yaşam Tarzı", {"stability": -0.05}),
+    "polarized_republic": ("Polarized Republic", "Kutuplaşmış Cumhuriyet", {"stability": -0.15}),
+    "strike_wave": ("Wave of Strikes", "Grev Dalgası", {"stability": -0.10, "factory_output": -0.10, "construction_speed": -0.10}),
+    "palace_camarilla": ("The Palace Camarilla", "Saray Kamarillası", {"stability": -0.05}),
     "treaty_of_trianon": ("Treaty of Trianon", "Trianon Antlaşması", {"recruitable_population_factor": -0.30}),
     "levente": ("Levente Associations", "Levente Dernekleri", {"recruitable_population_factor": 0.10}),
-    "divided_nation": ("Divided Nation", "Bölünmüş Ulus", {"stability": -0.20}),
-    "croatian_opposition": ("Croatian Opposition", "Hırvat Muhalefeti", {"stability": -0.20}),
+    "sudeten_question": ("The Sudeten German Question", "Südet Almanları Meselesi", {"stability": -0.20}),
+    "hss_boycott": ("Croat Peasant Party Boycott", "Hırvat Köylü Partisi Boykotu", {"stability": -0.20}),
     "milli_sef": ("National Chief", "Millî Şef", {"stability": 0.05, "political_power_gain": 0.10}),
     "straits_sovereignty": ("Sovereignty over the Straits", "Boğazlarda Egemenlik", {"defense": 0.05, "stability": 0.03}),
 }
 START_ADD = {
-    "TUR": ["kemalist_officers", "sectarian_woes", "disorganized_armed_forces", "widespread_illiteracy", "first_five_year_plan"],
-    "SOV": ["trotskyite_plot"], "ENG": ["king_george_v", "war_to_end_all_wars"],
-    "FRA": ["disjointed_government", "victors_of_ww1", "inefficient_economy", "full_employment"],
-    "ITA": ["victor_emmanuel"], "USA": ["great_depression"], "JAP": ["state_shintoism"], "CHI": ["chinese_corruption"],
-    "POL": ["april_constitution"], "SPR": ["political_violence", "national_strikes"], "ROM": ["carol_lifestyle"],
-    "HUN": ["treaty_of_trianon", "levente"], "CZE": ["divided_nation"], "YUG": ["croatian_opposition"],
+    "TUR": ["kemalist_officers", "reform_resistance", "army_in_reorganization", "low_literacy", "first_five_year_plan"],
+    "SOV": ["moscow_trials"], "ENG": ["king_george_v", "peace_ballot"],
+    "FRA": ["cabinet_instability", "laval_deflation"],
+    "ITA": ["victor_emmanuel"], "USA": ["great_depression"], "JAP": ["state_shintoism"], "CHI": ["divided_army_loyalties"],
+    "POL": ["april_constitution"], "SPR": ["polarized_republic", "strike_wave"], "ROM": ["palace_camarilla"],
+    "HUN": ["treaty_of_trianon", "levente"], "CZE": ["sudeten_question"], "YUG": ["hss_boycott"],
 }
 # Türkiye: başlangıçta Atatürk'ün reform ruhu yok; silahlı tarafsızlık odakla gelir
 START_REMOVE = {"TUR": ["kemalist_reforms", "armed_neutrality"]}

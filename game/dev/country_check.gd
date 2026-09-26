@@ -90,8 +90,8 @@ func _init() -> void:
 		# danışman
 		var pp0: float = c.daily_political_power_gain()
 		var adv_ok := "yok"
-		if P.can_hire(c, "silent_workhorse"):
-			P.hire(c, "silent_workhorse")
+		if P.can_hire(c, "cabinet_secretary"):
+			P.hire(c, "cabinet_secretary")
 			adv_ok = "ok" if c.daily_political_power_gain() > pp0 else "ETKİSİZ"
 		res["danışman"] = adv_ok
 		var orders0: int = c.trade_orders.size()

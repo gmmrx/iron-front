@@ -95,15 +95,15 @@ func test_advisor_effect_and_limit() -> void:
 	var c := _bare("TUR")
 	c.political_power = 1000.0
 	var gain0 := c.daily_political_power_gain()
-	Politics.hire(c, "silent_workhorse")               # +%15 SG kazancı
+	Politics.hire(c, "cabinet_secretary")              # +%12 nüfuz kazancı
 	near(c.political_power, 1000.0 - Politics.advisor_cost, 0.001, "danışman bedeli")
-	near(c.daily_political_power_gain() - gain0, 2.0 * 0.15, 0.0001, "danışman SG kazancını artırır")
+	near(c.daily_political_power_gain() - gain0, 2.0 * float(Politics.advisor_mods("cabinet_secretary")["political_power_gain"]), 0.0001, "danışman nüfuz kazancını artırır")
 	var ids: Array = Politics.advisor_defs.keys()
 	for id: String in ids:
 		Politics.hire(c, id)
 	eq(c.advisors.size(), Politics.max_advisors, "en çok danışman sayısı")
-	Politics.dismiss(c, "silent_workhorse")
-	check(not "silent_workhorse" in c.advisors, "danışman görevden alınır")
+	Politics.dismiss(c, "cabinet_secretary")
+	check(not "cabinet_secretary" in c.advisors, "danışman görevden alınır")
 
 func test_decision_effect_and_expiry() -> void:
 	var c := _bare("TUR")

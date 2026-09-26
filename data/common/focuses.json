@@ -437,7 +437,7 @@
       "stability": 0.05
      },
      {
-      "remove_spirit": "sectarian_woes"
+      "remove_spirit": "reform_resistance"
      }
     ],
     "ai": 30
@@ -651,7 +651,7 @@
       "spirit": "village_institutes"
      },
      {
-      "remove_spirit": "widespread_illiteracy"
+      "remove_spirit": "low_literacy"
      }
     ],
     "ai": 18
@@ -717,7 +717,7 @@
       "spirit": "military_modernization"
      },
      {
-      "remove_spirit": "disorganized_armed_forces"
+      "remove_spirit": "army_in_reorganization"
      },
      {
       "research_bonus": "infantry",
@@ -2960,7 +2960,7 @@
     "available": [],
     "effects": [
      {
-      "spirit": "rearmament"
+      "spirit": "rearmament_drive"
      },
      {
       "building": "military_factory",

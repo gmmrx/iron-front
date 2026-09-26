@@ -13,7 +13,7 @@ func _play() -> void:
 	c.war_goals["IRQ"] = true
 	Diplomacy.declare_war("TUR", "IRQ")
 	Economy.change_law(c, "conscription", "two_year_service")
-	Politics.hire(c, "silent_workhorse")
+	Politics.hire(c, "cabinet_secretary")
 	for id: String in Politics.tree_of(c):
 		if Politics.start_focus(c, id):
 			break

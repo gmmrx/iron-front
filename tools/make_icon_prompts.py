@@ -124,7 +124,7 @@ L = {
  "one_year_service": "a queue of young men with call-up papers at a conscription office", "two_year_service": "second-year conscripts drilling recruits on a parade ground",
  "reserve_callup": "reservists in civilian coats collecting uniforms at a depot, call-up posters on the wall",
  "levee_en_masse": "civilians of all ages drilling with rifles in a town square, mass levy",
- "peacetime_economy": "a busy peacetime shop street with consumer goods in windows", "rearmament": "a factory switching from tractors to trucks, rearmament program",
+ "peacetime_economy": "a busy peacetime shop street with consumer goods in windows", "rearmament_drive": "a factory switching from tractors to trucks, rearmament program",
  "war_economy": "an arms factory working at night under floodlights, war economy",
  "total_war": "women and men in a vast munitions factory producing shells, total war",
  "open_markets": "cargo ships of many nations crowding an open port", "clearing_agreements": "two officials exchanging a ledger over a table of stacked goods, clearing agreement",
@@ -134,10 +134,10 @@ h("5. Yasalar")
 for k, v in L.items(): row("law_" + k, v)
 sp = J("spirits.json")
 A = {
- "silent_workhorse": "a quiet bureaucrat at a desk buried in paperwork, stamping documents", "captain_of_industry": "a top-hatted industrialist in front of factory chimneys",
- "armaments_organizer": "an engineer with blueprints of a gun and a slide rule", "research_director": "a scientist in a lab coat holding a glowing vacuum tube",
- "army_chief": "a general in a peaked cap studying a map table", "air_chief": "an air marshal in a flight jacket with a squadron flying behind",
- "navy_chief": "an admiral with binoculars on a battleship bridge", "propaganda_minister": "a minister speaking into a radio microphone before a crowd",
+ "cabinet_secretary": "a quiet senior civil servant at a desk buried in cabinet papers, stamping documents", "planning_commissioner": "an official unrolling a large construction plan over a table of factory models",
+ "armaments_minister": "a minister in a suit inspecting shells on an arms factory line", "science_council": "a scientist in a lab coat holding a glowing vacuum tube",
+ "chief_of_general_staff": "a general in a peaked cap studying a map table", "air_minister": "a minister in a flight jacket with a squadron flying behind",
+ "naval_chief_of_staff": "an admiral with binoculars on a battleship bridge", "information_minister": "a minister speaking into a radio microphone before a crowd",
 }
 h("6. Danışmanlar (yüz değil sembolik figür: telif/benzerlik riski yok)")
 for k, v in A.items(): row("advisor_" + k, v)
@@ -157,22 +157,21 @@ SPIRIT = {
  "national_unity": "people of all classes holding one national flag together", "spanish_civil_war": "a shattered Spanish town with volunteers behind barricades",
  "blitzkrieg_doctrine": "tanks and dive bombers advancing together through a breach", "obsolete_army": "WWI-era soldiers with old rifles and horse-drawn guns",
  "italian_army": "Italian Alpini soldiers with feathered hats in the mountains", "expeditionary_doctrine": "troops boarding transports for an overseas expedition",
- "kemalist_officers": "a proud officer corps saluting under a republican banner", "sectarian_woes": "a divided village crowd arguing in front of a mosque and a government office",
- "disorganized_armed_forces": "a disordered army camp with mixed old equipment and confused officers", "widespread_illiteracy": "an old peasant looking at a newspaper he cannot read",
- "first_five_year_plan": "a Turkish textile factory (Sümerbank) being built on the Anatolian plateau", "trotskyite_plot": "a shadowy conspiracy meeting behind a curtain, secret police at the door",
+ "kemalist_officers": "a proud officer corps saluting under a republican banner", "reform_resistance": "a divided village crowd arguing in front of a mosque and a government office",
+ "army_in_reorganization": "a disordered army camp with mixed old equipment and confused officers", "low_literacy": "an old peasant looking at a newspaper he cannot read",
+ "first_five_year_plan": "a Turkish textile factory (Sümerbank) being built on the Anatolian plateau", "moscow_trials": "a packed courtroom with defendants in the dock and secret police at the door",
  "purged_army": "a Red Army staff room with empty chairs and removed portraits", "king_george_v": "a royal crown on a velvet cushion with the Union flag",
- "war_to_end_all_wars": "a WWI memorial with poppies and a grieving mother", "disjointed_government": "a parliament chamber in chaos with ministers shouting",
- "victors_of_ww1": "a triumphal arch with a victory parade of 1918 veterans", "inefficient_economy": "an idle factory with workers on strike and rusty machines",
- "full_employment": "crowds of workers entering factory gates at dawn", "victor_emmanuel": "an Italian royal crown beside a fasces symbol",
+ "peace_ballot": "volunteers collecting ballot papers door to door beside a WWI memorial with poppies", "cabinet_instability": "a parliament chamber in chaos with ministers shouting",
+ "laval_deflation": "an idle factory with rusty machines and a decree posted on the gate", "victor_emmanuel": "an Italian royal crown beside a fasces symbol",
  "great_depression": "a long breadline in front of a closed bank", "state_shintoism": "a Shinto torii gate with a rising sun behind",
- "chinese_corruption": "an official taking a bribe under a desk in a crowded office", "april_constitution": "a Polish constitutional document with an eagle seal",
- "political_violence": "street fighting between rival militias with overturned carts", "national_strikes": "striking workers with banners blocking a factory gate",
- "carol_lifestyle": "a lavish royal palace ballroom with champagne", "treaty_of_trianon": "a torn map of Hungary with a treaty document",
- "levente": "Hungarian youth paramilitary drilling with wooden rifles", "divided_nation": "a nation split by a crack between two rival flags",
- "croatian_opposition": "a protest crowd with a checkerboard banner", "milli_sef": "a statesman at a podium before Anıtkabir-like classical columns, 'National Chief'",
+ "divided_army_loyalties": "an official taking a bribe under a desk in a crowded office", "april_constitution": "a Polish constitutional document with an eagle seal",
+ "polarized_republic": "street fighting between rival militias with overturned carts", "strike_wave": "striking workers with banners blocking a factory gate",
+ "palace_camarilla": "courtiers whispering behind a throne in a lavish palace hall", "treaty_of_trianon": "a torn map of Hungary with a treaty document",
+ "levente": "Hungarian youth paramilitary drilling with wooden rifles", "sudeten_question": "a mountain border town with rival party posters on its walls",
+ "hss_boycott": "empty parliament benches and a peasant crowd with a checkerboard banner outside", "milli_sef": "a statesman at a podium before Anıtkabir-like classical columns, 'National Chief'",
  "straits_sovereignty": "Turkish coastal guns overlooking the Bosphorus with a warship passing",
 }
-h("8. Milli ruhlar (national spirits)")
+h("8. Ulusal durumlar")
 for k, v in SPIRIT.items(): row("spirit_" + k, v)
 for k in sp["spirits"]:
     if k not in SPIRIT:

@@ -174,7 +174,7 @@ func _laws(c: Country) -> void:
 func _advisors(c: Country) -> void:
 	if c.political_power < 250.0 or c.advisors.size() >= Politics.max_advisors:
 		return
-	for id: String in ["silent_workhorse", "armaments_organizer", "research_director", "army_chief", "captain_of_industry"]:
+	for id: String in ["cabinet_secretary", "armaments_minister", "science_council", "chief_of_general_staff", "planning_commissioner"]:
 		if Politics.can_hire(c, id):
 			Politics.hire(c, id)
 			return
