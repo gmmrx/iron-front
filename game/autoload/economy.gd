@@ -47,6 +47,7 @@ var _fleets: Dictionary = {}
 ## Yeni oyun: 1936 binaları, yasalar, başlangıç üretimi (World.reset() sonrası çağrılır)
 func reset() -> void:
 	var lw := {"start": _law_start}
+	invalidate_counts()          # önceki oyunun (aynı gün numaralı) sayım önbelleği kalmasın
 	load_history()
 	for c: Country in World.countries.values():
 		var start: Dictionary = lw["start"].get(c.tag, lw["start"]["_default"])

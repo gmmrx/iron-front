@@ -62,6 +62,14 @@ func reset() -> void:
 	battles.clear()
 	_stats_cache.clear()
 	_supplied.clear()
+	# günlük önbellekler: yeni oyun da 0. günde başladığı için eski oyunun kayıtları kullanılmasın
+	_front_cache.clear()
+	_front_day = -1
+	_target_cache.clear()
+	_target_day = -1
+	invalidate_masks()
+	_fmasks.clear()
+	_fmask_day = -1
 	_next_id = 1
 	for c: Country in World.countries.values():
 		c.templates = []
