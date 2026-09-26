@@ -1,12 +1,26 @@
 # Geliştirici notları
 
 ## Testler
+Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde ve main'e push'ta GitHub Actions
+(`.github/workflows/tests.yml`) `tools/run_tests.sh`'ı koşar; denge testi aynı iş akışında yalnız elle tetiklenir.
+
 | Komut | Ne yapar |
 |---|---|
+| `GODOT=godot tools/run_tests.sh` | İçe aktarma + `tests/run.gd` + `country_check` (60 gün); adım adım ve toplam sonuç |
+| `godot --headless --path . -s tests/run.gd [-- --file=test_data] [--filter=hatay]` | Test paketi: `tests/test_*.gd` içindeki her `test_*` fonksiyonu temiz bir oyunla koşar |
 | `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyunu başlatır; oyuncu eylemlerinin oyunu etkilediğini ve oyuncu adına otomatik iş yapılmadığını ölçer |
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/savaş desteği, tarihli olaylar, seçimler |
-| `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol) |
+| `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
+
+### Test yazmak
+`tests/test_<konu>.gd` dosyası `extends "res://tests/test_case.gd"` ile başlar; `test_` ile başlayan her fonksiyon
+bir testtir. Koşucu her testten önce `Game.new_game()` + `World.start_game(player_tag())` çağırır (varsayılan TUR;
+dosyada `player_tag()` ezilerek değişir). Doğrulamalar: `check`, `eq`, `near`, `gt`, `ge`, `lt`, `none` (liste boş
+olmalı), `fail`, `warn` (kırmızı yapmaz); yardımcılar: `days(n)`, `player()`, `country(tag)`, `read_json(yol)`.
+Test sırasında basılan motor/betik hatası (`push_error`, SCRIPT ERROR) da testi kırmızı yapar.
+Veri testleri (`tests/test_data.gd`) motorun tanıdığı etki ve koşul anahtarlarını `politics.gd`'den okur; yeni etki
+eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı olur.
 
 ## Geliştirici argümanları (`godot --path . -- ...`)
 `--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
