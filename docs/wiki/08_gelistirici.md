@@ -34,6 +34,13 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_military.gd` | Eğitim süresi (askerlik yasası) |
 | `test_save_load.gd` | 200 gün → kaydet → yükle: tüm alanlar aynı (fark eden alan adıyla yazılır) |
 | `test_determinism.gd` | Aynı tohumla iki koşu aynı dünya |
+| `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |
+| `test_fleet_motion.gd` | Filo görsel konumu (köşe kavisleri, limandan çıkış, seyir) denizde; FleetLayer düzeni karaya taşmaz |
+| `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
+
+Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;
+katman testleri ağır dokuları yüklemeyen `ProbeMap` (MapView3D alt sınıfı) kullanır. Deniz yolları değişirse
+`python3 tools/build_sea_lanes.py` (~1 dk, `pip install pillow numpy scipy`) ağı yeniden üretir ve kara temasını onarır.
 
 Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıttaki tercihleri korunur);
 `World.start_game(tag)` yalnız yeni oyunda oyuncu varsayılanlarını kurar. Yeni bir ülke/tümen alanı eklerken kayda da ekle:
