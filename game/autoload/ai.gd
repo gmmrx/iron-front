@@ -161,11 +161,13 @@ func _laws(c: Country) -> void:
 	var war := Diplomacy.at_war(c.tag) or World.world_tension > 60.0
 	if not war:
 		return
-	var order := {"economy": ["civilian_economy", "early_mobilization", "partial_mobilization", "war_economy", "total_mobilization"],
-			"conscription": ["disarmed_nation", "volunteer_only", "limited_conscription", "extensive_conscription", "service_by_requirement"]}
+	# sıra ve üst sınır: barışta (kriz endeksi yüksek) savaş ekonomisi / iki yıllık mükellefiyet, savaşta bir basamak daha
+	var order := {"economy": ["peacetime_economy", "rearmament", "war_economy", "total_war"],
+			"conscription": ["treaty_army", "professional_army", "one_year_service", "two_year_service", "reserve_callup"]}
+	var peace_limit := {"economy": 2, "conscription": 3}
 	var g := "economy" if randf() < 0.5 else "conscription"
 	var cur: int = order[g].find(c.laws[g])
-	var limit := 3 if not Diplomacy.at_war(c.tag) else 4
+	var limit: int = peace_limit[g] + (1 if Diplomacy.at_war(c.tag) else 0)
 	if cur >= 0 and cur < mini(limit, order[g].size() - 1):
 		Economy.change_law(c, g, order[g][cur + 1])
 

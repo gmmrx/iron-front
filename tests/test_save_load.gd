@@ -12,7 +12,7 @@ func _play() -> void:
 	World.world_tension = 60.0
 	c.war_goals["IRQ"] = true
 	Diplomacy.declare_war("TUR", "IRQ")
-	Economy.change_law(c, "conscription", "limited_conscription")
+	Economy.change_law(c, "conscription", "two_year_service")
 	Politics.hire(c, "silent_workhorse")
 	for id: String in Politics.tree_of(c):
 		if Politics.start_focus(c, id):

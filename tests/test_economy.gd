@@ -118,16 +118,16 @@ func test_resource_shortage_slows_output() -> void:
 func test_consumer_goods_follow_law_and_stability() -> void:
 	var c := player()
 	c.stability = 0.5
-	c.laws["economy"] = "civilian_economy"
+	c.laws["economy"] = "peacetime_economy"
 	var civ_law := Economy.consumer_goods_factories(c)
 	c.laws["economy"] = "war_economy"
 	var war_law := Economy.consumer_goods_factories(c)
-	check(war_law < civ_law, "savaş ekonomisinde tüketim malı daha az (%d < %d)" % [war_law, civ_law])
-	c.laws["economy"] = "civilian_economy"
+	check(war_law < civ_law, "savaş ekonomisinde tüketim malı barıştan az (%d < %d)" % [war_law, civ_law])
+	c.laws["economy"] = "peacetime_economy"
 	var total := Economy.count(c, "civilian_factory") + Economy.count(c, "military_factory")
 	c.stability = 0.0
 	var low := Economy.consumer_goods_factories(c)
-	eq(low, mini(int(round(total * maxf((0.35 + c.mod("consumer_goods_mod")) * Politics.stability_consumer_factor(c), 0.05))), Economy.count(c, "civilian_factory")), "tüketim malı formülü")
+	eq(low, mini(int(round(total * maxf((float(Economy.law_def("economy", "peacetime_economy")["consumer_goods"]) + c.mod("consumer_goods_mod")) * Politics.stability_consumer_factor(c), 0.05))), Economy.count(c, "civilian_factory")), "tüketim malı formülü")
 	c.stability = 1.0
 	var high := Economy.consumer_goods_factories(c)
 	check(high <= low, "yüksek istikrarda tüketim malı azalır ya da aynı kalır (%d <= %d)" % [high, low])

@@ -107,16 +107,16 @@ START_REMOVE = {"TUR": ["kemalist_reforms", "armed_neutrality"]}
 
 # ------------------------------------------------------------------ başlangıç yasaları
 LAWS = {
-    "GER": ("limited_conscription", "partial_mobilization", "limited_exports"),
-    "ENG": ("limited_conscription", "civilian_economy", "free_trade"),
-    "FRA": ("limited_conscription", "civilian_economy", "free_trade"),
-    "ITA": ("volunteer_only", "early_mobilization", "export_focus"),
-    "SOV": ("limited_conscription", "civilian_economy", "closed_economy"),
-    "USA": ("volunteer_only", "civilian_economy", "free_trade"),
-    "JAP": ("limited_conscription", "partial_mobilization", "limited_exports"),
-    "TUR": ("volunteer_only", "civilian_economy", "export_focus"),
-    "POL": ("limited_conscription", "civilian_economy", "export_focus"),
-    "CHI": ("limited_conscription", "civilian_economy", "export_focus"),
+    "GER": ("one_year_service", "rearmament", "autarky"),
+    "ENG": ("professional_army", "peacetime_economy", "open_markets"),
+    "FRA": ("one_year_service", "peacetime_economy", "open_markets"),
+    "ITA": ("one_year_service", "rearmament", "clearing_agreements"),
+    "SOV": ("one_year_service", "peacetime_economy", "trade_monopoly"),
+    "USA": ("professional_army", "peacetime_economy", "open_markets"),
+    "JAP": ("one_year_service", "rearmament", "autarky"),
+    "TUR": ("one_year_service", "peacetime_economy", "clearing_agreements"),
+    "POL": ("one_year_service", "peacetime_economy", "clearing_agreements"),
+    "CHI": ("one_year_service", "peacetime_economy", "clearing_agreements"),
 }
 
 

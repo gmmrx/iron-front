@@ -106,4 +106,4 @@ func party_name() -> String:
 	return party.get(loc, party.get("en", ""))
 
 func recruitable_manpower() -> int:
-	return int(manpower_pop * maxf(Economy.law_value(self, "manpower", 0.015) + mod("recruitable_population"), 0.0) * maxf(1.0 + mod("recruitable_population_factor"), 0.05))
+	return int(manpower_pop * maxf(Economy.law_value(self, "manpower", 0.014) + mod("recruitable_population"), 0.0) * maxf(1.0 + mod("recruitable_population_factor"), 0.05))

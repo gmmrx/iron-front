@@ -78,18 +78,18 @@ func test_law_requirements() -> void:
 	c.political_power = 1000.0
 	c.war_support = 0.0
 	World.world_tension = 0.0
-	eq(Economy.law_block_reason(c, "conscription", "service_by_requirement"), "LAW_REQ_WAR_SUPPORT", "savaş desteği yetmez")
+	eq(Economy.law_block_reason(c, "conscription", "reserve_callup"), "LAW_REQ_WAR_SUPPORT", "iç cephe yetmez")
 	c.war_support = 0.6
-	eq(Economy.law_block_reason(c, "conscription", "service_by_requirement"), "", "savaş desteği yetince açılır")
-	eq(Economy.law_block_reason(c, "conscription", "scraping_the_barrel"), "LAW_REQ_AUTHORITARIAN", "bağlantısız barışta son kaynak kapalı")
+	eq(Economy.law_block_reason(c, "conscription", "reserve_callup"), "", "iç cephe yetince açılır")
+	eq(Economy.law_block_reason(c, "conscription", "levee_en_masse"), "LAW_REQ_AUTHORITARIAN", "bağlantısız barışta kitlesel celp kapalı")
 	c.war_support = 1.0
-	eq(Economy.law_block_reason(c, "economy", "total_mobilization"), "LAW_REQ_AT_WAR", "topyekûn seferberlik savaş ister")
+	eq(Economy.law_block_reason(c, "economy", "total_war"), "LAW_REQ_AT_WAR", "topyekûn savaş, savaş ister")
 	var pp := c.political_power
-	check(Economy.change_law(c, "conscription", "extensive_conscription"), "yasa değişir")
-	near(c.political_power, pp - Economy.law_change_cost, 0.001, "yasa SG bedeli")
+	check(Economy.change_law(c, "conscription", "two_year_service"), "yasa değişir")
+	near(c.political_power, pp - Economy.law_change_cost, 0.001, "yasa nüfuz bedeli")
 	c.political_power = 10.0
-	check(not Economy.change_law(c, "conscription", "limited_conscription"), "SG yetmezse yasa değişmez")
-	eq(c.laws["conscription"], "extensive_conscription", "yasa aynı kaldı")
+	check(not Economy.change_law(c, "conscription", "one_year_service"), "nüfuz yetmezse yasa değişmez")
+	eq(c.laws["conscription"], "two_year_service", "yasa aynı kaldı")
 
 func test_advisor_effect_and_limit() -> void:
 	var c := _bare("TUR")

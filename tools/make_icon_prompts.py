@@ -120,15 +120,15 @@ for k, v in E.items(): row("equipment_" + k, v)
 
 # ---------------------------------------------------------------- yasalar / danışmanlar / kararlar
 L = {
- "disarmed_nation": "a rifle broken over a knee under a dove, disarmed nation", "volunteer_only": "a recruiting poster wall with a single volunteer signing up",
- "limited_conscription": "a queue of young men with papers at a conscription office", "extensive_conscription": "a large parade of new conscripts marching in columns",
- "service_by_requirement": "older men and students receiving rifles from a sergeant", "all_adults_serve": "civilians of all ages drilling with rifles in a town square",
- "scraping_the_barrel": "teenagers and old men in mismatched uniforms holding rifles, last reserves",
- "civilian_economy": "a busy peacetime shop street with consumer goods in windows", "early_mobilization": "a factory switching from tractors to trucks, early mobilization",
- "partial_mobilization": "a factory line half producing rifles half producing tools", "war_economy": "an arms factory working at night under floodlights, war economy",
- "total_mobilization": "women and men in a vast munitions factory producing shells, total mobilization",
- "free_trade": "cargo ships of many nations crowding an open port, free trade", "export_focus": "export crates stamped with a globe loaded onto a ship",
- "limited_exports": "a customs officer checking cargo at a harbor gate", "closed_economy": "a harbor closed with a chain boom and a padlock, closed economy",
+ "treaty_army": "a small parade of a few soldiers watched by foreign inspectors with a treaty document", "professional_army": "long-service regular soldiers in neat uniforms at a barracks gate",
+ "one_year_service": "a queue of young men with call-up papers at a conscription office", "two_year_service": "second-year conscripts drilling recruits on a parade ground",
+ "reserve_callup": "reservists in civilian coats collecting uniforms at a depot, call-up posters on the wall",
+ "levee_en_masse": "civilians of all ages drilling with rifles in a town square, mass levy",
+ "peacetime_economy": "a busy peacetime shop street with consumer goods in windows", "rearmament": "a factory switching from tractors to trucks, rearmament program",
+ "war_economy": "an arms factory working at night under floodlights, war economy",
+ "total_war": "women and men in a vast munitions factory producing shells, total war",
+ "open_markets": "cargo ships of many nations crowding an open port", "clearing_agreements": "two officials exchanging a ledger over a table of stacked goods, clearing agreement",
+ "autarky": "a synthetic fuel plant and grain silos behind a closed frontier gate, autarky", "trade_monopoly": "a state trading office stamping every export crate with one seal",
 }
 h("5. Yasalar")
 for k, v in L.items(): row("law_" + k, v)

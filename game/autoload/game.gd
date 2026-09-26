@@ -148,6 +148,7 @@ func load_game(slot: String) -> bool:
 		var cd: Dictionary = data["countries"][tag]
 		c.political_power = float(cd["pp"]); c.stability = float(cd["stability"]); c.war_support = float(cd["war_support"])
 		c.ideology = cd["ideology"]; c.capital_state = int(cd["capital"]); c.laws = cd["laws"]
+		Economy.sanitize_laws(c)
 		c.spirits.assign(cd["spirits"]); c.advisors.assign(cd["advisors"]); c.focus_done.assign(cd["focus_done"])
 		c.focus_current = cd["focus_current"]; c.focus_progress = float(cd["focus_progress"])
 		c.leader = str(cd.get("leader", c.leader)); c.next_election = int(cd.get("next_election", c.next_election))

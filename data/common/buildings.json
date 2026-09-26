@@ -13,8 +13,7 @@
   "economy": {
     "civ_factory_output": 5.0,
     "max_factories_per_project": 15,
-    "infrastructure_speed_bonus": 0.05,
-    "consumer_goods_civilian_economy": 0.35
+    "infrastructure_speed_bonus": 0.05
   },
   "resources": ["oil", "steel", "aluminium", "tungsten", "chromium", "rubber"]
 }
