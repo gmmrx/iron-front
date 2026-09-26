@@ -38,7 +38,8 @@ türün ortak fikirleridir; bunlar serbest. Başka bir oyunun kendine özgü ad�
 8. **Oyunun adı:** "Iron Front" bir **çalışma adıdır**. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar
    oyunu ve bir mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adıdır. Yayın ya da satıştan önce ad
    değişecek. Yeni ad; TÜRKPATENT, EUIPO, USPTO ve WIPO marka veri tabanlarında (Nice sınıfları 9, 28, 41), mağazalarda ve
-   alan adlarında aranmadan kullanılmaz. Oyun içi metinlerde adı sabit yazmak yerine tek bir çeviri anahtarı kullanılır.
+   alan adlarında aranmadan kullanılmaz. Oyun içinde ad yalnız `GAME_TITLE` çeviri anahtarından okunur; ad değişince
+   ayrıca `project.godot` (`config/name`) ve `tools/web/shell.html` güncellenir.
 
 ## Farklılaştırma planı
 Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
