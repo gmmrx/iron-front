@@ -93,7 +93,7 @@ func save_game(slot: String) -> bool:
 		}
 	for d in Military.divisions:
 		data["divisions"].append({"id": d.id, "o": d.owner, "t": d.template, "n": d.name, "p": d.province,
-			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold})
+			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold, "ih": d.idle_hours})
 	data["armies"] = []
 	for a in Military.armies:
 		data["armies"].append({"id": a.id, "o": a.owner, "n": a.name, "e": a.enemy, "m": int(a.mode), "c": a.color.to_html()})
@@ -187,6 +187,7 @@ func load_game(slot: String) -> bool:
 		d.path = PackedInt32Array(dd["path"]); d.progress = float(dd["pr"]); d.strength = float(dd["s"])
 		d.org = float(dd["org"]); d.attacking = int(dd["a"]); d.training = int(dd["tr"])
 		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0)); d.hold = bool(dd.get("h", false))
+		d.idle_hours = int(dd.get("ih", 0))
 		Military.divisions.append(d)
 	Military._next_id = int(data["div_id"])
 	if data.has("wings"):
