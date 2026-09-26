@@ -236,6 +236,15 @@ MOD_breakthrough,Breakthrough,Yarma
 MOD_entrenchment,Entrenchment,Siper
 MOD_production_efficiency_cap,Production efficiency cap,Üretim verimlilik tavanı
 MOD_synthetic_output,Synthetic refinery output,Sentetik rafineri çıktısı
+MOD_infantry_soft,Infantry soft attack,Piyade yumuşak saldırısı
+MOD_infantry_defense,Infantry defense,Piyade savunması
+MOD_infantry_breakthrough,Infantry breakthrough,Piyade yarması
+MOD_infantry_speed,Infantry speed,Piyade hızı
+MOD_artillery_soft,Artillery soft attack,Topçu yumuşak saldırısı
+MOD_artillery_hard,Artillery hard attack,Topçu sert saldırısı
+MOD_armor_soft,Armor soft attack,Zırhlı yumuşak saldırısı
+MOD_armor_hard,Armor hard attack,Zırhlı sert saldırısı
+MOD_armor_breakthrough,Armor breakthrough,Zırhlı yarması
 ARMY_TITLE,Army,Ordu
 TASK_ARMY,Army (U),Ordu (U)
 "TIP_TASK_ARMY","ARMY\nDesign division templates, deploy new formations and review combat statistics. Select divisions on the map to issue movement orders.\nShortcut: U","ORDU\nTümen şablonlarını tasarlayın, yeni birlikler konuşlandırın ve muharebe istatistiklerini inceleyin. Hareket emri vermek için haritadaki tümenleri seçin.\nKısayol: U"
