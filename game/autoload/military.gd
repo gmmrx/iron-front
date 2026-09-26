@@ -14,6 +14,7 @@ const HIT_OPEN := 0.4                  ## savunmayı aşan saldırının isabet 
 const RETREAT_ORG := 0.12
 const SEA_SPEED := 20.0                ## km/saat (konvoy)
 const EMBARK_COST := 250.0             ## km eşdeğeri
+const TRAINING_DAYS := 14              ## yeni tümenin eğitim süresi (gün)
 
 var battalions: Dictionary = {}
 var default_templates: Array = []
@@ -164,7 +165,11 @@ func deploy(c: Country, ti: int, pid: int = 0, instant := false) -> Division:
 		c.stockpile[e] = have - take
 		fill = minf(fill, take / maxf(need, 1.0))
 	c.manpower_used += int(s["manpower"])
-	return _create(c, ti, pid if pid > 0 else World.capital_province(c.tag), fill, 0 if instant else 14)
+	return _create(c, ti, pid if pid > 0 else World.capital_province(c.tag), fill, 0 if instant else training_days(c))
+
+## Yeni tümenin eğitim süresi (gün): askerlik yasası uzatır (training_time)
+func training_days(c: Country) -> int:
+	return maxi(roundi(TRAINING_DAYS * (1.0 + c.mod("training_time"))), 1)
 
 func _create(c: Country, ti: int, pid: int, strength: float, training: int) -> Division:
 	var d := Division.new()
