@@ -1,0 +1,98 @@
+name: Testler
+
+# Pull request'lerde ve main'e push'ta: içe aktarma + tests/run.gd + country_check (tools/run_tests.sh).
+# Denge testi (~30 dk) yalnız elle tetiklenir: Actions → Testler → Run workflow.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      balance:
+        description: "Denge testini de koş (6 koşu, 1936–1942)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot (önbellek)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-v1
+
+      - name: Godot indir
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p ~/godot
+          BASE=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          curl -sSL -o godot.zip $BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          unzip -q godot.zip -d ~/godot && mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          rm -f godot.zip
+
+      - name: Testler (içe aktarma + tests/run.gd + country_check)
+        run: GODOT=~/godot/godot tools/run_tests.sh --days=60
+
+      - name: Test günlükleri
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: build/test-logs
+          if-no-files-found: ignore
+
+  balance:
+    if: github.event_name == 'workflow_dispatch' && inputs.balance
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot (önbellek)
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-v1
+
+      - name: Godot indir
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p ~/godot
+          BASE=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
+          curl -sSL -o godot.zip $BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          unzip -q godot.zip -d ~/godot && mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          rm -f godot.zip
+
+      - name: İçe aktar
+        run: ~/godot/godot --headless --path . --import
+
+      - name: Denge testi (6 koşu, her kontrol en az 5/6)
+        run: GODOT=~/godot/godot OUT_DIR=build/balance tools/balance_parallel.sh 6
+
+      - name: Denge çıktıları
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: balance-runs
+          path: build/balance
+          if-no-files-found: ignore
