@@ -150,8 +150,14 @@ func load_game(slot: String) -> bool:
 		c.ideology = cd["ideology"]; c.capital_state = int(cd["capital"]); c.laws = cd["laws"]
 		Economy.sanitize_laws(c)
 		# eski kayıtlardaki artık olmayan ulusal durum / danışman kimlikleri atlanır
-		c.spirits.assign((cd["spirits"] as Array).filter(func(x: Variant) -> bool: return Politics.spirits.has(x) or Politics.decisions.has(x)))
-		c.advisors.assign((cd["advisors"] as Array).filter(func(x: Variant) -> bool: return Politics.advisor_defs.has(x)))
+		c.spirits.clear()
+		for sp: String in cd["spirits"]:
+			if Politics.spirits.has(sp) or Politics.decisions.has(sp):
+				c.spirits.append(sp)
+		c.advisors.clear()
+		for ad: String in cd["advisors"]:
+			if Politics.advisor_defs.has(ad):
+				c.advisors.append(ad)
 		c.focus_done.assign(cd["focus_done"])
 		c.focus_current = cd["focus_current"]; c.focus_progress = float(cd["focus_progress"])
 		c.leader = str(cd.get("leader", c.leader)); c.next_election = int(cd.get("next_election", c.next_election))
