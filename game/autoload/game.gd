@@ -67,7 +67,7 @@ func save_game(slot: String) -> bool:
 		"day_count": World.day_count, "tension": World.world_tension,
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
-		"factions": Politics.factions, "fired_events": Politics.fired_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
+		"factions": Politics.factions, "fired_events": Politics.fired_events, "pending_events": Politics.pending_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
 		"fleets": Navy.to_save(), "fleet_id": Navy._next_id, "wings": Air.to_save(), "wing_id": Air._next_id,
 	}
 	for st: StateRegion in World.states.values():
@@ -179,6 +179,7 @@ func load_game(slot: String) -> bool:
 	Diplomacy._start_vp = data.get("start_vp", {})
 	Politics.factions = data["factions"]
 	Politics.fired_events = data.get("fired_events", [])
+	Politics.pending_events = data.get("pending_events", [])      # oyuncunun cevaplamadığı olaylar
 	Military.divisions.clear()
 	Military._stats_cache.clear()
 	for dd: Dictionary in data["divisions"]:
