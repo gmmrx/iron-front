@@ -376,17 +376,23 @@ func _revert_control() -> void:
 			elif ctl != st.owner and are_allies(ctl, st.owner):
 				World.set_controller(pid, st.owner)
 
+## Beyaz barış: iki taraf da savaşın lideriyse savaş herkes için biter; biri üyeyse yalnız o savaştan çıkar
+## (Almanya'nın Fransa ile barışı Polonya savaşını, İngiltere'nin barışı Fransa'nınkini bitirmez)
 func white_peace(a: String, b: String) -> void:
 	for w: Dictionary in wars:
 		var sa := "attackers" if a in w["attackers"] else ("defenders" if a in w["defenders"] else "")
 		var sb := "attackers" if b in w["attackers"] else ("defenders" if b in w["defenders"] else "")
 		if sa == "" or sb == "" or sa == sb:
 			continue
-		if w[sa][0] == a or w[sb][0] == b:
+		var a_lead: bool = w[sa][0] == a
+		var b_lead: bool = w[sb][0] == b
+		if a_lead and b_lead:
 			w["attackers"].clear()
 			w["defenders"].clear()
-		else:
+		elif not a_lead:
 			w[sa].erase(a)
+		else:
+			w[sb].erase(b)
 	_cleanup_wars()
 	World.notify(tr("NOTE_WHITE_PEACE") % [World.countries[a].display_name(), World.countries[b].display_name()], "good")
 	wars_changed.emit()
