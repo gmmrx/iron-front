@@ -203,5 +203,7 @@ func load_game(slot: String) -> bool:
 	Military._rebuild_index()
 	World.flush_ownership()
 	World.player_tag = data["player"]
+	# kayıttan türeyen durum hemen yeniden hesaplanır (yoksa bir sonraki ay başına kadar 1936 ticareti kalır)
+	Economy._run_trade()
 	loaded = true
 	return true
