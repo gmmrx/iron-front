@@ -25,8 +25,8 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
 - **Hükümet modeli**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
   gerginlik ve savaş durumuna bağlı savaş desteği, istikrarın fabrika/SG/tüketim malı etkileri, savaş desteğine bağlı teslim sınırı,
   şartlı yasalar, tarihli ve süreli milli ruhlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
-- **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı komuta/tecrübe kutusu, kısayol harfli menü; tüm yan paneller aynı
-  çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), odak ağacı ve olay
+- **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı karargâh/birikim kutusu, kısayol harfli menü; tüm yan paneller aynı
+  çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), devlet programı ağacı ve olay
   penceresi (arayüz kimliği BÖLÜM Ö Katman 2 ile yeniden tasarlanacak).
 - **Karar oyuncuda**: oyuncunun ticareti elle (otomatik ticaret isteğe bağlı), hava kanatları elle, tümenler "son askere kadar"
   (emir olmadan geri çekilmez), tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
@@ -251,9 +251,9 @@ Kendi tasarım hedeflerimiz; kaynak tarih ve kendi denge testimiz (BÖLÜM Ö ku
 bulacağıyla yazıldı.
 
 ### V1. Savaş hissi ve muharebe matematiği ◐
-- [x] Tümen tecrübesi: Yeşil −%25 · Eğitimli · Düzenli +%25 · Kıdemli +%50 · Seçkin +%75; muharebe ile artar,
+- [x] Tümen tecrübesi: Acemi −%25 · Talimli · Pişkin +%25 · Sınanmış +%50 · Seçme +%75; muharebe ile artar,
       kayıpla (yeni asker) düşer; sayaçta yıldız, panelde çubuk
-- [x] Planlama bonusu: düşmana komşu, bekleyen tümen 15 günde en çok +%20 planlama biriktirir; saldırdıkça erir
+- [x] Hazırlık bonusu: düşmana komşu, bekleyen tümen 15 günde en çok +%20 hazırlık biriktirir; saldırdıkça erir
       (plan çizip beklemek → ilk darbe güçlü; tek tük saldırı zayıf)
 - [x] Hava ve mevsim: kış (Ara–Şub, 45°K üstü) saldırı −%9…−%15, kış donanımı yoksa yıpranma; sonbahar çamuru (Eki–Kas,
       Doğu Avrupa) hız −%45; çölde sıcak yıpranması; haritada kış örtüsü (her modda, yamalı)
@@ -261,7 +261,7 @@ bulacağıyla yazıldı.
       gemiler tüketir; yakıt yoksa zırhlı/motorlu güç −%35, hız −%50; üst barda yakıt, uyarı
 - [x] Araştırma birikimi: boş yuva 30 güne kadar araştırma biriktirir (fazlası kaybolur), yeni araştırmaya aktarılır
 - [ ] Kuşatma cezası: çembere alınan birim −%30 (ikmalsizliğe ek); general yakalama (ileride)
-- [ ] Muharebe ayrıntı penceresi (P2 ile): iki taraf, genişlik, arazi/nehir/hava/planlama/tecrübe/yakıt çarpanları
+- [ ] Muharebe ayrıntı penceresi (P2 ile): iki taraf, genişlik, arazi/nehir/hava/hazırlık/tecrübe/yakıt çarpanları
 
 ### V2. Lojistik (B ile birleşir) ☐
 - [ ] Trenler ekipman olarak üretilir; demiryolu ağı tren ister (üst barda ihtiyaç/stok)
@@ -273,7 +273,7 @@ bulacağıyla yazıldı.
 - [ ] Tümen şablonları: tabur + destek bölükleri (mühendis, keşif, askerî inzibat, bakım, hastane, lojistik, sinyal,
       topçu, uçaksavar, tanksavar); muharebe genişliği hedefi (düzlük 70 → 35/70 bölen şablonlar)
 - [ ] Özel kuvvetler: deniz piyadesi (çıkarma/nehir), dağcı, paraşütçü, ormancı; arazi bonusları
-- [ ] Generaller ve mareşaller: özellikler (hücum, savunma, lojistik, planlama), seviye; komuta gücü (command power)
+- [ ] Generaller ve mareşaller: özellikler (hücum, savunma, lojistik, planlama), seviye; karargâh kapasitesi
       ile özellik alma; ordu → cephe atama (C1), savaş planı okları (C2) ile birlikte
 - [ ] Doktrinler: kara, deniz, hava; yapı ve adlar bizim, dönemin gerçek kavramlarından (hareket savaşı, derin harekât,
       metodik muharebe, sızma taktikleri); kara/deniz/hava birikimi ile açılır
@@ -358,7 +358,7 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 
 ### C2. Savaş planları (oklar) ◐
 - [ ] Taarruz oku çizme (sürükleyerek, kıvrımlı), mızrak ucu birlikleri
-- [ ] Planlama bonusu, planı yürüt/durdur
+- [ ] Hazırlık bonusu, planı yürüt/durdur
 - [ ] Savunma hattı, tahkimat hattı, deniz çıkarma planı, hava indirme
 - [x] Hareket oku: birimin bulunduğu yerden başlar, kesintisiz eğri gövde, kuyrukta incelir,
       çentikli geniş uç, gölge, degrade + kontur + akan parlaklık, kalınlık zoom'a göre; aynı hedefte tek uç
