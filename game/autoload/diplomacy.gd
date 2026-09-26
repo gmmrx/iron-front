@@ -17,6 +17,7 @@ const OPPORTUNE_SURRENDER := 0.4
 
 func _ready() -> void:
 	World.daily_update.connect(_on_day)
+	wars_changed.connect(Economy.on_wars_changed)
 
 func reset() -> void:
 	wars.clear()
