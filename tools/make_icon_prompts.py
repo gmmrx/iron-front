@@ -10,22 +10,22 @@ import json, re, unicodedata
 D = "data/common/"
 def J(n): return json.load(open(D + n, encoding="utf-8"))
 
-STYLE_ICON = ("Hand-painted icon for a WWII grand strategy game (classic 1930s-40s strategy game style), 1930s-1940s era, "
+STYLE_ICON = ("Hand-painted icon for a WWII grand strategy game, 1930s-1940s era, "
               "oil-painting look with visible brush strokes, muted bronze, olive, khaki and steel-grey palette with warm gold highlights, "
               "dramatic side lighting, strong readable silhouette centered, slight 3/4 view, subtle dark vignette, "
               "transparent background, no text, no letters, no numbers, no border, no frame, square 1:1, 512x512")
 STYLE_SMALL = ("Small UI glyph for a WWII strategy game top bar, embossed brass/bronze metal emblem, "
                "simple bold silhouette readable at 24 px, soft bevel and gold rim light, "
                "transparent background, no text, no letters, no numbers, square 1:1, 256x256")
-STYLE_FOCUS = ("National focus emblem for a WWII grand strategy game (classic 1930s-40s strategy game style), "
-               "a painted object/scene inside an irregular painted badge shape, 1930s propaganda-poster palette, "
+STYLE_FOCUS = ("State program emblem for a WWII grand strategy game, "
+               "a painted object/scene on a round enamel medallion with a thin brass rim, 1930s propaganda-poster palette, "
                "muted colors with gold accents, dramatic lighting, centered, transparent background, "
                "no text, no letters, no numbers, square 1:1, 512x512")
 STYLE_EVENT = ("Historical event illustration for a WWII grand strategy game, 1930s-1940s, painted in the style of a "
                "sepia-tinted period press photograph turned into an oil painting, cinematic wide composition, muted "
                "desaturated colors, film grain, no text, no captions, no borders, landscape 1024x384 (8:3)")
-STYLE_PORTRAIT = ("Head-and-shoulders portrait of {who}, {role}, as he looked around {year}, painted in the style of classic strategy game leader "
-                  "portraits: realistic oil painting based on period photographs, period clothing/uniform, neutral dark "
+STYLE_PORTRAIT = ("Head-and-shoulders portrait of {who}, {role}, as he looked around {year}, "
+                  "realistic oil painting based on period photographs, period clothing/uniform, neutral dark "
                   "background with soft gradient, subtle film grain, facing slightly left, 4:5 portrait 400x500, "
                   "no text, no border, historically accurate likeness")
 
@@ -60,7 +60,7 @@ UI = {
  "world_tension": "a cracked globe with a lit fuse and sparks, symbol of world tension",
  "at_war": "two crossed bayonet rifles over a red background, symbol of being at war",
  "menu_politics": "a government building with columns and a flag on top, menu button for politics",
- "menu_focus": "an unrolled strategic plan with a compass and a quill pen, menu button for national focus",
+ "menu_focus": "an unrolled strategic plan with a compass and a quill pen, menu button for state programs",
  "menu_research": "a laboratory flask, a microscope and blueprint rolls, menu button for research",
  "menu_diplomacy": "a fountain pen signing a treaty with a wax seal, menu button for diplomacy",
  "menu_trade": "a ship's cargo hook lifting a pallet of goods over a dock, menu button for trade",
@@ -192,7 +192,7 @@ def focus_subject(tag, f):
     hint = next((v for k, v in KEYS if k in (f["id"] + en).lower()), "")
     country = {"TUR": "Turkish", "GER": "German", "SOV": "Soviet", "ENG": "British", "FRA": "French", "ITA": "Italian",
                "JAP": "Japanese", "USA": "American", "CHI": "Chinese", "_generic": ""}[tag]
-    s = f"{country} national focus \"{en}\" ({tr})"
+    s = f"{country} state program \"{en}\" ({tr})"
     if hint: s += f", showing {hint}"
     if desc: s += f"; theme: {desc}"
     return s
@@ -207,7 +207,7 @@ TUR_F = {
  "tur_neutral": "a Turkish soldier guarding a border with a white-red barrier, armed neutrality", "tur_allies": "Turkish and British officers shaking hands",
  "tur_axis": "Turkish and German officers shaking hands", "tur_mosul": "the oil fields of Mosul under a Turkish flag", "tur_aegean": "Turkish marines landing on an Aegean island",
 }
-h("9. Milli odaklar (national focus)")
+h("9. Devlet programları")
 seen_f = set()
 for tag, lst in J("focuses.json")["trees"].items():
     items = [f for f in lst if f["id"] not in seen_f]
