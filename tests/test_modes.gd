@@ -112,9 +112,39 @@ func test_mode_contract() -> void:
 					p.append("%s: mode.json playable içinde '%s' ülkesi yok" % [mid, t])
 		if not World.is_playable(GameModes.default_player()):
 			p.append("%s: varsayılan oyuncu '%s' oynanabilir değil" % [mid, GameModes.default_player()])
+		p.append_array(_scenario_problems(mid))
 		days(3)
 		none(p, "mod sözleşmesi")
 	Game.switch_mode(GameModes.BASE_MODE)
+
+## scenario.json içeriği: yazım hatası sessizce yok sayılmasın (World._apply_scenario yalnız uyarı basar)
+func _scenario_problems(mid: String) -> Array:
+	var p: Array = []
+	var sc := GameModes.scenario()
+	var owners: Dictionary = sc.get("owners", {})
+	for k: Variant in owners:
+		var sid := int(str(k))
+		var tag := str(owners[k])
+		if not World.states.has(sid):
+			p.append("%s: scenario owners: eyalet %s yok (data/map/states.json)" % [mid, k])
+		elif not World.countries.has(tag):
+			p.append("%s: scenario owners: ülke '%s' yok" % [mid, tag])
+		elif World.states[sid].owner != tag:
+			p.append("%s: scenario owners: eyalet %s '%s' ülkesine geçmedi" % [mid, k, tag])
+	var caps: Dictionary = sc.get("capitals", {})
+	for tag: Variant in caps:
+		var c: Country = World.countries.get(str(tag))
+		if c == null:
+			p.append("%s: scenario capitals: ülke '%s' yok" % [mid, tag])
+		elif c.capital_state != int(str(caps[tag])):
+			p.append("%s: scenario capitals: '%s' başkenti %s olmadı (eyalet var ve ülkenin mi?)" % [mid, tag, caps[tag]])
+	var ids := {}
+	for city: City in World.cities:
+		ids[str(city.id)] = true
+	for k: Variant in sc.get("vp", {}):
+		if not ids.has(str(k)):
+			p.append("%s: scenario vp: şehir %s yok (data/map/cities.json)" % [mid, k])
+	return p
 
 # ------------------------------------------------------------------ mod geçişi temiz
 ## WWII → başka mod → WWII: aynı tohumla WWII bit düzeyinde aynı (önbellek/veri kalıntısı yok)
@@ -181,10 +211,19 @@ func test_bad_saves_rejected() -> void:
 	data["mode"] = "boyle_bir_mod_yok"
 	_write(data)
 	check(not Game.load_game(SLOT), "bilinmeyen modun kaydı açılmaz")
+	# kayıtlı ama manifesti okunamayan mod (bozuk mode.json): yükleme durumu değiştirmeden reddedilir
+	data["mode"] = "_template"
+	_write(data)
+	GameModes.info("_template")                   # önbelleğe al, sonra bozuk manifesti taklit et
+	GameModes._info_cache["_template"] = {}
+	check(not Game.load_game(SLOT), "manifesti bozuk modun kaydı açılmaz")
+	eq(Game.save_mode(SLOT), "_template", "kaydın modu dosyadan okunur")
+	GameModes.clear_cache()
 	var f := FileAccess.open(_save_path(), FileAccess.WRITE)
 	f.store_string("{bozuk")
 	f.close()
 	check(not Game.load_game(SLOT), "bozuk kayıt açılmaz")
+	eq(Game.save_mode(SLOT), "", "bozuk kaydın modu yok (Devam kapalı)")
 	eq(GameModes.id, GameModes.BASE_MODE, "mod değişmedi")
 	none(_snap.diff_fields(before, _snap.take()), "reddedilen yükleme durumu değiştirdi")
 	DirAccess.remove_absolute(_save_path())
@@ -194,14 +233,40 @@ func _write(data: Dictionary) -> void:
 	f.store_string(JSON.stringify(data))
 	f.close()
 
-## Kayıt yuvası öneki: WWII adları değişmez; başka modda "<id>_" öneki ve slot_mode geri çözer
+## Kayıt yuvası öneki: WWII adları değişmez; başka modda "<id>_" öneki. Kaydın modu yuva adından değil dosyadan okunur.
 func test_slot_names() -> void:
-	eq(GameModes.slot_mode("TUR_1936_01_05"), GameModes.BASE_MODE, "ülke etiketiyle başlayan yuva WWII")
-	eq(GameModes.slot_mode("hizli_kayit"), GameModes.BASE_MODE, "hızlı kayıt WWII")
-	eq(GameModes.slot_mode("_template_TUR_1936_01_05"), GameModes.BASE_MODE, "alt çizgiyle başlayan ad mod sayılmaz")
+	eq(GameModes.save_prefix(), "", "WWII öneki yok")
+	check(Game.save_game(SLOT), "kaydet")
+	eq(Game.save_mode(SLOT), GameModes.BASE_MODE, "WWII kaydının modu")
 	Game.switch_mode("_template")
 	eq(GameModes.save_prefix(), "_template_", "başka modda önek")
+	World.start_game("TUR")
+	check(Game.save_game(SLOT), "kaydet")
+	eq(Game.save_mode(SLOT), "_template", "moddaki kaydın modu")
+	eq(Game.save_mode("boyle_bir_kayit_yok"), "", "olmayan kayıt")
+	DirAccess.remove_absolute(_save_path())
 	Game.switch_mode(GameModes.BASE_MODE)
+
+## Açılış: GameClock tarihi etkin moddan kurar (--game_mode ile açılan mod ilk oyunda new_game olmadan başlar)
+func test_clock_ready_uses_mode() -> void:
+	var saved: Variant = GameModes.manifest.get("start_date")
+	GameModes.manifest["start_date"] = "1937-03-05"
+	var gc: Node = load("res://game/autoload/game_clock.gd").new()
+	gc._ready()
+	eq([gc.get("year"), gc.get("month"), gc.get("day")], [1937, 3, 5], "açılış saati moddan")
+	gc.free()
+	if saved == null:
+		GameModes.manifest.erase("start_date")
+	else:
+		GameModes.manifest["start_date"] = saved
+	eq(GameModes.start_date(), [1936, 1, 1], "manifest geri yüklendi")
+
+## Tarih doğrulaması takvime bakar (ay 13, 31 Eylül, boş tarih geçmez)
+func test_valid_date() -> void:
+	for ok: String in ["1936-01-01", "1940-02-29", "1948-12-31"]:
+		check(GameModes.valid_date(ok), "geçerli: " + ok)
+	for bad: String in ["", "1936-13-01", "1936-00-10", "1945-09-31", "1939-02-29", "1936-1-1", "1936/01/01"]:
+		check(not GameModes.valid_date(bad), "geçersiz: " + bad)
 
 # ------------------------------------------------------------------ oynanabilir ülkeler
 func test_playable_filter() -> void:
@@ -218,12 +283,18 @@ func test_playable_filter() -> void:
 # ------------------------------------------------------------------ ana menü
 ## Tek görünür modda "Yeni Oyun" bugünkü gibi doğrudan ülke seçimine gider; birden çok modda mod listesi açılır
 func test_menu_mode_picker() -> void:
+	# test düzeni: yalnız ww2 görünsün (sonradan eklenen görünür modlar testi etkilemesin); sonunda geri yüklenir
+	var saved := {}
+	for mid: String in GameModes.ids(true):
+		var inf: Dictionary = GameModes.info(mid)
+		saved[mid] = inf.get("hidden", null)
+		inf["hidden"] = mid != GameModes.BASE_MODE
 	var menu := MainMenu.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
 	var got := {"new": 0, "mode": ""}
 	menu.new_game_pressed.connect(func() -> void: got["new"] += 1)
 	menu.mode_chosen.connect(func(m: String) -> void: got["mode"] = m)
-	eq(GameModes.ids().size(), 1, "bu sürümde görünür tek mod")
+	eq(GameModes.ids().size(), 1, "test düzeni: tek görünür mod")
 	(menu._col.get_child(menu._buttons_from) as Button).pressed.emit()
 	eq(got["new"], 1, "tek modda Yeni Oyun doğrudan ülke seçimine")
 	var tmpl: Dictionary = GameModes.info("_template")
@@ -240,5 +311,21 @@ func test_menu_mode_picker() -> void:
 		eq(got["mode"], "_template", "ikinci mod seçildi")
 		buttons[2].pressed.emit()
 		eq(menu._col.get_child_count() - menu._buttons_from, 4, "geri: ana düğmeler")
+	# etkin mod gizliyse (kayıttan ya da --game_mode ile açılmış) liste yine açılır ve WWII'ye dönülebilir
 	tmpl["hidden"] = true
+	Game.switch_mode("_template")
+	got["new"] = 0
+	(menu._col.get_child(menu._buttons_from) as Button).pressed.emit()
+	eq(got["new"], 0, "gizli etkin modda önce mod listesi")
+	var names: Array[String] = []
+	for i in range(menu._buttons_from, menu._col.get_child_count()):
+		if menu._col.get_child(i) is Button:
+			names.append((menu._col.get_child(i) as Button).text)
+	check(GameModes.text_of(GameModes.BASE_MODE, "name").to_upper() in names, "listede WWII var: %s" % [names])
+	Game.switch_mode(GameModes.BASE_MODE)
+	for mid: String in saved:
+		if saved[mid] == null:
+			GameModes.info(mid).erase("hidden")
+		else:
+			GameModes.info(mid)["hidden"] = saved[mid]
 	menu.queue_free()

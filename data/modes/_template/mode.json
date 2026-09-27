@@ -1,5 +1,5 @@
 {
- "_comment": "ŞABLON MOD — gizli ama çalışan örnek. Yeni mod: python3 tools/new_mode.py <kimlik> (bu klasörü kopyalar). Her alanın anlamı: docs/modlar/README.md. Yazmadığın alan WWII değerini alır.",
+ "_comment": "ŞABLON MOD — gizli ama çalışan örnek. Yeni mod: python3 tools/new_mode.py <kimlik> boş bir iskelet yazar; senaryo, yama, own/ ve kural örnekleri için bu klasörü oku. Her alanın anlamı: docs/modlar/README.md. Yazmadığın alan WWII değerini alır.",
  "id": "_template",
  "hidden": true,
  "name": {"en": "Template Mode", "tr": "Şablon Mod"},

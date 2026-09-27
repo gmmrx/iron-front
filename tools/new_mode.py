@@ -5,8 +5,8 @@
         Yeni mod iskeleti: data/modes/<kimlik>/mode.json, game/modes/<kimlik>/rules.gd,
         tests/test_mode_<kimlik>.gd; modu data/modes/modes.json'a ekler.
   python3 tools/new_mode.py --check [<kimlik>]
-        Hızlı denetim (Godot'suz): JSON geçerli mi, zorunlu alanlar, İngilizce+Türkçe metin, yasak dosya türleri,
-        yazım hatası olan dosya adları. Kimlik verilmezse bütün modlar.
+        Hızlı denetim (Godot'suz): JSON geçerli mi, zorunlu alanlar, İngilizce+Türkçe metin, tarihler, yasak dosya
+        türleri, yazım hatası olan dosya adları (GameModes.validate ile aynı kurallar). Kimlik verilmezse bütün modlar.
   python3 tools/new_mode.py --copy <kimlik> common/<dosya>.json
         Temel veri dosyasını moda kopyalar (dosyanın TAMAMI modda değişecekse).
   python3 tools/new_mode.py --blank <kimlik> common/events.json|common/focuses.json
@@ -32,6 +32,10 @@ KNOWN_FIELDS = {"_comment", "id", "hidden", "name", "description", "subtitle", "
                 "ai", "combat"}
 TEXT_FIELDS = ["name", "description", "subtitle", "welcome", "end_text"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+SUB_KNOWN = {"ai": {"rearm_year", "cautious_until", "phoney_war_days", "major_hold_fire_days"},
+             "combat": {"phoney_war_days"}}
+DEFAULT_DATES = {"start_date": "1936-01-01", "end_date": "1948-01-01"}
+OWN_DIR = "own"          # modun kendi veri dosyaları: temel veride karşılığı aranmaz (GameModes.load_own)
 
 
 def load(p: Path):
@@ -50,6 +54,30 @@ def registry() -> dict:
 def die(msg: str) -> None:
     print("HATA: " + msg)
     sys.exit(1)
+
+
+def valid_date(s: str) -> bool:
+    """YYYY-AA-GG ve takvimde var olan gün (GameModes.valid_date ile aynı)"""
+    if not DATE_RE.match(s):
+        return False
+    y, m, d = (int(x) for x in s.split("-"))
+    if not 1 <= m <= 12 or d < 1:
+        return False
+    leap = y % 4 == 0 and (y % 100 != 0 or y % 400 == 0)
+    dim = [31, 29 if leap else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]
+    return d <= dim
+
+
+def mode_dir(mid: str, must_exist: bool = True) -> Path:
+    """Kimliği doğrula ve mod klasörünü döndür ('.', '..', 'ww2/' gibi girdiler reddedilir)"""
+    if mid != "_template" and not ID_RE.match(mid):
+        die(f"geçersiz kimlik '{mid}' (küçük harf, rakam ve _; harfle başlar)")
+    folder = MODES / mid
+    if folder.resolve().parent != MODES.resolve():
+        die(f"geçersiz kimlik '{mid}'")
+    if must_exist and not (folder / "mode.json").exists():
+        die(f"'{mid}' modu yok (önce: python3 tools/new_mode.py {mid})")
+    return folder
 
 
 # ---------------------------------------------------------------- yeni mod
@@ -95,6 +123,9 @@ Sonraki adımlar:
   2. Veri değiştir: tam dosya  → python3 tools/new_mode.py --copy {mid} common/<dosya>.json
                     kısmi      → data/modes/{mid}/common/<dosya>.patch.json (bkz. data/modes/_template)
                     WWII olayları olmasın → python3 tools/new_mode.py --blank {mid} common/events.json
+                                            python3 tools/new_mode.py --blank {mid} common/focuses.json
+                    modun kendi verisi (WWII'de karşılığı yok) → data/modes/{mid}/own/<ad>.json,
+                                            kural betiğinde GameModes.load_own("<ad>.json")
   3. Denetle: python3 tools/new_mode.py --check {mid}
   4. Oyunda aç: godot --path . -- --game_mode={mid}   (ya da menüde Yeni Oyun → mod)
   5. Testler: godot --headless --path . -s tests/run.gd -- --file=test_mode_{mid}
@@ -152,6 +183,12 @@ def check(mids) -> int:
             problems.append(f"data/modes/{d}: modes.json'da kayıtlı değil")
     for mid in mids:
         problems += check_one(mid, reg)
+    for mid in mids:
+        try:
+            if not mid.startswith("_") and load(MODES / mid / "mode.json").get("hidden") is True:
+                print(f"bilgi: {mid} gizli (\"hidden\": true) — menüde görünmez; hazır olunca false yap")
+        except (OSError, json.JSONDecodeError):
+            pass
     if problems:
         print(f"{len(problems)} sorun:")
         for p in problems:
@@ -164,6 +201,8 @@ def check(mids) -> int:
 def check_one(mid: str, reg: dict) -> list:
     out = []
     folder = MODES / mid
+    if mid != "_template" and not ID_RE.match(mid):
+        return [f"{mid}: kimlik küçük harf, rakam ve _ olmalı (2–24 karakter, harfle başlar)"]
     if mid not in reg["modes"]:
         out.append(f"{mid}: modes.json'da kayıtlı değil")
     mpath = folder / "mode.json"
@@ -185,11 +224,34 @@ def check_one(mid: str, reg: dict) -> list:
             d = m[f]
             if not isinstance(d, dict) or not d.get("en") or not d.get("tr"):
                 out.append(f"{mid}: \"{f}\" hem \"en\" hem \"tr\" metni istiyor")
+            elif f == "welcome":
+                for lang in ("en", "tr"):
+                    t = str(d[lang]).replace("%%", "")
+                    if t.count("%s") != 1 or "%" in t.replace("%s", ""):
+                        out.append(f"{mid}: \"welcome\" ({lang}) tam bir %s içermeli (oyuncunun ülke adı); yüzde işaretini %% yaz")
             elif d["en"].count("%s") != d["tr"].count("%s"):
                 out.append(f"{mid}: \"{f}\" İngilizce ve Türkçe metinde %s sayısı farklı")
     for f in ("start_date", "end_date"):
-        if f in m and m[f] != "" and not DATE_RE.match(str(m[f])):
-            out.append(f"{mid}: \"{f}\" YYYY-AA-GG olmalı")
+        if f not in m or (f == "end_date" and m[f] == ""):
+            continue
+        if not valid_date(str(m[f])):
+            out.append(f"{mid}: \"{f}\" takvimde var olan bir YYYY-AA-GG tarihi olmalı (şu an '{m[f]}')")
+    sd = str(m.get("start_date", DEFAULT_DATES["start_date"]))
+    ed = str(m.get("end_date", DEFAULT_DATES["end_date"]))
+    if valid_date(sd) and valid_date(ed) and ed <= sd:
+        out.append(f"{mid}: end_date start_date'ten sonra olmalı (yoksa oyun ilk gün biter)")
+    for sec, known in SUB_KNOWN.items():
+        if sec not in m:
+            continue
+        if not isinstance(m[sec], dict):
+            out.append(f"{mid}: \"{sec}\" bir nesne olmalı: {{\"alan\": değer}}")
+            continue
+        for k in m[sec]:
+            if k not in known:
+                out.append(f"{mid}: \"{sec}\" içinde bilinmeyen alan '{k}' (alanlar: {', '.join(sorted(known))})")
+    cu = m.get("ai", {}).get("cautious_until", "") if isinstance(m.get("ai"), dict) else ""
+    if cu and not valid_date(str(cu)):
+        out.append(f"{mid}: \"ai.cautious_until\" takvimde var olan bir YYYY-AA-GG tarihi olmalı")
     rules = m.get("rules", "")
     if rules:
         if not rules.startswith("res://game/modes/"):
@@ -197,11 +259,26 @@ def check_one(mid: str, reg: dict) -> list:
         elif not (ROOT / rules.replace("res://", "")).exists():
             out.append(f"{mid}: kural betiği yok: {rules}")
     sc = m.get("scenario", "")
-    if sc and not (folder / sc).exists():
-        out.append(f"{mid}: senaryo dosyası yok: {sc}")
+    if sc:
+        if not (folder / sc).exists():
+            out.append(f"{mid}: senaryo dosyası yok: {sc}")
+        else:
+            try:
+                sv = load(folder / sc)
+                if not isinstance(sv, dict):
+                    out.append(f"{mid}: {sc} bir JSON nesnesi olmalı")
+                else:
+                    for k in sv:
+                        if k not in ("owners", "capitals", "vp", "_comment"):
+                            out.append(f"{mid}: {sc} bilinmeyen alan '{k}' (owners, capitals, vp)")
+            except json.JSONDecodeError as e:
+                out.append(f"{mid}: {sc} bozuk JSON (satır {e.lineno}, sütun {e.colno}: {e.msg})")
     for p in sorted(folder.rglob("*")):
+        parts = p.relative_to(folder).parts
+        if any(x.startswith(".") for x in parts):
+            continue                                    # gizli dosyalar (.DS_Store vb.): Godot da görmez
         if p.is_dir():
-            if p.relative_to(folder).parts[0] == "map":
+            if parts[0] == "map" and len(parts) == 1:
                 out.append(f"{mid}: map/ desteklenmiyor (harita bütün modlarda ortak)")
             continue
         rel = p.relative_to(folder).as_posix()
@@ -215,9 +292,13 @@ def check_one(mid: str, reg: dict) -> list:
         except json.JSONDecodeError as e:
             out.append(f"{mid}: {rel} bozuk JSON (satır {e.lineno}, sütun {e.colno}: {e.msg})")
             continue
+        if parts[0] == OWN_DIR:
+            continue                                    # modun kendi verisi (GameModes.load_own)
         base = rel[: -len(".patch.json")] + ".json" if rel.endswith(".patch.json") else rel
         if not (DATA / base).exists():
-            out.append(f"{mid}: {rel} — data/{base} yok (yazım hatası mı? örn. comon/ → common/)")
+            out.append(f"{mid}: {rel} — data/{base} yok (yazım hatası mı? örn. comon/ → common/; kendi verin own/ altına)")
+        elif not rel.endswith(".patch.json") and (folder / (rel[:-5] + ".patch.json")).exists():
+            out.append(f"{mid}: {rel} ve {rel[:-5]}.patch.json birlikte olmaz — yama moddaki tam dosyanın üzerine uygulanır; birini seç")
     ev = folder / "common" / "events.patch.json"
     if ev.exists():
         try:
@@ -232,18 +313,30 @@ def check_one(mid: str, reg: dict) -> list:
 
 # ---------------------------------------------------------------- kopya / boş patch / silme
 def copy(mid: str, rel: str) -> None:
+    folder = mode_dir(mid)
+    rp = Path(rel)
+    if rp.is_absolute() or ".." in rp.parts or not rel.endswith(".json"):
+        die(f"'{rel}' geçersiz: data/ altındaki bir .json yolu ver (örn. common/laws.json)")
     src = DATA / rel
     if not src.exists() or rel.startswith("modes/") or rel.startswith("map/"):
         die(f"data/{rel} kopyalanamaz (yok ya da harita/mod dosyası)")
-    dst = MODES / mid / rel
+    dst = folder / rel
     if dst.exists():
         die(f"{dst.relative_to(ROOT)} zaten var")
+    pp = folder / (rel[:-5] + ".patch.json")
+    if pp.exists():
+        die(f"{pp.relative_to(ROOT)} var: yama, kopyalanan tam dosyanın ÜZERİNE uygulanır (içindeki null'lar kopyadaki "
+            f"kayıtları siler). Önce yamayı sil ya da değişikliklerini kopyaya işle, sonra --copy'yi yeniden koş.")
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
     print(f"Kopyalandı: {dst.relative_to(ROOT)} (bu dosya artık temel dosyanın TAMAMININ yerine geçer)")
 
 
 def blank(mid: str, rel: str) -> None:
+    folder = mode_dir(mid)
+    if (folder / rel).exists():
+        die(f"{(folder / rel).relative_to(ROOT)} (tam kopya) var: yama onun üzerine uygulanırdı. Kopyadan kayıtları "
+            f"elle sil ya da kopyayı kaldırıp --blank'i yeniden koş.")
     if rel == "common/events.json":
         base = load(DATA / rel)["events"]
         patch = {"events": {k: None for k in base if k not in ENGINE_EVENTS}}
@@ -255,12 +348,12 @@ def blank(mid: str, rel: str) -> None:
     else:
         die("--blank yalnız common/events.json ve common/focuses.json için")
     patch = {"_comment": "tools/new_mode.py --blank ile üretildi: " + note, **patch}
-    dst = MODES / mid / (rel[:-5] + ".patch.json")
+    dst = folder / (rel[:-5] + ".patch.json")
     if dst.exists():
         die(f"{dst.relative_to(ROOT)} zaten var")
     dump(dst, patch)
     print(f"Yazıldı: {dst.relative_to(ROOT)} — {note}")
-    if rel == "common/events.json" and not (MODES / mid / "common" / "focuses.patch.json").exists():
+    if rel == "common/events.json" and not (folder / "common" / "focuses.patch.json").exists():
         refs = sorted({e for tree in load(DATA / "common/focuses.json")["trees"].values() for f in tree
                        for eff in f.get("effects", []) for k, e in eff.items() if k == "event" and e in patch["events"]})
         if refs:
@@ -271,10 +364,16 @@ def blank(mid: str, rel: str) -> None:
 def remove(mid: str) -> None:
     if mid in ("ww2", "_template"):
         die(f"'{mid}' silinemez")
+    mode_dir(mid, must_exist=False)
     reg = registry()
+    if mid not in reg["modes"] and not (MODES / mid).is_dir() and not (ROOT / "game" / "modes" / mid).is_dir():
+        die(f"'{mid}' diye bir mod yok")
     if mid in reg["modes"]:
         reg["modes"].remove(mid)
-        dump(REGISTRY, reg)
+    if reg.get("default") == mid:
+        reg["default"] = "ww2"
+        print("not: varsayılan mod ww2'ye döndü")
+    dump(REGISTRY, reg)
     for p in (MODES / mid, ROOT / "game" / "modes" / mid):
         if p.exists():
             shutil.rmtree(p)

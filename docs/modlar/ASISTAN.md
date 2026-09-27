@@ -7,7 +7,9 @@ Bu metni asistanına (Claude, ChatGPT, Copilot...) yapıştır; ayrıntı için 
 **Nereye ne yazılır**
 - Manifest: `data/modes/<id>/mode.json` (ad `{en,tr}`, tarihler, oyuncu, `featured`, `playable`, `scenario`, `rules`).
 - Veri: `data/modes/<id>/common/<dosya>.json` (dosyanın tamamı) ya da `<dosya>.patch.json` (derin birleştirme; `null` siler;
-  `"id"`li dizilerde `{"id": x, "_delete": true}` siler). Yalnız `.json`; harita ortak.
+  `"id"`li dizilerde `{"id": x, "_delete": true}` siler). Yalnız `.json`; harita ortak. Aynı dosyanın hem kopyası hem yaması olmaz.
+- Modun kendi verisi (WWII'de karşılığı yok): `data/modes/<id>/own/<ad>.json`; kural betiği `GameModes.load_own("<ad>.json")` ile okur.
+- Manifestte `welcome` metni tam bir `%s` (ülke adı) içerir; yüzde işareti `%%`. Tarihler takvimde var olan gün.
 - Kod (gerekirse): `game/modes/<id>/rules.gd`, `extends ModeRules`; kancalar: on_new_game, on_game_started, on_day, on_hour,
   on_month, check_end, score, to_save/from_save, effect_keys/apply_effect/describe_effect, condition_keys/check_condition.
 - Metin: veri içinde `{"en": "...", "tr": "..."}`; arayüz/kod metni `game/localization/strings.csv` (İngilizce + Türkçe).

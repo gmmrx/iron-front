@@ -1,5 +1,5 @@
 {
- "_comment": "Patch: data/common/events.json ile birleşir. Yeni kimlik eklenir; değeri null olan kimlik silinir. Motorun kendi açtığı olaylar (call_to_arms, faction_invite, election, white_peace, news_war, access_request) silinmemeli.",
+ "_comment": "Patch: data/common/events.json ile birleşir. Yeni kimlik eklenir; değeri null olan kimlik silinir. Motorun kendi açtığı olaylar (call_to_arms, white_peace, election, faction_invite) silinmemeli.",
  "events": {
   "jap_february_26": null,
   "ita_league_sanctions": null,

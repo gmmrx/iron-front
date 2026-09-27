@@ -200,6 +200,14 @@ func list_saves() -> Array[String]:
 		return FileAccess.get_modified_time(SAVE_DIR + a + ".json") > FileAccess.get_modified_time(SAVE_DIR + b + ".json"))
 	return out
 
+## Kaydın oyun modu: "mode" alanı; alan yoksa eski (WWII) kayıt; okunamayan kayıt "". Devam düğmesi buna bakar.
+func save_mode(slot: String) -> String:
+	var txt := FileAccess.get_file_as_string(SAVE_DIR + slot + ".json")
+	var json := JSON.new()
+	if txt == "" or json.parse(txt) != OK or not (json.data is Dictionary) or not (json.data as Dictionary).has("date"):
+		return ""
+	return str((json.data as Dictionary).get("mode", GameModes.BASE_MODE))
+
 ## Yükle: dünyayı sıfırla, kaydı uygula. Çağıran sahneyi yeniden yüklemeli.
 func load_game(slot: String) -> bool:
 	var txt := FileAccess.get_file_as_string(SAVE_DIR + slot + ".json")
@@ -213,11 +221,13 @@ func load_game(slot: String) -> bool:
 	var data: Dictionary = parsed
 	# oyun modu: alan yoksa eski (WWII) kayıt; bilinmeyen modun kaydı açılmaz (durum bozulmadan döner)
 	var mode_id := str(data.get("mode", GameModes.BASE_MODE))
-	if not GameModes.exists(mode_id):
-		push_warning("Kaydın oyun modu bulunamadı: '%s' (%s)" % [mode_id, slot])
+	if not GameModes.exists(mode_id) or GameModes.info(mode_id).is_empty():
+		push_warning("Kaydın oyun modu bulunamadı ya da manifesti okunamadı: '%s' (%s)" % [mode_id, slot])
 		return false
 	if mode_id != GameModes.id:
-		switch_mode(mode_id)
+		if not switch_mode(mode_id):                     # manifest okunamadı: hiçbir şey değişmeden döner
+			push_warning("Kaydın oyun modu açılamadı: '%s' (%s)" % [mode_id, slot])
+			return false
 	else:
 		new_game()
 	var dt: Array = data["date"]

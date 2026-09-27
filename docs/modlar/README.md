@@ -51,6 +51,7 @@ data/modes/
     mode.json
     scenario.json                  başlangıç sahipliği katmanı
     common/events.patch.json       1 olay ekler, 2 WWII olayını siler
+    own/settings.json              modun kendi verisi (kural betiği okur)
   <id>/                            senin modun: manifest + YALNIZ değişen dosyalar
 game/modes/<id>/rules.gd           isteğe bağlı kod kancaları (ModeRules'u genişletir)
 tests/test_mode_<id>.gd            modun testleri
@@ -61,6 +62,9 @@ tests/test_mode_<id>.gd            modun testleri
   `game/modes/<id>/` altına. Çeviri `game/localization/strings.csv`'ye. Görsel/ses dosyası yok (CLAUDE.md kural 6).
 - `map/` yok: harita geometrisi bütün modlarda ortak (aşağıda "Bilinen sınırlar").
 - Mod klasöründeki her `X.json` ya da `X.patch.json` için `data/X.json` var olmalı (yazım hatalarını yakalar).
+  Tek istisna `own/`: modun kendi verisi (aşağıda).
+- Aynı dosyanın hem tam kopyası (`X.json`) hem yaması (`X.patch.json`) olmaz: yama kopyanın üzerine uygulanır ve
+  içindeki `null`'lar kopyada düzenlediğin kayıtları sessizce siler.
 
 ---
 
@@ -75,9 +79,9 @@ Yazmadığın alan WWII değerini alır.
 | `hidden` | bool | `false` | `true`: menüde görünmez (yarım modlar için) |
 | `description` | `{en, tr}` | — | menüde adın altında |
 | `subtitle` / `subtitle_key` | `{en, tr}` / CSV anahtarı | `MENU_SUBTITLE` | ana menü alt başlığı |
-| `welcome` / `welcome_key` | `{en, tr}` (bir `%s`) | `NOTE_WELCOME` | oyun başında haber (`%s` = ülke adı) |
+| `welcome` / `welcome_key` | `{en, tr}` (tam bir `%s`) | `NOTE_WELCOME` | oyun başında haber (`%s` = ülke adı; yüzde işareti `%%`) |
 | `end_text` / `end_text_key` | `{en, tr}` | `GAMEOVER_TIME` | süre dolunca oyun sonu metni |
-| `start_date` | `"YYYY-AA-GG"` | `1936-01-01` | başlangıç tarihi |
+| `start_date` | `"YYYY-AA-GG"` | `1936-01-01` | başlangıç tarihi (takvimde var olan gün; boş olamaz) |
 | `end_date` | `"YYYY-AA-GG"` ya da `""` | `1948-01-01` | süre sınırı (`""` = yok) |
 | `start_tension` | sayı | `0.0` | başlangıç kriz endeksi |
 | `default_player` | ülke kodu | `TUR` | ülke seçiminde önce seçili ülke |
@@ -135,6 +139,18 @@ Harita ortak, ama başlangıç sınırları moda göre değişebilir:
 ```
 `owners`: eyalet kimliği → ülke; `capitals`: ülke → eyalet kimliği; `vp`: şehir kimliği → zafer puanı. Kimlikler
 `data/map/states.json` ve `data/map/cities.json`'da. Nüfus, insan gücü ve kontrol kendiliğinden yeniden hesaplanır.
+Olmayan bir eyalet/ülke/şehir kimliği (yazım hatası) `test_modes::test_mode_contract`'ı kırmızı yapar.
+
+## Modun kendi verisi (`own/`)
+
+WWII verisinde karşılığı olmayan her şey (ör. salgın parametreleri, zombi türleri, araştırma merkezi tablosu)
+`data/modes/<id>/own/<ad>.json` dosyalarına yazılır. Bu klasörde "temel dosya var mı" denetimi ve tam dosya/yama kuralı
+yoktur; motor bu dosyaları kendiliğinden okumaz, **kural betiğin** okur:
+```gdscript
+var cfg: Variant = GameModes.load_own("epidemic.json")     # yoksa null
+```
+Sayıları koda sabit yazma, buraya koy (CLAUDE.md kural 2). Örnek: `data/modes/_template/own/settings.json` ve
+`game/modes/_template/rules.gd`.
 
 ---
 
@@ -172,8 +188,8 @@ Motor bazı anahtarlara doğrudan başvurur. Modun verisi bunları silmemeli; `t
 
 | Dosya | Anahtar | Eksikse |
 |---|---|---|
-| `common/events.json` | `call_to_arms`, `white_peace`, `election`, `faction_invite` | müttefik çağrısı, beyaz barış, seçim, ittifak daveti çöker |
-| `common/focuses.json` | `trees._generic` | kendi ağacı olmayan ülkelerin programı yok |
+| `common/events.json` | `call_to_arms`, `white_peace`, `election`, `faction_invite` | `call_to_arms`/`faction_invite`: hata vermez, sessizce çalışmaz (müttefikler savaşa çağrılmaz, davet boşa düşer); `white_peace`: barış teklifi oyuncuya gitmez; `election`: seçim penceresi hata verir |
+| `common/focuses.json` | `trees._generic` | program ağacı her istendiğinde hata verir; kendi ağacı olmayan ülkelerin programı olmaz |
 | `common/laws.json` | `conscription`, `economy`, `trade` grupları; `start._default` | yasa kurulumu çöker |
 | `common/spirits.json` | `popularity._<ideoloji>` (ülkelerin bütün ideolojileri için), `start`, `start_factions` | siyaset kurulumu çöker |
 | `common/units.json` | `start_divisions._default`, `templates` (en az bir şablon; 0: piyade, 1: zırhlı), `terrain.plains` (bilinmeyen arazinin yedeği) | ordu kurulumu çöker |
@@ -204,7 +220,8 @@ Motor bazı anahtarlara doğrudan başvurur. Modun verisi bunları silmemeli; `t
 
 ## SSS
 
-- **Modum menüde görünmüyor.** `mode.json`'da `"hidden": false` mı, `modes.json`'da kayıtlı mı? `--check` söyler.
+- **Modum menüde görünmüyor.** `modes.json`'da kayıtlı mı? (`--check` sorun olarak yazar.) `mode.json`'da `"hidden": true`
+  mı kalmış? (`--check` bunu "bilgi" satırı olarak yazar; `false` yap.)
 - **"Kaydın oyun modu bulunamadı".** Kayıt, kayıtlı olmayan bir moddan (silinmiş ya da adı değişmiş).
 - **Yeni bir etki istiyorum.** Önce var olan etki sözlüğüne bak (`game/autoload/politics.gd` → `apply_effects`); yoksa
   `rules.gd`'de `effect_keys` + `apply_effect` + `describe_effect`.

@@ -1,7 +1,7 @@
 extends "res://tests/test_data.gd"
 ## Şablon mod (data/modes/_template, game/modes/_template/rules.gd): test_data.gd'nin BÜTÜN veri bütünlüğü denetimleri bu
-## modun birleşik verisiyle koşar; ardından moda özgü davranış testleri. Yeni mod: tools/new_mode.py bu dosyanın bir
-## kopyasını tests/test_mode_<id>.gd olarak üretir.
+## modun birleşik verisiyle koşar; ardından moda özgü davranış testleri. Yeni mod: tools/new_mode.py
+## tests/test_mode_<id>.gd iskeletini (aynı kalıtım, 30 günlük duman testi) yazar; moda özgü testler için bu dosyaya bak.
 
 func mode() -> String:
 	return "_template"
@@ -50,6 +50,16 @@ func test_template_rules_run() -> void:
 	near(player().political_power, pp + 25.0, 0.001, "template_bonus etkisi")
 	var text := Politics.describe_effects([{"template_bonus": 25}])
 	check(text.contains("25"), "etki açıklaması: " + text)
+
+## own/settings.json: modun kendi verisi load_own ile okunur, kural betiğine gelir
+func test_template_own_data() -> void:
+	var v: Variant = GameModes.load_own("settings.json")
+	check(v is Dictionary, "own/settings.json okundu")
+	if v is Dictionary:
+		eq(int(v["check_day"]), 400, "check_day")
+	eq(int(Game.rules.get("settings").get("check_day", 0)), 400, "kural betiği ayarı aldı")
+	check(GameModes.load_own("yok.json") == null, "olmayan dosya null")
+	check(GameModes.load_own("../mode.json") == null, "klasör dışına çıkılmaz")
 
 ## Bitiş tarihi gelince oyun biter (zafer, manifestteki metin)
 func test_template_end_date() -> void:

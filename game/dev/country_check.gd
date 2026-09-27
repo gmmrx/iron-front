@@ -1,6 +1,6 @@
 extends SceneTree
 ## Her ülkeyle oynanabilirlik: oyunu o ülkeyle başlatır, oyuncunun eylemlerinin oyunu gerçekten değiştirdiğini ölçer.
-##   godot --headless --path . -s game/dev/country_check.gd -- [--tags=TUR,GER] [--days=60]
+##   godot --headless --path . -s game/dev/country_check.gd -- [--game_mode=<id>] [--tags=TUR,GER | --featured] [--days=60]
 ## Sütunlar: yasa (insan gücü değişir), ticaret (anlaşma kaynağı artırır), üretim (stok artar), inşaat (ilerler),
 ## araştırma (ilerler), odak (ilerler), danışman (SG kazancı değişir), otomatik yok (oyuncu adına ticaret/kanat yok),
 ## olaylar (oyuncuya sorulur, kendiliğinden seçilmez). Motor/betik hatası olan ülke de sorunlu sayılır.

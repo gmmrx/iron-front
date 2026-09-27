@@ -10,12 +10,14 @@ extends RefCounted
 ##   data/modes/<id>/common/laws.json        dosyanın TAMAMININ yerine geçer
 ##   data/modes/<id>/common/laws.patch.json  temel dosyayla derin birleşir (bkz. merge)
 ## Harita geometrisi (data/map/provinces.json ve dokular) bütün modlarda ortaktır.
+## Modun kendine ait, WWII'de karşılığı olmayan verisi (ör. salgın parametreleri): data/modes/<id>/own/*.json → load_own().
 
 const REGISTRY := "res://data/modes/modes.json"
 const DATA_ROOT := "res://data/"
 const MODES_DIR := "res://data/modes/"
 const BASE_MODE := "ww2"
 const ID_PATTERN := "^[a-z][a-z0-9_]{1,23}$"
+const OWN_DIR := "own/"                        ## modun kendi veri dosyaları (temel veride karşılığı olmayan)
 
 ## Manifestte olmayan alanın değeri: bugünkü WWII oyununun sabitleri (tests/test_modes.gd bunları kilitler)
 const DEFAULTS := {
@@ -51,11 +53,17 @@ static func _static_init() -> void:
 	for a: String in OS.get_cmdline_args() + OS.get_cmdline_user_args():
 		if a.begins_with("--game_mode="):
 			want = a.get_slice("=", 1)
-	if want == "" or not exists(want):
-		if want != "":
-			push_warning("Oyun modu bulunamadı: '%s' — varsayılan mod açılıyor" % want)
-		want = default_id()
-	set_current(want)
+	if want != "" and exists(want) and set_current(want):
+		return
+	if want != "":
+		push_warning("Oyun modu açılamadı: '%s' — varsayılan mod açılıyor" % want)
+	if set_current(default_id()) or set_current(BASE_MODE):
+		return
+	# kayıt ya da ww2 manifesti bozuk: WWII sabitleriyle aç (kayıtlar "ww2" olarak yazılır ve açılır)
+	push_error("Oyun modu kurulamadı; WWII varsayılanları kullanılıyor (data/modes/modes.json, data/modes/ww2/mode.json)")
+	id = BASE_MODE
+	manifest = {}
+	_set_majors(DEFAULTS["majors"])
 
 # ------------------------------------------------------------------ kayıt defteri
 static func _reg() -> Dictionary:
@@ -97,10 +105,13 @@ static func set_current(mode_id: String) -> bool:
 		return false
 	id = mode_id
 	manifest = m
-	_majors.clear()
-	for t: Variant in get_value("majors", DEFAULTS["majors"]):
-		_majors[str(t)] = true
+	_set_majors(get_value("majors", DEFAULTS["majors"]))
 	return true
+
+static func _set_majors(list: Variant) -> void:
+	_majors.clear()
+	for t: Variant in (list if list is Array else DEFAULTS["majors"]):
+		_majors[str(t)] = true
 
 ## Test ve araçlar: önbellekleri boşalt (mod dosyaları diskte değiştiyse)
 static func clear_cache() -> void:
@@ -128,6 +139,13 @@ static func patch_path(base_path: String) -> String:
 	if id == "" or not base_path.begins_with(DATA_ROOT):
 		return ""
 	return MODES_DIR + id + "/" + base_path.substr(DATA_ROOT.length()).get_basename() + ".patch.json"
+
+## Modun kendi veri dosyası: data/modes/<id>/own/<name> (yoksa null). Temel veride karşılığı olmayan her şey buraya;
+## kural betiği okur, ör. GameModes.load_own("epidemic.json"). Tam dosya/yama kuralı burada yoktur.
+static func load_own(name: String) -> Variant:
+	if id == "" or name.contains(".."):
+		return null
+	return _parse(MODES_DIR + id + "/" + OWN_DIR + name)
 
 static func _parse(p: String) -> Variant:
 	if not FileAccess.file_exists(p):
@@ -229,6 +247,19 @@ static func _ymd(s: String) -> Array[int]:
 	var p := s.split("-")
 	return [int(p[0]), int(p[1]) if p.size() > 1 else 1, int(p[2]) if p.size() > 2 else 1]
 
+const _MDAYS: Array[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+## "YYYY-AA-GG" biçiminde ve takvimde var olan bir gün mü
+static func valid_date(s: String) -> bool:
+	if RegEx.create_from_string("^\\d{4}-\\d{2}-\\d{2}$").search(s) == null:
+		return false
+	var a := _ymd(s)
+	if a[1] < 1 or a[1] > 12 or a[2] < 1:
+		return false
+	var leap: bool = a[0] % 4 == 0 and (a[0] % 100 != 0 or a[0] % 400 == 0)
+	var dim: int = 29 if a[1] == 2 and leap else _MDAYS[a[1] - 1]
+	return a[2] <= dim
+
 static func default_player() -> String:
 	return str(get_value("default_player"))
 
@@ -262,15 +293,9 @@ static func rules_path() -> String:
 
 # ------------------------------------------------------------------ kayıt yuvaları
 ## ww2 kayıt adları değişmez; diğer modlarda yuva adı "<id>_" ile başlar
+## Kaydın modu yuva adından tahmin edilmez; kaydın "mode" alanından okunur (Game.save_mode)
 static func save_prefix() -> String:
 	return "" if id == BASE_MODE else id + "_"
-
-## Yuva adından mod: ilk "_"a kadarki parça kayıtlı bir modsa o, değilse ww2 (ülke etiketleri büyük harftir)
-static func slot_mode(slot: String) -> String:
-	var head := slot.get_slice("_", 0)
-	if head != slot and head == head.to_lower() and exists(head):
-		return head
-	return BASE_MODE
 
 # ------------------------------------------------------------------ doğrulama (tests/test_modes.gd, tools/new_mode.py --check)
 ## İnsan dilinde sorun listesi: "mod: dosya: ne yanlış — nasıl düzeltilir"
@@ -298,11 +323,18 @@ static func validate(mode_id: String) -> Array[String]:
 		var d: Variant = m[f]
 		if not (d is Dictionary) or str(d.get("en", "")) == "" or str(d.get("tr", "")) == "":
 			out.append("%s: \"%s\" hem \"en\" hem \"tr\" metni istiyor (CLAUDE.md kural 3)" % [mode_id, f])
+		elif f == "welcome":
+			for lang: String in ["en", "tr"]:
+				var t: String = str(d[lang]).replace("%%", "")
+				if t.count("%s") != 1 or t.replace("%s", "").contains("%"):
+					out.append("%s: \"welcome\" (%s) tam bir %%s içermeli (oyuncunun ülke adı); yüzde işaretini %%%% yaz" % [mode_id, lang])
 		elif str(d["en"]).count("%s") != str(d["tr"]).count("%s"):
 			out.append("%s: \"%s\" İngilizce ve Türkçe metinde %%s sayısı farklı" % [mode_id, f])
 	for f: String in ["start_date", "end_date"]:
-		if m.has(f) and str(m[f]) != "" and not RegEx.create_from_string("^\\d{4}-\\d{2}-\\d{2}$").search(str(m[f])):
-			out.append("%s: \"%s\" YYYY-AA-GG biçiminde olmalı (şu an '%s')" % [mode_id, f, m[f]])
+		if not m.has(f) or (f == "end_date" and str(m[f]) == ""):
+			continue
+		if not valid_date(str(m[f])):
+			out.append("%s: \"%s\" takvimde var olan bir YYYY-AA-GG tarihi olmalı (şu an '%s')" % [mode_id, f, m[f]])
 	var sd := date_int(str(m.get("start_date", DEFAULTS["start_date"])))
 	var ed := date_int(str(m.get("end_date", DEFAULTS["end_date"])))
 	if ed != 0 and ed <= sd:
@@ -312,10 +344,17 @@ static func validate(mode_id: String) -> Array[String]:
 				"subtitle_key", "welcome_key", "end_text_key", "_comment"]):
 			out.append("%s: mode.json bilinmeyen alan '%s' — yazım hatası mı? (alanlar: docs/modlar/README.md)" % [mode_id, k])
 	for sec: String in SUB_DEFAULTS:
-		if m.has(sec):
-			for k: String in m[sec]:
-				if not SUB_DEFAULTS[sec].has(k):
-					out.append("%s: \"%s\" içinde bilinmeyen alan '%s'" % [mode_id, sec, k])
+		if not m.has(sec):
+			continue
+		if not (m[sec] is Dictionary):
+			out.append("%s: \"%s\" bir nesne olmalı: {\"alan\": değer}" % [mode_id, sec])
+			continue
+		for k: String in m[sec]:
+			if not SUB_DEFAULTS[sec].has(k):
+				out.append("%s: \"%s\" içinde bilinmeyen alan '%s'" % [mode_id, sec, k])
+	if m.get("ai") is Dictionary and str((m["ai"] as Dictionary).get("cautious_until", "")) != "" \
+			and not valid_date(str(m["ai"]["cautious_until"])):
+		out.append("%s: \"ai.cautious_until\" takvimde var olan bir YYYY-AA-GG tarihi olmalı" % mode_id)
 	var rules := str(m.get("rules", ""))
 	if rules != "":
 		if not rules.begins_with("res://game/modes/"):
@@ -323,12 +362,21 @@ static func validate(mode_id: String) -> Array[String]:
 		elif not ResourceLoader.exists(rules):
 			out.append("%s: kural betiği bulunamadı: %s" % [mode_id, rules])
 	var sc := str(m.get("scenario", ""))
-	if sc != "" and not FileAccess.file_exists(MODES_DIR + mode_id + "/" + sc):
-		out.append("%s: senaryo dosyası yok: %s" % [mode_id, sc])
-	_check_files(mode_id, MODES_DIR + mode_id + "/", "", out)
+	if sc != "":
+		if not FileAccess.file_exists(MODES_DIR + mode_id + "/" + sc):
+			out.append("%s: senaryo dosyası yok: %s" % [mode_id, sc])
+		else:
+			var sv: Variant = _parse(MODES_DIR + mode_id + "/" + sc)
+			if not (sv is Dictionary):
+				out.append("%s: %s geçerli bir JSON nesnesi değil — virgül/tırnak hatasına bak" % [mode_id, sc])
+			else:
+				for k: String in sv:
+					if not (k in ["owners", "capitals", "vp", "_comment"]):
+						out.append("%s: %s bilinmeyen alan '%s' (owners, capitals, vp)" % [mode_id, sc, k])
+	_check_files(mode_id, MODES_DIR + mode_id + "/", "", sc, out)
 	return out
 
-static func _check_files(mode_id: String, root: String, rel: String, out: Array[String]) -> void:
+static func _check_files(mode_id: String, root: String, rel: String, scenario_file: String, out: Array[String]) -> void:
 	var dir := DirAccess.open(root + rel)
 	if dir == null:
 		return
@@ -336,14 +384,21 @@ static func _check_files(mode_id: String, root: String, rel: String, out: Array[
 		if rel == "" and sub_dir == "map":
 			out.append("%s: map/ klasörü desteklenmiyor — harita bütün modlarda ortak (docs/modlar/README.md)" % mode_id)
 			continue
-		_check_files(mode_id, root, rel + sub_dir + "/", out)
+		_check_files(mode_id, root, rel + sub_dir + "/", scenario_file, out)
 	for f: String in dir.get_files():
 		var r := rel + f
-		if r == "mode.json" or (rel == "" and f == str(info(mode_id).get("scenario", ""))):
+		if r == "mode.json" or r == scenario_file:
 			continue
 		if not f.ends_with(".json"):
 			out.append("%s: %s — mod klasöründe yalnız .json olur (.gd → game/modes/%s/, metin → strings.csv, görsel yok)" % [mode_id, r, mode_id])
 			continue
+		if _parse(root + r) == null:
+			out.append("%s: %s geçerli JSON değil — virgül/tırnak hatasına bak" % [mode_id, r])
+			continue
+		if r.begins_with(OWN_DIR):
+			continue                              # modun kendi verisi: temel veride karşılığı aranmaz (load_own)
 		var base: String = r.trim_suffix(".patch.json") + ".json" if f.ends_with(".patch.json") else r
 		if not FileAccess.file_exists(DATA_ROOT + base):
-			out.append("%s: %s — data/%s yok; mod yalnız var olan veri dosyalarını değiştirebilir (yazım hatası mı?)" % [mode_id, r, base])
+			out.append("%s: %s — data/%s yok; mod yalnız var olan veri dosyalarını değiştirebilir, kendi verisi own/ altına (yazım hatası mı?)" % [mode_id, r, base])
+		elif not f.ends_with(".patch.json") and FileAccess.file_exists(root + r.trim_suffix(".json") + ".patch.json"):
+			out.append("%s: %s ve %s birlikte olmaz — yama moddaki tam dosyanın üzerine uygulanır; birini seç" % [mode_id, r, r.trim_suffix(".json") + ".patch.json"])

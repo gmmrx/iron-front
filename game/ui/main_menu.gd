@@ -79,15 +79,16 @@ func _ready() -> void:
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.9)
 
 ## Ana düğmeler. Birden çok görünür oyun modu varsa "Yeni Oyun" önce mod listesini açar (tek modda bugünkü akış).
+## Etkin mod gizliyse (--game_mode ya da kayıtla açılmış) liste yine açılır: oyuncu WWII'ye dönebilsin.
 func _main_buttons() -> void:
 	_clear_buttons()
 	_col.add_child(_menu_button(tr("MENU_NEW_GAME"), true, func() -> void:
-		if GameModes.ids().size() > 1:
+		if _mode_list().size() > 1:
 			_mode_buttons()
 		else:
 			new_game_pressed.emit()))
 	var saves := Game.list_saves()
-	var can_continue := not saves.is_empty() and GameModes.exists(GameModes.slot_mode(saves[0]))
+	var can_continue := not saves.is_empty() and GameModes.exists(Game.save_mode(saves[0]))
 	_col.add_child(_menu_button(tr("MENU_CONTINUE"), can_continue, func() -> void: load_pressed.emit(saves[0])))
 	_col.add_child(_menu_button(tr("MENU_SETTINGS"), false, Callable()))
 	_col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
@@ -95,7 +96,7 @@ func _main_buttons() -> void:
 ## Mod listesi: her mod için ad düğmesi ve kısa açıklama; en altta geri
 func _mode_buttons() -> void:
 	_clear_buttons()
-	for mid: String in GameModes.ids():
+	for mid: String in _mode_list():
 		_col.add_child(_menu_button(GameModes.text_of(mid, "name"), true, func() -> void: mode_chosen.emit(mid)))
 		var desc := GameModes.text_of(mid, "description")
 		if desc != "":
@@ -104,6 +105,13 @@ func _mode_buttons() -> void:
 			d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			_col.add_child(d)
 	_col.add_child(_menu_button(tr("SELECT_BACK"), true, _main_buttons))
+
+## Menüdeki modlar: görünür modlar + etkin mod (gizli olsa da)
+func _mode_list() -> Array[String]:
+	var list: Array[String] = GameModes.ids()
+	if not (GameModes.id in list):
+		list.append(GameModes.id)
+	return list
 
 func _clear_buttons() -> void:
 	while _col.get_child_count() > _buttons_from:

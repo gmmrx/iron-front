@@ -24,6 +24,11 @@ var prof := {}        ## sistem -> mikrosaniye (profil)
 func timed(key: String, t0: int) -> void:
 	prof[key] = int(prof.get(key, 0)) + Time.get_ticks_usec() - t0
 
+## Açılışta saat etkin moddan kurulur (--game_mode ile açılan mod ilk oyunda da kendi tarihinde başlar). GameClock ilk
+## autoload olduğundan diğer autoload'ların _ready'si doğru tarihi görür.
+func _ready() -> void:
+	reset()
+
 ## Başlangıç tarihi etkin oyun modundan (mode.json "start_date"; WWII: 1936-01-01)
 func reset() -> void:
 	var d := GameModes.start_date()

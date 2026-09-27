@@ -1,22 +1,26 @@
 extends ModeRules
-## Şablon modun kural betiği (data/modes/_template/mode.json "rules"). Yeni moda kopyalanır: tools/new_mode.py.
+## Şablon modun kural betiği (data/modes/_template/mode.json "rules"). tools/new_mode.py yeni moda boş bir kural iskeleti
+## yazar; bu dosya örnek olarak okunur.
 ## Her kanca isteğe bağlı; kullanmadığını sil. Kurallar ve çağrılma sırası: game/core/mode_rules.gd, docs/modlar/README.md.
 
 var days := 0                                  ## örnek mod durumu (kayda yazılır)
 var rng := RandomNumberGenerator.new()         ## moda özel rastgelelik: tohumlu ve kayıtlı (belirlenimcilik)
+var settings: Dictionary = {}                  ## modun kendi verisi: data/modes/_template/own/settings.json
 
 func on_new_game() -> void:
 	days = 0
 	rng.seed = 1936
+	var v: Variant = GameModes.load_own("settings.json")
+	settings = v if v is Dictionary else {}
 
 func on_day() -> void:
 	days += 1
 
-## Örnek oyun sonu: 400. günde oyuncunun 5'ten az eyaleti kaldıysa yenilgi (sebep bir strings.csv anahtarı)
+## Örnek oyun sonu: own/settings.json'daki günde (400) oyuncunun eyaleti azsa (5'ten az) yenilgi; sebep bir strings.csv anahtarı
 func check_end() -> Dictionary:
-	if days == 400:
+	if days == int(settings.get("check_day", 400)):
 		var p: Country = World.player()
-		if p and p.states.size() < 5:
+		if p and p.states.size() < int(settings.get("min_states", 5)):
 			return {"victory": false, "reason": "GAMEOVER_CAPITULATED"}
 	return {}
 

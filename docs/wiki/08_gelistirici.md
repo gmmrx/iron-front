@@ -12,7 +12,7 @@ Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde v
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/iç cephe, tarihli olaylar, seçimler |
 | `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
-| `godot --headless --path . -s game/dev/country_check.gd -- --game_mode=_template --days=30` | Bir modu tüm oynanabilir ülkeleriyle denetler (`run_tests.sh` her WWII dışı mod için bunu koşar) |
+| `godot --headless --path . -s game/dev/country_check.gd -- --game_mode=<id> --days=30 [--featured]` | Bir modu tüm oynanabilir ülkeleriyle denetler; `--featured` yalnız manifestin öne çıkan ülkeleri. `run_tests.sh` WWII dışındaki her modu 30 gün koşar (gizli `_template`'i `--featured` ile) |
 
 ### Test yazmak
 `tests/test_<konu>.gd` dosyası `extends "res://tests/test_case.gd"` ile başlar; `test_` ile başlayan her fonksiyon

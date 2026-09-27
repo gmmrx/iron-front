@@ -180,9 +180,9 @@ func test_technologies() -> void:
 				p.append("%s: bilinmeyen modifier '%s'" % [ctx, k])
 		if _tech_cycle(id, id, {}):
 			p.append("%s: gereklilik döngüsü" % ctx)
-	for t: String in Research.START_TECHS:
-		if not Research.techs.has(t):
-			p.append("başlangıç teknolojisi '%s' yok" % t)
+	for t: Variant in GameModes.start_techs():
+		if not Research.techs.has(str(t)):
+			p.append("başlangıç teknolojisi '%s' yok (mode.json start_techs)" % t)
 	none(p, "teknoloji")
 
 func _tech_cycle(from: String, target: String, seen: Dictionary) -> bool:

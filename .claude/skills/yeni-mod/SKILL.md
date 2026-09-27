@@ -25,6 +25,9 @@ Yarım bir modu menüde gizlemek için `"hidden": true`.
 - Dosyanın çoğu değişecekse: `python3 tools/new_mode.py --copy <id> common/<dosya>.json`, sonra düzenle.
 - Birkaç ekleme/silme: `data/modes/<id>/common/<dosya>.patch.json` (`null` siler; `"id"`li dizilerde `_delete`).
 - WWII olayları ve ülke ağaçları olmasın: `--blank <id> common/events.json` VE `--blank <id> common/focuses.json`.
+- Aynı dosyanın hem tam kopyası hem yaması olmaz (araç ve `--check` durdurur).
+- WWII'de karşılığı olmayan veri (salgın, yeni tablo...): `data/modes/<id>/own/<ad>.json`; kural betiğinde
+  `GameModes.load_own("<ad>.json")`. Sayıları koda sabit yazma.
 - `data/common/` altındaki dosyaları mod için DEĞİŞTİRME.
 - Motorun başvurduğu anahtarlar README'deki "Mod sözleşmesi" tablosunda; silme.
 
