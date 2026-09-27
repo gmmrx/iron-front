@@ -775,3 +775,13 @@ EVENT_OPTION_LOCKED,Conditions for this choice are not met.,Bu seçeneğin şart
 DIV_HOLD,Hold to the last man,Son askere kadar
 TIP_DIV_HOLD,HOLD TO THE LAST MAN\nOn: the division never retreats by itself; when its cohesion is exhausted it keeps fighting at half strength until destroyed.\nOff: it retreats to the nearest safe province when cohesion runs out.\nYour divisions start with this on: nobody pulls back without your order.,SON ASKERE KADAR SAVUN\nAçık: tümen kendiliğinden geri çekilmez; bütünlüğü bitince yarı güçle yok olana kadar savaşır.\nKapalı: bütünlük bitince en yakın güvenli bölgeye çekilir.\nTümenlerin açık başlar: emrin olmadan kimse geri dönmez.
 TRD_CANT_PAY,"Not enough civilian factories to pay for more imports (8 resources = 1 factory, after consumer goods).",İthalatı ödeyecek sivil fabrika yok (8 kaynak = 1 fabrika; tüketim malından arta kalanla ödenir).
+RES_TODAY,Today,Bugün
+DIP_COUNTRIES,Countries,Ülkeler
+DIP_SELECT,Select a country,Bir ülke seçin
+DIP_SELECT_HINT,Pick a country from the list on the left (or click one on the map) to see its situation and your diplomatic options.,Durumunu ve diplomatik seçeneklerinizi görmek için soldaki listeden (ya da haritadan) bir ülke seçin.
+TRD_MARKET,Market,Pazar
+TRD_MARKET_TIP,Show the sellers of %s in the market column.,%s satıcılarını pazar sütununda göster.
+TRD_MARKET_HEAD,Market: %s,Pazar: %s
+TRD_AUTO_ON,Automatic trade is on: missing resources are bought for you. Turn it off to make your own deals.,Otomatik ticaret açık: eksik kaynaklar sizin yerinize alınıyor. Kendi anlaşmalarınızı yapmak için kapatın.
+TRD_SELLER_SUB,%d available on the market,Pazarda %d arz
+TRD_BUY_QTY,BUY\n%d %s from %s\nCost: %d civilian factory per day,"SATIN AL\n%d %s, %s ülkesinden\nBedel: günde %d sivil fabrika"

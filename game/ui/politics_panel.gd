@@ -10,13 +10,14 @@ const IDEO_ORDER := ["democratic", "communism", "fascism", "neutrality"]
 const EFFECT_KEYS := ["manpower", "consumer_goods", "factory_output", "construction_speed", "mil_construction_speed",
 	"research_speed", "export", "training_time", "recruitable_population"]
 
-var _body: VBoxContainer
+var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 var _law_group := "conscription"
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_body = PanelLayout.frame(self, tr("POLITICS_TITLE"), "politics", 520.0)
+	_root = PanelLayout.frame(self, tr("POLITICS_TITLE"), "politics", -1.0)     # tam ekran, üç sütun
 	Politics.politics_changed.connect(func(t: String) -> void:
 		if visible and t == World.player_tag: refresh())
 	World.daily_update.connect(func() -> void:
@@ -35,12 +36,16 @@ func refresh() -> void:
 	var c := World.player()
 	if c == null:
 		return
-	for ch in _body.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
+	var cols := PanelLayout.columns(_root, [1.0, 1.35, 1.0])
+	_body = cols[0]
 	_leader_block(c)
 	_gauges(c)
+	_body = cols[1]
 	_spirits(c)
 	_laws(c)
+	_body = cols[2]
 	_advisors(c)
 	_decisions(c)
 	var fb := Button.new()
@@ -61,7 +66,7 @@ func _leader_block(c: Country) -> void:
 	var flag := PanelContainer.new()
 	flag.theme_type_variation = "SlotGold"
 	var por := UiTheme.portrait(c)
-	flag.custom_minimum_size = Vector2(96, 120) if por else Vector2(132, 90)
+	flag.custom_minimum_size = Vector2(128, 160) if por else Vector2(180, 120)
 	var ft := TextureRect.new()
 	ft.texture = por if por else FlagFactory.get_flag(c)
 	ft.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -82,7 +87,7 @@ func _leader_block(c: Country) -> void:
 	info.add_theme_constant_override("separation", 0)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(info)
-	var name := UiTheme.make_label(c.leader, 20, UiTheme.ACCENT)
+	var name := UiTheme.make_label(c.leader, 24, UiTheme.ACCENT)
 	name.add_theme_font_override("font", UiTheme.title_font())
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name)
@@ -95,7 +100,7 @@ func _leader_block(c: Country) -> void:
 		el = tr("POL_NEXT_ELECTION") % [_fmt_date(c.next_election), c.election_months / 12]
 	info.add_child(UiTheme.make_label(el, 15, UiTheme.TEXT_DIM))
 	# pasta + açıklama
-	var pie := PanelLayout.Pie.new(88.0)
+	var pie := PanelLayout.Pie.new(130.0)
 	var parts := []
 	var tip := tr("POL_POPULARITY") + "\n"
 	for i in IDEO_ORDER:
@@ -139,6 +144,20 @@ func _gauges(c: Country) -> void:
 	var ws_tip := tr("POL_WS_BREAKDOWN") % [roundi(c.war_support * 100), _signed(c.mod("war_support")), _signed(Politics.tension_war_support()),
 		_signed(Politics.war_state_support(c)), roundi(w * 100), roundi(Diplomacy.capitulation_threshold(c) * 100)]
 	_gauge(row, "war_support", tr("POL_WS_SHORT"), "%d%%" % roundi(w * 100), "", ws_tip, w)
+	# ayrıntılar sayfada da (iyi yeşil, kötü kırmızı)
+	for tip: String in [tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()], st_tip, ws_tip]:
+		var box := PanelContainer.new()
+		box.theme_type_variation = "Row"
+		_body.add_child(box)
+		var lines := tip.split("\n")
+		var col := VBoxContainer.new()
+		col.add_theme_constant_override("separation", 2)
+		box.add_child(col)
+		var head := UiTheme.make_label(lines[0], 15, UiTheme.ACCENT)
+		head.add_theme_font_override("font", UiTheme.bold_font())
+		col.add_child(head)
+		lines.remove_at(0)
+		PanelLayout.detail(col, "\n".join(lines), 14)
 
 func _fmt_date(d: int) -> String:
 	return "%d %s %d" % [d % 100, tr("MONTH_%d" % (d / 100 % 100)), d / 10000]
@@ -192,8 +211,22 @@ func _spirits(c: Country) -> void:
 		var tex := UiTheme.spirit_icon(sp)
 		if tex == null:
 			tex = UiTheme.icon("stability" if not negative else "war_support")
-		var s := PanelLayout.slot(tex, 58, tip, "SlotBad" if negative else "Slot")
-		flow.add_child(s)
+		var card := VBoxContainer.new()
+		card.add_theme_constant_override("separation", 2)
+		card.custom_minimum_size.x = 112
+		card.tooltip_text = tip
+		card.mouse_filter = Control.MOUSE_FILTER_STOP
+		var s := PanelLayout.slot(tex, 76, "", "SlotBad" if negative else "Slot")
+		s.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		s.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(s)
+		var nl := UiTheme.make_label(Politics.loc(def["name"]), 12, UiTheme.BAD.lightened(0.3) if negative else UiTheme.TEXT)
+		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		nl.custom_minimum_size.x = 112
+		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(nl)
+		flow.add_child(card)
 	if c.spirits.is_empty():
 		_body.add_child(UiTheme.make_label(tr("POL_NO_SPIRITS"), 15, UiTheme.TEXT_DIM))
 
@@ -220,67 +253,52 @@ func _law_reqs(d: Dictionary) -> String:
 
 func _laws(c: Country) -> void:
 	PanelLayout.section(_body, tr("POL_LAWS") % int(Economy.law_change_cost))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
-	_body.add_child(row)
+	var cols := PanelLayout.columns(_body, [1.0, 1.0, 1.0], 8)
+	var k := 0
 	for g: String in Economy.law_groups:
-		var law: String = c.laws.get(g, "")
-		var b := Button.new()
-		b.theme_type_variation = "Card"
-		b.toggle_mode = true
-		b.focus_mode = Control.FOCUS_NONE
-		b.set_pressed_no_signal(g == _law_group)
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 84)
-		b.icon = UiTheme.law_icon(law)
-		b.expand_icon = true
-		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-		b.add_theme_constant_override("icon_max_width", 44)
-		b.text = Economy.law_name(g, law)
-		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override("font_size", 14)
-		b.tooltip_text = "%s\n%s\n%s" % [Economy.group_name(g), Economy.law_name(g, law), _law_effects(Economy.law_def(g, law))]
-		b.pressed.connect(func() -> void:
-			_law_group = g
-			refresh())
-		row.add_child(b)
-	# seçili grubun yasaları
-	var list := VBoxContainer.new()
-	list.add_theme_constant_override("separation", 3)
-	_body.add_child(list)
-	var g := _law_group
-	for law: String in Economy.law_groups[g]["laws"]:
-		var d := Economy.law_def(g, law)
-		var current: bool = c.laws.get(g) == law
-		var block := Economy.law_block_reason(c, g, law)
-		var b := Button.new()
-		b.theme_type_variation = "Card"
-		b.focus_mode = Control.FOCUS_NONE
-		b.toggle_mode = true
-		b.set_pressed_no_signal(current)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.icon = UiTheme.law_icon(law)
-		b.expand_icon = true
-		b.add_theme_constant_override("icon_max_width", 34)
-		b.custom_minimum_size = Vector2(0, 46)
-		var reqs := _law_reqs(d)
-		b.text = "%s%s\n%s" % [Economy.law_name(g, law), "  ✓" if current else "", _law_effects(d)]
-		b.add_theme_font_size_override("font_size", 14)
-		b.disabled = not current and not Economy.can_change_law(c, g, law)
-		var tip := Economy.law_name(g, law) + "\n" + _law_effects(d)
-		if reqs != "":
-			tip += "\n" + tr("LAW_REQUIRES") % reqs
-		if block != "" and not current:
-			tip += "\n⚠ " + tr(block)
-		elif not current:
-			tip += "\n" + tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)
-		b.tooltip_text = tip
-		b.pressed.connect(func() -> void:
-			if not current:
-				Economy.change_law(c, g, law)
-			refresh())
-		list.add_child(b)
+		var list := cols[k]
+		k += 1
+		var gh := UiTheme.make_label(Economy.group_name(g), 15, UiTheme.ACCENT)
+		gh.add_theme_font_override("font", UiTheme.bold_font())
+		gh.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		list.add_child(gh)
+		for law: String in Economy.law_groups[g]["laws"]:
+			var d := Economy.law_def(g, law)
+			var current: bool = c.laws.get(g) == law
+			var block := Economy.law_block_reason(c, g, law)
+			var b := Button.new()
+			b.theme_type_variation = "Card"
+			b.focus_mode = Control.FOCUS_NONE
+			b.toggle_mode = true
+			b.set_pressed_no_signal(current)
+			b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			b.icon = UiTheme.law_icon(law)
+			b.expand_icon = true
+			b.add_theme_constant_override("icon_max_width", 40)
+			b.custom_minimum_size = Vector2(0, 62)
+			b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			var reqs := _law_reqs(d)
+			b.text = Economy.law_name(g, law) + ("  ✓" if current else "")
+			b.add_theme_font_size_override("font_size", 14)
+			b.disabled = not current and not Economy.can_change_law(c, g, law)
+			var tip := Economy.law_name(g, law) + "\n" + _law_effects(d).replace(", ", "\n")
+			if reqs != "":
+				tip += "\n" + tr("LAW_REQUIRES") % reqs
+			if block != "" and not current:
+				tip += "\n⚠ " + tr(block)
+			elif not current:
+				tip += "\n" + tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)
+			b.tooltip_text = tip
+			b.pressed.connect(func() -> void:
+				if not current:
+					Economy.change_law(c, g, law)
+				refresh())
+			list.add_child(b)
+			if current:
+				var eff := PanelContainer.new()
+				eff.theme_type_variation = "Row"
+				list.add_child(eff)
+				PanelLayout.detail(eff, _law_effects(d).replace(", ", "\n"), 13)
 
 # ------------------------------------------------------------------ danışmanlar
 func _advisors(c: Country) -> void:

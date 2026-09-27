@@ -169,7 +169,12 @@ func is_mouse_over_ui() -> bool:
 
 ## Tam ekran bir panel (odak ağacı, araştırma) açık mı: açıkken harita hiçbir girdiyle kıpırdamaz
 func fullscreen_open() -> bool:
-	return (focus != null and focus.visible) or (research != null and research.visible)
+	if focus != null and focus.visible:
+		return true
+	for p in _left_panels():
+		if p != null and p.visible and p.has_meta("fullscreen"):
+			return true
+	return false
 
 func _left_panels() -> Array:
 	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]

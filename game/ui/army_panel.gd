@@ -4,13 +4,14 @@ extends PanelContainer
 ## +/- tabur, hesaplanan değerler), konuşlandırma şartları ipucunda.
 
 var _cells: Array[Label] = []
-var _body: VBoxContainer
+var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 var _edit := -1
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_body = PanelLayout.frame(self, tr("ARMY_TITLE"), "army", 520.0)
+	_root = PanelLayout.frame(self, tr("ARMY_TITLE"), "army", -1.0)     # tam ekran: şablonlar · tasarımcı
 	var top := PanelLayout.fixed(self)
 	_cells = PanelLayout.info_cells(top, [
 		["army", tr("ARM_CELL_DIVS"), tr("ARM_CELL_DIVS_TIP")],
@@ -41,8 +42,12 @@ func refresh() -> void:
 	_cells[1].text = UiTheme.format_number(c.available_manpower())
 	_cells[2].text = UiTheme.format_number(c.stockpile.get("infantry_equipment", 0.0))
 	_cells[3].text = UiTheme.format_number(Military.air_power(c))
-	for ch in _body.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
+	var cols := PanelLayout.columns(_root, [1.0, 1.1])
+	_body = cols[0]
+	if _edit < 0 and not c.templates.is_empty():
+		_edit = 0
 	PanelLayout.section(_body, tr("ARM_TEMPLATES") % c.templates.size())
 	for i in c.templates.size():
 		_template_row(c, i)
@@ -58,6 +63,7 @@ func refresh() -> void:
 		_edit = c.templates.size() - 1
 		refresh())
 	_body.add_child(newb)
+	_body = cols[1]
 	if _edit >= 0 and _edit < c.templates.size():
 		_build_designer(c, _edit)
 

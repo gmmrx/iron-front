@@ -3,13 +3,14 @@ extends PanelContainer
 ## Üretim ekranı: hatlar, fabrika atama, verimlilik, stok.
 
 var _cells: Array[Label] = []
-var _lines_box: VBoxContainer
+var _lines_box: VBoxContainer     ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 var _add: MenuButton
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_lines_box = PanelLayout.frame(self, tr("PRODUCTION_TITLE"), "production", 500.0)
+	_root = PanelLayout.frame(self, tr("PRODUCTION_TITLE"), "production", -1.0)     # tam ekran: hatlar · katalog ve stok
 	var top := PanelLayout.fixed(self)
 	_cells = PanelLayout.info_cells(top, [
 		["military_factory", tr("PRO_CELL_MIL"), tr("PRO_CELL_MIL_TIP")],
@@ -42,6 +43,7 @@ func _ready() -> void:
 			var ok := Economy.can_produce(World.player(), eq)
 			pm.set_item_disabled(k, not ok)
 			pm.set_item_tooltip(k, "" if ok else tr("PRODUCTION_LOCKED") % Research.tech_name(Research.unlocking_tech(eq))))
+	_add.visible = false      # katalog sütunu yerini aldı (menü yedek olarak kalır)
 	top.add_child(_add)
 	Economy.production_changed.connect(func(tag: String) -> void:
 		if tag == World.player_tag and visible: refresh())
@@ -75,15 +77,20 @@ func refresh() -> void:
 	var out := c.mod("factory_output") + Politics.stability_factory_mod(c)
 	_cells[2].text = ("+" if out >= 0 else "") + "%d%%" % roundi(out * 100)
 	_cells[2].add_theme_color_override("font_color", UiTheme.GOOD if out >= 0 else UiTheme.BAD)
-	for ch in _lines_box.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
+	var cols := PanelLayout.columns(_root, [1.2, 1.0])
+	_lines_box = cols[1]
+	_catalog(c)
+	_lines_box = cols[0]
 	PanelLayout.section(_lines_box, tr("PRO_LINES") % c.production_lines.size())
 	if c.production_lines.is_empty():
 		PanelLayout.empty(_lines_box, tr("PRO_NO_LINES"))
 	for i in c.production_lines.size():
 		_row(c, i)
+	_lines_box = cols[1]
 	PanelLayout.section(_lines_box, tr("PRODUCTION_STOCKPILE"))
-	var grid := PanelLayout.grid(2)
+	var grid := PanelLayout.grid(3)
 	var any_stock := false
 	for eq: String in Economy.equipment:
 		var n := int(c.stockpile.get(eq, 0.0))
@@ -110,6 +117,28 @@ func refresh() -> void:
 	_lines_box.add_child(grid)
 	if not any_stock:
 		PanelLayout.empty(_lines_box, "—")
+
+## Katalog: tüm ekipmanlar resimli karolar; tıklayınca yeni hat açılır (araştırılmamış olanlar kilitli, nedeni ipucunda)
+func _catalog(c: Country) -> void:
+	PanelLayout.section(_lines_box, tr("PRODUCTION_ADD"))
+	var g := PanelLayout.grid(4)
+	_lines_box.add_child(g)
+	for eq: String in Economy.equipment:
+		var d: Dictionary = Economy.equipment[eq]
+		var ok := Economy.can_produce(c, eq)
+		var res := []
+		for r: String in d["resources"]:
+			res.append("%s %d" % [tr("RES_" + r), d["resources"][r]])
+		var tip := "%s\n%s IC%s" % [Economy.equipment_name(eq), str(d["cost"]), ("\n" + ", ".join(res)) if not res.is_empty() else ""]
+		if not ok:
+			tip += "\n\n⚠ " + tr("PRODUCTION_LOCKED") % Research.tech_name(Research.unlocking_tech(eq))
+		var t := PanelLayout.tile(UiTheme.equipment_icon(eq), Economy.equipment_name(eq), "%s IC" % str(d["cost"]), tip, 100, 104)
+		t.disabled = not ok
+		t.pressed.connect(func() -> void:
+			if Economy.can_produce(c, eq):
+				Economy.add_line(c, eq)
+				refresh())
+		g.add_child(t)
 
 func _row(c: Country, i: int) -> void:
 	var l: ProductionLine = c.production_lines[i]

@@ -3,7 +3,7 @@ extends PanelContainer
 ## Bütün UI kontrollerinin tooltip_text içeriğini gecikmesiz, hiyerarşik bir bilgi kartına dönüştürür.
 
 var _title: Label
-var _body: Label
+var _body: RichTextLabel
 var _shortcut: Label
 var _target: Control
 var _source_text := ""
@@ -25,15 +25,22 @@ func _ready() -> void:
 	var rule := HSeparator.new()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(rule)
-	_body = UiTheme.make_label("", 16, UiTheme.TEXT)
+	_body = RichTextLabel.new()
+	_body.bbcode_enabled = true
+	_body.fit_content = true
+	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_body.add_theme_constant_override("line_spacing", 3)
+	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_body.add_theme_font_size_override("normal_font_size", 16)
+	_body.add_theme_font_override("normal_font", UiTheme.get_theme().default_font)
+	_body.add_theme_color_override("default_color", UiTheme.TEXT)
+	_body.add_theme_constant_override("line_separation", 3)
 	v.add_child(_body)
 	_shortcut = UiTheme.make_label("", 14, UiTheme.ACCENT)
 	_shortcut.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(_shortcut)
 	# satır kaydıran etiketlere sabit genişlik: yoksa kart kelime kelime daralıp ekran boyu uzar
-	for l: Label in [_title, _body, _shortcut]:
+	for l: Control in [_title, _body, _shortcut]:
 		l.custom_minimum_size.x = 372.0
 	visible = false
 
@@ -67,8 +74,9 @@ func _set_content(text: String) -> void:
 			lines.remove_at(lines.size() - 1)
 	while not lines.is_empty() and String(lines[0]).strip_edges() == "":
 		lines.remove_at(0)
-	_body.text = "\n".join(lines).strip_edges()
-	_body.visible = _body.text != ""
+	var body := "\n".join(lines).strip_edges()
+	_body.text = UiTheme.colorize(body)
+	_body.visible = body != ""
 	_shortcut.text = shortcut
 	_shortcut.visible = shortcut != ""
 	reset_size()

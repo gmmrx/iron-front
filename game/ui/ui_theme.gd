@@ -419,6 +419,53 @@ static func leader_slug(name: String) -> String:
 		out = out.replace("__", "_")
 	return out.strip_edges().trim_prefix("_").trim_suffix("_")
 
+## İpucu gövdesi için renklendirme (BBCode): işaretli sayılar iyi ise yeşil, kötü ise kırmızı; "azı iyi" değerlerde
+## (süre, tüketim, bedel, gerginlik, ceza, kayıp, teslim) renk ters; ⚠ satırları kırmızı, şart satırları turuncu,
+## "Başlık:" satırları soluk altın; işaretsiz sayılar parlak.
+const _INVERTED := ["süre", "time", "tüketim", "consumer", "bedel", "cost", "maliyet", "gerginlik", "tension", "ceza",
+	"penalty", "kayıp", "loss", "teslim", "surrender", "gecikme", "delay", "yakıt tüketimi", "fuel use", "direniş", "resistance"]
+static var _num_re: RegEx
+static func colorize(text: String) -> String:
+	if _num_re == null:
+		_num_re = RegEx.create_from_string("(%\\s?[+\\-−]\\s?\\d[\\d.,]*|[+\\-−]\\s?\\d[\\d.,]*\\s?%?|%\\d[\\d.,]*|\\b\\d[\\d.,]*\\s?%?)")
+	var good := GOOD.to_html(false)
+	var bad := BAD.to_html(false)
+	var out: PackedStringArray = []
+	for raw in text.split("\n"):
+		var line := String(raw).replace("[", "[lb]")
+		var low := line.to_lower()
+		var stripped := line.strip_edges()
+		if stripped.begins_with("⚠"):
+			out.append("[color=#%s]%s[/color]" % [bad, line])
+			continue
+		if low.begins_with("gerekir") or low.begins_with("requires") or low.begins_with("gerekli"):
+			out.append("[color=#e8a45a]%s[/color]" % line)
+			continue
+		if stripped.ends_with(":") and stripped.length() < 40:
+			out.append("[color=#c9b27a]%s[/color]" % line)
+			continue
+		var inverted := false
+		for k: String in _INVERTED:
+			if low.contains(k):
+				inverted = true
+				break
+		var res := ""
+		var last := 0
+		for m in _num_re.search_all(line):
+			var tok := m.get_string()
+			res += line.substr(last, m.get_start() - last)
+			var neg := tok.contains("-") or tok.contains("−")
+			var pos := tok.contains("+")
+			if neg or pos:
+				var is_good := pos != inverted
+				res += "[color=#%s]%s[/color]" % [good if is_good else bad, tok]
+			else:
+				res += "[color=#f3e7c4]%s[/color]" % tok
+			last = m.get_end()
+		res += line.substr(last)
+		out.append(res)
+	return "\n".join(out)
+
 ## İlk bulunan ikon (yeni setteki ad, yoksa eski ad)
 ## Haritadaki sprite'lar için ölçek: doku hangi çözünürlükte gelirse gelsin (SVG ya da yeni 512 px ikon) aynı ekran boyu.
 ## ref_px: tasarımın dayandığı doku genişliği

@@ -370,6 +370,36 @@ static func empty(parent: Container, text: String) -> Label:
 	parent.add_child(l)
 	return l
 
+## Geniş/tam ekran paneller için sütunlar: ratios oranında genişleyen VBox'lar döner
+static func columns(parent: Container, ratios: Array, gap: int = 14) -> Array[VBoxContainer]:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", gap)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(row)
+	var out: Array[VBoxContainer] = []
+	for r in ratios:
+		var col := VBoxContainer.new()
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.size_flags_stretch_ratio = float(r)
+		col.add_theme_constant_override("separation", 8)
+		row.add_child(col)
+		out.append(col)
+	return out
+
+## Renkli (iyi yeşil / kötü kırmızı) ayrıntı kutusu: ipucu metinlerini sayfada da göstermek için
+static func detail(parent: Container, text: String, size: int = 15) -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_color_override("default_color", UiTheme.TEXT)
+	r.text = UiTheme.colorize(text)
+	parent.add_child(r)
+	return r
+
 ## Eski düzen uyumluluğu
 static func fit_scroll(panel: Control, scroll: ScrollContainer, preferred: float) -> void:
 	var fixed := panel.get_combined_minimum_size().y - scroll.custom_minimum_size.y
