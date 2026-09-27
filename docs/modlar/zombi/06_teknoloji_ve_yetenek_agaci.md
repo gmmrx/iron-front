@@ -671,7 +671,7 @@ iyi niyetine bağlıdır. Kösemen önderliğinde gelen sürü dalgası (04 §8)
 
 Dosyalar mod altyapısının yama düzenindedir (`docs/modlar/README.md`: tam dosya ya da `.patch.json`):
 `data/modes/zombie/common/technologies.patch.json`, `equipment.patch.json`, `focuses.json` (**tam dosya**: WWII ağaçları yüklenmez),
-`spirits.patch.json` ve modun kural dosyası `data/modes/zombie/doctrine.json`.
+`spirits.patch.json` ve modun kural dosyası `data/modes/zombie/own/doctrine.json`.
 
 ### 6.1 Teknoloji yaması (06'nın kısmı; 05 §12.2 ile aynı dosya)
 
@@ -794,7 +794,7 @@ bundan üretir (§7).
 }
 ```
 
-### 6.4 Doktrin kural dosyası (`data/modes/zombie/doctrine.json`)
+### 6.4 Doktrin kural dosyası (`data/modes/zombie/own/doctrine.json`)
 
 ```json
 {

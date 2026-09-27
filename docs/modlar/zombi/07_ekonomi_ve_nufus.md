@@ -637,9 +637,10 @@ en çok öldüren seçenektir. Oyunun tek doğru bir cevabı yoktur (01 §6.3).
 
 ## 14. Veri: JSON şemaları
 
-**Dosya yerleşimi.** Mod altyapısının denetimi (`tools/new_mode.py --check`), mod klasöründe `data/` altında karşılığı olmayan
-dosyayı reddeder. Bu yüzden ekonomi parametreleri **var olan bir dosyanın patch'ine** yeni bir anahtar olarak konur. `Economy.load_data`
-bu anahtarı görmezden gelir, `rules.gd` okur. (02'deki `rules.json` ve 03'teki `epidemic.json` için de aynı sorun geçerlidir; açık soru 7.)
+**Dosya yerleşimi (güncellendi).** Bu belge yazılırken mod altyapısı, mod klasöründe `data/` altında karşılığı olmayan dosyayı
+reddediyordu; bu yüzden aşağıdaki örnek ekonomi parametrelerini var olan bir dosyanın yamasına koyar. Altyapı daha sonra modun kendi
+verisi için **`own/` klasörünü** ekledi (`GameModes.load_own`). Kesin karar (14_teknik_plan.md §2.1): ekonomi parametreleri
+`data/modes/zombie/own/economy.json`'a taşınır; bina ve kaynak tanımları (`resources` dizisine gıda) yamada kalır. Açık soru 7 çözüldü.
 
 `data/modes/zombie/common/buildings.patch.json`
 ```json
@@ -831,9 +832,7 @@ Toplam **15 dosya.**
 5. **Değişken ticaret kuru:** Kıtlıkta 8:1 kurunun gıda için 6:1'e inmesi (satıcı lehine) karaborsaya gerek kalmadan fiyat sinyali
    verir, ama `RESOURCES_PER_TRADE_FACTORY` sabitini kaynak başına yapmak motor değişikliği ister.
 6. **Haberleşme çöküşü** tespit gecikmesine eklensin mi? 03 §8 ile birlikte karara bağlanmalı.
-7. **Mod veri dosyası yerleşimi:** `--check` yeni üst düzey dosyayı reddediyor. 02 (`rules.json`) ve 03 (`epidemic.json`) için
-   de geçerli. Seçenekler: (a) bu belgedeki gibi var olan dosyanın patch'ine anahtar koymak, (b) altyapıya `mode_data/` istisnası
-   eklemek. Altyapı PR'ında karar verilmeli.
+7. ~~**Mod veri dosyası yerleşimi**~~ — **Çözüldü:** altyapıya `own/` klasörü eklendi (seçenek b); bkz. 14_teknik_plan.md §2.1.
 8. **Yolcu akışına hizmet çarpanı** (§5.2) 03'ün kalibrasyonunu (Türkiye'ye varış 24–87. gün) değiştirir mi? 03 prototipiyle yeniden ölçülmeli.
 9. **Mühimmat çekişi** yalnız `UND` ile muharebede. Devletler arası savaş (01 açık soru 3) açılırsa orada da uygulansın mı? Bu,
    WWII ile tutarsızlık yaratır.

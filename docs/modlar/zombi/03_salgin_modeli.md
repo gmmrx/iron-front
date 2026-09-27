@@ -44,7 +44,7 @@ SAAT (GameClock.hour_passed)        GÜN (GameClock.day_passed)                 
   değiştirmez. Akışlar hedef dizide **sabit bağlantı sırasıyla** toplanır. Ondalıklı toplamanın sırası değişirse sonuç da değişebilir.
 - Her adım `GameClock.timed("epidemic", t0)` ile ölçülür ve mevcut `sim.gd` profil dökümünde görünür.
 - Kod yeri önerisi: şablondaki `mode.json` → `"rules": "res://game/modes/zombie/rules.gd"` alanı. Motor `epidemic.gd`'dir ve
-  `data/modes/zombie/epidemic.json`'u okur (§14). Kesin yerleşim `docs/modlar/README.md`'de yazılacak.
+  `data/modes/zombie/own/epidemic.json`'u okur (§14). Kesin yerleşim: 14_teknik_plan.md §2.
 
 ## 3. Eyalet içi model
 
@@ -737,7 +737,7 @@ Log hesabı yalnız görsel içindir ve belirlenimcilik zincirine girmez.
 
 ## 14. Veri: JSON parametreleri ve şema
 
-**Dosya önerisi:** `data/modes/zombie/epidemic.json`. Manifest (`mode.json`) `rules` alanıyla kural betiğini gösterir, betik bu
+**Dosya önerisi:** `data/modes/zombie/own/epidemic.json`. Manifest (`mode.json`) `rules` alanıyla kural betiğini gösterir, betik bu
 dosyayı okur. 02 §10'daki `rules.json`'un `disease`, `mobility` ve `horde` blokları **aynı anahtar adlarıyla** buraya taşınabilir ya
 da orada kalabilir; karar `docs/modlar/README.md`'nindir. Zorluk tabloları (β, κ, ömür…) 02 §10'daki `difficulty` bloğunda kalır ve
 buradaki varsayılanların üstüne yazar. 04'teki tür ve suş dosyaları buradaki anahtarları çarpan ya da değer olarak geçersiz kılar.

@@ -436,8 +436,8 @@ yazılmaz; oyunda da kaynak bir suçlama olarak sunulmaz). Başlangıçta oyuncu
 
 ## 10. Veri: kurallar dosyası (öneri şema)
 
-Mod altyapısı ayrı bir PR'da kuruluyor; kesin yerleşim `docs/modlar/README.md`'de yazılacak. Bu belgenin kararlarını taşıyan öneri
-dosya `data/modes/zombie/rules.json`. Motor içerikten bağımsızdır: evre eşikleri, zafer koşulları ve zorluk sayıları kodda değil burada.
+Kesin yerleşim 14_teknik_plan.md §2'dedir (mod altyapısı kuruldu: `docs/modlar/README.md`). Bu belgenin kararlarını taşıyan
+dosya `data/modes/zombie/own/rules.json`. Motor içerikten bağımsızdır: evre eşikleri, zafer koşulları ve zorluk sayıları kodda değil burada.
 
 ```json
 {

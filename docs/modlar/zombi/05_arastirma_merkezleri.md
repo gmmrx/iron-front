@@ -677,9 +677,9 @@ geleneğini sürdürür ve tasarım kararını oyuncuya açık eder.
 
 ## 12. Veri: JSON şemaları
 
-Dosyalar (mod altyapısının yama düzeni; kesin yerleşim `docs/modlar/README.md`'de):
+Dosyalar (mod altyapısının yama düzeni; kesin yerleşim 14_teknik_plan.md §2):
 `data/modes/zombie/common/buildings.patch.json`, `technologies.patch.json`, `equipment.patch.json`, `spirits.patch.json`,
-`events.patch.json` ve modun kendi dosyası `data/modes/zombie/science.json`.
+`events.patch.json` ve modun kendi dosyası `data/modes/zombie/own/science.json`.
 
 ### 12.1 Binalar
 ```json

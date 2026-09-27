@@ -951,7 +951,7 @@ değişmemiş, askere serum önceliği kapalı.
 
 ## 16. Veri: JSON şema örnekleri
 
-Kesin yerleşim `docs/modlar/README.md`'ye uyar: `data/modes/zombie/common/<dosya>.patch.json` ve modun kendi kural dosyası.
+Kesin yerleşim 14_teknik_plan.md §2: `data/modes/zombie/common/<dosya>.patch.json` ve modun kendi dosyası `own/military.json`.
 
 ### 16.1 `common/units.patch.json` (kesit)
 `templates` kimliksiz bir dizidir; patch kuralı gereği tamamen değişir. Bu yüzden temel şablonlar da yazılır. Mod sözleşmesi: 0. piyade,
@@ -1021,10 +1021,9 @@ Açan teknolojiler `technologies.patch.json`'da `unlock` ile yazılır: `zm_urba
 }}
 ```
 
-### 16.4 `data/modes/zombie/military.json` (modun askerî kural dosyası)
-Not: `docs/modlar/README.md`'ye göre mod klasöründeki her `X.json` için `data/X.json` bulunmalıdır; `tools/new_mode.py --check` bu
-dosyayı (02'nin `rules.json`'u ve 03'ün `epidemic.json`'u gibi) yazım hatası sayar. Moda özgü kural dosyaları için altyapıda ayrı bir
-klasör ya da istisna listesi gerekir (§19 soru 11). Aşağıdaki içerik yerden bağımsızdır.
+### 16.4 `data/modes/zombie/own/military.json` (modun askerî kural dosyası)
+Not (güncellendi): Mod altyapısı modun kendi verisi için `own/` klasörünü ekledi; bu dosya `own/military.json` olarak `--check`'ten
+geçer ve kural betiği `GameModes.load_own("military.json")` ile okur (14_teknik_plan.md §2.1). §19 soru 11 bu yolla çözüldü.
 ```json
 {
   "_comment": "Gri Kordon askerî kuralları. Gerekçeler: docs/modlar/zombi/08_askeri_ve_savunma.md.",
@@ -1194,9 +1193,7 @@ Bu yüzden aşağıdakiler **ikinci önceliktir**:
    olursa azalan getiriyle (1 / 0,5 / 0,25) toplansın. Hangisi?
 10. **Yerel birlik:** tümenlerin hangi eyaletten toplandığı motorda yok. "Tanıdık Yüzler" olayı bu yüzden genel. Tümen kökeni (kayıtta bir
     eyalet kimliği) eklenirse olay ve yorgunluk yerel olabilir. Değer mi?
-11. **Moda özgü veri dosyaları:** `--check` kuralı (`data/X.json` karşılığı zorunlu) `military.json`, 02'nin `rules.json`'u ve 03'ün
-    `epidemic.json`'u için hata verir. Altyapı belgesinde `data/modes/<id>/rules/` gibi karşılık aranmayan bir klasör tanımlanmalı mı,
-    yoksa bu içerik `rules.gd`'nin okuduğu tek bir dosyada mı toplanmalı?
+11. ~~**Moda özgü veri dosyaları**~~ — **Çözüldü:** altyapıya karşılık aranmayan `own/` klasörü eklendi (14_teknik_plan.md §2.1).
 12. **Bu belgede doğrulanamayan tarihî ayrıntılar** (web erişimi kapalıydı): 1920 Kırım tahliyesinin gemi ve kişi sayısı; Dunkerque'nin
     9 gün / 338.000 sayısı; İkinci Dünya Savaşı kuşatma hava ikmallerinin ihtiyaç karşısındaki oranı; 1900 Honolulu'da veba için yapılan
     denetimli yakmanın mahalleye sıçraması (O4 dayanağı); 1936–37'de İspanya'da kuşatılmış bir mevziye havadan ikmal atılması; Çatalca

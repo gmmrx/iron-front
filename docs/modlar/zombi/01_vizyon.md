@@ -146,7 +146,7 @@ Ayrıntılar diğer belgelerdedir; burada yalnız başlık ve bir cümle var.
 | Mülteciler ve tahliye | Düşen eyaletlerden kaçan nüfus; kabul etmek iç cepheyi ve bulaş riskini, reddetmek istikrarı ve diplomasiyi etkiler |
 | Çöken ülkeler | Hükümeti çöken yapay zekâ ülkesinin kalan eyaletleri, komşularca "koruma altına" alınabilir |
 | Salgın paneli | Mevcut yardımcılarla yeni yan panel (öneri kısayol **E**): endeks hücreleri, eyalet tablosu, önlemler |
-| Mod manifesti | `data/modes/zombie/` altında modun veri dosyalarını ve kurallarını tanımlayan dosya (altyapı ayrı PR'da) |
+| Mod manifesti | `data/modes/zombie/mode.json`: modun veri dosyalarını ve kurallarını tanımlar (mod altyapısı kuruldu; yerleşim 14_teknik_plan.md §2) |
 
 ## 4. Tasarım sütunları
 

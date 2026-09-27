@@ -643,8 +643,8 @@ sesi yoktur; korku ritimden ve sessizlikten gelir (01 §6.1). Dosya yolu `assets
 
 ## 12. Veri: JSON şema örneği
 
-Öneri dosyalar: `data/modes/zombie/hollow_types.json` ve `data/modes/zombie/strains.json`. Kesin yerleşim, mod altyapısı belgesinde
-(`docs/modlar/README.md`) yazılacak. Kimlikler (`zm_gauze_masks`, `zm_strain_typing` vb.) öneridir; araştırma belgesinde kesinleşir.
+Öneri dosyalar: `data/modes/zombie/own/hollow_types.json` ve `data/modes/zombie/own/strains.json`. Kesin yerleşim 14_teknik_plan.md §2'dedir
+(modun kendi verisi `own/` klasöründe; `docs/modlar/README.md`). Kimlikler (`zm_gauze_masks`, `zm_strain_typing` vb.) öneridir; araştırma belgesinde kesinleşir.
 
 ```json
 {
