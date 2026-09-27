@@ -4,7 +4,7 @@
 > serum ve aşı üretimi, laboratuvar kazaları ve uluslararası işbirliği. Kararlar 01_vizyon.md ve 02_oynanis_dongusu.md'ye uyar.
 > - **Dört aşama:** *anlamak* → *yavaşlatmak* → *tedavi etmek* → *önlemek*. 27 teknoloji, dört yeni araştırma kategorisi
 >   (`zm_medicine`, `zm_surveillance`, `zm_civil_defence`, `zm_biologics`). Maliyetler 02 §5'teki kilometre taşlarına göre geri
->   hesaplandı: etken tipik **112. gün** (en erken ~65), serum tipik **274. gün** (en erken ~191), aşı tipik **665. gün** (en erken ~521).
+>   hesaplandı: etken tipik **112. gün** (en erken ~65), serum tipik **274. gün** (en erken ~191), aşı tipik **648. gün** (en erken ~521).
 > - **Sekiz bina:** saha laboratuvarı, araştırma enstitüsü, muhafaza kanadı, numune deposu, karantina hastanesi,
 >   üniversite hastanesi, serum ahırı, aşı üretim tesisi. Maliyetler mevcut bina maliyetlerinden (fabrika-gün) türetildi.
 > - **Personel:** "bilim insanı" tavanı fabrika sayısı ve nüfustan hesaplanır (ülke başına 2–29; medyan 5). Kadro darlığı
@@ -161,9 +161,9 @@ Kritik yol ve sonuçlar (gün, oyun başından):
 | Etkenin tanımlanması (8) | 120 / (1,06 × 1,35) = 84 | **112** | 65 | tipik 90–150, en erken 60 | ✔ |
 | Serum tedavisi ilkeleri (9) | 70 / 1,12 = 63 | **175** | 119 | — | — |
 | **Serum I** (10) | 150 / (1,12 × 1,35) = 99 | **274** | 191 | tipik 240–450, en erken 180 | ✔ |
-| Zayıflatma (13, yıl kapısı) | 1937'ye kadar birikim + 142/1,55 = 92 | **459** | 367 | — | — |
-| **Aşı** (15) | 320 / (1,15 × 1,35) = 206 | **665** | 521 | tipik 600–900, en erken 540 | ✔ (en erken ~%3 erken) |
-| Öldürülmüş aşı yolu (14→16) | — | **755** | 610 | — | Yavaş ama kazasız |
+| Zayıflatma (13, yıl kapısı) | 1 Ocak 1937'ye kadar 144 puan birikir, kalan 116 / 1,55 = 75 gün | **442** | 367 | — | Yıl kapısı §3.3 |
+| **Aşı** (15) | 320 / (1,15 × 1,35) = 206 | **648** | 521 | tipik 600–900, en erken 540 | ✔ (en erken ~%3 erken) |
+| Öldürülmüş aşı yolu (14→16) | 340 (yıl kapısı) → 380 / 1,55 = 245 | **738** | 550 | — | Yavaş ama kazasız |
 
 "En erken 521" 02'deki 540'ın %3,5 altındadır; iki belge arasında düzeltme gerekmez, çünkü 521 ancak şu üçü birlikte
 yapılırsa çıkar: G3 sürü numunesi (§6), 1936'da yıl cezası ödeyerek çalışma (§3.3) ve 30 günlük yuva birikimini saklama.
@@ -486,15 +486,15 @@ ve ×0,6 dağıtım → aynı kapsama ulaşmak yaklaşık **2 kat** uzun sürer.
 araştırma yolu kazasız. Tablo oyuncuya olay ekranında gösterilir.
 
 ### 8.5 Kapsam takvimi (örnek)
-16 milyonluk bir ülke, aşı 665. günde, 2 aşı tesisi (90.000 doz/gün serbest), üç büyük eyalette toplam 45.000 doz/gün dağıtım:
+16 milyonluk bir ülke, aşı 648. günde, 2 aşı tesisi (90.000 doz/gün serbest), üç büyük eyalette toplam 45.000 doz/gün dağıtım:
 
 | Gün | Olan | Kapsam |
 |---|---|---|
-| 665 | Aşı bitti; üretim hattı kurulur (12 fabrika) | %0 |
-| 680 | İlk 1,2 M doz serbest; başkent ve iki liman eyaletinde dağıtım | %4 |
-| 760 | Günlük 45.000 doz sürüyor | %26 |
-| 880 | Soğuk zincir bitti, dağıtım 67.500/gün | %60 → **V_c (R 2,0'da %56) aşıldı** |
-| 950 | Temiz ilan sayaçları dolar (42 gün) | Tedavi Zaferi denetimi |
+| 648 | Aşı bitti; üretim hattı kurulur (12 fabrika) | %0 |
+| 663 | İlk 1,2 M doz serbest; başkent ve iki liman eyaletinde dağıtım | %4 |
+| 743 | Günlük 45.000 doz sürüyor | %26 |
+| 863 | Soğuk zincir bitti, dağıtım 67.500/gün | %60 → **V_c (R 2,0'da %56) aşıldı** |
+| 933 | Temiz ilan sayaçları dolar (42 gün) | Tedavi Zaferi denetimi |
 
 02 §5'in "aşıdan +90–180 gün" bandıyla uyumludur (burada +215 gün, çünkü örnek ülke yalnız 3 eyalette dağıtıyor;
 daha çok hastane ve altyapıyla bant içine iner). Oyuncuya ipucu: *"Aşıyı bulmak altı ay; halka ulaştırmak bir yıl."*
@@ -511,7 +511,7 @@ Bütün eylemler mevcut diplomasi ve olay motoruyla yürür; her biri hem kazan�
 | Medical mission / Tıbbi heyet gönder | 3 kadro + 60 nüfuz, 90 gün | G2 numune + yardım puanı (+0,1) + hedef ülkede β −%5 | Heyet üyesinin %10 olasılıkla kuluçkada dönmesi (02 §9) |
 | Joint institute / Ortak enstitü | Her iki taraf 700 fabrika-gün + 3 kadro | İkisi de BKP +4 sayar; biri çökse diğeri korur | Saldırmazlık/ittifak şartı; ortak çökerse 90 gün BKP yarım |
 | Standards commission / Standart Birim Komisyonu | 80 nüfuz + serum verisi | Üye olan **herkeste** serum etkinliği +0,15; üyelerin serum/aşı durumu görünür | Üyelik dışında kalan avantaj sağlamaz; veri paylaşmak rakibe de yarar |
-| Surveillance pool / Gözetim havuzu | 40 nüfuz/yıl | Cuma bülteni bütün üyeler için +%20 doğruluk (tespit ve gecikme) | Klasik kamu malı: katkısız üye de yararlanır; 3 yıl katkı yapmayan düşer |
+| Surveillance pool / Gözetim havuzu | 40 nüfuz/yıl | Cuma bülteni bütün üyeler için +%20 doğruluk (tespit ve gecikme) | Tipik bir kamu malı sorunu: katkısız üye de yararlanır; 3 yıl katkı yapmayan düşer |
 | Vaccine diplomacy / Aşı diplomasisi | Doz | Yardım puanı (02 puanının 150 puanlık kalemi), itibar, koruma altına alma kolaylığı | Kendi kapsamın gecikir |
 
 **Yapay zekânın kabul formülü** (mevcut diplomasi tutumu üzerinden):
@@ -629,7 +629,7 @@ Yalnız mevcut yardımcılar (`game/ui/panel_layout.gd`): `frame`, `tabs`, `info
 ```
 ┌ SALGIN ─────────────────────────────────── [Durum][Eyaletler][BİLİM][Dağıtım] ┐
 │ info_cells:  Etken: Tanımlandı ·  Serum: Var (0,75) ·  Aşı: 62%  ·  Bilim insanı: 6/8│
-│              Numune: 2 (1 bozuluyor) ·  Kaza riski: Düşük (0,04/yıl)                 │
+│              Numune: 2 (1 bozuluyor) ·  Kaza riski: Düşük (0,03/yıl)                 │
 │ section "Araştırma merkezleri"                                                        │
 │ table [Eyalet | Bina | Kadro | BKP | Muhafaza | Risk | ]                              │
 │   İstanbul   Enstitü        6/6   4   M3   ×0,21   [Numune ata][Tahliye]             │
@@ -772,7 +772,13 @@ Etkinlik gibi "toplam değil, en büyük" olması gereken değerler `rules.gd`'d
 ```
 
 ### 12.4 Yeni etki ve şart anahtarları
-`rules.gd` → `effect_keys`/`apply_effect` **ve** `describe_effect` (CLAUDE.md kural 2, ikisine birden):
+İki ayrı yol vardır ve karıştırılmamalıdır:
+- **Teknoloji `effects`** herhangi bir anahtar olabilir; motor bunları `Country.tech_mods` içinde toplar ve `rules.gd`
+  `c.mod("zm_...")` ile okur. Kayıt gerekmez. Modun kullandığı anahtarlar: `zm_detection`, `zm_report_delay`,
+  `zm_beta_mult`, `zm_kappa_flat`, `zm_inranks_mult`, `zm_serum_efficacy`, `zm_vaccine_efficacy`, `zm_accident_mult`,
+  `zm_release_mult`, `zm_distribution_mult`, `zm_sample_days`.
+- **Olay ve program etkileri** motorun sözlüğünde yoksa `rules.gd` → `effect_keys`/`apply_effect` **ve**
+  `describe_effect` ikisine birden eklenir (CLAUDE.md kural 2):
 
 | Etki anahtarı | Anlamı |
 |---|---|
