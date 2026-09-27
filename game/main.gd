@@ -113,8 +113,19 @@ func _ready() -> void:
 	if Game.loaded:
 		Game.loaded = false
 		_enter_playing(World.player_tag, true)
+		if Game.resume_view.z > 0.0:
+			camera.focus_on(Vector2(Game.resume_view.x, Game.resume_view.y), Game.resume_view.z)
+			Game.resume_view = Vector3.ZERO
+		if Game.reopen_settings:
+			Game.reopen_settings = false
+			hud.pause_menu.toggle()
+			hud.pause_menu._was_paused = Game.resume_was_paused
+			hud.pause_menu._settings()
 	elif phase == Phase.MENU:
 		_enter_menu()
+		if Game.reopen_settings:
+			Game.reopen_settings = false
+			_menu.open_settings()
 
 # ------------------------------------------------------------------ aşamalar
 func _clear_menu_layer() -> void:
@@ -226,6 +237,13 @@ func _handle_dev_args() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		args[kv[0]] = kv[1] if kv.size() > 1 else ""
+	if Game.loaded:
+		# dil değişimiyle yeniden kurulan sahne: oyun sürer, yalnız ekran görüntüsü alınır
+		for k: String in args.keys():
+			if k != "screenshot" and k != "wait":
+				args.erase(k)
+	if args.has("menu_settings"):
+		Game.reopen_settings = true      # ana menü Ayarlar açık kurulur
 	if args.has("load"):
 		if Game.load_game(args["load"]):
 			Game.loaded = false
@@ -239,6 +257,16 @@ func _handle_dev_args() -> void:
 		camera.focus_on(Vector2(float(xy[0]), float(xy[1])))
 	if args.has("dist"):
 		camera.focus_on(Vector2(camera.target.x, camera.target.z), float(args["dist"]))
+	if args.has("settings"):
+		hud.pause_menu.toggle()
+		hud.pause_menu._settings()
+		if args.has("lang_test"):
+			# test: Ayarlar'dan dili değiştir (--lang_test=en); sahne yeniden kurulur, oyun kaldığı yerden sürer
+			for i in 10:
+				await get_tree().process_frame
+			for sp in find_children("*", "SettingsPanel", true, false):
+				(sp as SettingsPanel)._set_lang(args["lang_test"])
+			return
 	if args.has("pause_menu"):
 		hud.pause_menu.toggle()
 	if args.has("gameover"):
@@ -580,7 +608,7 @@ func _process(delta: float) -> void:
 	# arayüzle uğraşırken harita kıpırdamaz: tam ekran panelde kamera kilitli, arayüz üstünde kenar kaydırması yok
 	var locked := hud.fullscreen_open()
 	camera.input_locked = locked
-	camera.edge_pan_enabled = not locked and not hud.is_mouse_over_ui()
+	camera.edge_pan_enabled = GameSettings.edge_pan and not locked and not hud.is_mouse_over_ui()
 
 func _pick(screen: Vector2) -> int:
 	var g = camera.ground_point(screen)

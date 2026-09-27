@@ -38,6 +38,8 @@ var _pool: Array[AudioStreamPlayer] = []
 var _next := 0
 var music_db := -14.0
 var sfx_db := 0.0
+var ui_db := 0.0                     ## arayüz sesleri (tık, panel, sekme...) için ayrı düzey
+var forced_track := ""               ## Ayarlar'dan seçilen parça ("" = oyun durumuna göre)
 var _last_hover_ms := 0
 var _last_play := {}                 ## ad -> ms (aynı sesin art arda yığılmasını önler)
 var _known_battles := {}
@@ -101,6 +103,7 @@ func _ready() -> void:
 		_wars = _war_keys()
 		_player_at_war = Diplomacy.at_war(World.player_tag))
 	Military.battles_changed.connect(_on_battles)
+	GameSettings.load_and_apply()          # ses düzeyleri, seçili parça, dil (arayüz kurulmadan önce)
 	_update_music(true)
 
 func _mine(tag: String) -> bool:
@@ -113,6 +116,20 @@ func music_linear() -> float:
 func set_music_linear(v: float) -> void:
 	music_db = linear_to_db(maxf(v, 0.001)) - 14.0
 	_apply_music_volume()
+
+func ui_linear() -> float:
+	return clampf(db_to_linear(ui_db), 0.0, 1.0)
+
+func set_ui_linear(v: float) -> void:
+	ui_db = linear_to_db(maxf(v, 0.001))
+
+## Seçili parçayı sürekli çal ("" = oyun durumuna göre otomatik)
+func set_forced_track(name: String) -> void:
+	if name == forced_track and (name == "" or _track == name):
+		return
+	forced_track = name
+	if is_node_ready():               # açılışta _ready kendisi başlatır
+		_update_music(true)
 
 func sfx_linear() -> float:
 	return clampf(db_to_linear(sfx_db), 0.0, 1.0)
@@ -146,7 +163,7 @@ func _play_now(n: String, extra_db: float) -> float:
 	var p := _pool[_next]
 	_next = (_next + 1) % POOL
 	p.stream = arr[randi() % arr.size()]
-	p.volume_db = float(SOUNDS[n][0]) + sfx_db + extra_db
+	p.volume_db = float(SOUNDS[n][0]) + sfx_db + extra_db + (ui_db if n.begins_with("ui_") else 0.0)
 	p.pitch_scale = randf_range(0.97, 1.03) if not QUEUED.has(n) else 1.0
 	p.play()
 	return p.stream.get_length()
@@ -317,6 +334,8 @@ func _music_stream(name: String) -> AudioStream:
 	return _music_streams[name]
 
 func _desired_state() -> String:
+	if forced_track != "":
+		return "forced"
 	if not World.in_game:
 		return "menu"
 	if Diplomacy.at_war(World.player_tag):
@@ -338,7 +357,7 @@ func _update_music(force := false) -> void:
 	_start_track(_pick(want), FADE if not force else 1.0)
 
 func _pick(state: String) -> String:
-	var list: Array = MUSIC.get(state, MUSIC["peace"])
+	var list: Array = [forced_track] if state == "forced" else MUSIC.get(state, MUSIC["peace"])
 	var options := list.filter(func(n: String) -> bool: return n != _track)
 	if options.is_empty():
 		options = list

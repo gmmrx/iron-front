@@ -64,7 +64,7 @@ func _ready() -> void:
 	col.add_child(_menu_button(tr("MENU_NEW_GAME"), true, func() -> void: new_game_pressed.emit()))
 	var saves := Game.list_saves()
 	col.add_child(_menu_button(tr("MENU_CONTINUE"), not saves.is_empty(), func() -> void: load_pressed.emit(saves[0])))
-	col.add_child(_menu_button(tr("MENU_SETTINGS"), false, Callable()))
+	col.add_child(_menu_button(tr("MENU_SETTINGS"), true, open_settings))
 	col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
 
 	var ver := UiTheme.make_label("v0.3 — Faz 1-9", 15, UiTheme.TEXT_DIM)
@@ -127,3 +127,6 @@ func _menu_button(text: String, enabled: bool, action: Callable) -> Button:
 	if enabled and action.is_valid():
 		b.pressed.connect(action)
 	return b
+
+func open_settings() -> void:
+	add_child(SettingsPanel.new())

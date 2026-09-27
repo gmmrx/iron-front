@@ -785,3 +785,21 @@ TRD_MARKET_HEAD,Market: %s,Pazar: %s
 TRD_AUTO_ON,Automatic trade is on: missing resources are bought for you. Turn it off to make your own deals.,Otomatik ticaret açık: eksik kaynaklar sizin yerinize alınıyor. Kendi anlaşmalarınızı yapmak için kapatın.
 TRD_SELLER_SUB,%d available on the market,Pazarda %d arz
 TRD_BUY_QTY,BUY\n%d %s from %s\nCost: %d civilian factory per day,"SATIN AL\n%d %s, %s ülkesinden\nBedel: günde %d sivil fabrika"
+SET_SECTION_SOUND,Sound,Ses
+SET_SECTION_DISPLAY,Display and game,Görüntü ve oyun
+SET_SECTION_LANG,Language,Dil
+SET_SECTION_MUSIC,Music,Müzik
+SET_UI_SOUNDS,Interface sounds,Arayüz sesleri
+SET_LANG_TR,Türkçe,Türkçe
+SET_LANG_EN,English,English
+SET_LANG_HINT,The interface switches at once; a game in progress continues where it was.,Arayüz hemen değişir; süren oyun kaldığı yerden devam eder.
+SET_MUSIC_AUTO,Automatic (follows the game),Otomatik (oyunun durumuna göre)
+SET_MUSIC_AUTO_TIP,"Menu theme, peace, tension, distant wars and your own war each have their own music; events get short cues.","Menü teması, barış, gerginlik, uzak savaşlar ve sizin savaşınızın ayrı müzikleri var; olaylarda kısa müzikler çalar."
+SET_DONE,Done,Tamam
+MUSIC_main_theme,Main Theme,Ana Tema
+MUSIC_peace_1,Anatolian Morning,Anadolu Sabahı
+MUSIC_peace_2,The Diplomats,Diplomatlar
+MUSIC_tension,Uneasy Peace,Gergin Barış
+MUSIC_war_world,Distant Fronts,Uzak Cepheler
+MUSIC_war_front,Front Line,Cephe Hattı
+MUSIC_war_hold,Last Stand,Son Mevzi

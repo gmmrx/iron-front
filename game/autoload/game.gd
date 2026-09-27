@@ -7,6 +7,10 @@ const SAVE_DIR := "user://saves/"
 const END_DATE := 19480101
 
 var loaded := false            ## sahne yeniden yüklendiğinde doğrudan oyuna gir
+## Dil değişince sahne yeniden kurulur: Ayarlar yeniden açılır, oyun içindeysek kamera ve duraklatma durumu korunur
+var reopen_settings := false
+var resume_view := Vector3.ZERO   ## x, z, uzaklık (0 = başkente odaklan)
+var resume_was_paused := false
 var over := false
 
 func _ready() -> void:
