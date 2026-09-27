@@ -1,4 +1,4 @@
-// Hareket oku (türün klasiği): düz renkli kalın gövde — hareket yeşil, taarruz kırmızı —, koyu dış hat, ortada açık
+// Hareket oku: düz renkli kalın gövde — hareket yeşil, taarruz kırmızı —, koyu dış hat, ortada açık
 // şerit (hafif kabartma), uca doğru akan köşeli işaretler. UV.x: 0..1 boy (1 = uç), UV.y: 0..1 genişlik,
 // UV2.x: gövde boyunca ok genişliği cinsinden mesafe (işaret aralığı zoom'dan bağımsız).
 shader_type spatial;

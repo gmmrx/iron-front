@@ -29,7 +29,7 @@ COUNTRY_INDUSTRY = {
     "HOL": (9, 2, 2, 4), "BEL": (9, 3, 1, 4), "LUX": (1, 0, 0, 4), "SWI": (7, 2, 0, 4),
     "IRE": (2, 0, 0, 3), "ICE": (1, 0, 0, 2), "PER": (6, 1, 0, 1), "IRQ": (1, 0, 0, 1),
     "SAU": (1, 0, 0, 1), "OMA": (0, 0, 0, 1),
-    # dünya (türün klasikleri 1936 başlangıcına yakın)
+    # dünya (1936 tarihî durumuna yakın)
     "USA": (41, 14, 13, 4), "JAP": (22, 17, 11, 3), "CHI": (10, 6, 0, 1), "MAN": (5, 4, 0, 2), "PRC": (1, 1, 0, 1),
     "SHX": (2, 2, 0, 1), "GXC": (2, 1, 0, 1), "YUN": (1, 1, 0, 1), "XSM": (1, 1, 0, 1), "SIK": (1, 0, 0, 1),
     "RAJ": (14, 4, 1, 1), "CAN": (8, 1, 1, 3), "AST": (5, 1, 1, 3), "SAF": (4, 1, 0, 2), "NZL": (2, 0, 0, 3),
@@ -40,7 +40,7 @@ COUNTRY_INDUSTRY = {
 
 MAJORS = {"GER", "ENG", "FRA", "ITA", "SOV"}
 
-# nüfus eşiği -> (kategori, bina slotu) — türün klasikleri state_category
+# nüfus eşiği -> (kategori, bina slotu)
 CATEGORIES = [
     (15_000, "wasteland", 0), (60_000, "pastoral", 1), (300_000, "rural", 2), (800_000, "town", 4),
     (1_500_000, "large_town", 5), (2_500_000, "city", 6), (4_000_000, "large_city", 8),

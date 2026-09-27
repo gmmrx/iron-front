@@ -4,8 +4,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -13,7 +13,7 @@
     },
     "x": 0,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -34,8 +34,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -43,7 +43,7 @@
     },
     "x": 0,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -64,8 +64,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -73,7 +73,7 @@
     },
     "x": 0,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -90,8 +90,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -99,7 +99,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -117,8 +117,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -126,7 +126,7 @@
     },
     "x": 1,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -148,8 +148,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -157,7 +157,7 @@
     },
     "x": 3,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -177,8 +177,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -186,7 +186,7 @@
     },
     "x": 3,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -208,8 +208,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -217,7 +217,7 @@
     },
     "x": 3,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -238,8 +238,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -247,7 +247,7 @@
     },
     "x": 4,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -268,8 +268,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -277,7 +277,7 @@
     },
     "x": 4,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -301,8 +301,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -310,7 +310,7 @@
     },
     "x": 5,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -331,8 +331,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -340,7 +340,7 @@
     },
     "x": 6,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -358,8 +358,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -367,7 +367,7 @@
     },
     "x": 6,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -384,8 +384,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -393,7 +393,7 @@
     },
     "x": 6,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -424,7 +424,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -437,7 +437,7 @@
       "stability": 0.05
      },
      {
-      "remove_spirit": "sectarian_woes"
+      "remove_spirit": "reform_resistance"
      }
     ],
     "ai": 30
@@ -454,7 +454,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "tur_kemalism"
     ],
@@ -490,7 +490,7 @@
     },
     "x": 3,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_kemalism"
     ],
@@ -520,7 +520,7 @@
     },
     "x": 3,
     "y": 2,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_five_year"
     ],
@@ -551,7 +551,7 @@
     },
     "x": 4,
     "y": 2,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_five_year"
     ],
@@ -578,7 +578,7 @@
     },
     "x": 3,
     "y": 3,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_karabuk"
     ],
@@ -605,7 +605,7 @@
     },
     "x": 4,
     "y": 3,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_sumerbank"
     ],
@@ -639,7 +639,7 @@
     },
     "x": 2,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_kemalism"
     ],
@@ -651,7 +651,7 @@
       "spirit": "village_institutes"
      },
      {
-      "remove_spirit": "widespread_illiteracy"
+      "remove_spirit": "low_literacy"
      }
     ],
     "ai": 18
@@ -668,7 +668,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "tur_kemalism"
     ],
@@ -705,7 +705,7 @@
     },
     "x": 0,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_kemalism"
     ],
@@ -717,7 +717,7 @@
       "spirit": "military_modernization"
      },
      {
-      "remove_spirit": "disorganized_armed_forces"
+      "remove_spirit": "army_in_reorganization"
      },
      {
       "research_bonus": "infantry",
@@ -739,7 +739,7 @@
     },
     "x": 0,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_army"
     ],
@@ -771,7 +771,7 @@
     },
     "x": 1,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_montreux"
     ],
@@ -805,7 +805,7 @@
     },
     "x": 1,
     "y": 3,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_hatay"
     ],
@@ -840,7 +840,7 @@
     },
     "x": 2,
     "y": 3,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_village"
     ],
@@ -875,7 +875,7 @@
     },
     "x": 2,
     "y": 4,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_saadabad"
     ],
@@ -910,7 +910,7 @@
     },
     "x": 1,
     "y": 4,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_balkan"
     ],
@@ -946,7 +946,7 @@
     },
     "x": 3,
     "y": 4,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_railways"
     ],
@@ -984,7 +984,7 @@
     },
     "x": 3,
     "y": 5,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_axis"
     ],
@@ -1010,7 +1010,7 @@
     },
     "x": 1,
     "y": 5,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "tur_allies"
     ],
@@ -1027,8 +1027,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -1036,7 +1036,7 @@
     },
     "x": 7,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1057,8 +1057,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -1066,7 +1066,7 @@
     },
     "x": 7,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -1087,8 +1087,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -1096,7 +1096,7 @@
     },
     "x": 7,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -1113,8 +1113,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -1122,7 +1122,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -1140,8 +1140,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -1149,7 +1149,7 @@
     },
     "x": 8,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -1171,8 +1171,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -1180,7 +1180,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1200,8 +1200,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -1209,7 +1209,7 @@
     },
     "x": 10,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -1231,8 +1231,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -1240,7 +1240,7 @@
     },
     "x": 10,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -1261,8 +1261,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -1270,7 +1270,7 @@
     },
     "x": 11,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1291,8 +1291,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -1300,7 +1300,7 @@
     },
     "x": 11,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -1324,8 +1324,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -1333,7 +1333,7 @@
     },
     "x": 12,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1354,8 +1354,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -1363,7 +1363,7 @@
     },
     "x": 13,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1381,8 +1381,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -1390,7 +1390,7 @@
     },
     "x": 13,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -1407,8 +1407,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -1416,7 +1416,7 @@
     },
     "x": 13,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -1447,7 +1447,7 @@
     },
     "x": 1,
     "y": 0,
-    "days": 35,
+    "days": 28,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1481,7 +1481,7 @@
     },
     "x": 3,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1510,7 +1510,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "ger_rhineland"
     ],
@@ -1547,7 +1547,7 @@
     },
     "x": 1,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "ger_anschluss"
     ],
@@ -1584,7 +1584,7 @@
     },
     "x": 1,
     "y": 3,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "ger_sudeten"
     ],
@@ -1623,7 +1623,7 @@
     },
     "x": 2,
     "y": 2,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "ger_anschluss"
     ],
@@ -1690,8 +1690,8 @@
    {
     "id": "ger_danzig",
     "name": {
-     "tr": "Danzig ya da Savaş",
-     "en": "Danzig or War"
+     "tr": "Danzig Bunalımı",
+     "en": "The Danzig Crisis"
     },
     "desc": {
      "tr": "",
@@ -1728,8 +1728,8 @@
    {
     "id": "ger_west",
     "name": {
-     "tr": "Batı Seferi",
-     "en": "The West"
+     "tr": "Sarı Plan",
+     "en": "Case Yellow"
     },
     "desc": {
      "tr": "",
@@ -1737,7 +1737,7 @@
     },
     "x": 1,
     "y": 5,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "ger_danzig"
     ],
@@ -1826,7 +1826,7 @@
     },
     "x": 2,
     "y": 6,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "ger_west"
     ],
@@ -1875,7 +1875,7 @@
     },
     "x": 1,
     "y": 6,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "ger_west"
     ],
@@ -1911,8 +1911,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -1920,7 +1920,7 @@
     },
     "x": 5,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -1941,8 +1941,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -1950,7 +1950,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -1971,8 +1971,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -1980,7 +1980,7 @@
     },
     "x": 5,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -1997,8 +1997,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -2006,7 +2006,7 @@
     },
     "x": 6,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -2024,8 +2024,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -2033,7 +2033,7 @@
     },
     "x": 6,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -2055,8 +2055,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -2064,7 +2064,7 @@
     },
     "x": 8,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2084,8 +2084,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -2093,7 +2093,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -2115,8 +2115,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -2124,7 +2124,7 @@
     },
     "x": 8,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -2145,8 +2145,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -2154,7 +2154,7 @@
     },
     "x": 9,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2175,8 +2175,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -2184,7 +2184,7 @@
     },
     "x": 9,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -2208,8 +2208,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -2217,7 +2217,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2238,8 +2238,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -2247,7 +2247,7 @@
     },
     "x": 11,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2265,8 +2265,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -2274,7 +2274,7 @@
     },
     "x": 11,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -2291,8 +2291,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -2300,7 +2300,7 @@
     },
     "x": 11,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -2331,7 +2331,7 @@
     },
     "x": 1,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2351,8 +2351,8 @@
    {
     "id": "sov_purge",
     "name": {
-     "tr": "Temizliği Sona Erdir",
-     "en": "End the Purge"
+     "tr": "Yejov'un Düşüşü",
+     "en": "Yezhov's Fall"
     },
     "desc": {
      "tr": "",
@@ -2360,7 +2360,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2391,7 +2391,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "sov_plan"
     ],
@@ -2434,7 +2434,7 @@
     },
     "x": 2,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "sov_plan"
     ],
@@ -2471,7 +2471,7 @@
     },
     "x": 3,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "sov_plan"
     ],
@@ -2504,8 +2504,8 @@
    {
     "id": "sov_defense",
     "name": {
-     "tr": "Anavatan Savunması",
-     "en": "Defense of the Motherland"
+     "tr": "Müstahkem Bölgeler",
+     "en": "Fortified Regions"
     },
     "desc": {
      "tr": "",
@@ -2513,7 +2513,7 @@
     },
     "x": 2,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "sov_purge"
     ],
@@ -2533,8 +2533,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -2542,7 +2542,7 @@
     },
     "x": 5,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2563,8 +2563,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -2572,7 +2572,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -2593,8 +2593,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -2602,7 +2602,7 @@
     },
     "x": 5,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -2619,8 +2619,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -2628,7 +2628,7 @@
     },
     "x": 6,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -2646,8 +2646,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -2655,7 +2655,7 @@
     },
     "x": 6,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -2677,8 +2677,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -2686,7 +2686,7 @@
     },
     "x": 8,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2706,8 +2706,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -2715,7 +2715,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -2737,8 +2737,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -2746,7 +2746,7 @@
     },
     "x": 8,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -2767,8 +2767,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -2776,7 +2776,7 @@
     },
     "x": 9,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2797,8 +2797,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -2806,7 +2806,7 @@
     },
     "x": 9,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -2830,8 +2830,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -2839,7 +2839,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2860,8 +2860,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -2869,7 +2869,7 @@
     },
     "x": 11,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -2887,8 +2887,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -2896,7 +2896,7 @@
     },
     "x": 11,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -2913,8 +2913,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -2922,7 +2922,7 @@
     },
     "x": 11,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -2953,14 +2953,14 @@
     },
     "x": 1,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
     "available": [],
     "effects": [
      {
-      "spirit": "rearmament"
+      "spirit": "rearmament_drive"
      },
      {
       "building": "military_factory",
@@ -2981,7 +2981,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3011,7 +3011,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "eng_rearm"
     ],
@@ -3050,7 +3050,7 @@
     },
     "x": 3,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3072,8 +3072,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -3081,7 +3081,7 @@
     },
     "x": 5,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3102,8 +3102,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -3111,7 +3111,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -3132,8 +3132,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -3141,7 +3141,7 @@
     },
     "x": 5,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -3158,8 +3158,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -3167,7 +3167,7 @@
     },
     "x": 6,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -3185,8 +3185,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -3194,7 +3194,7 @@
     },
     "x": 6,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -3216,8 +3216,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -3225,7 +3225,7 @@
     },
     "x": 8,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3245,8 +3245,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -3254,7 +3254,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -3276,8 +3276,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -3285,7 +3285,7 @@
     },
     "x": 8,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -3306,8 +3306,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -3315,7 +3315,7 @@
     },
     "x": 9,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3336,8 +3336,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -3345,7 +3345,7 @@
     },
     "x": 9,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -3369,8 +3369,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -3378,7 +3378,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3399,8 +3399,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -3408,7 +3408,7 @@
     },
     "x": 11,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3426,8 +3426,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -3435,7 +3435,7 @@
     },
     "x": 11,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -3452,8 +3452,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -3461,7 +3461,7 @@
     },
     "x": 11,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -3492,7 +3492,7 @@
     },
     "x": 1,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3521,7 +3521,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "fra_maginot"
     ],
@@ -3554,7 +3554,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3570,8 +3570,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -3579,7 +3579,7 @@
     },
     "x": 4,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3600,8 +3600,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -3609,7 +3609,7 @@
     },
     "x": 4,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -3630,8 +3630,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -3639,7 +3639,7 @@
     },
     "x": 4,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -3656,8 +3656,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -3665,7 +3665,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -3683,8 +3683,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -3692,7 +3692,7 @@
     },
     "x": 5,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -3714,8 +3714,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -3723,7 +3723,7 @@
     },
     "x": 7,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3743,8 +3743,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -3752,7 +3752,7 @@
     },
     "x": 7,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -3774,8 +3774,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -3783,7 +3783,7 @@
     },
     "x": 7,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -3804,8 +3804,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -3813,7 +3813,7 @@
     },
     "x": 8,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3834,8 +3834,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -3843,7 +3843,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -3867,8 +3867,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -3876,7 +3876,7 @@
     },
     "x": 9,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3897,8 +3897,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -3906,7 +3906,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -3924,8 +3924,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -3933,7 +3933,7 @@
     },
     "x": 10,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -3950,8 +3950,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -3959,7 +3959,7 @@
     },
     "x": 10,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -3990,7 +3990,7 @@
     },
     "x": 1,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4025,7 +4025,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4047,8 +4047,8 @@
    {
     "id": "ita_war",
     "name": {
-     "tr": "Savaşa Giriş",
-     "en": "Enter the War"
+     "tr": "Paralel Savaş",
+     "en": "The Parallel War"
     },
     "desc": {
      "tr": "",
@@ -4056,7 +4056,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "ita_albania"
     ],
@@ -4092,7 +4092,7 @@
     },
     "x": 2,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "ita_war"
     ],
@@ -4125,8 +4125,8 @@
    {
     "id": "g_industry",
     "name": {
-     "tr": "Sanayi Hamlesi",
-     "en": "Industrial Effort"
+     "tr": "Ağır Sanayi Programı",
+     "en": "Heavy Industry Program"
     },
     "desc": {
      "tr": "Sanayi araştırmasına bonus ve 1 sivil fabrika.",
@@ -4134,7 +4134,7 @@
     },
     "x": 4,
     "y": 0,
-    "days": 70,
+    "days": 84,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4155,8 +4155,8 @@
    {
     "id": "g_construction",
     "name": {
-     "tr": "İnşaat Çalışmaları",
-     "en": "Construction Effort"
+     "tr": "Bayındırlık Programı",
+     "en": "Public Works Program"
     },
     "desc": {
      "tr": "2 sivil fabrika ve Sanayi Atılımı.",
@@ -4164,7 +4164,7 @@
     },
     "x": 4,
     "y": 1,
-    "days": 70,
+    "days": 84,
     "prereq": [
      "g_industry"
     ],
@@ -4185,8 +4185,8 @@
    {
     "id": "g_research",
     "name": {
-     "tr": "Araştırma Enstitüleri",
-     "en": "Research Institutes"
+     "tr": "Ulusal Araştırma Kurulu",
+     "en": "National Research Council"
     },
     "desc": {
      "tr": "+1 araştırma slotu.",
@@ -4194,7 +4194,7 @@
     },
     "x": 4,
     "y": 2,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_construction"
     ],
@@ -4211,8 +4211,8 @@
    {
     "id": "g_arms",
     "name": {
-     "tr": "Silah Sanayii",
-     "en": "Arms Industry"
+     "tr": "Devlet Silah Fabrikaları",
+     "en": "State Arsenals"
     },
     "desc": {
      "tr": "2 askeri fabrika.",
@@ -4220,7 +4220,7 @@
     },
     "x": 5,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "g_industry"
     ],
@@ -4238,8 +4238,8 @@
    {
     "id": "g_infra",
     "name": {
-     "tr": "Altyapı Yatırımı",
-     "en": "Infrastructure"
+     "tr": "Yol ve Demiryolu Hamlesi",
+     "en": "Roads and Railways"
     },
     "desc": {
      "tr": "Altyapı ve 1 askeri fabrika.",
@@ -4247,7 +4247,7 @@
     },
     "x": 5,
     "y": 2,
-    "days": 70,
+    "days": 56,
     "prereq": [
      "g_arms"
     ],
@@ -4269,8 +4269,8 @@
    {
     "id": "g_army",
     "name": {
-     "tr": "Kara Kuvvetleri",
-     "en": "Army Effort"
+     "tr": "Ordu Reformu",
+     "en": "Army Reform"
     },
     "desc": {
      "tr": "Piyade araştırmasına bonus.",
@@ -4278,7 +4278,7 @@
     },
     "x": 7,
     "y": 0,
-    "days": 70,
+    "days": 56,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4298,8 +4298,8 @@
    {
     "id": "g_doctrine",
     "name": {
-     "tr": "Harp Akademisi",
-     "en": "War College"
+     "tr": "Kurmay Okulu",
+     "en": "Staff College"
     },
     "desc": {
      "tr": "Doktrin bonusu ve Ordunun Modernizasyonu.",
@@ -4307,7 +4307,7 @@
     },
     "x": 7,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_army"
     ],
@@ -4329,8 +4329,8 @@
    {
     "id": "g_equipment",
     "name": {
-     "tr": "Ekipman Stoklama",
-     "en": "Equipment Stockpile"
+     "tr": "Cephanelik Yedekleri",
+     "en": "Arsenal Reserves"
     },
     "desc": {
      "tr": "Piyade teçhizatı ve topçu stoğu.",
@@ -4338,7 +4338,7 @@
     },
     "x": 7,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_doctrine"
     ],
@@ -4359,8 +4359,8 @@
    {
     "id": "g_air",
     "name": {
-     "tr": "Hava Kuvvetleri",
-     "en": "Air Effort"
+     "tr": "Hava Gücünü Büyütme",
+     "en": "Air Arm Expansion"
     },
     "desc": {
      "tr": "Hava araştırma bonusu ve hava üsleri.",
@@ -4368,7 +4368,7 @@
     },
     "x": 8,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4389,8 +4389,8 @@
    {
     "id": "g_air2",
     "name": {
-     "tr": "Avcı Programı",
-     "en": "Fighter Program"
+     "tr": "Avcı Uçağı Siparişi",
+     "en": "Interceptor Order"
     },
     "desc": {
      "tr": "",
@@ -4398,7 +4398,7 @@
     },
     "x": 8,
     "y": 1,
-    "days": 70,
+    "days": 49,
     "prereq": [
      "g_air"
     ],
@@ -4422,8 +4422,8 @@
    {
     "id": "g_navy",
     "name": {
-     "tr": "Donanma",
-     "en": "Naval Effort"
+     "tr": "Filo Programı",
+     "en": "Fleet Program"
     },
     "desc": {
      "tr": "1 tersane ve deniz araştırma bonusu.",
@@ -4431,7 +4431,7 @@
     },
     "x": 9,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4452,8 +4452,8 @@
    {
     "id": "g_politics",
     "name": {
-     "tr": "Siyasi Etki",
-     "en": "Political Effort"
+     "tr": "İdari Reform",
+     "en": "Administrative Reform"
     },
     "desc": {
      "tr": "+75 siyasi güç, +%5 istikrar.",
@@ -4461,7 +4461,7 @@
     },
     "x": 10,
     "y": 0,
-    "days": 70,
+    "days": 49,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4479,8 +4479,8 @@
    {
     "id": "g_unity",
     "name": {
-     "tr": "Milli Birlik",
-     "en": "National Unity"
+     "tr": "Ulusal Dayanışma",
+     "en": "National Solidarity"
     },
     "desc": {
      "tr": "",
@@ -4488,7 +4488,7 @@
     },
     "x": 10,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "g_politics"
     ],
@@ -4505,8 +4505,8 @@
    {
     "id": "g_propaganda",
     "name": {
-     "tr": "Savaş Propagandası",
-     "en": "War Propaganda"
+     "tr": "Seferberlik Kampanyası",
+     "en": "Mobilization Campaign"
     },
     "desc": {
      "tr": "",
@@ -4514,7 +4514,7 @@
     },
     "x": 10,
     "y": 2,
-    "days": 70,
+    "days": 42,
     "prereq": [
      "g_unity"
     ],
@@ -4545,7 +4545,7 @@
     },
     "x": 0,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4564,8 +4564,8 @@
    {
     "id": "jap_navy",
     "name": {
-     "tr": "Kaigun Genişlemesi",
-     "en": "Kaigun Expansion"
+     "tr": "Donanma Takviye Planları",
+     "en": "Naval Replenishment Plans"
     },
     "desc": {
      "tr": "",
@@ -4573,7 +4573,7 @@
     },
     "x": 2,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4598,7 +4598,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "jap_army"
     ],
@@ -4625,7 +4625,7 @@
     },
     "x": 1,
     "y": 2,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "jap_manchuria"
     ],
@@ -4668,7 +4668,7 @@
     },
     "x": 0,
     "y": 3,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "jap_marco_polo"
     ],
@@ -4692,8 +4692,8 @@
    {
     "id": "jap_strike_south",
     "name": {
-     "tr": "Güneye Saldırı",
-     "en": "Strike South"
+     "tr": "Güneye İlerleme",
+     "en": "Southern Advance"
     },
     "desc": {
      "tr": "",
@@ -4701,7 +4701,7 @@
     },
     "x": 2,
     "y": 3,
-    "days": 35,
+    "days": 28,
     "prereq": [
      "jap_marco_polo",
      "jap_navy"
@@ -4751,7 +4751,7 @@
     },
     "x": 0,
     "y": 0,
-    "days": 70,
+    "days": 77,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4782,7 +4782,7 @@
     },
     "x": 0,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "usa_new_deal"
     ],
@@ -4813,7 +4813,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "usa_new_deal"
     ],
@@ -4844,7 +4844,7 @@
     },
     "x": 0,
     "y": 2,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "usa_rearm"
     ],
@@ -4880,7 +4880,7 @@
     },
     "x": 0,
     "y": 0,
-    "days": 70,
+    "days": 63,
     "prereq": [],
     "any_prereq": [],
     "exclusive": [],
@@ -4911,7 +4911,7 @@
     },
     "x": 0,
     "y": 1,
-    "days": 70,
+    "days": 63,
     "prereq": [
      "chi_united_front"
     ],
@@ -4937,7 +4937,7 @@
     },
     "x": 1,
     "y": 1,
-    "days": 70,
+    "days": 77,
     "prereq": [
      "chi_united_front"
     ],

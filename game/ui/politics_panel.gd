@@ -1,6 +1,6 @@
 class_name PoliticsPanel
 extends PanelContainer
-## Hükümet ekranı (Q) — türün klasiği düzeni: lider ve iktidar partisi, ideoloji pastası, siyasi güç / istikrar /
+## Hükümet ekranı (Q): lider ve iktidar partisi, ideoloji pastası, siyasi güç / istikrar /
 ## savaş desteği (dökümlü ipuçları), milli ruhlar, üç yasa yuvası + seçili grubun yasaları, danışmanlar, kararlar.
 
 signal focus_requested

@@ -78,32 +78,32 @@ func test_law_requirements() -> void:
 	c.political_power = 1000.0
 	c.war_support = 0.0
 	World.world_tension = 0.0
-	eq(Economy.law_block_reason(c, "conscription", "service_by_requirement"), "LAW_REQ_WAR_SUPPORT", "savaş desteği yetmez")
+	eq(Economy.law_block_reason(c, "conscription", "reserve_callup"), "LAW_REQ_WAR_SUPPORT", "iç cephe yetmez")
 	c.war_support = 0.6
-	eq(Economy.law_block_reason(c, "conscription", "service_by_requirement"), "", "savaş desteği yetince açılır")
-	eq(Economy.law_block_reason(c, "conscription", "scraping_the_barrel"), "LAW_REQ_AUTHORITARIAN", "bağlantısız barışta son kaynak kapalı")
+	eq(Economy.law_block_reason(c, "conscription", "reserve_callup"), "", "iç cephe yetince açılır")
+	eq(Economy.law_block_reason(c, "conscription", "levee_en_masse"), "LAW_REQ_AUTHORITARIAN", "bağlantısız barışta kitlesel celp kapalı")
 	c.war_support = 1.0
-	eq(Economy.law_block_reason(c, "economy", "total_mobilization"), "LAW_REQ_AT_WAR", "topyekûn seferberlik savaş ister")
+	eq(Economy.law_block_reason(c, "economy", "total_war"), "LAW_REQ_AT_WAR", "topyekûn savaş, savaş ister")
 	var pp := c.political_power
-	check(Economy.change_law(c, "conscription", "extensive_conscription"), "yasa değişir")
-	near(c.political_power, pp - Economy.law_change_cost, 0.001, "yasa SG bedeli")
+	check(Economy.change_law(c, "conscription", "two_year_service"), "yasa değişir")
+	near(c.political_power, pp - Economy.law_change_cost, 0.001, "yasa nüfuz bedeli")
 	c.political_power = 10.0
-	check(not Economy.change_law(c, "conscription", "limited_conscription"), "SG yetmezse yasa değişmez")
-	eq(c.laws["conscription"], "extensive_conscription", "yasa aynı kaldı")
+	check(not Economy.change_law(c, "conscription", "one_year_service"), "nüfuz yetmezse yasa değişmez")
+	eq(c.laws["conscription"], "two_year_service", "yasa aynı kaldı")
 
 func test_advisor_effect_and_limit() -> void:
 	var c := _bare("TUR")
 	c.political_power = 1000.0
 	var gain0 := c.daily_political_power_gain()
-	Politics.hire(c, "silent_workhorse")               # +%15 SG kazancı
+	Politics.hire(c, "cabinet_secretary")              # +%12 nüfuz kazancı
 	near(c.political_power, 1000.0 - Politics.advisor_cost, 0.001, "danışman bedeli")
-	near(c.daily_political_power_gain() - gain0, 2.0 * 0.15, 0.0001, "danışman SG kazancını artırır")
+	near(c.daily_political_power_gain() - gain0, 2.0 * float(Politics.advisor_mods("cabinet_secretary")["political_power_gain"]), 0.0001, "danışman nüfuz kazancını artırır")
 	var ids: Array = Politics.advisor_defs.keys()
 	for id: String in ids:
 		Politics.hire(c, id)
 	eq(c.advisors.size(), Politics.max_advisors, "en çok danışman sayısı")
-	Politics.dismiss(c, "silent_workhorse")
-	check(not "silent_workhorse" in c.advisors, "danışman görevden alınır")
+	Politics.dismiss(c, "cabinet_secretary")
+	check(not "cabinet_secretary" in c.advisors, "danışman görevden alınır")
 
 func test_decision_effect_and_expiry() -> void:
 	var c := _bare("TUR")

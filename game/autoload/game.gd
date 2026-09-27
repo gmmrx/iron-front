@@ -148,7 +148,17 @@ func load_game(slot: String) -> bool:
 		var cd: Dictionary = data["countries"][tag]
 		c.political_power = float(cd["pp"]); c.stability = float(cd["stability"]); c.war_support = float(cd["war_support"])
 		c.ideology = cd["ideology"]; c.capital_state = int(cd["capital"]); c.laws = cd["laws"]
-		c.spirits.assign(cd["spirits"]); c.advisors.assign(cd["advisors"]); c.focus_done.assign(cd["focus_done"])
+		Economy.sanitize_laws(c)
+		# eski kayıtlardaki artık olmayan ulusal durum / danışman kimlikleri atlanır
+		c.spirits.clear()
+		for sp: String in cd["spirits"]:
+			if Politics.spirits.has(sp) or Politics.decisions.has(sp):
+				c.spirits.append(sp)
+		c.advisors.clear()
+		for ad: String in cd["advisors"]:
+			if Politics.advisor_defs.has(ad):
+				c.advisors.append(ad)
+		c.focus_done.assign(cd["focus_done"])
 		c.focus_current = cd["focus_current"]; c.focus_progress = float(cd["focus_progress"])
 		c.leader = str(cd.get("leader", c.leader)); c.next_election = int(cd.get("next_election", c.next_election))
 		c.auto_trade = bool(cd.get("auto_trade", true)); c.trade_orders = cd.get("trade_orders", [])

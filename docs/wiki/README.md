@@ -10,10 +10,10 @@ tarihî baskılar seçenekli olay olarak gelir.
 |---|---|
 | [Nasıl oynanır](01_nasil_oynanir.md) | İlk 30 gün, kontroller, kısayollar, kazanma/kaybetme |
 | [Arayüz](02_arayuz.md) | Üst çubuk, menü düğmeleri, her ekranın ne yaptığı |
-| [Hükümet](03_hukumet.md) | İdeoloji, istikrar, savaş desteği, yasalar, danışmanlar, ruhlar, seçimler, olaylar |
+| [Hükümet](03_hukumet.md) | İdeoloji, istikrar, iç cephe, yasalar, danışmanlar, ulusal durumlar, seçimler, olaylar |
 | [Ekonomi](04_ekonomi.md) | İnşaat, üretim, ticaret, kaynaklar, tüketim malı |
 | [Savaş](05_savas.md) | Tümenler, şablonlar, emirler, muharebe, ordular, ikmal, hava, deniz |
-| [Diplomasi](06_diplomasi.md) | Savaş gerekçesi, gerginlik eşikleri, garantiler, ittifaklar, teslim |
+| [Diplomasi](06_diplomasi.md) | Savaş gerekçesi, kriz endeksi eşikleri, garantiler, ittifaklar, teslim |
 | [Ülkeler](07_ulkeler.md) | 80 ülke, 1936 liderleri, başlangıç durumu |
 | [Geliştirici](08_gelistirici.md) | Testler, geliştirici argümanları, ikon/portre ekleme |
 

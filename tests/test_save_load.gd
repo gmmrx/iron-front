@@ -12,8 +12,8 @@ func _play() -> void:
 	World.world_tension = 60.0
 	c.war_goals["IRQ"] = true
 	Diplomacy.declare_war("TUR", "IRQ")
-	Economy.change_law(c, "conscription", "limited_conscription")
-	Politics.hire(c, "silent_workhorse")
+	Economy.change_law(c, "conscription", "two_year_service")
+	Politics.hire(c, "cabinet_secretary")
 	for id: String in Politics.tree_of(c):
 		if Politics.start_focus(c, id):
 			break
@@ -63,3 +63,31 @@ func test_loaded_game_continues() -> void:
 	days(5)
 	gt(World.date_value(), d0, "yüklenen oyun ilerler")
 	DirAccess.remove_absolute(Game.SAVE_DIR + SLOT + ".json")
+
+## Eski kayıt (yeniden adlandırılmadan önceki yasa, danışman ve ulusal durum kimlikleri): yüklenir, bilinmeyen yasa
+## başlangıç yasasına döner, bilinmeyen danışman/durum atlanır, Hükümet ekranının okuduğu tanımlar eksiksiz
+func test_old_save_ids_are_sanitized() -> void:
+	var c := player()
+	check(Game.save_game(SLOT), "kaydet")
+	var path := Game.SAVE_DIR + SLOT + ".json"
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+	var cd: Dictionary = data["countries"][c.tag]
+	cd["laws"] = {"conscription": "volunteer_only", "economy": "civilian_economy", "trade": "export_focus"}
+	cd["advisors"] = ["silent_workhorse", "cabinet_secretary"]
+	(cd["spirits"] as Array).append("sectarian_woes")
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(data))
+	f.close()
+	if not check(Game.load_game(SLOT), "eski kayıt yüklenir"):
+		return
+	World.resume_game(World.player_tag)
+	c = player()                            # yükleme ülke nesnelerini yeniden kurar
+	for g: String in Economy.law_groups:
+		check(Economy.law_groups[g]["laws"].has(c.laws[g]), "%s yasası tanımlı (%s)" % [g, c.laws[g]])
+	eq(c.laws["conscription"], "one_year_service", "bilinmeyen askerlik yasası başlangıç yasasına döner")
+	eq(Array(c.advisors), ["cabinet_secretary"], "bilinmeyen danışman atlanır")
+	check(not "sectarian_woes" in c.spirits, "bilinmeyen ulusal durum atlanır")
+	for id: String in c.advisors:
+		check(Politics.advisor_defs.has(id), "danışman tanımı var: " + id)
+	days(2)
+	DirAccess.remove_absolute(path)

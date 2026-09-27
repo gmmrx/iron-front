@@ -2,36 +2,37 @@
 
 ## Fabrikalar ve tüketim malı
 - **Sivil fabrika**: inşaat yapar ve ticarette ödeme olarak gider. Bir kısmı halk için **tüketim malı** üretmek zorundadır
-  (ekonomi yasasına göre %35 → %15; istikrar %50'nin üstündeyse azalır).
+  (ekonomik seferberlik yasasına göre %33 → %12; istikrar %50'nin üstündeyse azalır).
 - **Askeri fabrika**: ekipman üretir. **Tersane**: gemi ve konvoy.
 - Üst çubuktaki fabrika hücresinin ipucu: sivil / tüketim malı / inşaata ayrılan.
 - Tüketim malı ve ithalat her fabrikayı alsa (ya da hiç sivil fabrika olmasa) bile **1 fabrikalık kamu inşaat gücü** kalır;
   böylece en küçük ülke de inşaat yapabilir.
 
 ## İnşaat (T)
-| Bina | Maliyet | En çok | Not |
+| Bina | Maliyet (fabrika-gün) | En çok | Not |
 |---|---|---|---|
-| Sivil fabrika | 10 800 | 20 | ortak yuva |
-| Askeri fabrika | 7 200 | 20 | ortak yuva |
-| Tersane | 6 400 | 20 | ortak yuva, kıyı |
-| Sentetik rafineri | 14 500 | 3 | ortak yuva; yakıt ve kauçuk |
-| Altyapı | 6 000 | 5 | her seviye inşaatı +%5 hızlandırır |
-| Hava üssü | 1 250 | 10 | |
-| Deniz üssü | 2 500 | 10 | kıyı |
-| Uçaksavar | 1 850 | 5 | |
+| Sivil fabrika | 2 160 | 20 | ortak yuva |
+| Askeri fabrika | 1 440 | 20 | ortak yuva |
+| Tersane | 1 280 | 20 | ortak yuva, kıyı |
+| Sentetik rafineri | 3 000 | 3 | ortak yuva; yakıt ve kauçuk |
+| Altyapı | 1 100 | 5 | her seviye inşaatı +%5 hızlandırır |
+| Hava üssü | 300 | 10 | |
+| Deniz üssü | 450 | 10 | kıyı |
+| Uçaksavar | 400 | 5 | |
 
-- Her sivil fabrika günde **5** inşaat puanı üretir; bir projede en çok **15** fabrika çalışır.
+- Maliyet **fabrika-gün** cinsindendir: her sivil fabrika günde **1** iş yapar; bir projede en çok **12** fabrika çalışır.
 - Fabrika, tersane ve rafineri eyaletin **bina yuvalarını** paylaşır (eyalet panelinde görünür).
-- Hız katkıları: yasalar, danışman (Sanayi Kaptanı +%10), karar (Acil Sanayi +%15), teknoloji; istikrar %50'nin altındaysa ceza.
+- Hız katkıları: yasalar, danışman (Planlama Komiseri +%9), karar (Acil Sanayi +%15), teknoloji; istikrar %50'nin altındaysa ceza.
 
 ## Üretim (Y)
-- Her hatta en çok **15** fabrika. Askeri fabrika günde **4,5**, tersane **2,5** üretim puanı verir.
-- **Verimlilik** %10'dan başlar, günde %1,2 artar, tavanı %50'dir. Hattı değiştirmek verimliliği sıfırlar.
+- Her hatta en çok **12** fabrika. Maliyet **fabrika-saat** cinsindendir: her askerî fabrika ve tersane günde **24** saat çalışır
+  (ör. tüfek 2,7, top 19, hafif tank 43, avcı uçağı 117, muhrip 580, zırhlı 4 800 fabrika-saat).
+- **Verimlilik** %15'ten başlar, tavana yaklaştıkça yavaşlayarak artar (günde tavana kalan farkın %2'si kadar), tavanı %50'dir. Hattı değiştirmek verimliliği sıfırlar.
 - Kaynak eksikse hat yavaşlar (en kötü %25 hız); hattın satırı kırmızı olur.
 - Toplam çıktı katkısı: yasalar, danışman, teknoloji + istikrar etkisi (%100'de +%20, %0'da −%50).
 
 ## Ticaret (R)
-- Her ülke üretiminin bir kısmını piyasaya açar (ticaret yasası: Serbest %80, İhracat Odaklı %50, Sınırlı %25, Kapalı %0).
+- Her ülke üretiminin bir kısmını piyasaya açar (dış ticaret politikası: Açık Pazar %70, Kliring Anlaşmaları %45, Otarşi %20, Dış Ticaret Tekeli %5).
 - **8 kaynak = 1 sivil fabrika**: alıcı öder, satıcı kazanır.
 - **Oyuncunun ticareti elle yapılır**: açığı olan kaynakta **Satın al** → satıcı ülke. Anlaşma listesinde +8 / −8 / iptal.
   Ödeyemeyeceğin ithalat yapılamaz (tüketim malından arta kalan fabrika + ihracat kazancı kadar).

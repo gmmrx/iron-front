@@ -35,8 +35,10 @@ Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değişt
 2. **Veri güdümlü**: içerik `data/common/*.json` içinde; motor kodu içerikten bağımsız. Olay/odak etkileri için var olan
    etki sözlüğünü kullan (`game/autoload/politics.gd` → `apply_effects` ve `describe_effects`). Yeni etki ekliyorsan ikisine de ekle.
 3. **Tüm metinler** `game/localization/strings.csv` içinde **İngilizce ve Türkçe**. CSV değişince `--import` gerekir.
-4. **Başka ticari oyunların adını ya da wiki adreslerini hiçbir dosyada anma** (kod, yorum, belge, commit mesajı).
-   Gerekirse "türün klasiği" de.
+4. **Özgünlük (dava riski): önce `docs/OZGUNLUK.md`'yi oku.** Başka ticari oyunların adını ya da wiki adreslerini hiçbir
+   dosyada anma (kod, yorum, belge, commit mesajı); "türün klasiği gibi", "parite" gibi örtmecelerle de anma. Başka bir
+   oyundan ad, metin, sayı tablosu ya da ekran düzeni alma; adlar tarihî ya da bizim, sayılar kendi formülümüzden ve
+   gerekçesi yazılı. "Iron Front" çalışma adıdır; oyunun adını metinlere sabit yazma.
 5. **Görseli göremezsin**: render, shader, ışık, renk, kamera ve model değişikliği yapma; masaüstü (Forward+) ve web
    (gl_compatibility) görüntüsü bozulmamalı. Arayüz eklemen gerekirse yalnız var olan yardımcıları kullan
    (`game/ui/panel_layout.gd`: `frame`, `fixed`, `info_cells`, `section`, `row`, `row_action`, `table`, `table_row`,

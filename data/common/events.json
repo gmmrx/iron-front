@@ -604,7 +604,7 @@
      },
      "effects": [
       {
-       "remove_spirit": "trotskyite_plot"
+       "remove_spirit": "moscow_trials"
       },
       {
        "stability": 0.05
@@ -619,7 +619,7 @@
      },
      "effects": [
       {
-       "remove_spirit": "trotskyite_plot"
+       "remove_spirit": "moscow_trials"
       },
       {
        "spirit": "purged_army"

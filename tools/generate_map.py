@@ -9,7 +9,7 @@ Girdi : Natural Earth idari bölgeleri (admin-1, 10m) + hipsometrik kabartma ras
     borders.png     RGB, sınır mesafe alanları (R=province, G=state, B=kıyı), 1/8 texel birimi
     provinces.json  bölge listesi (tip, arazi, eyalet, merkez, komşular)
     states.json     eyalet listesi (sahip, bölgeler, nüfus, merkez)
-    definition.csv  klasik strateji tarzı id;r;g;b;tip;kıyı;arazi
+    definition.csv  id;r;g;b;tip;kıyı;arazi
 
 Projeksiyon: Lambert azimutal eşit-alan (merkez 25°D, 50°K) -> her piksel aynı alana sahip.
 Çalıştırma: python3 tools/generate_map.py
@@ -36,7 +36,7 @@ CACHE = ROOT / "tools" / "cache"
 OUT = Path(os.environ["MAP_OUT"]) if os.environ.get("MAP_OUT") else ROOT / "data" / "map"
 COUNTRIES = ROOT / "data" / "common" / "countries.json"
 
-# ---------------------------------------------------------------- projeksiyon (tüm dünya, Miller silindirik — türün klasiklerindeki gibi)
+# ---------------------------------------------------------------- projeksiyon (tüm dünya, Miller silindirik)
 R_EARTH = 6371.0
 W = int(os.environ.get("MAP_W", 16384))
 LON_MIN = -168.5                     # dikiş: Bering Boğazı (Çukotka sağda, Alaska solda)
@@ -69,7 +69,7 @@ PX_AREA = float(ROW_AREA.mean())                  # yalnız kaba tahminler için
 del _edges
 
 # ---------------------------------------------------------------- ayarlar
-# Bölge yoğunluğu (türün klasiklerindeki gibi): Avrupa ayrıntılı, uzak bölgeler büyük. (boylam0, enlem0, boylam1, enlem1, çarpan)
+# Bölge yoğunluğu: Avrupa ayrıntılı, uzak bölgeler büyük. (boylam0, enlem0, boylam1, enlem1, çarpan)
 THEATERS = [
     (-12, 34, 45, 72, 1.0),       # Avrupa çekirdeği
     (-20, 20, 62, 75, 1.5),       # Kuzey Afrika, Orta Doğu, Batı SSCB
@@ -528,7 +528,7 @@ def build_straits(P, types):
         pa = nearest_land_province(P, types, *pts[0])
         pb = nearest_land_province(P, types, *pts[1])
         if pa and pb and pa != pb:
-            # türün klasiklerindeki gibi: geniş deniz geçitleri (Manş) yürünemez; yalnız feribot/görsel
+            # geniş deniz geçitleri (Manş) yürünemez; yalnız feribot/görsel
             out.append({"name": {"en": name, "tr": name_tr}, "provinces": [pa, pb],
                         "from": list(pts[0]), "to": list(pts[1]), "land_crossing": name not in NO_LAND_CROSSING})
         else:

@@ -1,5 +1,5 @@
 extends Node
-## Oyun saati. Simülasyon saatlik tick'lerle ilerler (türün klasiklerindeki gibi).
+## Oyun saati. Simülasyon saatlik tick'lerle ilerler.
 
 signal hour_passed
 signal day_passed

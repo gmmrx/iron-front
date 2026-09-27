@@ -1,6 +1,6 @@
 class_name CountryLabels
 extends Node2D
-## klasik strateji tarzı ülke adları: her ülkenin (bağlı) toprağı boyunca kavisli, ölçeğe göre büyüyen yazı.
+## Ülke adları: her ülkenin (bağlı) toprağı boyunca kavisli, ölçeğe göre büyüyen yazı.
 ## Sahiplik değişince yeniden hesaplanır; ekranda çok küçük/çok büyük kalan etiketler söner.
 
 const MIN_AREA_KM2 := 2500.0

@@ -730,7 +730,7 @@ func _transports() -> void:
 		if loss <= 0.0:
 			continue
 		d.strength -= loss
-		d.org = maxf(d.org - 1.0, 0.0)
+		d.org = maxf(d.org - Military.div_stats(d)["org"] / 60.0, 0.0)
 		if d.strength <= 0.05:
 			if d.owner == World.player_tag or Diplomacy.are_enemies(d.owner, World.player_tag):
 				World.notify(tr("NOTE_TRANSPORT_SUNK") % [d.name, World.countries[d.owner].display_name()], "bad" if d.owner == World.player_tag else "good")

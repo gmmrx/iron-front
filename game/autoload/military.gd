@@ -7,8 +7,8 @@ signal battles_changed
 signal division_destroyed(tag: String)
 
 const UNITS_PATH := "res://data/common/units.json"
-const ORG_DMG := 0.11                  ## isabet başına organizasyon hasarı
-const STR_DMG := 0.055                 ## isabet başına can (hp) hasarı
+const ORG_DMG := 0.0367                ## isabet başına bütünlük hasarı (piyade bütünlüğü 100)
+const STR_DMG := 0.022                 ## isabet başına dayanıklılık (hp) hasarı
 const HIT_DEF := 0.1                   ## savunmayla karşılanan saldırının isabet oranı
 const HIT_OPEN := 0.4                  ## savunmayı aşan saldırının isabet oranı
 const RETREAT_ORG := 0.12
@@ -1155,7 +1155,7 @@ func _fuel() -> void:
 		var gain := 20.0 + mil * 1.5 + oil * FUEL_PER_OIL
 		c.fuel = clampf(c.fuel + gain - float(use.get(c.tag, 0.0)), 0.0, c.fuel_cap)
 
-## İkmal (türün klasikleri ikmal menzili gibi): kaynak = kendi/müttefik sahipliğindeki ve kontrolündeki topraklar + limanlar;
+## İkmal menzili: kaynak = kendi/müttefik sahipliğindeki ve kontrolündeki topraklar + limanlar;
 ## işgal edilen topraklarda kaynaktan en fazla SUPPLY_RANGE bölge içeri ikmal ulaşır, ötesi ikmalsiz.
 const SUPPLY_RANGE := 9
 

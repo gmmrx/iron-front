@@ -1,6 +1,6 @@
 class_name LogisticsPanel
 extends PanelContainer
-## Lojistik ekranı (türün klasiklerindeki gibi): ekipman envanteri — stok, tümenlerde kullanımda, günlük üretim,
+## Lojistik ekranı: ekipman envanteri — stok, tümenlerde kullanımda, günlük üretim,
 ## ihtiyaç (eksik + takviye), denge; kaynak üretimi/kullanımı; fabrika ve tersane kullanımı.
 
 var _cells: Array[Label] = []

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Iron Front arayüz dokuları (türün klasiği görünümü): koyu perçinli metal paneller, başlık bandı, oyulmuş bölüm
+"""Iron Front arayüz dokuları: koyu perçinli metal paneller, başlık bandı, oyulmuş bölüm
 çubukları, gömük ikon yuvaları, metal düğmeler, sekmeler, üst çubuk hücreleri. Hepsi 9-dilim (StyleBoxTexture).
 Çıktı: assets/ui/skin/*.png   Çalıştır: python3 tools/make_ui_skin.py
 """

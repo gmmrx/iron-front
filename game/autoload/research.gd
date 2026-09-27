@@ -35,7 +35,7 @@ func unlocking_tech(equipment: String) -> String:
 			return t
 	return ""
 
-## türün klasiklerindeki gibi: başlangıçta elinde bulunan (ya da üretimde olan) tiplerin teknolojileri araştırılmış sayılır
+## Başlangıçta elinde bulunan (ya da üretimde olan) tiplerin teknolojileri araştırılmış sayılır
 func grant_start_equipment() -> void:
 	for c: Country in World.countries.values():
 		var have: Array[String] = []

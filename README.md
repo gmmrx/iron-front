@@ -1,6 +1,6 @@
 # Iron Front (çalışma adı)
 
-Godot 4.7 ile 2. Dünya Savaşı büyük strateji türünün en iyileri ölçeğinde büyük strateji oyunu. **Tarayıcıda oyna:** https://gmmrx.github.io/iron-front/ (masaüstü Chrome/Firefox, ~370 MB indirir; her push'ta GitHub Actions ile yeniden yayınlanır)
+Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu. **Tarayıcıda oyna:** https://gmmrx.github.io/iron-front/ (masaüstü Chrome/Firefox, ~370 MB indirir; her push'ta GitHub Actions ile yeniden yayınlanır)
 
 **Oyun wikisi (nasıl oynanır, mekanikler, ülkeler):** [docs/wiki](docs/wiki/README.md) · Yol haritası: [ROADMAP.md](ROADMAP.md) · Tanıtım videosu: [docs/media/iron_front_demo_2026-09-25.mp4](docs/media/iron_front_demo_2026-09-25.mp4) (klipler: `docs/media/clips/`)
 
@@ -19,14 +19,14 @@ Godot 4.7 ile projeyi açın ve F5'e basın. Ya da:
 | Sol sürükle | Kutu ile tümen seç |
 | Sağ tık | Seçili tümenlere hareket / saldırı emri (seçim yoksa: seçimi kaldır) |
 | Boşluk · 1–5 · + / - | Duraklat · oyun hızı |
-| Q / F / I / O / R / T / Y / U | Siyaset / Odak ağacı / Araştırma / Diplomasi / Ticaret / İnşaat / Üretim / Ordu |
+| Q / F / I / O / R / T / Y / U | Siyaset / Devlet programı / Araştırma / Diplomasi / Ticaret / İnşaat / Üretim / Ordu |
 | F1 F2 F3 | Siyasi / Arazi / Eyalet haritası |
 | Home | Başkente dön |
 | Esc | Seçimi kaldır → panelleri kapat → menü (kaydet/yükle/ayarlar) |
 | F5 | Hızlı kayıt |
 
 ## Nasıl oynanır (kısa)
-1. Ülkeni seç → **Odak (F)** ağacından bir odak, **Araştırma (I)**'dan teknolojiler seç.
+1. Ülkeni seç → **Program (F)** ağacından bir devlet programı, **Araştırma (I)**'dan teknolojiler seç.
 2. **İnşaat (T)**: fabrika kur. **Üretim (Y)**: askeri fabrikaları ekipmana ata. **Ordu (U)**: tümen konuşlandır.
 3. Bir ülkeye tıkla → **Diplomasi**: savaş gerekçesi hazırla (30 gün), savaş ilan et.
 4. Tümenleri seç (tıkla / sürükle), sağ tıkla düşman bölgesine gönder. Zafer puanlı şehirleri al; düşman teslim olunca işgal ettiğin eyaletler senin olur.

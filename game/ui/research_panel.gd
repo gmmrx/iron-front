@@ -1,6 +1,6 @@
 class_name ResearchPanel
 extends PanelContainer
-## Araştırma (I) — türün klasiği düzeni: üstte araştırma yuvaları (ilerleme, kalan gün, iptal), kategori sekmeleri,
+## Araştırma (I): üstte araştırma yuvaları (ilerleme, kalan gün, iptal), kategori sekmeleri,
 ## altında seçili kategorinin teknolojileri yıllara göre sıralı (yıl şeridi solda). Erken araştırma ceza alır.
 
 var _slots: GridContainer

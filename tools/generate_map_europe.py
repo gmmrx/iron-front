@@ -9,7 +9,7 @@ Girdi : Natural Earth idari bölgeleri (admin-1, 10m) + hipsometrik kabartma ras
     borders.png     RGB, sınır mesafe alanları (R=province, G=state, B=kıyı), 1/8 texel birimi
     provinces.json  bölge listesi (tip, arazi, eyalet, merkez, komşular)
     states.json     eyalet listesi (sahip, bölgeler, nüfus, merkez)
-    definition.csv  klasik strateji tarzı id;r;g;b;tip;kıyı;arazi
+    definition.csv  id;r;g;b;tip;kıyı;arazi
 
 Projeksiyon: Lambert azimutal eşit-alan (merkez 25°D, 50°K) -> her piksel aynı alana sahip.
 Çalıştırma: python3 tools/generate_map.py
@@ -407,7 +407,7 @@ def build_straits(P, types):
         pa = nearest_land_province(P, types, *pts[0])
         pb = nearest_land_province(P, types, *pts[1])
         if pa and pb and pa != pb:
-            # türün klasiklerindeki gibi: geniş deniz geçitleri (Manş) yürünemez; yalnız feribot/görsel
+            # geniş deniz geçitleri (Manş) yürünemez; yalnız feribot/görsel
             out.append({"name": {"en": name, "tr": name_tr}, "provinces": [pa, pb],
                         "from": list(pts[0]), "to": list(pts[1]), "land_crossing": name not in NO_LAND_CROSSING})
         else:

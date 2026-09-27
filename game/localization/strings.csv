@@ -1,7 +1,7 @@
 keys,en,tr
-UI_POLITICAL_POWER_TIP,Political Power,Siyasi Güç
+UI_POLITICAL_POWER_TIP,Influence,Nüfuz
 UI_STABILITY_TIP,Stability,İstikrar
-UI_WAR_SUPPORT_TIP,War Support,Savaş Desteği
+UI_WAR_SUPPORT_TIP,Home Front,İç Cephe
 UI_MANPOWER_TIP,Available Manpower,Kullanılabilir İnsan Gücü
 UI_DAY,day,gün
 UI_PAUSED,PAUSED,DURAKLATILDI
@@ -53,6 +53,7 @@ UI_LARGEST_CITY,Largest City,En Büyük Şehir
 UI_CITY,City,Şehir
 TERRAIN_marsh,Marsh,Bataklık
 UI_PORT,port,liman
+GAME_TITLE,IRON FRONT,IRON FRONT
 MENU_SUBTITLE,1936 — 1945  ·  GRAND STRATEGY,1936 — 1945  ·  BÜYÜK STRATEJİ
 MENU_NEW_GAME,New Game,Yeni Oyun
 MENU_CONTINUE,Continue,Devam Et
@@ -107,7 +108,7 @@ PRODUCTION_ADD,New production line,Yeni üretim hattı
 "PRODUCTION_SHORTAGE","Resource shortage: %d%% supplied (%s)","Kaynak eksik: %%%d karşılanıyor (%s)"
 PRODUCTION_STOCKPILE,STOCKPILE,STOK
 POLITICS_TITLE,Politics,Siyaset
-"POLITICS_PP","Political Power: %d  (+%.2f / day)  ·  Law change: %d","Siyasi Güç: %d  (+%.2f / gün)  ·  Yasa değişikliği: %d"
+"POLITICS_PP","Influence: %d  (+%.2f / day)  ·  Law change: %d","Nüfuz: %d  (+%.2f / gün)  ·  Yasa değişikliği: %d"
 EFFECT_manpower,Recruitable population,Askere alınabilir nüfus
 EFFECT_consumer_goods,Consumer goods,Tüketim malları
 EFFECT_factory_output,Factory output,Fabrika çıktısı
@@ -128,20 +129,21 @@ TIP_CLOSE,Close,Kapat
 TIP_QUEUE_UP,Move up in the queue (higher priority gets factories first),Kuyrukta yukarı taşı (üsttekiler fabrikaları önce alır)
 TIP_QUEUE_DOWN,Move down in the queue,Kuyrukta aşağı taşı
 TIP_QUEUE_REMOVE,Cancel this project (progress is lost),Bu projeyi iptal et (ilerleme kaybolur)
-"TIP_PROJECT","%s in %s\nProgress: %d%%\nCivilian factories working: %d (max 15)","%s — %s\nİlerleme: %%%d\nÇalışan sivil fabrika: %d (en fazla 15)"
-"TIP_BUILD_COST","Cost: %s construction points","Maliyet: %s inşaat puanı"
+"TIP_PROJECT","%s in %s\nProgress: %d%%\nCivilian factories working: %d (max 12)","%s — %s\nİlerleme: %%%d\nÇalışan sivil fabrika: %d (en fazla 12)"
+"TIP_BUILD_COST","Cost: %s factory-days","Maliyet: %s fabrika-gün"
 TIP_LINE_MINUS,Remove one military factory from this line,Bu hattan bir askeri fabrika çıkar
-TIP_LINE_PLUS,Assign one more military factory (max 15),Bu hatta bir askeri fabrika daha ata (en fazla 15)
+TIP_LINE_PLUS,Assign one more military factory (max 12),Bu hatta bir askeri fabrika daha ata (en fazla 12)
 TIP_LINE_FACTORIES,Military factories on this line,Bu hattaki askeri fabrika sayısı
+PRO_COST_HOURS,%s factory-hours,%s fabrika-saat
 TIP_LINE_REMOVE,Remove this production line (efficiency is lost),Bu üretim hattını kaldır (verimlilik kaybolur)
 TIP_LINE_ADD,Start producing a new type of equipment,Yeni bir ekipman türü üretmeye başla
-"TIP_LINE","%s\nCost per unit: %s IC\nResources per factory: %s\nEfficiency grows daily; changing the line resets it.\nCurrent efficiency: %d%%","%s\nBirim maliyeti: %s IC\nFabrika başına kaynak: %s\nVerimlilik her gün artar; hat değiştirilirse sıfırlanır.\nŞu anki verimlilik: %%%d"
+"TIP_LINE","%s\nCost per unit: %s factory-hours\nResources per factory: %s\nEfficiency grows daily; changing the line resets it.\nCurrent efficiency: %d%%","%s\nBirim maliyeti: %s fabrika-saat\nFabrika başına kaynak: %s\nVerimlilik her gün artar; hat değiştirilirse sıfırlanır.\nŞu anki verimlilik: %%%d"
 "TIP_SPEED_DOWN","DECREASE GAME SPEED\nReduces simulation speed by one step.\nShortcut: -","OYUN HIZINI DÜŞÜR\nSimülasyon hızını bir kademe azaltır.\nKısayol: -"
 "TIP_SPEED_UP","INCREASE GAME SPEED\nRaises simulation speed by one step. Higher speeds process battles and production faster.\nShortcut: +","OYUN HIZINI ARTIR\nSimülasyon hızını bir kademe yükseltir. Yüksek hızda savaşlar ve üretim daha hızlı ilerler.\nKısayol: +"
 "TIP_COUNTRY","%s\nLeader: %s  ·  Ideology: %s\nPopulation: %s  ·  Controlled states: %d\nNational statistics are recalculated each day.","%s\nLider: %s  ·  İdeoloji: %s\nNüfus: %s  ·  Denetlenen eyalet: %d\nUlusal istatistikler her gün yeniden hesaplanır."
-"TIP_POLITICAL_POWER","POLITICAL POWER\nDaily change: +%.2f\nUsed for laws, advisors, decisions, guarantees and diplomatic actions. Keep a reserve for wartime measures.","SİYASİ GÜÇ\nGünlük değişim: +%.2f\nYasalar, danışmanlar, kararlar, garantiler ve diplomatik eylemler için kullanılır. Savaş önlemleri için yedek tutun."
+"TIP_POLITICAL_POWER","INFLUENCE\nDaily change: +%.2f\nUsed for laws, advisors, decisions, guarantees and diplomatic actions. Keep a reserve for wartime measures.","NÜFUZ\nGünlük değişim: +%.2f\nYasalar, danışmanlar, kararlar, garantiler ve diplomatik eylemler için kullanılır. Savaş önlemleri için yedek tutun."
 "TIP_STABILITY","STABILITY\nRepresents public confidence and domestic order.\nLow stability reduces factory performance and makes prolonged wars harder to sustain.","İSTİKRAR\nHalkın yönetime güvenini ve iç düzeni gösterir.\nDüşük istikrar fabrika performansını azaltır ve uzun savaşların sürdürülmesini zorlaştırır."
-"TIP_WAR_SUPPORT","WAR SUPPORT\nShows the population's willingness to continue fighting.\nRequired for stronger mobilization laws and resistance to surrender pressure.","SAVAŞ DESTEĞİ\nHalkın savaşı sürdürme isteğini gösterir.\nDaha sert seferberlik yasaları ve teslim baskısına direnmek için gereklidir."
+"TIP_WAR_SUPPORT","HOME FRONT\nShows the population's willingness to continue fighting.\nRequired for stronger mobilization laws and resistance to surrender pressure.","İÇ CEPHE\nHalkın savaşı sürdürme isteğini gösterir.\nDaha sert seferberlik yasaları ve teslim baskısına direnmek için gereklidir."
 "TIP_MANPOWER","RECRUITABLE MANPOWER\nAvailable pool: %s\nConscription law: %s\nDivisions, reinforcement and casualties draw from this pool.","ASKERE ALINABİLİR İNSAN GÜCÜ\nKullanılabilir havuz: %s\nAskerlik yasası: %s\nTümenler, takviyeler ve kayıplar bu havuzdan karşılanır."
 "TIP_MAPMODE_POLITICAL","POLITICAL MAP\nShows national control, borders and occupied territory.\nBest for diplomacy and front planning.","SİYASİ HARİTA\nÜlke denetimini, sınırları ve işgal edilmiş bölgeleri gösterir.\nDiplomasi ve cephe planlaması için uygundur."
 "TIP_MAPMODE_TERRAIN","TERRAIN MAP\nShows terrain, elevation, rivers and coastlines without country colors.\nUse it to evaluate movement and combat conditions.","ARAZİ HARİTASI\nÜlke renkleri olmadan araziyi, yükseltiyi, nehirleri ve kıyıları gösterir.\nHareket ve muharebe koşullarını değerlendirmek için kullanın."
@@ -149,7 +151,7 @@ TIP_LINE_ADD,Start producing a new type of equipment,Yeni bir ekipman türü ür
 "TIP_MAPMODE_STATES","STATE MAP\nColors each administrative state separately.\nUseful for construction slots, resources and peace settlements.","EYALET HARİTASI\nHer idari eyaleti ayrı renklendirir.\nİnşaat slotları, kaynaklar ve barış anlaşmaları için kullanışlıdır."
 "TIP_TASK_POLITICS","POLITICS\nManage conscription, economy and trade laws; appoint advisors and enact decisions.\nShortcut: Q","SİYASET\nAskerlik, ekonomi ve ticaret yasalarını yönetin; danışman atayın ve karar alın.\nKısayol: Q"
 "TIP_TASK_RESEARCH","RESEARCH\nAssign research slots, inspect technology effects and plan long-term modernization.\nShortcut: I","ARAŞTIRMA\nAraştırma slotlarını atayın, teknoloji etkilerini inceleyin ve uzun vadeli modernizasyonu planlayın.\nKısayol: I"
-"TIP_TASK_DIPLOMACY","DIPLOMACY\nInspect relations, alliances, guarantees, access rights and war goals.\nShortcut: R","DİPLOMASİ\nİlişkileri, ittifakları, garantileri, geçiş haklarını ve savaş hedeflerini inceleyin.\nKısayol: R"
+"TIP_TASK_DIPLOMACY","DIPLOMACY\nInspect relations, alliances, guarantees, access rights and casus belli.\nShortcut: R","DİPLOMASİ\nİlişkileri, ittifakları, garantileri, geçiş haklarını ve savaş gerekçelerini inceleyin.\nKısayol: R"
 "TIP_TASK_TRADE","TRADE\nReview resource balance, imports, exports and civilian-factory trade costs.\nShortcut: E","TİCARET\nKaynak dengesini, ithalatı, ihracatı ve sivil fabrika ticaret maliyetini inceleyin.\nKısayol: E"
 "TIP_CONSTRUCTION_BUTTON","CONSTRUCTION\nBuild industry, infrastructure, airfields, ports and defenses. Projects with higher priority receive factories first.\nShortcut: T","İNŞAAT\nSanayi, altyapı, hava üssü, liman ve savunma yapıları kurun. Yüksek öncelikli projeler fabrikaları önce alır.\nKısayol: T"
 "TIP_TASK_PRODUCTION","PRODUCTION\nAssign military factories to equipment lines and manage efficiency and resource shortages.\nShortcut: Y","ÜRETİM\nAskeri fabrikaları ekipman hatlarına atayın; verimliliği ve kaynak açıklarını yönetin.\nKısayol: Y"
@@ -178,38 +180,38 @@ NEWS_BALTIC,%s absorbs the Baltic states.,%s Baltık devletlerini ilhak etti.
 NOTE_CAPITULATED,%s has capitulated!,%s teslim oldu!
 NOTE_WAR_ENDED,A war has ended.,Bir savaş sona erdi.
 "NOTE_WHITE_PEACE","%s and %s have signed a white peace.","Beyaz barış: %s — %s"
-NOTE_GOAL_READY,War goal against %s is ready.,Savaş gerekçesi hazır: %s
+NOTE_GOAL_READY,Casus belli against %s is ready.,Savaş gerekçesi hazır: %s
 DIPLO_ERR_INVALID,Not possible.,Mümkün değil.
-DIPLO_ERR_ALREADY,Already at war or justifying.,Zaten savaşta ya da gerekçe hazırlanıyor.
+DIPLO_ERR_ALREADY,Already at war or preparing a casus belli.,Zaten savaşta ya da gerekçe hazırlanıyor.
 DIPLO_ERR_ALLY,They are our ally.,Müttefikimiz.
-DIPLO_ERR_PP,Not enough political power.,Yeterli siyasi güç yok.
-DIPLO_ERR_TENSION,World tension is too low for our ideology.,İdeolojimiz için dünya gerginliği çok düşük.
-DIPLO_ERR_NO_GOAL,We need a war goal first.,Önce bir savaş gerekçesi gerekli.
+DIPLO_ERR_PP,Not enough influence.,Yeterli nüfuz yok.
+DIPLO_ERR_TENSION,The crisis index is too low for our ideology.,İdeolojimiz için kriz endeksi çok düşük.
+DIPLO_ERR_NO_GOAL,We need a casus belli first.,Önce bir savaş gerekçesi gerekli.
 "NOTE_DIV_DESTROYED","%s of %s was encircled and destroyed.","%s (%s) kuşatıldı ve yok edildi."
 NOTE_SAVED,Game saved: %s,Oyun kaydedildi: %s
 GAMEOVER_DEFEAT,Your nation has been destroyed.,Ülkeniz yok edildi.
 GAMEOVER_CAPITULATED,Your nation has capitulated.,Ülkeniz teslim oldu.
 GAMEOVER_TIME,The war is over: 1 January 1948.,Savaş sona erdi: 1 Ocak 1948.
-EFF_PP,%+d political power,%+d siyasi güç
+EFF_PP,%+d influence,%+d nüfuz
 EFF_STABILITY,%+d%% stability,%%%+d istikrar
-EFF_WAR_SUPPORT,%+d%% war support,%%%+d savaş desteği
-EFF_TENSION,%+d world tension,%+d dünya gerginliği
-EFF_SPIRIT,Gain national spirit: %s,Milli ruh: %s
-EFF_REMOVE_SPIRIT,Remove national spirit: %s,Milli ruh kaldırılır: %s
+EFF_WAR_SUPPORT,%+d%% home front,%%%+d iç cephe
+EFF_TENSION,%+d crisis index,%+d kriz endeksi
+EFF_SPIRIT,Gain national condition: %s,Ulusal durum: %s
+EFF_REMOVE_SPIRIT,Remove national condition: %s,Ulusal durum kalkar: %s
 EFF_RESEARCH_SLOT,+%d research slot,+%d araştırma slotu
 "EFF_RESEARCH_BONUS","%d%% research bonus: %s","%%%d araştırma bonusu: %s"
 "EFF_BUILDING","%d × %s","%d × %s"
 "EFF_RESOURCE","+%d %s","+%d %s"
 EFF_EQUIPMENT,Equipment: %s,Ekipman: %s
 EFF_DIVISIONS,%d new divisions,%d yeni tümen
-EFF_WAR_GOAL,War goal against %s,Savaş gerekçesi: %s
+EFF_WAR_GOAL,Casus belli against %s,Savaş gerekçesi: %s
 EFF_DECLARE_WAR,Declare war on %s,Savaş ilanı: %s
 EFF_GUARANTEE,Guarantee %s,Garanti: %s
 EFF_ANNEX,Annex %s,İlhak: %s
 EFF_ANNEXED_BY,We are annexed by %s,Ülkemiz ilhak edilir: %s
 EFF_CEDE_BORDER,Border states go to %s,Sınır eyaletleri devredilir: %s
 "EFF_CEDE_CITY","%s goes to %s","%s devredilir → %s"
-EFF_GIVE_WAR_GOAL,%s gains a war goal against us,%s bize karşı savaş gerekçesi kazanır
+EFF_GIVE_WAR_GOAL,%s gains a casus belli against us,%s bize karşı savaş gerekçesi kazanır
 EFF_CREATE_FACTION,Create an alliance,Bir ittifak kur
 EFF_JOIN_FACTION,Join the alliance of %s,İttifaka katıl: %s
 EFF_INVITE,Invite %s to our alliance,İttifaka davet: %s
@@ -218,33 +220,33 @@ EFF_EVENT,Diplomatic demand to %s,Diplomatik talep: %s
 "EFF_POPULARITY","%+d%% popularity: %s","%%%+d popülerlik: %s"
 EFF_WHITE_PEACE,White peace with %s,Beyaz barış: %s
 EFF_ACCESS,Grant military access to %s,Askeri geçiş hakkı ver: %s
-MOD_political_power_gain,Political power gain,Siyasi güç kazanımı
-MOD_political_power_flat,Daily political power,Günlük siyasi güç
+MOD_political_power_gain,Influence gain,Nüfuz kazanımı
+MOD_political_power_flat,Daily influence,Günlük nüfuz
 MOD_stability,Stability,İstikrar
-MOD_war_support,War support,Savaş desteği
+MOD_war_support,Home front,İç cephe
 MOD_research_speed,Research speed,Araştırma hızı
 MOD_construction_speed,Construction speed,İnşaat hızı
 MOD_factory_output,Factory output,Fabrika çıktısı
-MOD_org,Division organization,Tümen organizasyonu
+MOD_org,Division cohesion,Tümen bütünlüğü
 MOD_defense,Division defense,Tümen savunması
 MOD_speed,Division speed,Tümen hızı
 MOD_recruitable_population,Recruitable population,Askere alınabilir nüfus
 MOD_consumer_goods_mod,Consumer goods,Tüketim malları
 MOD_air_power,Air power,Hava gücü
 MOD_naval_power,Naval power,Deniz gücü
-MOD_breakthrough,Breakthrough,Yarma
+MOD_breakthrough,Shock,Şok
 MOD_entrenchment,Entrenchment,Siper
 MOD_production_efficiency_cap,Production efficiency cap,Üretim verimlilik tavanı
 MOD_synthetic_output,Synthetic refinery output,Sentetik rafineri çıktısı
-MOD_infantry_soft,Infantry soft attack,Piyade yumuşak saldırısı
+MOD_infantry_soft,Infantry anti-personnel,Piyade personel ateşi
 MOD_infantry_defense,Infantry defense,Piyade savunması
-MOD_infantry_breakthrough,Infantry breakthrough,Piyade yarması
+MOD_infantry_breakthrough,Infantry shock,Piyade şoku
 MOD_infantry_speed,Infantry speed,Piyade hızı
-MOD_artillery_soft,Artillery soft attack,Topçu yumuşak saldırısı
-MOD_artillery_hard,Artillery hard attack,Topçu sert saldırısı
-MOD_armor_soft,Armor soft attack,Zırhlı yumuşak saldırısı
-MOD_armor_hard,Armor hard attack,Zırhlı sert saldırısı
-MOD_armor_breakthrough,Armor breakthrough,Zırhlı yarması
+MOD_artillery_soft,Artillery anti-personnel,Topçu personel ateşi
+MOD_artillery_hard,Artillery anti-armor,Topçu tanksavar ateşi
+MOD_armor_soft,Armor anti-personnel,Zırhlı personel ateşi
+MOD_armor_hard,Armor anti-armor,Zırhlı tanksavar ateşi
+MOD_armor_breakthrough,Armor shock,Zırhlı şoku
 ARMY_TITLE,Army,Ordu
 TASK_ARMY,Army (U),Ordu (U)
 "TIP_TASK_ARMY","ARMY\nDesign division templates, deploy new formations and review combat statistics. Select divisions on the map to issue movement orders.\nShortcut: U","ORDU\nTümen şablonlarını tasarlayın, yeni birlikler konuşlandırın ve muharebe istatistiklerini inceleyin. Hareket emri vermek için haritadaki tümenleri seçin.\nKısayol: U"
@@ -252,7 +254,7 @@ TASK_ARMY,Army (U),Ordu (U)
 ARMY_NEW_TEMPLATE,New template,Yeni şablon
 ARMY_TEMPLATE_N,Template %d,Şablon %d
 TIP_NEW_TEMPLATE,Create a new division template,Yeni bir tümen şablonu oluştur
-"ARMY_STATS","Soft %d · Hard %d · Def %d · Brk %d · Org %d · Speed %s · Width %d","Yumuşak %d · Sert %d · Sav %d · Yarma %d · Org %d · Hız %s · Genişlik %d"
+"ARMY_STATS","AP %d · AT %d · Def %d · Shock %d · Coh %d · Speed %s · Front %d","Personel %d · Tanksavar %d · Sav %d · Şok %d · Büt %d · Hız %s · Cephe %d"
 TIP_EDIT_TEMPLATE,Edit this template,Bu şablonu düzenle
 ARMY_DEPLOY,Deploy,Konuşlandır
 "TIP_DEPLOY","Deploy a new division at the capital (14 days training).\nManpower: %s\nEquipment:","Başkentte yeni tümen konuşlandır (14 gün eğitim).\nİnsan gücü: %s\nEkipman:"
@@ -260,7 +262,7 @@ ARMY_STOCK,stock,stok
 ARMY_MISSING,Missing:,Eksik:
 NOTE_DEPLOYED,New division deployed: %s,Yeni tümen konuşlandırıldı: %s
 ARMY_DESIGNER,Designer: %s,Tasarım: %s
-"TIP_BATTALION","Soft attack %s, hard attack %s, defense %s, breakthrough %s, HP %s, organization %s, speed %s km/h, width %s","Yumuşak saldırı %s, sert saldırı %s, savunma %s, yarma %s, can %s, organizasyon %s, hız %s km/s, genişlik %s"
+"TIP_BATTALION","Anti-personnel %s, anti-armor %s, defense %s, shock %s, HP %s, cohesion %s, speed %s km/h, frontage %s","Personel ateşi %s, tanksavar ateşi %s, savunma %s, şok %s, can %s, bütünlük %s, hız %s km/s, cephe genişliği %s"
 TIP_BAT_MINUS,Remove one battalion,Bir tabur çıkar
 TIP_BAT_PLUS,Add one battalion,Bir tabur ekle
 DIV_STOP,Stop,Durdur
@@ -268,7 +270,7 @@ TIP_DIV_STOP,Cancel movement and attacks,Hareket ve saldırıları iptal et
 DIV_DISBAND,Disband,Dağıt
 TIP_DIV_DISBAND,Disband selected divisions (manpower returns),Seçili tümenleri dağıt (insan gücü geri döner)
 DIV_SELECTED,%d divisions selected,%d tümen seçili
-"TIP_ORG","Organization %d / %d — below 12%% the division retreats","Organizasyon %d / %d — %%12'nin altında tümen geri çekilir"
+"TIP_ORG","Cohesion %d / %d — below 12%% the division retreats","Bütünlük %d / %d — %%12'nin altında tümen geri çekilir"
 TIP_STR,Strength %d%%,Güç %%%d
 DIV_TRAINING,Training (%d days),Eğitimde (%d gün)
 DIV_COMBAT,In combat,Muharebede
@@ -284,23 +286,23 @@ RESEARCH_REQ,Requires: %s,Gerekli: %s
 "RESEARCH_AHEAD","%d years ahead of time: +%d%% research time","%d yıl erken: %%+%d araştırma süresi"
 TIP_RESEARCH_CANCEL,Cancel research (progress is lost),Araştırmayı iptal et (ilerleme kaybolur)
 RESEARCH_EMPTY_SLOT,Slot %d is empty — pick a technology!,%d. slot boş — bir teknoloji seçin!
-FOCUS_TITLE,National Focus,Milli Odak
-TASK_FOCUS,Focus (F),Odak (F)
-TIP_TASK_FOCUS,National focus tree,Milli odak ağacı
-FOCUS_NONE,No focus selected!,Seçili odak yok!
+FOCUS_TITLE,State Program,Devlet Programı
+TASK_FOCUS,Program (F),Program (F)
+TIP_TASK_FOCUS,State program tree,Devlet programı ağacı
+FOCUS_NONE,No program selected!,Seçili program yok!
 "FOCUS_CURRENT","Current: %s (%d days left)","Şu an: %s (%d gün kaldı)"
 FOCUS_EFFECTS,Effects:,Etkiler:
 FOCUS_NOT_AVAILABLE,Not yet available:,Henüz mevcut değil:
 FOCUS_DATE,Available after %s,Tarih: %s sonrası
-FOCUS_EXCLUSIVE,Mutually exclusive with another focus.,Başka bir odakla birlikte seçilemez.
+FOCUS_EXCLUSIVE,Mutually exclusive with another program.,Başka bir programla birlikte seçilemez.
 POL_POPULARITY,IDEOLOGY POPULARITY,İDEOLOJİ POPÜLERLİĞİ
-"POL_STATS","Stability %d%%  ·  War support %d%%  ·  World tension %d%%","İstikrar %%%d  ·  Savaş desteği %%%d  ·  Dünya gerginliği %%%d"
-POL_SPIRITS,NATIONAL SPIRITS,MİLLİ RUHLAR
-"POL_ADVISORS","ADVISORS (%d / %d, %d PP)","DANIŞMANLAR (%d / %d, %d SG)"
-TIP_ADVISOR_HIRE,Click to hire (%d political power),İşe almak için tıkla (%d siyasi güç)
+"POL_STATS","Stability %d%%  ·  Home front %d%%  ·  Crisis index %d%%","İstikrar %%%d  ·  İç cephe %%%d  ·  Kriz endeksi %%%d"
+POL_SPIRITS,NATIONAL CONDITIONS,ULUSAL DURUMLAR
+"POL_ADVISORS","ADVISORS (%d / %d, %d influence)","DANIŞMANLAR (%d / %d, %d nüfuz)"
+TIP_ADVISOR_HIRE,Click to hire (%d influence),İşe almak için tıkla (%d nüfuz)
 TIP_ADVISOR_DISMISS,Click to dismiss,Görevden almak için tıkla
 POL_DECISIONS,DECISIONS,KARARLAR
-"TIP_DECISION","Cost %d political power, lasts %d days","Maliyet %d siyasi güç, süre %d gün"
+"TIP_DECISION","Cost %d influence, lasts %d days","Maliyet %d nüfuz, süre %d gün"
 DIPLO_TITLE,Diplomacy,Diplomasi
 TASK_DIPLOMACY_KEY,Diplomacy (O),Diplomasi (O)
 DIPLO_REL_NEUTRAL,Neutral,Tarafsız
@@ -308,10 +310,10 @@ DIPLO_REL_WAR,At war,Savaşta
 DIPLO_REL_ALLY,Ally,Müttefik
 "DIPLO_INFO","Relation: %s\nAlliance: %s\nDivisions: %d  ·  States: %d","İlişki: %s\nİttifak: %s\nTümen: %d  ·  Eyalet: %d"
 "DIPLO_SURRENDER","Surrender progress: %d%% (capitulates at %d%%)","Teslim ilerlemesi: %%%d (%%%d'de teslim olur)"
-DIPLO_JUSTIFYING,Justifying war goal: %d days left,Savaş gerekçesi hazırlanıyor: %d gün kaldı
-DIPLO_HAS_GOAL,We have a war goal against them.,Onlara karşı savaş gerekçemiz var.
-DIPLO_JUSTIFY,Justify war goal (%d PP),Savaş gerekçesi hazırla (%d SG)
-TIP_JUSTIFY,Prepare a war goal over %d days. Raises world tension.,%d günde bir savaş gerekçesi hazırla. Dünya gerginliğini artırır.
+DIPLO_JUSTIFYING,Preparing casus belli: %d days left,Savaş gerekçesi hazırlanıyor: %d gün kaldı
+DIPLO_HAS_GOAL,We have a casus belli against them.,Onlara karşı savaş gerekçemiz var.
+DIPLO_JUSTIFY,Prepare casus belli (%d influence),Savaş gerekçesi hazırla (%d nüfuz)
+TIP_JUSTIFY,Prepare a casus belli over %d days. Raises the crisis index.,%d günde bir savaş gerekçesi hazırla. Kriz endeksini yükseltir.
 DIPLO_DECLARE,Declare war,Savaş ilan et
 TIP_DECLARE,"Declare war. Their allies and guarantors will join.","Savaş ilan et. Müttefikleri ve garantörleri savaşa katılır."
 DIPLO_GUARANTEE,Guarantee independence,Bağımsızlık garantisi ver
@@ -327,7 +329,7 @@ NOTE_ACCESS_OK,%s granted us military access.,%s askeri geçiş hakkı verdi.
 NOTE_ACCESS_NO,%s refused military access.,%s askeri geçiş hakkını reddetti.
 NOTE_INVITE_NO,%s declined our invitation.,%s davetimizi reddetti.
 NOTE_PEACE_NO,%s refused peace.,%s barışı reddetti.
-DIPLO_TENSION,World tension: %d%%,Dünya gerginliği: %%%d
+DIPLO_TENSION,Crisis index: %d%%,Kriz endeksi: %%%d
 DIPLO_HINT,Click a country on the map and choose Diplomacy to act.,Haritada bir ülkeye tıklayıp Diplomasi'yi seçin.
 DIPLO_WARS,WARS,SAVAŞLAR
 DIPLO_NO_WARS,Europe is at peace.,Avrupa barış içinde.
@@ -355,11 +357,11 @@ GAMEOVER_LOST,Defeat,Yenilgi
 GAMEOVER_RANKING,VICTORY POINTS,ZAFER PUANLARI
 GAMEOVER_CONTINUE,Keep playing,Oynamaya devam et
 UI_OCCUPIED,occupied by %s,işgalci: %s
-TOP_TENSION,Tension %d%%,Gerginlik %%%d
-"TIP_TENSION","WORLD TENSION\nMeasures how close the world is to general war. Aggressive diplomacy and declarations raise it.\nHigh tension unlocks democratic war goals and stronger mobilization laws.","DÜNYA GERGİNLİĞİ\nDünyanın genel savaşa ne kadar yaklaştığını gösterir. Saldırgan diplomasi ve savaş ilanları değeri yükseltir.\nYüksek gerginlik demokratik savaş hedeflerini ve daha sert seferberlik yasalarını açar."
+TOP_TENSION,Crisis %d%%,Kriz %%%d
+"TIP_TENSION","CRISIS INDEX\nMeasures how close the world is to general war. Aggressive diplomacy and declarations raise it.\nA high index lets democracies prepare a casus belli and unlocks stronger mobilization laws.","KRİZ ENDEKSİ\nDünyanın genel savaşa ne kadar yaklaştığını gösterir. Saldırgan diplomasi ve savaş ilanları değeri yükseltir.\nYüksek endeks demokrasilere savaş gerekçesi hazırlama yolunu ve daha sert seferberlik yasalarını açar."
 "TOP_AT_WAR","AT WAR (%d)  ·  Surrender %d%%","SAVAŞTA (%d)  ·  Teslim %%%d"
 "TIP_AT_WAR","Enemies: %s\nWe capitulate at %d%% surrender progress (occupied victory points).","Düşmanlar: %s\nTeslim ilerlemesi %%%d olunca teslim oluruz (işgal edilen zafer puanları)."
-NOTE_WELCOME,"Welcome, leader of %s. Pick a national focus (F) and research (I)!","Hoş geldiniz, %s lideri. Bir milli odak (F) ve araştırma (I) seçin!"
+NOTE_WELCOME,"Welcome, leader of %s. Pick a state program (F) and research (I)!","Hoş geldiniz, %s lideri. Bir devlet programı (F) ve araştırma (I) seçin!"
 NOTE_NO_PATH,No route to that province.,O bölgeye yol bulunamadı.
 SET_VOLUME,Master volume,Ana ses düzeyi
 SET_MUSIC,Music,Müzik
@@ -411,7 +413,7 @@ MISSION_0,In port,Limanda
 MISSION_1,Naval superiority,Deniz üstünlüğü
 MISSION_2,Convoy raiding,Konvoy baskını
 MISSION_3,Convoy escort,Konvoy koruma
-"TIP_MISSION_0","Stay in the home port: repair and regain organization.","Ana üste kal: onarım ve organizasyon toplama."
+"TIP_MISSION_0","Stay in the home port: repair and regain cohesion.","Ana üste kal: onarım ve toparlanma."
 "TIP_MISSION_1","Patrol the sea zone and attack enemy fleets. Protects our transports and invasions.","Deniz bölgesinde devriye gez, düşman filolarına saldır. Nakliye ve çıkarmalarımızı korur."
 "TIP_MISSION_2","Submarines hunt enemy convoys in the zone, starving the enemy's trade and supply.","Denizaltılar bölgedeki düşman konvoylarını avlar; ticaret ve ikmali keser."
 "TIP_MISSION_3","Escort our convoys in the zone and hunt enemy submarines.","Bölgedeki konvoylarımızı koru ve düşman denizaltılarını avla."
@@ -423,9 +425,9 @@ NAVY_IN_COMBAT,In battle!,Muharebede!
 NAVY_PICK_ZONE,Pick zone,Bölge seç
 "TIP_NAVY_PICK_ZONE","Then click a sea zone (or coast) on the map to set this fleet's mission zone. Right-clicking with the fleet selected does the same.","Ardından haritada bir deniz bölgesine (ya da kıyıya) tıklayın; filonun görev bölgesi olur. Filo seçiliyken sağ tık da aynı işi yapar."
 NAVY_CLICK_ZONE,Click a sea zone on the map…,Haritada bir deniz bölgesine tıklayın…
-NAVY_ORG,Organization,Organizasyon
+NAVY_ORG,Cohesion,Bütünlük
 NAVY_SELECT,Select,Seç
-"TIP_FLEET_COUNTER","%s\n%s\nOrganization %d%%\nLeft click: select · Right click with a fleet selected: send","%s\n%s\nOrganizasyon %%%d\nSol tık: seç · Filo seçiliyken sağ tık: gönder"
+"TIP_FLEET_COUNTER","%s\n%s\nCohesion %d%%\nLeft click: select · Right click with a fleet selected: send","%s\n%s\nBütünlük %%%d\nSol tık: seç · Filo seçiliyken sağ tık: gönder"
 RESERVE_FLEET,Reserve Fleet,Yedek Filo
 RESERVE_SUB_FLEET,Reserve Flotilla,Yedek Denizaltı Filosu
 NAVY_CONVOY_FACTOR,"Convoys carry %d%% of imports","Konvoylar ithalatın %%%d'ini taşıyor"
@@ -493,8 +495,8 @@ ALERT_EVENT,Event waiting,Bekleyen olay
 ALERT_EVENT_D,%d event(s) await your decision.,%d olay kararını bekliyor.
 ALERT_RESEARCH,Research slot idle,Araştırma boşta
 ALERT_RESEARCH_D,%d research slot(s) are empty.,%d araştırma yuvası boş.
-ALERT_FOCUS,No national focus,Milli odak seçilmedi
-ALERT_FOCUS_D,Choose a national focus.,Bir milli odak seç.
+ALERT_FOCUS,No state program,Devlet programı seçilmedi
+ALERT_FOCUS_D,Choose a state program.,Bir devlet programı seç.
 ALERT_PRODUCTION,Idle military factories,Boşta askeri fabrika
 ALERT_PRODUCTION_D,%d military factories are unassigned.,%d askeri fabrika üretime atanmamış.
 ALERT_DOCKYARD,Idle dockyards,Boşta tersane
@@ -515,20 +517,20 @@ UI_FUEL_TIP,"FUEL\nMade from oil (own + imported). Armour and motorised units bu
 UI_FUEL_DETAIL,Stock: %s / %s,Depo: %s / %s
 ALERT_FUEL,Fuel running out,Yakıt bitiyor
 ALERT_FUEL_D,Tanks and planes will fight at half strength. Import oil or build synthetic refineries.,Tanklar ve uçaklar yarı güçle savaşacak. Petrol ithal et ya da sentetik rafineri kur.
-DIV_XP_0,Green,Yeşil
-DIV_XP_1,Trained,Eğitimli
-DIV_XP_2,Regular,Düzenli
-DIV_XP_3,Veteran,Kıdemli
-DIV_XP_4,Elite,Seçkin
+DIV_XP_0,Raw,Acemi
+DIV_XP_1,Drilled,Talimli
+DIV_XP_2,Seasoned,Pişkin
+DIV_XP_3,Hardened,Sınanmış
+DIV_XP_4,Crack,Seçme
 DIV_XP_LINE,Experience: %s (%+d%% attack),Tecrübe: %s (saldırı %+d%%)
-DIV_PLANNING_LINE,Planning: +%d%% (grows while waiting on the front),Planlama: +%%%d (cephede beklerken birikir)
+DIV_PLANNING_LINE,Preparation: +%d%% (grows while waiting on the front),Hazırlık: +%%%d (cephede beklerken birikir)
 ARMY_NAME,%d. Army,%d. Ordu
 ARMY_CREATE,Create army,Ordu kur
 TIP_ARMY_CREATE,"CREATE ARMY\nGroups the selected divisions into an army. Assign it to a front and it spreads along the border by itself.","ORDU KUR\nSeçili tümenleri bir orduda toplar. Bir cepheye ata; ordu sınır boyunca kendiliğinden dağılır."
 ARMY_NO_FRONT,No front,Cephe yok
 TIP_ARMY_FRONT,"FRONT\nThe army deploys along the border with this country, more divisions where the enemy is strong. Works before the war too.","CEPHE\nOrdu bu ülkeyle sınır boyunca dağılır; düşmanın yoğun olduğu yere daha çok tümen. Savaştan önce de konuşlanabilir."
 ARMY_HOLD,Hold,Savun
-TIP_ARMY_HOLD,"HOLD\nKeep the line; divisions dig in and build planning.","SAVUN\nHattı tut; tümenler siper kazar ve planlama biriktirir."
+TIP_ARMY_HOLD,"HOLD\nKeep the line; divisions dig in and build preparation.","SAVUN\nHattı tut; tümenler siper kazar ve hazırlık biriktirir."
 ARMY_ATTACK,Attack,Taarruz
 TIP_ARMY_ATTACK,"ATTACK\nAdvance along the whole front into enemy provinces where we are stronger, without breaking the line.","TAARRUZ\nCephe boyunca, hattı bozmadan, güçlü olduğumuz düşman bölgelerine ilerle."
 ARMY_SELECT,Select army,Orduyu seç
@@ -539,10 +541,10 @@ UI_SUPPLY_TIP,"SUPPLY\nShare of your divisions that are supplied. Unsupplied div
 UI_SUPPLY_DETAIL,Supplied: %d / %d divisions,İkmalli: %d / %d tümen
 UI_CONVOY_TIP,"CONVOYS\nMerchant ships carrying imports and overseas troops. 1 convoy per 2 imported resources; submarines sink them.","KONVOYLAR\nİthalatı ve deniz aşırı birlikleri taşıyan yük gemileri. İthal edilen her 2 kaynak için 1 konvoy gerekir; denizaltılar batırır."
 UI_CONVOY_DETAIL,In stock: %d · needed for imports: %d,Stokta: %d · ithalat için gereken: %d
-UI_COMMAND_TIP,"COMMAND POWER (+%.1f/day, max 200)\nSpent on generals, doctrines and special orders.","KOMUTA GÜCÜ (+%.1f/gün, en çok 200)\nGeneraller, doktrinler ve özel emirler için harcanır."
-UI_XP_ARMY_TIP,"ARMY EXPERIENCE\nGained in land battles. Spent on division templates and land doctrines.","KARA TECRÜBESİ\nKara muharebelerinde kazanılır. Tümen şablonları ve kara doktrinleri için harcanır."
-UI_XP_NAVY_TIP,"NAVY EXPERIENCE\nGained in naval battles. Spent on ship refits and naval doctrines.","DENİZ TECRÜBESİ\nDeniz muharebelerinde kazanılır. Gemi tadilatı ve deniz doktrinleri için harcanır."
-UI_XP_AIR_TIP,"AIR EXPERIENCE\nGained in air combat. Spent on aircraft variants and air doctrines.","HAVA TECRÜBESİ\nHava çatışmalarında kazanılır. Uçak varyantları ve hava doktrinleri için harcanır."
+UI_COMMAND_TIP,"STAFF CAPACITY (+%.1f/day, max 200)\nSpent on generals, doctrines and special orders.","KARARGÂH KAPASİTESİ (+%.1f/gün, en çok 200)\nGeneraller, doktrinler ve özel emirler için harcanır."
+UI_XP_ARMY_TIP,"LAND KNOW-HOW\nGained in land battles. Spent on division templates and land doctrines.","KARA BİRİKİMİ\nKara muharebelerinde kazanılır. Tümen şablonları ve kara doktrinleri için harcanır."
+UI_XP_NAVY_TIP,"NAVAL KNOW-HOW\nGained in naval battles. Spent on ship refits and naval doctrines.","DENİZ BİRİKİMİ\nDeniz muharebelerinde kazanılır. Gemi tadilatı ve deniz doktrinleri için harcanır."
+UI_XP_AIR_TIP,"AIR KNOW-HOW\nGained in air combat. Spent on aircraft variants and air doctrines.","HAVA BİRİKİMİ\nHava çatışmalarında kazanılır. Uçak varyantları ve hava doktrinleri için harcanır."
 TASK_LOGISTICS_KEY,Logistics (L),Lojistik (L)
 TIP_TASK_LOGISTICS,"Equipment stockpile, daily production, needs and resource balance","Ekipman stoğu, günlük üretim, ihtiyaç ve kaynak dengesi"
 LOG_TITLE,Logistics,Lojistik
@@ -561,7 +563,7 @@ NEWS_NEW_LEADER,%s has a new leader: %s,%s yeni lideri: %s
 EFF_SET_LEADER,New leader: %s,Yeni lider: %s
 NEWS_ELECTION_CHANGE,Elections in %s: %s wins and forms the government,%s seçimleri: %s iktidara geldi
 NEWS_ELECTION_HOLD,Elections in %s: the government is re-elected,%s seçimleri: hükümet yeniden seçildi
-LAW_REQ_WAR_SUPPORT,Requires more war support,Daha yüksek savaş desteği gerekir
+LAW_REQ_WAR_SUPPORT,Requires a stronger home front,Daha güçlü iç cephe gerekir
 LAW_REQ_AT_WAR,Requires being at war,Savaşta olmak gerekir
 LAW_REQ_AUTHORITARIAN,Requires a fascist or communist government or being at war,Faşist ya da komünist yönetim veya savaş gerekir
 MOD_recruitable_population_factor,Recruitable population factor,Askere alınabilir nüfus çarpanı
@@ -570,58 +572,58 @@ MOD_mil_construction_speed,Military factory / dockyard construction speed,Asker�
 MOD_attack,Division attack,Tümen saldırısı
 MOD_training_time,Training time,Eğitim süresi
 MOD_export,Resources to market,Pazara çıkan kaynak
-NEWS_SPIRIT_EXPIRED,National spirit ended: %s,Milli ruh sona erdi: %s
-POL_OPEN_FOCUS,National Focus (F),Milli Odak (F)
+NEWS_SPIRIT_EXPIRED,National condition ended: %s,Ulusal durum sona erdi: %s
+POL_OPEN_FOCUS,State Program (F),Devlet Programı (F)
 POL_NO_PARTY,No ruling party,İktidar partisi yok
 POL_NO_ELECTIONS,No elections,Seçim yapılmıyor
 POL_NEXT_ELECTION,Next election: %s (every %d years),Sonraki seçim: %s (%d yılda bir)
 POL_POP_TIP,"The ruling party's popularity adds up to %d%% stability now.
 Elections: another ideology above 50% wins.","İktidar partisinin popülerliği şu an istikrara %%%d katıyor.
 Seçimde başka bir ideoloji %%50'yi geçerse iktidar değişir."
-POL_PP_SHORT,Political power,Siyasi güç
+POL_PP_SHORT,Influence,Nüfuz
 POL_STAB_SHORT,Stability,İstikrar
-POL_WS_SHORT,War support,Savaş desteği
+POL_WS_SHORT,Home front,İç cephe
 DAY_SHORT,day,gün
 POL_STAB_BREAKDOWN,"STABILITY
 Base: %d%%
-Spirits, laws, advisors: %s
+Conditions, laws, advisors: %s
 Ruling party popularity: %s
 = %d%%
 
 Factory output: %s
-Political power gain: %s
-Below 50%% production and political power suffer.","İSTİKRAR
+Influence gain: %s
+Below 50%% production and influence suffer.","İSTİKRAR
 Temel: %%%d
-Ruhlar, yasalar, danışmanlar: %s
+Durumlar, yasalar, danışmanlar: %s
 İktidar partisi popülerliği: %s
 = %%%d
 
 Fabrika çıktısı: %s
-Siyasi güç kazancı: %s
-%%50'nin altında üretim ve siyasi güç düşer."
-POL_WS_BREAKDOWN,"WAR SUPPORT
+Nüfuz kazancı: %s
+%%50'nin altında üretim ve nüfuz düşer."
+POL_WS_BREAKDOWN,"HOME FRONT
 Base: %d%%
-Spirits, laws, advisors: %s
-World tension: %s
+Conditions, laws, advisors: %s
+Crisis index: %s
 War situation: %s
 = %d%%
 
 Surrender limit: %d%% of core territory lost.
-Higher war support unlocks conscription laws.","SAVAŞ DESTEĞİ
+A stronger home front unlocks conscription laws.","İÇ CEPHE
 Temel: %%%d
-Ruhlar, yasalar, danışmanlar: %s
-Dünya gerginliği: %s
+Durumlar, yasalar, danışmanlar: %s
+Kriz endeksi: %s
 Savaş durumu: %s
 = %%%d
 
 Teslim sınırı: çekirdek toprakların %%%d'i kaybedilince.
-Yüksek savaş desteği askerlik yasalarını açar."
+Güçlü iç cephe askerlik yasalarını açar."
 POL_SPIRIT_EXPIRES,Expires: %s,Bitiş: %s
-POL_NO_SPIRITS,No national spirits,Milli ruh yok
-POL_LAWS,LAWS (change: %d PP),YASALAR (değişim: %d SG)
-LAW_NEED_WS,war support %d%%,savaş desteği %%%d
+POL_NO_SPIRITS,No national conditions,Ulusal durum yok
+POL_LAWS,LAWS (change: %d influence),YASALAR (değişim: %d nüfuz)
+LAW_NEED_WS,home front %d%%,iç cephe %%%d
 LAW_REQUIRES,Requires: %s,Gerekir: %s
-LAW_CHANGE_COST,Click to adopt: %d political power,Kabul etmek için tıkla: %d siyasi güç
+LAW_CHANGE_COST,Click to adopt: %d influence,Kabul etmek için tıkla: %d nüfuz
 POL_EMPTY_ADVISOR,Empty advisor seat,Boş danışman koltuğu
 POL_HIRE,Hire (%d),Ata (%d)
 POL_DISMISS,Dismiss,Görevden al
@@ -635,9 +637,9 @@ CON_CELL_CIV_TIP,All civilian factories you own.,Sahip olduğunuz tüm sivil fab
 CON_CELL_CONSUMER,Consumer goods,Tüketim malı
 CON_CELL_CONSUMER_TIP,Civilian factories that must produce consumer goods for the population (set by the economy law and stability).,Halk için tüketim malı üretmek zorunda olan sivil fabrikalar (ekonomi yasası ve istikrara bağlı).
 CON_CELL_FREE,For construction,İnşaata ayrılan
-CON_CELL_FREE_TIP,Civilian factories working on the queue. Each project can use at most 15; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.,Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 15 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
+CON_CELL_FREE_TIP,Civilian factories working on the queue. Each project can use at most 12; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.,Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 12 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
 CON_CELL_SPEED,Construction speed,İnşaat hızı
-CON_CELL_SPEED_TIP,"Bonus from laws, spirits, advisors and technology, minus the low-stability penalty.","Yasalar, ruhlar, danışmanlar ve teknolojiden gelen katkı; düşük istikrar cezası düşülmüş."
+CON_CELL_SPEED_TIP,"Bonus from laws, conditions, advisors and technology, minus the low-stability penalty.","Yasalar, ulusal durumlar, danışmanlar ve teknolojiden gelen katkı; düşük istikrar cezası düşülmüş."
 CON_BUILDINGS,Buildings,Binalar
 CON_QUEUE_EMPTY,"The queue is empty. Pick a building above, then click a state on the map.","Kuyruk boş. Yukarıdan bir bina seçin, sonra haritada bir eyalete tıklayın."
 PRO_CELL_MIL,Military factories,Askeri fabrika
@@ -645,7 +647,7 @@ PRO_CELL_MIL_TIP,Assigned / total military factories. Idle factories produce not
 PRO_CELL_DOCK,Dockyards,Tersane
 PRO_CELL_DOCK_TIP,Assigned / total dockyards. Ships and convoys are built here.,Atanan / toplam tersane. Gemiler ve konvoylar burada yapılır.
 PRO_CELL_OUTPUT,Factory output,Fabrika çıktısı
-PRO_CELL_OUTPUT_TIP,"Output bonus from laws, spirits, advisors and technology plus the stability effect.","Yasalar, ruhlar, danışmanlar ve teknolojiden gelen çıktı katkısı ile istikrar etkisi."
+PRO_CELL_OUTPUT_TIP,"Output bonus from laws, conditions, advisors and technology plus the stability effect.","Yasalar, ulusal durumlar, danışmanlar ve teknolojiden gelen çıktı katkısı ile istikrar etkisi."
 PRO_LINES,Production lines (%d),Üretim hatları (%d)
 PRO_NO_LINES,No production lines. Add one with the button above.,Üretim hattı yok. Yukarıdaki düğmeyle ekleyin.
 TRD_CELL_LAW,Trade law,Ticaret yasası
@@ -707,21 +709,21 @@ ARM_CELL_INF_TIP,Rifles in the stockpile. Every infantry battalion needs 100.,St
 ARM_CELL_AIR,Air power,Hava gücü
 ARM_CELL_AIR_TIP,Total strength of your air wings.,Hava kanatlarınızın toplam gücü.
 ARM_TEMPLATES,Division templates (%d),Tümen şablonları (%d)
-ARM_BAT_SUB,Soft %s · Hard %s · Def %s · Width %s,Yumuşak %s · Sert %s · Sav %s · Genişlik %s
+ARM_BAT_SUB,AP %s · AT %s · Def %s · Front %s,Personel %s · Tanksavar %s · Sav %s · Cephe %s
 ARM_STATS,Division statistics,Tümen değerleri
-ARM_SOFT,Soft attack,Yumuşak saldırı
+ARM_SOFT,Anti-personnel fire,Personel ateşi
 ARM_SOFT_TIP,Damage against infantry and other unarmored units.,Piyade ve zırhsız birliklere karşı hasar.
-ARM_HARD,Hard attack,Sert saldırı
+ARM_HARD,Anti-armor fire,Tanksavar ateşi
 ARM_HARD_TIP,Damage against tanks and armored units.,Tank ve zırhlı birliklere karşı hasar.
 ARM_DEF,Defense,Savunma
 ARM_DEF_TIP,How many attacks the division can absorb while defending.,Savunurken karşılanabilen saldırı sayısı.
-ARM_BRK,Breakthrough,Yarma
+ARM_BRK,Shock,Şok
 ARM_BRK_TIP,How many attacks the division can absorb while attacking.,Saldırırken karşılanabilen saldırı sayısı.
-ARM_ORG,Organization,Organizasyon
+ARM_ORG,Cohesion,Bütünlük
 ARM_ORG_TIP,How long the division keeps fighting before it must retreat.,Tümenin çekilmek zorunda kalmadan önce ne kadar dayandığı.
 ARM_SPEED,Speed,Hız
 ARM_SPEED_TIP,Movement speed; the slowest battalion decides.,Hareket hızı; en yavaş tabur belirler.
-ARM_WIDTH,Combat width,Muharebe genişliği
+ARM_WIDTH,Frontage,Cephe genişliği
 ARM_WIDTH_TIP,How much room the division takes in battle. Too wide divisions suffer penalties.,Muharebede kapladığı yer. Fazla geniş tümenler ceza alır.
 ARM_MANPOWER,Manpower,İnsan gücü
 ARM_MANPOWER_TIP,Men needed to deploy one division.,Bir tümeni konuşlandırmak için gereken asker.
@@ -738,7 +740,7 @@ AIR_DEPLOY_HEAD,Deploy planes,Uçak konuşlandır
 AIR_WINGS,Air wings (%d),Hava kanatları (%d)
 RES_SLOTS,Research slots,Araştırma yuvaları
 RES_SPEED,Research speed %+d%%,Araştırma hızı %%%+d
-RES_SPEED_TIP,"Bonus from the trade law, advisors, spirits and technology. Each slot researches one technology at a time.","Ticaret yasası, danışmanlar, ruhlar ve teknolojiden gelen katkı. Her yuva aynı anda bir teknoloji araştırır."
+RES_SPEED_TIP,"Bonus from the trade law, advisors, conditions and technology. Each slot researches one technology at a time.","Ticaret yasası, danışmanlar, ulusal durumlar ve teknolojiden gelen katkı. Her yuva aynı anda bir teknoloji araştırır."
 RES_DONE,Researched,Araştırıldı
 RES_RUNNING,Researching…,Araştırılıyor…
 RES_AHEAD_SHORT,%d yr early,%d yıl erken
@@ -746,20 +748,20 @@ RES_SLOTS_FULL,All research slots are busy.,Tüm araştırma yuvaları dolu.
 DIP_CELL_STATES,States,Eyalet
 DIP_CELL_FACTION,Alliance,İttifak
 DIP_SURRENDER,Surrender,Teslim
-DIP_JUSTIFYING,Justifying war goal,Savaş gerekçesi
+DIP_JUSTIFYING,Preparing casus belli,Savaş gerekçesi
 DIP_DAYS_LEFT,%d days left,%d gün kaldı
-DIP_WAR_GOAL,War goal,Savaş gerekçesi hazır
+DIP_WAR_GOAL,Casus belli ready,Savaş gerekçesi hazır
 DIP_ACTIONS,Diplomatic actions,Diplomatik eylemler
 DIP_DO,Do,Uygula
 DIP_WORLD,World situation,Dünya durumu
-DIP_TENSION_TIP,"WORLD TENSION
+DIP_TENSION_TIP,"CRISIS INDEX
 Rises with aggression: justifications, annexations, wars.
-Democracies can only act at high tension; fascist and communist states act earlier.
-High tension raises everyone's war support.","DÜNYA GERGİNLİĞİ
+Democracies can only act at a high index; fascist and communist states act earlier.
+A high crisis index strengthens everyone's home front.","KRİZ ENDEKSİ
 Saldırganlıkla artar: gerekçeler, ilhaklar, savaşlar.
-Demokrasiler ancak yüksek gerginlikte harekete geçebilir; faşist ve komünist devletler daha erken.
-Yüksek gerginlik herkesin savaş desteğini artırır."
-FOCUS_HELP,Pick a bright focus to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two.,Başlatmak için parlak bir odak seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir.
+Demokrasiler ancak yüksek endekste harekete geçebilir; faşist ve komünist devletler daha erken.
+Yüksek kriz endeksi herkesin iç cephesini güçlendirir."
+FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir.
 EVENT_CHOICES,Your decision,Kararınız
 ST_SLOTS,Building slots %d / %d,Bina yuvaları %d / %d
 ST_QUEUED,under construction,inşa ediliyor
@@ -771,5 +773,5 @@ ST_QUEUED_NOTE,%s queued in %s.,%s kuyruğa eklendi: %s.
 EVENT_NEED_LEADER,Only possible while %s leads the country.,Yalnız %s liderken seçilebilir.
 EVENT_OPTION_LOCKED,Conditions for this choice are not met.,Bu seçeneğin şartları sağlanmıyor.
 DIV_HOLD,Hold to the last man,Son askere kadar
-TIP_DIV_HOLD,HOLD TO THE LAST MAN\nOn: the division never retreats by itself; when its organization is exhausted it keeps fighting at half strength until destroyed.\nOff: it retreats to the nearest safe province when organization runs out.\nYour divisions start with this on: nobody pulls back without your order.,SON ASKERE KADAR SAVUN\nAçık: tümen kendiliğinden geri çekilmez; organizasyonu bitince yarı güçle yok olana kadar savaşır.\nKapalı: organizasyon bitince en yakın güvenli bölgeye çekilir.\nTümenlerin açık başlar: emrin olmadan kimse geri dönmez.
+TIP_DIV_HOLD,HOLD TO THE LAST MAN\nOn: the division never retreats by itself; when its cohesion is exhausted it keeps fighting at half strength until destroyed.\nOff: it retreats to the nearest safe province when cohesion runs out.\nYour divisions start with this on: nobody pulls back without your order.,SON ASKERE KADAR SAVUN\nAçık: tümen kendiliğinden geri çekilmez; bütünlüğü bitince yarı güçle yok olana kadar savaşır.\nKapalı: bütünlük bitince en yakın güvenli bölgeye çekilir.\nTümenlerin açık başlar: emrin olmadan kimse geri dönmez.
 TRD_CANT_PAY,"Not enough civilian factories to pay for more imports (8 resources = 1 factory, after consumer goods).",İthalatı ödeyecek sivil fabrika yok (8 kaynak = 1 fabrika; tüketim malından arta kalanla ödenir).

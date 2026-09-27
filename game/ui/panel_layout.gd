@@ -1,6 +1,6 @@
 class_name PanelLayout
 extends RefCounted
-## Yan panel şablonu ve ortak parçalar (türün klasiği düzeni): başlık bandı (ikon + başlık + kapat), tam boy kaydırmalı
+## Yan panel şablonu ve ortak parçalar: başlık bandı (ikon + başlık + kapat), tam boy kaydırmalı
 ## gövde, oyulmuş bölüm çubukları, gömük ikon yuvaları, istatistik satırları, sekmeler, pasta grafik.
 
 const SIDE_TOP := 128.0       ## yan panellerin üst kenarı (üst blok + menü tepsisi altı)
@@ -57,7 +57,7 @@ static func set_title(panel: Control, title: String) -> void:
 	if l:
 		l.text = title.to_upper()
 
-## Panel ekranın altına kadar uzanır (türün klasiğindeki gibi tam boy yan panel)
+## Panel ekranın altına kadar uzanır (tam boy yan panel)
 static func fit_full(panel: Control) -> void:
 	if not panel.has_meta("scroll") or not panel.is_inside_tree():
 		return

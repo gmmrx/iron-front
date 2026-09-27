@@ -1,6 +1,6 @@
 class_name TradePanel
 extends PanelContainer
-## Ticaret ekranı (türün klasiği düzeni): kaynak tablosu (üretim, ihtiyaç, ithalat, ihracat, denge), açığı olan
+## Ticaret ekranı: kaynak tablosu (üretim, ihtiyaç, ithalat, ihracat, denge), açığı olan
 ## kaynağa satıcı seçip anlaşma yapma, anlaşma listesi (+/- miktar, iptal). Otomatik ticaret yalnız oyuncu açarsa.
 
 const STEP := 8.0          ## bir sivil fabrikanın karşıladığı kaynak

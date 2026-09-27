@@ -1,6 +1,6 @@
 class_name DiplomacyPanel
 extends PanelContainer
-## Diplomasi (O) — türün klasiği düzeni: hedef ülke başlığı (bayrak, lider, ideoloji, ittifak), durum hücreleri,
+## Diplomasi (O): hedef ülke başlığı (bayrak, lider, ideoloji, ittifak), durum hücreleri,
 ## eylem satırları (ne yapar, neden kapalı ipucunda). Hedef yoksa dünya gerginliği, savaşlar ve ittifaklar.
 
 const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"), "fascism": Color("8a6a3a"), "neutrality": Color("8a8a7a")}

@@ -1,7 +1,7 @@
 """1936 dünyası: Avrupa penceresi dışındaki modern ülkelerin 1936 sahipliği, bölge istisnaları, nüfus ve başkentler.
 
 generate_map.py bu tabloları kendi Avrupa tablolarıyla birleştirir. Kaynak: 1 Ocak 1936 siyasi durumu
-(türün klasikleri başlangıcına yakın): sömürge imparatorlukları, dominyonlar ayrı ülke, Mançukuo, Çin savaş ağaları.
+(1936 tarihî durumuna yakın): sömürge imparatorlukları, dominyonlar ayrı ülke, Mançukuo, Çin savaş ağaları.
 """
 
 # modern ülke kodu (Natural Earth adm0_a3) -> 1936 etiketi

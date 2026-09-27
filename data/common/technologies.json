@@ -41,8 +41,8 @@
    "cost": 100,
    "req": [],
    "name": {
-    "en": "Infantry Weapons I",
-    "tr": "Piyade Silahları I"
+    "en": "Bolt-Action Rifles",
+    "tr": "Sürgülü Tüfekler"
    },
    "effects": {
     "infantry_soft": 0.1
@@ -56,8 +56,8 @@
     "infantry_weapons_1"
    ],
    "name": {
-    "en": "Infantry Weapons II",
-    "tr": "Piyade Silahları II"
+    "en": "Light Machine Guns",
+    "tr": "Hafif Makineli Tüfekler"
    },
    "effects": {
     "infantry_soft": 0.15,
@@ -72,8 +72,8 @@
     "infantry_weapons_2"
    ],
    "name": {
-    "en": "Infantry Weapons III",
-    "tr": "Piyade Silahları III"
+    "en": "Semi-Automatic Rifles",
+    "tr": "Yarı Otomatik Tüfekler"
    },
    "effects": {
     "infantry_soft": 0.15,
@@ -114,8 +114,8 @@
    "cost": 100,
    "req": [],
    "name": {
-    "en": "Interwar Artillery",
-    "tr": "Savaşlar Arası Topçu"
+    "en": "Modernized Field Guns",
+    "tr": "Modernize Sahra Topları"
    },
    "effects": {
     "artillery_soft": 0.1
@@ -129,8 +129,8 @@
     "artillery_1"
    ],
    "name": {
-    "en": "Improved Artillery",
-    "tr": "Gelişmiş Topçu"
+    "en": "Motor-Towed Artillery",
+    "tr": "Motorlu Çekili Topçu"
    },
    "effects": {
     "artillery_soft": 0.2
@@ -159,8 +159,8 @@
     "artillery_2"
    ],
    "name": {
-    "en": "Advanced Artillery",
-    "tr": "İleri Topçu"
+    "en": "Centralized Fire Direction",
+    "tr": "Merkezî Atış İdaresi"
    },
    "effects": {
     "artillery_soft": 0.2,
@@ -353,8 +353,8 @@
    "cost": 110,
    "req": [],
    "name": {
-    "en": "Basic Machine Tools",
-    "tr": "Temel Takım Tezgâhları"
+    "en": "Precision Machine Tools",
+    "tr": "Hassas Takım Tezgâhları"
    },
    "effects": {
     "production_efficiency_cap": 0.1
@@ -366,8 +366,8 @@
    "cost": 110,
    "req": [],
    "name": {
-    "en": "Construction Engineering I",
-    "tr": "İnşaat Mühendisliği I"
+    "en": "Prefabricated Structures",
+    "tr": "Prefabrik Yapılar"
    },
    "effects": {
     "construction_speed": 0.1
@@ -381,8 +381,8 @@
     "industry_1"
    ],
    "name": {
-    "en": "Dispersed Industry",
-    "tr": "Dağıtılmış Sanayi"
+    "en": "Shadow Factories",
+    "tr": "Gölge Fabrikalar"
    },
    "effects": {
     "factory_output": 0.1
@@ -396,8 +396,8 @@
     "construction_1"
    ],
    "name": {
-    "en": "Construction Engineering II",
-    "tr": "İnşaat Mühendisliği II"
+    "en": "Mechanized Earthmoving",
+    "tr": "Makineli Hafriyat"
    },
    "effects": {
     "construction_speed": 0.1
@@ -426,8 +426,8 @@
     "industry_2"
    ],
    "name": {
-    "en": "Assembly Lines",
-    "tr": "Montaj Hatları"
+    "en": "Flow Production",
+    "tr": "Bant Üretimi"
    },
    "effects": {
     "factory_output": 0.1,
@@ -456,8 +456,8 @@
     "radio"
    ],
    "name": {
-    "en": "Mechanical Computing",
-    "tr": "Mekanik Hesaplama"
+    "en": "Punched-Card Tabulators",
+    "tr": "Delikli Kart Tablolayıcıları"
    },
    "effects": {
     "research_speed": 0.05
@@ -485,8 +485,8 @@
    "cost": 120,
    "req": [],
    "name": {
-    "en": "Mobile Warfare",
-    "tr": "Hareketli Harp"
+    "en": "Combined-Arms Maneuver",
+    "tr": "Birleşik Silahlar Manevrası"
    },
    "effects": {
     "org": 0.1,
@@ -499,8 +499,8 @@
    "cost": 120,
    "req": [],
    "name": {
-    "en": "Grand Battleplan",
-    "tr": "Büyük Harp Planı"
+    "en": "Methodical Battle",
+    "tr": "Metodik Muharebe"
    },
    "effects": {
     "defense": 0.1,
@@ -515,8 +515,8 @@
     "doctrine_1"
    ],
    "name": {
-    "en": "Blitzkrieg",
-    "tr": "Yıldırım Savaşı"
+    "en": "Armored Spearheads",
+    "tr": "Zırhlı Mızrak Uçları"
    },
    "effects": {
     "speed": 0.1,
@@ -531,8 +531,8 @@
     "doctrine_2"
    ],
    "name": {
-    "en": "Deep Defense",
-    "tr": "Derin Savunma"
+    "en": "Elastic Defense",
+    "tr": "Esnek Savunma"
    },
    "effects": {
     "defense": 0.15,

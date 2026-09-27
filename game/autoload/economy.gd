@@ -1,6 +1,6 @@
 extends Node
 ## Ekonomi: bina tanımları, fabrika sayımları, inşaat kuyruğu (günlük tick).
-## türün klasikleri modeli: her sivil fabrika günde 5 inşaat puanı üretir; bir projeye en fazla 15 fabrika çalışır;
+## İnşaat modeli: her sivil fabrika günde 5 inşaat puanı üretir; bir projeye en fazla 15 fabrika çalışır;
 ## tüketim malları için sivil fabrikaların bir kısmı ayrılır.
 
 signal construction_changed(tag: String)
@@ -122,7 +122,7 @@ func resource_total(c: Country, res: String) -> int:
 ## Tüketim malına giden sivil fabrika sayısı (toplam fabrikanın oranı, yukarı yuvarlanır)
 func consumer_goods_factories(c: Country) -> int:
 	var total := count(c, "civilian_factory") + count(c, "military_factory")
-	return mini(int(round(total * maxf((law_value(c, "consumer_goods", 0.35) + c.mod("consumer_goods_mod")) * Politics.stability_consumer_factor(c), 0.05))), count(c, "civilian_factory"))
+	return mini(int(round(total * maxf((law_value(c, "consumer_goods", 0.33) + c.mod("consumer_goods_mod")) * Politics.stability_consumer_factor(c), 0.05))), count(c, "civilian_factory"))
 
 ## İnşaata ayrılan sivil fabrika. Tabanı 1: tüketim malı ve ithalat her fabrikayı yutsa da (ya da hiç fabrika yoksa)
 ## devletin bir fabrikalık kamu inşaat gücü kalır — küçük ülkeler de inşaat yapabilir. Oyuncu ödeyemeyeceği ithalatı yapamaz.
@@ -256,7 +256,16 @@ func law_sum(c: Country, key: String) -> float:
 		total += float(law_def(g, c.laws[g]).get(key, 0.0))
 	return total
 
+## Kayıttan gelen yasalar: artık olmayan bir yasa (eski kayıt) ülkenin başlangıç yasasına döner
+func sanitize_laws(c: Country) -> void:
+	var start: Dictionary = _law_start.get(c.tag, _law_start["_default"])
+	for g: String in law_groups:
+		if not law_groups[g]["laws"].has(str(c.laws.get(g, ""))):
+			c.laws[g] = start.get(g, _law_start["_default"][g])
+
 func can_change_law(c: Country, group: String, law: String) -> bool:
+	if not law_groups.has(group) or not law_groups[group]["laws"].has(law):
+		return false
 	return c.laws.get(group) != law and c.political_power >= law_change_cost and law_block_reason(c, group, law) == ""
 
 ## Yasanın şartı sağlanmıyorsa çeviri anahtarı (savaş desteği / savaş / ideoloji), yoksa ""
@@ -361,7 +370,7 @@ func resource_need(c: Country) -> Dictionary:
 			need[r] = float(need.get(r, 0.0)) + n[r]
 	return need
 
-# ------------------------------------------------------------------ ticaret (otomatik, klasik kural)
+# ------------------------------------------------------------------ ticaret (otomatik)
 const RESOURCES_PER_TRADE_FACTORY := 8.0
 const SYNTHETIC_RUBBER := 3
 var _trade_dirty := true
@@ -459,7 +468,7 @@ func _run_trade() -> void:
 			s.exports.append({"to": c.tag, "res": r, "amount": amt})
 		c.trade_factories_paid = int(ceil(bought_m / RESOURCES_PER_TRADE_FACTORY))
 	market = offered.duplicate(true)
-	# büyük sanayiler önce alır (türün klasiklerinde de pazar gücü sanayiye bağlı)
+	# büyük sanayiler önce alır (pazar gücü sanayiye bağlı)
 	var buyers: Array = World.countries.values().filter(func(x: Country) -> bool: return x.auto_trade)
 	buyers.sort_custom(func(a: Country, b: Country) -> bool: return count(a, "civilian_factory") > count(b, "civilian_factory"))
 	for c: Country in buyers:

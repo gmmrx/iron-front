@@ -88,7 +88,7 @@ func _production(c: Country) -> void:
 				break
 			var line: ProductionLine = null
 			for l in c.production_lines:
-				if l.equipment == best and l.factories < 15:
+				if l.equipment == best and l.factories < int(Economy.prod["max_factories_per_line"]):
 					line = l
 			if line == null:
 				line = Economy.add_line(c, best)
@@ -104,7 +104,7 @@ func _production(c: Country) -> void:
 				opts.append(eq)
 		if not opts.is_empty():
 			var line := Economy.add_line(c, opts[randi() % opts.size()])
-			line.factories = mini(yards, 15)
+			line.factories = mini(yards, int(Economy.prod["max_factories_per_line"]))
 	Economy.mark_trade_dirty()
 
 func _research(c: Country) -> void:
@@ -161,18 +161,20 @@ func _laws(c: Country) -> void:
 	var war := Diplomacy.at_war(c.tag) or World.world_tension > 60.0
 	if not war:
 		return
-	var order := {"economy": ["civilian_economy", "early_mobilization", "partial_mobilization", "war_economy", "total_mobilization"],
-			"conscription": ["disarmed_nation", "volunteer_only", "limited_conscription", "extensive_conscription", "service_by_requirement"]}
+	# sıra ve üst sınır: barışta (kriz endeksi yüksek) savaş ekonomisi / iki yıllık mükellefiyet, savaşta bir basamak daha
+	var order := {"economy": ["peacetime_economy", "rearmament", "war_economy", "total_war"],
+			"conscription": ["treaty_army", "professional_army", "one_year_service", "two_year_service", "reserve_callup"]}
+	var peace_limit := {"economy": 2, "conscription": 3}
 	var g := "economy" if randf() < 0.5 else "conscription"
 	var cur: int = order[g].find(c.laws[g])
-	var limit := 3 if not Diplomacy.at_war(c.tag) else 4
+	var limit: int = peace_limit[g] + (1 if Diplomacy.at_war(c.tag) else 0)
 	if cur >= 0 and cur < mini(limit, order[g].size() - 1):
 		Economy.change_law(c, g, order[g][cur + 1])
 
 func _advisors(c: Country) -> void:
 	if c.political_power < 250.0 or c.advisors.size() >= Politics.max_advisors:
 		return
-	for id: String in ["silent_workhorse", "armaments_organizer", "research_director", "army_chief", "captain_of_industry"]:
+	for id: String in ["cabinet_secretary", "armaments_minister", "science_council", "chief_of_general_staff", "planning_commissioner"]:
 		if Politics.can_hire(c, id):
 			Politics.hire(c, id)
 			return
@@ -435,7 +437,7 @@ func _declare(c: Country) -> void:
 func _army_power(tag: String) -> float:
 	var p := 0.0
 	for d in Military.country_divisions(tag):
-		p += d.strength * (1.0 + Military.div_stats(d)["soft"] / 100.0)
+		p += d.strength * (1.0 + Military.div_stats(d)["soft"] / 500.0)
 	return p
 
 var _owned_day := -1
@@ -601,7 +603,7 @@ func _local_power(divs: Array) -> float:
 	return p
 
 ## "Garip Savaş": demokrasiler savaşın ilk 8 ayında düşman anavatanına taarruz etmez,
-## yalnız kendi / müttefik toprağını geri alır (türün klasiklerinde 1939-40 müttefik AI'ı gibi)
+## yalnız kendi / müttefik toprağını geri alır (1939-40'taki tarihî müttefik tutumu gibi)
 const PHONEY_WAR_DAYS := 270          ## demokrasiler ilk 9 ay yalnız kendi/müttefik toprağını geri alır
 
 ## Demokrasiler sağlam bir büyük gücün anavatanına taarruz etmez (tarihte Müttefikler ancak Almanya çökerken

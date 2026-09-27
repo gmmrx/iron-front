@@ -1,6 +1,6 @@
 class_name AlertBar
 extends HBoxContainer
-## Üst bardaki kare uyarı kutucukları (türün klasik uyarıları gibi): oyuncunun ülkesine göre yapılması gerekenler,
+## Üst bardaki kare uyarı kutucukları: oyuncunun ülkesine göre yapılması gerekenler,
 ## bekleyen olaylar, sorunlar. Kırmızı acil · sarı uyarı · mavi bilgi. Tıklayınca ilgili panel açılır.
 
 const TILE := 44
