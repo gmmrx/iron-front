@@ -1,6 +1,6 @@
 ---
 name: yeni-mod
-description: Iron Front'a yeni bir oyun modu ekleme ya da var olan bir modu (data/modes, game/modes) düzenleme. "Yeni mod", "yeni senaryo", "oyun modu ekle", "zombi modu", "mod verisi", "mode.json" gibi isteklerde kullan.
+description: Bu strateji oyununa yeni bir oyun modu ekleme ya da var olan bir modu (data/modes, game/modes) düzenleme. "Yeni mod", "yeni senaryo", "oyun modu ekle", "zombi modu", "mod verisi", "mode.json" gibi isteklerde kullan.
 ---
 
 # Yeni oyun modu
