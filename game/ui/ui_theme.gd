@@ -420,6 +420,11 @@ static func leader_slug(name: String) -> String:
 	return out.strip_edges().trim_prefix("_").trim_suffix("_")
 
 ## İlk bulunan ikon (yeni setteki ad, yoksa eski ad)
+## Haritadaki sprite'lar için ölçek: doku hangi çözünürlükte gelirse gelsin (SVG ya da yeni 512 px ikon) aynı ekran boyu.
+## ref_px: tasarımın dayandığı doku genişliği
+static func px_scale(tex: Texture2D, ref_px: float) -> float:
+	return ref_px / maxf(float(tex.get_width()), 1.0) if tex else 1.0
+
 static func icon_or(primary: String, fallback: String) -> Texture2D:
 	var t := icon(primary)
 	return t if t else icon(fallback)

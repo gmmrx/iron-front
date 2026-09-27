@@ -577,6 +577,10 @@ func _process(delta: float) -> void:
 	if hud.is_mouse_over_ui():
 		hud.tooltip.visible = false
 		map_view.set_hovered(0)
+	# arayüzle uğraşırken harita kıpırdamaz: tam ekran panelde kamera kilitli, arayüz üstünde kenar kaydırması yok
+	var locked := hud.fullscreen_open()
+	camera.input_locked = locked
+	camera.edge_pan_enabled = not locked and not hud.is_mouse_over_ui()
 
 func _pick(screen: Vector2) -> int:
 	var g = camera.ground_point(screen)
@@ -585,6 +589,8 @@ func _pick(screen: Vector2) -> int:
 func _unhandled_input(event: InputEvent) -> void:
 	if phase == Phase.MENU:
 		return
+	if hud.fullscreen_open() and (event is InputEventMouse or event is InputEventGesture):
+		return          # tam ekran panel açıkken harita fareye tepki vermez
 	if phase == Phase.SETUP:
 		_setup_input(event)
 		return

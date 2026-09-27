@@ -16,10 +16,11 @@ class Lines extends Control:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	offset_left = 40
-	offset_top = 120
-	offset_right = -40
-	offset_bottom = -40
+	# tam ekran: sol menünün sağından ekranın sağına, üst satırın altından alta
+	offset_left = PanelLayout.SIDE_LEFT
+	offset_top = PanelLayout.SIDE_TOP
+	offset_right = -PanelLayout.SIDE_RIGHT
+	offset_bottom = -PanelLayout.SIDE_BOTTOM
 	visible = false
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
@@ -45,6 +46,7 @@ func _ready() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(scroll)
+	DragScroll.attach(scroll, true)      # kaydırma çubuğu yok: basılı tutup sürükle
 	_canvas = Lines.new()
 	_canvas.owner_panel = self
 	scroll.add_child(_canvas)

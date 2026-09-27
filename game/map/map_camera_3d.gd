@@ -20,6 +20,7 @@ var map_size := Vector2(5120, 4348):
 		_fit_vp = Vector2.ZERO          # uzaklaşma sınırı yeniden hesaplansın
 var _fit_vp := Vector2.ZERO
 var edge_pan_enabled := true
+var input_locked := false            ## tam ekran panel açıkken tuşla da kaydırma yok
 var target := Vector3.ZERO
 var distance := 1400.0
 var _target_distance := 1400.0
@@ -68,10 +69,11 @@ func _process(delta: float) -> void:
 		_fit_vp = vp
 		_update_max_dist(vp)
 	var dir := Vector2.ZERO
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): dir.x -= 1
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): dir.x += 1
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP): dir.y -= 1
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN): dir.y += 1
+	if not input_locked:
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): dir.x -= 1
+		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): dir.x += 1
+		if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP): dir.y -= 1
+		if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN): dir.y += 1
 	if edge_pan_enabled and DisplayServer.window_is_focused():
 		var m := get_viewport().get_mouse_position()
 		if Rect2(Vector2.ZERO, vp).has_point(m):

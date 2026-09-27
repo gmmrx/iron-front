@@ -16,7 +16,7 @@ var _province_id := 0
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
-	position = Vector2(12, PanelLayout.SIDE_TOP)
+	position = Vector2(PanelLayout.SIDE_LEFT, PanelLayout.SIDE_TOP)
 	visible = false
 	_body = PanelLayout.frame(self, "", "construction", 400.0)
 	_play_btn = Button.new()

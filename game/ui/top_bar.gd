@@ -42,7 +42,11 @@ class PlayPauseIcon extends Control:
 
 ## Düzen: sol üstte blok — büyük çerçeveli bayrak; sağında üstte koyu metal şeritte gösterge hücreleri
 ## (sağda komuta/tecrübe grubu ayrı), altında bayrağa dayalı menü düğmeleri (HUD `task_row`a ekler). Tarih/hız sağ üstte ayrı.
-var task_row: HBoxContainer
+var task_row: VBoxContainer      ## sol kenardaki dikey menü (HUD düğmeleri ekler)
+var alert_row: HBoxContainer     ## üst satırdaki uyarı kutucukları
+var alert_strip: PanelContainer  ## uyarıların metal şeridi (uyarı yokken gizli)
+const MENU_TOP := 96.0           ## menü tepsisinin üst kenarı (üst satırın altı)
+const MENU_W := 70.0             ## menü tepsisinin genişliği (yan paneller bunun sağından açılır)
 const FLAG_W := 100
 const FLAG_H := 66
 
@@ -70,7 +74,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var block := HBoxContainer.new()
-	block.add_theme_constant_override("separation", 0)
+	block.add_theme_constant_override("separation", 4)
 	block.position = Vector2(8, 6)
 	add_child(block)
 
@@ -110,13 +114,9 @@ func _ready() -> void:
 	_leader = UiTheme.make_label("", 12)
 
 	# --- bayrağın sağı: üstte gösterge şeridi, altta menü düğmeleri
-	var right := VBoxContainer.new()
-	right.add_theme_constant_override("separation", 2)
-	block.add_child(right)
-
 	var stats_line := HBoxContainer.new()
 	stats_line.add_theme_constant_override("separation", 4)
-	right.add_child(stats_line)
+	block.add_child(stats_line)
 	var strip := PanelContainer.new()
 	strip.add_theme_stylebox_override("panel", _tex("strip", 12, 8, 4))
 	strip.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -150,12 +150,25 @@ func _ready() -> void:
 	_xp_navy = _stat(row2, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
 	_xp_air = _stat(row2, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
 
+	# uyarılar: göstergelerle aynı metal şeritte, aynı yükseklikte (uyarı yokken şerit gizli)
+	alert_strip = PanelContainer.new()
+	alert_strip.add_theme_stylebox_override("panel", _tex("strip", 12, 8, 4))
+	alert_strip.mouse_filter = Control.MOUSE_FILTER_STOP
+	alert_strip.visible = false
+	stats_line.add_child(alert_strip)
+	alert_row = HBoxContainer.new()
+	alert_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	alert_row.add_theme_constant_override("separation", 4)
+	alert_row.custom_minimum_size.y = CELL_H
+	alert_strip.add_child(alert_row)
+
+	# menü: ekranın sol kenarında, bayrağın altında alt alta büyük düğmeler
 	var tray := PanelContainer.new()
-	tray.add_theme_stylebox_override("panel", _tex("strip", 12, 6, 4))
+	tray.add_theme_stylebox_override("panel", _tex("strip", 12, 5, 6))
 	tray.mouse_filter = Control.MOUSE_FILTER_STOP
-	tray.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	right.add_child(tray)
-	task_row = HBoxContainer.new()
+	tray.position = Vector2(8, MENU_TOP)
+	add_child(tray)
+	task_row = VBoxContainer.new()
 	task_row.add_theme_constant_override("separation", 3)
 	tray.add_child(task_row)
 
@@ -213,49 +226,50 @@ func _ready() -> void:
 
 var _bars := {}   ## kind -> [arka, dolgu] (yakıt, ikmal)
 
+const CELL_W := 76
+const CELL_H := 74               ## bayrak çerçevesiyle aynı boy (şerit iç boşluğu dahil)
+const BAR_W := 56.0
+
+## Gösterge hücresi: ikon üstte, değer altta (yakıt ve ikmalde doluluk çubuğu); bayrakla aynı yükseklik
 func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label:
 	var cell := PanelContainer.new()
-	var sb := _tex("cell", 5, 7, 3)
-	sb.content_margin_right = 10
-	cell.add_theme_stylebox_override("panel", sb)
+	cell.add_theme_stylebox_override("panel", _tex("cell", 5, 5, 4))
 	cell.tooltip_text = tr(tip_key)
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
-	cell.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var box := HBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cell.add_child(box)
+	cell.custom_minimum_size = Vector2(CELL_W, CELL_H)
+	var col := VBoxContainer.new()
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.add_theme_constant_override("separation", 1)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cell.add_child(col)
 	if ResourceIcon.FILES.has(kind) and UiTheme.icon(ResourceIcon.FILES[kind]) != null:
 		var icon := TextureRect.new()
 		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
-		icon.custom_minimum_size = Vector2(28, 28)
-		icon.modulate = Color(1.25, 1.2, 1.1)
+		icon.custom_minimum_size = Vector2(36, 36)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		box.add_child(icon)
+		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		col.add_child(icon)
 	else:
 		var ri := ResourceIcon.new(kind)
-		ri.custom_minimum_size = Vector2(27, 27)
-		ri.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		box.add_child(ri)
-	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", 1)
-	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(col)
-	var l := UiTheme.make_label("", 17)
+		ri.custom_minimum_size = Vector2(34, 34)
+		ri.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		col.add_child(ri)
+	var l := UiTheme.make_label("", 19)
 	l.add_theme_font_override("font", UiTheme.bold_font())
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(l)
 	if kind in [ResourceIcon.Kind.FUEL, ResourceIcon.Kind.SUPPLY]:
 		var back := ColorRect.new()
 		back.color = Color(0, 0, 0, 0.6)
-		back.custom_minimum_size = Vector2(46, 4)
+		back.custom_minimum_size = Vector2(BAR_W, 4)
+		back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var fill := ColorRect.new()
 		fill.color = UiTheme.GOOD
-		fill.size = Vector2(46, 4)
+		fill.size = Vector2(BAR_W, 4)
 		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		back.add_child(fill)
 		col.add_child(back)
@@ -267,11 +281,11 @@ func _set_bar(kind: ResourceIcon.Kind, ratio: float) -> void:
 	if not _bars.has(kind):
 		return
 	var fill: ColorRect = _bars[kind][1]
-	fill.size.x = 46.0 * clampf(ratio, 0.0, 1.0)
+	fill.size.x = BAR_W * clampf(ratio, 0.0, 1.0)
 	fill.color = UiTheme.GOOD if ratio > 0.5 else (Color(0.9, 0.75, 0.3) if ratio > 0.2 else UiTheme.BAD)
 
 func _cell_of(l: Label) -> Control:
-	return l.get_parent().get_parent().get_parent()
+	return l.get_parent().get_parent()
 
 func _update_country() -> void:
 	var c := World.player()

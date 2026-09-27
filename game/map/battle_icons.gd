@@ -82,7 +82,7 @@ func _make() -> Dictionary:
 	var icon := Sprite3D.new()
 	icon.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	icon.fixed_size = true
-	icon.pixel_size = PIXEL * 0.7
+	icon.pixel_size = PIXEL * 0.7 * UiTheme.px_scale(_swords, 102.0)
 	icon.no_depth_test = true
 	icon.render_priority = 31
 	icon.texture = _swords

@@ -3,13 +3,22 @@ extends RefCounted
 ## Yan panel şablonu ve ortak parçalar: başlık bandı (ikon + başlık + kapat), tam boy kaydırmalı
 ## gövde, oyulmuş bölüm çubukları, gömük ikon yuvaları, istatistik satırları, sekmeler, pasta grafik.
 
-const SIDE_TOP := 128.0       ## yan panellerin üst kenarı (üst blok + menü tepsisi altı)
+const SIDE_TOP := 96.0        ## yan panellerin üst kenarı (üst satırın altı)
+const SIDE_LEFT := 84.0       ## yan panellerin sol kenarı (sol menü tepsisinin sağı)
+const SIDE_RIGHT := 12.0
+const WIDTH_SCALE := 1.25     ## paneller tasarım genişliğinden bu kadar geniş açılır
 const SIDE_BOTTOM := 14.0
 
 ## Paneli çerçevele: başlık + kaydırmalı gövde. Gövde VBox'ı döner. Panelde meta "scroll" ve "body" saklanır.
+## width: tasarım genişliği (WIDTH_SCALE ile büyütülür); width <= 0 ise panel tam ekran açılır (menünün sağından ekranın
+## sağına). Kaydırma çubuğu yok: boş yerde basılı tutup sürükleyerek ya da tekerlekle kaydırılır (DragScroll).
 static func frame(panel: PanelContainer, title: String, icon_name: String = "", width: float = 480.0) -> VBoxContainer:
+	var fullscreen := width <= 0.0
+	width = 1200.0 if fullscreen else width * WIDTH_SCALE
 	panel.custom_minimum_size.x = width
 	panel.set_meta("framed", true)
+	if fullscreen:
+		panel.set_meta("fullscreen", true)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 6)
 	panel.add_child(root)
@@ -22,8 +31,8 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	if icon_name != "":
 		var tex := UiTheme.icon(icon_name)
 		if tex:
-			hb.add_child(UiTheme.icon_texture(tex, 26))
-	var t := UiTheme.make_label(title.to_upper(), 19, UiTheme.ACCENT)
+			hb.add_child(UiTheme.icon_texture(tex, 32))
+	var t := UiTheme.make_label(title.to_upper(), 22, UiTheme.ACCENT)
 	t.add_theme_font_override("font", UiTheme.title_font())
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -33,13 +42,14 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 		if panel.has_method("close"):
 			panel.call("close")
 		else:
-			panel.visible = false, 26)
+			panel.visible = false, 30)
 	hb.add_child(close)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size = Vector2(width - 30.0, 200.0)
 	root.add_child(scroll)
+	DragScroll.attach(scroll)
 	var body := VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 8)
@@ -64,9 +74,13 @@ static func fit_full(panel: Control) -> void:
 	var scroll: ScrollContainer = panel.get_meta("scroll")
 	var vp := panel.get_viewport_rect().size
 	var avail := vp.y - SIDE_TOP - SIDE_BOTTOM
+	if panel.has_meta("fullscreen"):
+		var w := vp.x - SIDE_LEFT - SIDE_RIGHT
+		panel.custom_minimum_size.x = w
+		scroll.custom_minimum_size.x = w - 30.0
 	var fixed := panel.get_combined_minimum_size().y - scroll.custom_minimum_size.y
 	scroll.custom_minimum_size.y = maxf(avail - fixed, 120.0)
-	panel.size = Vector2(panel.size.x, avail)
+	panel.size = Vector2(panel.custom_minimum_size.x if panel.has_meta("fullscreen") else panel.size.x, avail)
 
 ## Oyulmuş bölüm çubuğu (ortada başlık)
 static func section(parent: Container, text: String) -> PanelContainer:

@@ -761,7 +761,7 @@ A high crisis index strengthens everyone's home front.","KRİZ ENDEKSİ
 Saldırganlıkla artar: gerekçeler, ilhaklar, savaşlar.
 Demokrasiler ancak yüksek endekste harekete geçebilir; faşist ve komünist devletler daha erken.
 Yüksek kriz endeksi herkesin iç cephesini güçlendirir."
-FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir.
+FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two. Hold and drag on empty space to move around the tree.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir. Ağacı kaydırmak için boş yerde basılı tutup sürükleyin.
 EVENT_CHOICES,Your decision,Kararınız
 ST_SLOTS,Building slots %d / %d,Bina yuvaları %d / %d
 ST_QUEUED,under construction,inşa ediliyor

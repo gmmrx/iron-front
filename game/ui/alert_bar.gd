@@ -3,10 +3,11 @@ extends HBoxContainer
 ## Üst bardaki kare uyarı kutucukları: oyuncunun ülkesine göre yapılması gerekenler,
 ## bekleyen olaylar, sorunlar. Kırmızı acil · sarı uyarı · mavi bilgi. Tıklayınca ilgili panel açılır.
 
-const TILE := 44
+const TILE := 62
 const LEVEL_COLOR := {"urgent": Color(0.92, 0.3, 0.25), "warn": Color(0.95, 0.75, 0.25), "info": Color(0.45, 0.7, 0.95)}
 
 var hud: Hud
+var strip: Control                  ## üst çubuktaki şerit (uyarı yokken gizlenir)
 var _timer := 0.0
 var _key := ""
 var _pulse := 0.0
@@ -19,7 +20,7 @@ func _process(delta: float) -> void:
 	_pulse += delta
 	for c in get_children():
 		if c.has_meta("urgent"):
-			(c as Control).modulate = Color(1, 1, 1, 0.75 + 0.25 * sin(_pulse * 4.0))
+			(c.get_meta("bar") as Control).modulate = Color(1, 1, 1, 0.45 + 0.55 * (0.5 + 0.5 * sin(_pulse * 4.0)))
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -78,26 +79,34 @@ func _rebuild(alerts: Array) -> void:
 		ch.queue_free()
 	for a: Array in alerts:
 		add_child(_tile(a))
+	if strip:
+		strip.visible = not alerts.is_empty()
 
+## Kutucuk: metal zeminde doğal renkli resim; seviye rengi altta ince çubuk (acil olan nabız atar)
 func _tile(a: Array) -> Button:
 	var b := Button.new()
 	b.custom_minimum_size = Vector2(TILE, TILE)
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	b.focus_mode = Control.FOCUS_NONE
 	b.icon = UiTheme.icon(a[1])
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	b.add_theme_constant_override("icon_max_width", 36)
+	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	b.add_theme_constant_override("icon_max_width", TILE - 8)
+	for spec: Array in [["normal", "slot"], ["hover", "slot_gold"], ["pressed", "slot_gold"], ["hover_pressed", "slot_gold"]]:
+		b.add_theme_stylebox_override(spec[0], UiTheme.skin(spec[1], 6, 3))
+	b.add_theme_color_override("icon_hover_color", Color(1.2, 1.15, 1.05))
 	var col: Color = LEVEL_COLOR[a[2]]
-	for st: String in ["normal", "hover", "pressed"]:
-		var sb := StyleBoxFlat.new()
-		sb.bg_color = Color(0.06, 0.07, 0.09, 0.92) if st == "normal" else Color(0.12, 0.13, 0.16, 0.95)
-		sb.border_color = col
-		sb.set_border_width_all(2)
-		sb.set_corner_radius_all(3)
-		sb.set_content_margin_all(3)
-		b.add_theme_stylebox_override(st, sb)
-	b.add_theme_color_override("icon_normal_color", col.lightened(0.35))
-	b.add_theme_color_override("icon_hover_color", Color.WHITE)
+	var bar := ColorRect.new()
+	bar.color = col
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	bar.offset_left = 4
+	bar.offset_right = -4
+	bar.offset_top = -7
+	bar.offset_bottom = -3
+	b.add_child(bar)
+	b.set_meta("bar", bar)
 	b.tooltip_text = "%s\n%s" % [a[3], a[4]]
 	if a[2] == "urgent":
 		b.set_meta("urgent", true)

@@ -12,7 +12,7 @@ var _cat := ""
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_tree = PanelLayout.frame(self, tr("RESEARCH_TITLE"), "research", 720.0)
+	_tree = PanelLayout.frame(self, tr("RESEARCH_TITLE"), "research", -1.0)     # tam ekran
 	var top := PanelLayout.fixed(self)
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 8)
@@ -23,7 +23,7 @@ func _ready() -> void:
 	_speed.mouse_filter = Control.MOUSE_FILTER_STOP
 	_speed.tooltip_text = tr("RES_SPEED_TIP")
 	head.add_child(_speed)
-	_slots = PanelLayout.grid(2)
+	_slots = PanelLayout.grid(4)
 	top.add_child(_slots)
 	var names := []
 	for cat: String in Research.categories:
