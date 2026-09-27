@@ -88,7 +88,7 @@ func _tile(a: Array) -> Button:
 	b.custom_minimum_size = Vector2(TILE, TILE)
 	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	b.focus_mode = Control.FOCUS_NONE
-	b.icon = UiTheme.icon(a[1])
+	b.icon = UiTheme.trimmed(UiTheme.icon(a[1]))
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER

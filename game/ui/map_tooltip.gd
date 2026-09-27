@@ -5,7 +5,7 @@ extends PanelContainer
 ## kartı (lider portresi, ideoloji, ikonlu göstergeler, savaşlar, ulusal durumlar, program). Sayılar iyi/kötü renklenir.
 
 const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"), "fascism": Color("8a6a3a"), "neutrality": Color("8a8a7a")}
-const WIDTH := 392.0
+const WIDTH := 440.0
 
 var _flag: TextureRect
 var _title: Label
@@ -77,7 +77,7 @@ func _section(parent: VBoxContainer, font_size: int) -> RichTextLabel:
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.custom_minimum_size.x = WIDTH   # sarmalama genişliği sabit: yerleşimden önce yükseklik binlerce satıra fırlıyordu (dev boş kart)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	l.add_theme_font_size_override("normal_font_size", font_size)
+	l.add_theme_font_size_override("normal_font_size", UiTheme.fs(font_size))
 	l.add_theme_color_override("default_color", UiTheme.TEXT)
 	l.add_theme_constant_override("line_separation", 2)
 	parent.add_child(l)
@@ -376,7 +376,7 @@ func show_country(tag: String, screen_pos: Vector2, can_open := true) -> void:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(info)
-	var ln := UiTheme.make_label(c.leader, 18, UiTheme.TEXT)
+	var ln := UiTheme.make_label(c.leader_name(), 18, UiTheme.TEXT)
 	ln.add_theme_font_override("font", UiTheme.bold_font())
 	ln.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(ln)

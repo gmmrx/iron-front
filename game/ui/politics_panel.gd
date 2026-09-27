@@ -65,6 +65,7 @@ func refresh() -> void:
 		_foreign_banner(c)
 	var cols := PanelLayout.columns(_root, [1.0, 1.35, 1.0])
 	_body = cols[0]
+	_body.add_theme_constant_override("separation", 10)
 	_leader_block(c)
 	_gauges(c)
 	_body = cols[1]
@@ -78,7 +79,7 @@ func refresh() -> void:
 		return
 	var fb := Button.new()
 	fb.text = tr("POL_OPEN_FOCUS")
-	fb.icon = UiTheme.icon("politics")
+	fb.icon = UiTheme.trimmed(UiTheme.icon("politics"))
 	fb.expand_icon = true
 	fb.add_theme_constant_override("icon_max_width", 22)
 	fb.custom_minimum_size.y = 40
@@ -102,7 +103,7 @@ func _foreign_banner(c: Country) -> void:
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hb.add_child(l)
 	var dip := PanelLayout.small_button(tr("POL_VIEW_DIPLOMACY"), func() -> void: diplomacy_requested.emit(c.tag))
-	dip.icon = UiTheme.icon("diplomacy")
+	dip.icon = UiTheme.trimmed(UiTheme.icon("diplomacy"))
 	dip.expand_icon = true
 	dip.add_theme_constant_override("icon_max_width", 20)
 	hb.add_child(dip)
@@ -134,9 +135,14 @@ func _foreign_focus(c: Country) -> void:
 
 # ------------------------------------------------------------------ lider, parti, ideoloji
 func _leader_block(c: Country) -> void:
+	# lider kartı: iç boşluklu çerçeve içinde portre, ad/parti/ideoloji/seçim, popülerlik pastası
+	var card := PanelContainer.new()
+	card.theme_type_variation = "PanelFlat"
+	UiTheme.pad(card, 14, 12)
+	_body.add_child(card)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	_body.add_child(row)
+	row.add_theme_constant_override("separation", 14)
+	card.add_child(row)
 	var flag := PanelContainer.new()
 	flag.theme_type_variation = "SlotGold"
 	var por := UiTheme.portrait(c)
@@ -158,10 +164,11 @@ func _leader_block(c: Country) -> void:
 		ft.add_child(mf)
 	row.add_child(flag)
 	var info := VBoxContainer.new()
-	info.add_theme_constant_override("separation", 0)
+	info.add_theme_constant_override("separation", 3)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(info)
-	var name := UiTheme.make_label(c.leader, 24, UiTheme.ACCENT)
+	var name := UiTheme.make_label(c.leader_name(), 24, UiTheme.ACCENT)
 	name.add_theme_font_override("font", UiTheme.title_font())
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name)
@@ -174,7 +181,8 @@ func _leader_block(c: Country) -> void:
 		el = tr("POL_NEXT_ELECTION") % [_fmt_date(c.next_election), c.election_months / 12]
 	info.add_child(UiTheme.make_label(el, 15, UiTheme.TEXT_DIM))
 	# pasta + açıklama
-	var pie := PanelLayout.Pie.new(130.0)
+	var pie := PanelLayout.Pie.new(116.0)
+	pie.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var parts := []
 	var tip := tr("POL_POPULARITY") + "\n"
 	for i in IDEO_ORDER:
@@ -186,10 +194,11 @@ func _leader_block(c: Country) -> void:
 	pie.tooltip_text = tip
 	row.add_child(pie)
 	var legend := VBoxContainer.new()
-	legend.add_theme_constant_override("separation", 0)
+	legend.add_theme_constant_override("separation", 2)
 	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for i in IDEO_ORDER:
 		var lr := HBoxContainer.new()
+		lr.add_theme_constant_override("separation", 6)
 		var sw := ColorRect.new()
 		sw.color = IDEO_COLORS[i]
 		sw.custom_minimum_size = Vector2(10, 10)
@@ -206,7 +215,7 @@ func _leader_block(c: Country) -> void:
 # ------------------------------------------------------------------ göstergeler
 func _gauges(c: Country) -> void:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
+	row.add_theme_constant_override("separation", 8)
 	_body.add_child(row)
 	var s := Politics.stability(c)
 	var w := Politics.war_support(c)
@@ -222,12 +231,13 @@ func _gauges(c: Country) -> void:
 	for tip: String in [tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()], st_tip, ws_tip]:
 		var box := PanelContainer.new()
 		box.theme_type_variation = "Row"
+		UiTheme.pad(box, 16, 12)
 		_body.add_child(box)
 		var lines := tip.split("\n")
 		var col := VBoxContainer.new()
-		col.add_theme_constant_override("separation", 2)
+		col.add_theme_constant_override("separation", 6)
 		box.add_child(col)
-		var head := UiTheme.make_label(lines[0], 15, UiTheme.ACCENT)
+		var head := UiTheme.make_label(lines[0], 16, UiTheme.ACCENT)
 		head.add_theme_font_override("font", UiTheme.bold_font())
 		col.add_child(head)
 		lines.remove_at(0)
@@ -242,27 +252,33 @@ func _signed(v: float) -> String:
 func _gauge(parent: Container, icon: String, title: String, value: String, sub: String, tip: String, ratio: float) -> void:
 	var cell := PanelContainer.new()
 	cell.theme_type_variation = "Slot"
+	UiTheme.pad(cell, 12, 10)
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cell.tooltip_text = tip
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
 	parent.add_child(cell)
 	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 6)
+	hb.add_theme_constant_override("separation", 10)
 	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cell.add_child(hb)
 	var tex := UiTheme.icon(icon)
 	if tex:
-		hb.add_child(UiTheme.icon_texture(tex, 34))
+		var gic := UiTheme.icon_texture(tex, 40)
+		gic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		hb.add_child(gic)
 	var col := VBoxContainer.new()
-	col.add_theme_constant_override("separation", -2)
+	col.add_theme_constant_override("separation", 0)
+	col.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hb.add_child(col)
 	col.add_child(UiTheme.make_label(title, 13, UiTheme.TEXT_DIM))
-	var v := UiTheme.make_label(value + ("  " + sub if sub != "" else ""), 19, UiTheme.TEXT)
+	# değer yazısı iyi/kötü renginde (ayrı çubuk yok: yüzde zaten yazıyor)
+	var vcol := UiTheme.TEXT
+	if ratio >= 0.0:
+		vcol = UiTheme.GOOD if ratio >= 0.5 else (Color(0.93, 0.78, 0.4) if ratio >= 0.25 else UiTheme.BAD)
+	var v := UiTheme.make_label(value + ("  " + sub if sub != "" else ""), 20, vcol)
 	v.add_theme_font_override("font", UiTheme.bold_font())
 	col.add_child(v)
-	if ratio >= 0.0:
-		col.add_child(PanelLayout.bar(ratio, UiTheme.GOOD if ratio >= 0.5 else (Color(0.9, 0.75, 0.3) if ratio >= 0.25 else UiTheme.BAD), 90.0, 4.0))
 
 # ------------------------------------------------------------------ milli ruhlar
 func _spirits(c: Country) -> void:
@@ -346,14 +362,14 @@ func _laws(c: Country) -> void:
 			b.toggle_mode = true
 			b.set_pressed_no_signal(current)
 			b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			b.icon = UiTheme.law_icon(law)
+			b.icon = UiTheme.trimmed(UiTheme.law_icon(law))
 			b.expand_icon = true
 			b.add_theme_constant_override("icon_max_width", 40)
 			b.custom_minimum_size = Vector2(0, 62)
 			b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			var reqs := _law_reqs(d)
 			b.text = Economy.law_name(g, law) + ("  ✓" if current else "")
-			b.add_theme_font_size_override("font_size", 14)
+			b.add_theme_font_size_override("font_size", UiTheme.fs(14))
 			b.disabled = not current and (_foreign() or not Economy.can_change_law(c, g, law))
 			var tip := Economy.law_name(g, law) + "\n" + _law_effects(d).replace(", ", "\n")
 			if reqs != "":
@@ -435,7 +451,7 @@ func _row_button(icon: Texture2D, title: String, desc: String, action: String, e
 	b.disabled = not enabled
 	b.focus_mode = Control.FOCUS_NONE
 	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	b.add_theme_font_size_override("font_size", 15)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(15))
 	b.pressed.connect(cb)
 	hb.add_child(b)
 

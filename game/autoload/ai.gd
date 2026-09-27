@@ -2,6 +2,9 @@ extends Node
 ## Yapay zekâ (oyuncu dışındaki tüm ülkeler).
 ## Stratejik katman (7 günde bir, ülkeler kademeli): inşaat, üretim, araştırma, odak, yasa, danışman.
 ## Operasyonel katman (her gün): tümen üretimi, cephe dağılımı, taarruz, savaş ilanı.
+## Tarih çizelgesi (data/common/history.json): yapay zekâ ülkeleri tarihî adımları tam gününde atar (savaşlar, ilhaklar,
+## ittifaklar); oyuncunun ülkesi hiçbir adımı kendiliğinden atmaz. Koşulu tutmayan adım atlanır (oyuncu tarihi değiştirmiş).
+## Serbest tarihten (ai_free_from) önce yapay zekâ kendi başına savaş açmaz ve saldırı çağrılarına katılmaz.
 
 const RESEARCH_PRIORITY := {
 	"major": ["industry", "infantry", "electronics", "artillery", "doctrine", "air", "armor", "naval"],
@@ -10,17 +13,75 @@ const RESEARCH_PRIORITY := {
 const MAX_ORDERS_PER_DAY := 16
 
 var enabled := true
+var history: Array = []             ## tarih çizelgesi kayıtları (tarihe göre sıralı)
+var free_from := 19450902           ## bu tarihten önce yapay zekâ tarihi izler
+var _history_focus := {}            ## tag -> {odak: true}: çizelgenin odakları (yapay zekâ kendisi seçmez)
 
 func _ready() -> void:
+	_load_history()
 	World.daily_update.connect(_on_day)
 
+func _load_history() -> void:
+	var f := FileAccess.open("res://data/common/history.json", FileAccess.READ)
+	if f == null:
+		return
+	var data: Variant = JSON.parse_string(f.get_as_text())
+	if not data is Dictionary:
+		return
+	free_from = Politics._date(str(data.get("ai_free_from", "1945-09-02")))
+	history = data.get("entries", [])
+	for e: Dictionary in history:
+		e["day"] = Politics._date(str(e["date"]))
+		var ids: Array = e.get("mark_focus", []).duplicate()
+		if e.has("focus"):
+			ids.append(e["focus"])
+		for id: String in ids:
+			if not _history_focus.has(e["tag"]):
+				_history_focus[e["tag"]] = {}
+			_history_focus[e["tag"]][id] = true
+	history.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["day"]) < int(b["day"]))
+
+## Tarih hâlâ izleniyor mu (serbest tarihten önce)
+func follows_history() -> bool:
+	return World.date_value() < free_from
+
+## Bugünün tarihî adımları (her gün bir kez; kayıttan devamda ertesi günden sürer, ek durum gerekmez)
+func _run_history() -> void:
+	var today := World.date_value()
+	for e: Dictionary in history:
+		if int(e["day"]) == today:
+			apply_history(e)
+		elif int(e["day"]) > today:
+			break
+
+## Bir tarihî adım: oyuncunun ülkesi atmaz (oyuncu karar verir); koşul tutmuyorsa tarih değişmiştir, atlanır
+func apply_history(e: Dictionary) -> bool:
+	var c: Country = World.countries.get(e["tag"])
+	if c == null or not c.exists() or not _is_ai(c):
+		return false
+	if not Politics.check_all(c, e.get("require", [])):
+		return false
+	for id: String in e.get("mark_focus", []):
+		Politics.complete_focus_now(c, id, false)
+	if e.has("focus"):
+		Politics.complete_focus_now(c, e["focus"])
+	if e.has("effects"):
+		Politics.apply_effects(c, e["effects"])
+	return true
+
+## Çizelgenin odağı mı (yapay zekâ bunu kendisi seçmez; tarihî gününde tamamlanır)
+func history_focus(tag: String, id: String) -> bool:
+	return _history_focus.has(tag) and _history_focus[tag].has(id)
+
 func reset() -> void:
-	pass
+	_no_route.clear()
 
 func _is_ai(c: Country) -> bool:
 	return enabled and c.exists() and not (World.in_game and c.tag == World.player_tag)
 
 func _on_day() -> void:
+	if enabled:
+		_run_history()
 	var day := World.day_count
 	for c: Country in World.countries.values():
 		if not _is_ai(c):
@@ -133,7 +194,7 @@ func _focus(c: Country) -> void:
 			return
 		var urgent := ""
 		for id: String in Politics.tree_order.get(c.tag, []):
-			if float(tree[id]["ai"]) >= 40.0 and not id in c.focus_done:
+			if float(tree[id]["ai"]) >= 40.0 and not id in c.focus_done and not history_focus(c.tag, id):
 				var cur := c.focus_current
 				c.focus_current = ""
 				if Politics.can_start_focus(c, id):
@@ -147,7 +208,7 @@ func _focus(c: Country) -> void:
 	var best := ""
 	var best_w := -1.0
 	for id: String in Politics.tree_order.get(c.tag, Politics.tree_order["_generic"]):
-		if Politics.can_start_focus(c, id):
+		if Politics.can_start_focus(c, id) and not history_focus(c.tag, id):
 			var w := float(tree[id]["ai"]) * randf_range(0.8, 1.2)
 			if w > best_w:
 				best_w = w
@@ -181,15 +242,19 @@ func _advisors(c: Country) -> void:
 
 # ------------------------------------------------------------------ askeri
 func _military(c: Country) -> void:
+	var t0 := Time.get_ticks_usec()
 	_recruit(c)
 	_declare(c)
+	GameClock.timed("ai_recruit", t0); t0 = Time.get_ticks_usec()
 	var at_war := Diplomacy.at_war(c.tag)
 	if not at_war and (World.day_count + c.index) % 5 != 0:
 		return
 	var fronts := _fronts(c)
+	GameClock.timed("ai_fronts", t0); t0 = Time.get_ticks_usec()
 	if fronts.is_empty():
 		if at_war:
 			_invade(c)
+			GameClock.timed("ai_invade", t0)
 		return
 	# büyük güçler savaşta cephe orduları kullanır (oyuncuyla aynı sistem): konuşlanma + taarruz ordu işi;
 	# orduya girmeyen tümenler sınır/anavatan garnizonu olarak dağılır
@@ -201,8 +266,10 @@ func _military(c: Country) -> void:
 	_release_armies(c)
 	if (World.day_count + c.index) % 2 == 0:
 		_assign(c, fronts)
+	GameClock.timed("ai_assign", t0); t0 = Time.get_ticks_usec()
 	if at_war:
 		_attack(c)
+		GameClock.timed("ai_attack", t0)
 
 # ------------------------------------------------------------------ cephe orduları (AI)
 const ARMY_PLAN_DAYS := 7
@@ -424,6 +491,8 @@ func _recruit(c: Country) -> void:
 		n += 1
 
 func _declare(c: Country) -> void:
+	if follows_history():
+		return                      # tarih sürerken savaşlar yalnız çizelgeden (ve oyuncunun hamlelerine cevaptan) gelir
 	if c.ideology == "democratic" and not Diplomacy.at_war(c.tag):
 		return
 	for t: String in c.war_goals.keys():
@@ -543,6 +612,9 @@ func _components(tag: String) -> Dictionary:
 	_comp_cache[tag] = comp
 	return comp
 
+const NO_ROUTE_DAYS := 10
+var _no_route := {}                 ## tümen id -> bu güne kadar konuşlanma yolu aranmaz
+
 func _assign(c: Country, fronts: Dictionary) -> void:
 	var own := {}
 	for pid: int in fronts:
@@ -568,14 +640,26 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 	var orders := 0
 	var comp := _components(c.tag)
 	var fails := 0
+	# başka bir kara parçasındaki cephe (sömürgeden anavatana) yalnız deniz kullanılabiliyorsa denenir: yoksa her arama
+	# bütün dünyayı gezip boşa düşer (1939'da İngiltere/Fransa günde ~500 ms)
+	var sea := Military.can_use_sea(c.tag)
+	# deniz yoluyla konuşlanma (sömürgeden cepheye) pahalı arama: ülke başına haftada bir tümen
+	var sea_tries := 0 if (World.day_count + c.index) % 7 < 2 else 1
 	for d in idle:
 		if orders >= MAX_ORDERS_PER_DAY or fails >= 3:
 			break
+		if int(_no_route.get(d.id, -1)) > World.day_count:
+			continue                    # yakında yolu bulunamadı: birkaç gün yeniden aranmaz
 		var best := 0
 		var best_score := INF
 		var here := World.province(d.province).center
 		var my_comp: int = comp.get(d.province, -1)
-		for pass_i in 2:
+		var land := false
+		for pass_i in (2 if sea else 1):
+			if pass_i == 1:
+				if sea_tries >= 1:
+					break
+				sea_tries += 1
 			for pid: int in fronts:
 				# önce yalnız dost topraktan ulaşılabilen cepheler (aynı bileşen); yoksa deniz yolu
 				if pass_i == 0 and my_comp >= 0 and int(comp.get(pid, -2)) != my_comp:
@@ -588,14 +672,16 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 					best_score = score
 					best = pid
 			if best > 0:
+				land = pass_i == 0 and my_comp >= 0
 				break
-		# konuşlanma rotası düşman toprağından geçmez
-		if best > 0 and best != d.province and Military.order_move(d, best, true):
+		# konuşlanma rotası düşman toprağından geçmez; aynı kara parçasındaysa yalnız kara (hızlı arama)
+		if best > 0 and best != d.province and Military.order_move(d, best, true, land):
 			own[best] = int(own[best]) + 1
 			orders += 1
 		elif best > 0:
 			fronts.erase(best)
 			fails += 1
+			_no_route[d.id] = World.day_count + NO_ROUTE_DAYS
 
 func _local_power(divs: Array) -> float:
 	var p := 0.0
@@ -631,17 +717,25 @@ func _holds_fire(c: Country, enemy_tag: String) -> bool:
 			return false
 	return true
 
-func _flank_safe(tag: String, target: int, from: int) -> bool:
+## Cephe bütünlüğü: hedef bölge, geldiğimiz dışında en az bir dost bölgeye de değmeli (tek başına derine sızan, arkası
+## kesilen "parmak" oluşmasın); başkentler istisna. Dar yarımada ve koridorda (Jutland, Danzig koridoru) bu hiç
+## sağlanmaz: ratio (yerel güç oranı) ≥ STRONG_FLANK ve hedefin diğer komşularından en çok 3'ü düşmandaysa ilerlenir.
+const STRONG_FLANK := 2.5
+
+func _flank_safe(tag: String, target: int, from: int, ratio := 0.0) -> bool:
 	var city := World.province(target).city
 	if city and city.is_capital:
 		return true
+	var hostile := 0
 	for m in World.land_neighbors(target):
 		if m == from:
 			continue
 		var ctl := World.controller_tag(m)
 		if ctl == tag or Diplomacy.are_allies(ctl, tag):
 			return true
-	return false
+		if Diplomacy.are_enemies(ctl, tag):
+			hostile += 1
+	return ratio >= STRONG_FLANK and hostile <= 3
 
 func _attack(c: Country) -> void:
 	var orders := 0
@@ -668,13 +762,12 @@ func _attack(c: Country) -> void:
 				if st == null or not (st.owner == c.tag or Diplomacy.are_allies(st.owner, c.tag)):
 					continue
 			var foes := Military.enemies_in(n, c.tag)
-			# cephe bütünlüğü: hedef bölge, geldiğimiz dışında en az bir dost bölgeye de değmeli (tek başına
-			# derine sızan, arkası kesilip yok edilen "parmak" oluşmasın); başkentler istisna
-			if not _flank_safe(c.tag, n, d.province):
-				continue
 			var ratio := _local_power(here) / maxf(_local_power(foes), 1.0)
 			if foes.is_empty():
 				ratio = 99.0
+			# cephe bütünlüğü (bkz. _flank_safe); çok üstünse dar koridorda da ilerler
+			if not _flank_safe(c.tag, n, d.province, ratio):
+				continue
 			var city := World.province(n).city
 			if city:
 				ratio *= 1.0 + city.victory_points * 0.02

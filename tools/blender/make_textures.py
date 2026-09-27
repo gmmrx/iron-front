@@ -214,4 +214,5 @@ def main():
     print("dokular:", len(list(OUT.glob("*.png"))))
 
 
-main()
+if __name__ == "__main__":
+    main()

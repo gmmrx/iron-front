@@ -58,6 +58,8 @@ func _add_icon(tex: Texture2D, pos: Vector2, level: int, rng: Vector2, _tip: Str
 	s.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	s.fixed_size = true
 	s.pixel_size = 0.00016 * UiTheme.px_scale(tex, 154.0)
+	# Pin ucu düğümün harita koordinatına otursun; yuvarlak başlık noktanın üstünde dursun.
+	s.offset = Vector2(0.0, -174.0)
 	s.no_depth_test = true
 	s.render_priority = 6
 	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS

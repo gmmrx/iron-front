@@ -577,17 +577,27 @@ func front_provinces(a: Army) -> Array[int]:
 	if a.enemy == "" or not World.countries.has(a.enemy) or not World.countries[a.enemy].exists():
 		_front_cache[key] = out
 		return out
-	var sides: Array = [World.countries[a.owner].index]
+	var own_index: int = World.countries[a.owner].index
+	var sides: Array = [own_index]
 	# Müttefik toprağı yalnız oyuncu ordusu için cephe sayılır; AI kendi toprağını savunur/kendi sınırından
-	# saldırır (aksi hâlde Almanya İtalya'nın Arnavutluk/Libya sınırına tümen yığıyordu)
+	# saldırır (aksi hâlde Almanya İtalya'nın Arnavutluk/Libya sınırına tümen yığıyordu). Oyuncuda da yalnız o
+	# düşmanla savaşan müttefik ve yalnız anavatana karadan bağlı toprağı: 1940'ta "cephe: Fransa" ordusu savaşta
+	# olmayan İtalya'nın Alpler, Libya ve Doğu Afrika sınırlarına dağılıyor, Fransa'ya hiç yığılmıyordu.
+	var comp := {}
+	var home_comp := -1
 	if a.owner == World.player_tag:
 		for o: Country in World.countries.values():
-			if o.tag != a.owner and o.exists() and Diplomacy.are_allies(o.tag, a.owner):
+			if o.tag != a.owner and o.exists() and Diplomacy.are_allies(o.tag, a.owner) and Diplomacy.are_enemies(o.tag, a.enemy):
 				sides.append(o.index)
+		if sides.size() > 1:
+			comp = AI._components(a.owner)
+			home_comp = int(comp.get(World.capital_province(a.owner), -1))
 	for ci: int in sides:
 		for pid in AI._controlled(ci):
 			var p := World.province(pid)
 			if p == null or not p.is_land():
+				continue
+			if ci != own_index and home_comp >= 0 and int(comp.get(pid, -2)) != home_comp:
 				continue
 			for n in World.land_neighbors(pid):
 				if _is_target_pid(a, n):
@@ -747,13 +757,15 @@ func _army_attack(a: Army, divs: Array[Division], front: Array[int]) -> void:
 			var st := div_stats(x)
 			power += (st["soft"] + st["defense"] * 0.5) * x.strength
 		for n in World.land_neighbors(d.province):
-			if not _is_target_pid(a, n) or not AI._flank_safe(a.owner, n, d.province):
+			if not _is_target_pid(a, n):
 				continue
 			var foe := 0.0
 			for e in enemies_in(n, a.owner):
 				var se := div_stats(e)
 				foe += (se["soft"] + se["defense"] * 0.5) * e.strength
 			var ratio := power / maxf(foe, 1.0) if foe > 0.0 else 99.0
+			if not AI._flank_safe(a.owner, n, d.province, ratio):
+				continue
 			if ratio > best_ratio:
 				best_ratio = ratio
 				best = n
@@ -929,19 +941,26 @@ func _neighbors(tag: String, pid: int, sea_ok: bool, safe_to: int = 0) -> Array:
 	return out
 
 ## safe: yalnız dost topraktan geçen rota (hedef hariç) — AI konuşlanması, ikmal hattı
-func find_path(tag: String, from: int, to: int, safe := false) -> PackedInt32Array:
+var path_stats := {}                  ## hata ayıklama (PATHDBG): "tag:sonuç:tür" -> (çağrı, toplam adım)
+
+## land_only: yalnız kara (aynı kara parçasında olduğu bilinen hedef — yapay zekâ konuşlanması); deniz kapalıyken
+## tahmin tam kuş uçuşu uzaklık olur (kara maliyeti ≥ uzaklık: arama hedefe doğru dar kalır, sonuç yine en kısa yol)
+func find_path(tag: String, from: int, to: int, safe := false, land_only := false) -> PackedInt32Array:
 	if from == to or World.province(to) == null or not _passable(tag, to):
 		return PackedInt32Array()
 	# oyuncu her zaman çıkarma deneyebilir (düşman hâkimiyetindeki denizlerden geçemez, _neighbors kontrol eder);
 	# AI yalnız toplam deniz üstünlüğünde denizi kullanır (yoksa ordular gereksiz yere denize açılır)
-	var sea_ok := can_use_sea(tag) or tag == World.player_tag
+	var sea_ok := (can_use_sea(tag) or tag == World.player_tag) and not land_only
+	var hw := 0.95 if not sea_ok else 1.0 / 3.0     # deniz maliyeti uzaklık/3: denizde tahmin de /3
 	var goal := World.province(to).lonlat
 	var open_heap: Array = [[0.0, from]]
 	var came := {from: -1}
 	var g := {from: 0.0}
 	var closed := {}
 	var iterations := 0
-	while not open_heap.is_empty() and iterations < 60000:
+	# yapay zekâ için üst sınır: başarılı yolların çoğu ~1500 adımda bulunur; oyuncunun emri tam aranır
+	var limit := 60000 if tag == World.player_tag else 12000
+	while not open_heap.is_empty() and iterations < limit:
 		iterations += 1
 		var cur: int = _heap_pop(open_heap)[1]
 		if cur == to:
@@ -964,7 +983,10 @@ func find_path(tag: String, from: int, to: int, safe := false) -> PackedInt32Arr
 			if not g.has(n) or ng < g[n]:
 				g[n] = ng
 				came[n] = cur
-				_heap_push(open_heap, [ng + World.haversine(np.lonlat, goal) / 3.0, n])
+				_heap_push(open_heap, [ng + World.haversine(np.lonlat, goal) * hw, n])
+	if OS.has_environment("PATHDBG"):
+		var k := "%s:%s:%s" % [tag, "ok" if came.has(to) else "FAIL", "safe" if safe else "free"]
+		path_stats[k] = path_stats.get(k, Vector2i.ZERO) + Vector2i(1, iterations)
 	if not came.has(to):
 		return PackedInt32Array()
 	var path := PackedInt32Array()
@@ -1007,17 +1029,17 @@ func _heap_pop(h: Array) -> Array:
 	return top
 
 ## Hareket emri; yol bulunamazsa false
-func order_move(d: Division, to: int, safe := false) -> bool:
+func order_move(d: Division, to: int, safe := false, land_only := false) -> bool:
 	if d.training > 0:
 		return false
-	var path := find_path(d.owner, d.province, to, safe)
+	var path := find_path(d.owner, d.province, to, safe, land_only)
 	# yoldaki tümen yön değiştirince geri dönmesin: gittiği bölgeden devam eder (ilerleme korunur)
 	var old_next := d.path[0] if not d.path.is_empty() and d.attacking == 0 else -1
 	if old_next > 0 and d.progress > 0.0:
 		if not path.is_empty() and path[0] == old_next:
 			d.path = path
 			return true
-		var via := PackedInt32Array() if old_next == to else find_path(d.owner, old_next, to, safe)
+		var via := PackedInt32Array() if old_next == to else find_path(d.owner, old_next, to, safe, land_only)
 		if old_next == to or not via.is_empty():
 			var full := PackedInt32Array([old_next])
 			full.append_array(via)

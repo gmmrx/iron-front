@@ -102,7 +102,7 @@ func _ready() -> void:
 	start.text = tr("SELECT_START").to_upper()
 	start.custom_minimum_size = Vector2(0, 58)
 	start.focus_mode = Control.FOCUS_NONE
-	start.add_theme_font_size_override("font_size", 26)
+	start.add_theme_font_size_override("font_size", UiTheme.fs(26))
 	start.add_theme_font_override("font", UiTheme.bold_font())
 	var sn := UiTheme.panel_style(Color("5a4a22"), UiTheme.ACCENT, 2)
 	var sh := UiTheme.panel_style(Color("73602c"), Color("f5d78a"), 2)
@@ -133,7 +133,7 @@ func _card(c: Country) -> Button:
 	b.text = c.map_name()
 	b.clip_text = true
 	b.add_theme_constant_override("icon_max_width", 104)
-	b.add_theme_font_size_override("font_size", 17)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(17))
 	var n := UiTheme.panel_style(Color(0.1, 0.11, 0.1, 0.9), UiTheme.BORDER_DIM)
 	n.set_content_margin_all(8)
 	var h := UiTheme.panel_style(Color(0.16, 0.17, 0.15, 0.95), UiTheme.BORDER)
@@ -157,7 +157,7 @@ func select(tag: String) -> void:
 		_cards[t].set_pressed_no_signal(t == tag)
 	_flag.texture = FlagFactory.get_flag(c)
 	_name.text = c.display_name()
-	_leader.text = "%s\n%s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
+	_leader.text = "%s\n%s" % [c.leader_name(), tr("IDEOLOGY_" + c.ideology)]
 	var vp := 0
 	for sid in c.states:
 		vp += World.states[sid].victory_points()

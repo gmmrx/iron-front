@@ -341,13 +341,15 @@ func _remaining_vp_share(c: Country) -> float:
 	var start: float = _start_vp.get(c.tag, now)
 	return now / maxf(start, 1.0)
 
-## Ülkenin en eski süren savaşından bu yana geçen gün (savaşta değilse 99999)
+## Ülkenin en eski süren savaşından bu yana geçen gün (savaşta değilse 99999). En eski savaşa bakılır: yeni bir savaş
+## açmak (Danimarka, Benelüks) sayacı sıfırlamaz — sıfırlıyordu, "büyük güçler ilk 240 gün birbirine saldırmaz" kuralı
+## Almanya'yı 1940'ta Fransa önünde bekletiyordu.
 func days_at_war(tag: String) -> int:
-	var best := 99999
+	var best := -1
 	for w: Dictionary in wars:
 		if tag in w["attackers"] or tag in w["defenders"]:
-			best = mini(best, World.day_count - int(w.get("start", World.day_count - 99999)))
-	return best
+			best = maxi(best, World.day_count - int(w.get("start", World.day_count)))
+	return best if best >= 0 else 99999
 
 func _leave_all_wars(tag: String) -> void:
 	for w: Dictionary in wars:

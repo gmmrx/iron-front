@@ -48,6 +48,7 @@ func _ready() -> void:
 	var models := UnitModels.new()
 	models.map = map_view
 	models.camera = camera
+	models.cities = cities
 	add_child(models)
 	units = UnitLayer.new()
 	units.map = map_view
@@ -86,6 +87,14 @@ func _ready() -> void:
 	air_layer.camera = camera
 	air_layer.models = models
 	add_child(air_layer)
+	var pins := PinLayer.new()
+	pins.map = map_view
+	pins.camera = camera
+	pins.cities = cities
+	pins.units = units
+	pins.fleets = fleets
+	pins.air = air_layer
+	add_child(pins)
 	hud = Hud.new()
 	add_child(hud)
 	hud.divisions.units = units
@@ -316,6 +325,18 @@ func _handle_dev_args() -> void:
 			pick[5].manual = true
 			pick[6].manual = true
 			get_tree().create_timer(0.2).timeout.connect(func() -> void: units.select_divisions(pick, false))
+	if args.has("split_demo"):
+		# test: oyuncunun ilk 4 tümeni aynı bölgede; ikisinden yeni ordu → aynı bölgede iki ayrı sayaç/iğne
+		var four := Military.country_divisions(World.player_tag).slice(0, 4)
+		if four.size() == 4:
+			for d: Division in four:
+				d.province = four[0].province
+				d.path.clear()
+			Military.create_army(World.player_tag, four.slice(0, 2))
+			Military.divisions_changed.emit()
+			var fp := World.province(four[0].province).center
+			var fd := float(args["split_demo"]) if args["split_demo"] != "" else 160.0
+			get_tree().create_timer(0.1).timeout.connect(func() -> void: camera.focus_on(fp, fd))
 	if args.has("panel"):
 		match args["panel"]:
 			"construction": hud.toggle_construction()

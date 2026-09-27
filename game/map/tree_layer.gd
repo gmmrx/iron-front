@@ -10,6 +10,8 @@ const CHUNK := 384.0
 const VISIBLE_RANGE := 480.0
 
 var map: MapView3D
+var clear_zones: Array[Vector2] = []   ## ağaç konmayacak alanlar (sanayi parselleri)
+var clear_radius := 3.8
 
 func _ready() -> void:
 	var meshes := _load_meshes()
@@ -26,6 +28,15 @@ func _ready() -> void:
 	var airbases: Array[Vector2] = []
 	for sid: int in map.airbase_sites:
 		airbases.append(map.airbase_sites[sid][0])
+	# temiz alanlar ızgaraya: her ağaç yalnız kendi ve komşu hücrelerine bakar
+	var zone_cell := maxf(clear_radius * 2.0, 1.0)
+	var zones := {}
+	for z in clear_zones:
+		var c := Vector2i(floori(z.x / zone_cell), floori(z.y / zone_cell))
+		if not zones.has(c):
+			zones[c] = []
+		zones[c].append(z)
+	var r2 := clear_radius * clear_radius
 	var groups := {}
 	var i := 0
 	while i < data.size():
@@ -34,6 +45,13 @@ func _ready() -> void:
 		var kind := int(data[i + 3])
 		i += 4
 		var skip := false
+		if not zones.is_empty():
+			var zc := Vector2i(floori(p.x / zone_cell), floori(p.y / zone_cell))
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					for z: Vector2 in zones.get(zc + Vector2i(dx, dy), []):
+						if z.distance_squared_to(p) < r2:
+							skip = true
 		for a in airbases:
 			if a.distance_squared_to(p) < 196.0:
 				skip = true

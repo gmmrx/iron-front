@@ -32,6 +32,7 @@ var _province_image: Image
 var _height_image: Image
 var _material: ShaderMaterial
 var height_texture: ImageTexture
+var _height_dirty := false
 var border_texture: ImageTexture
 var airbase_sites: Dictionary = {}     ## eyalet id -> [konum (Vector2), yön (float)]
 
@@ -146,6 +147,11 @@ func _place_airbase(st: StateRegion) -> bool:
 	var city := st.largest_city()
 	var base := city.position if city else st.center
 	var r0 := (CityLayer3D.footprint_radius(city) if city else 0.0) + 16.0
+	# yakındaki şehirler: pist bunların modeline taşmasın
+	_near_cities.clear()
+	for c: City in World.cities:
+		if c.position.distance_squared_to(base) < 200.0 * 200.0:
+			_near_cities.append(c)
 	var best_pos := Vector2.INF
 	var best_yaw := 0.0
 	var best_score := INF
@@ -165,8 +171,14 @@ func _place_airbase(st: StateRegion) -> bool:
 	_flatten_disc(best_pos * k2, AIRBASE_RADIUS * k2, AIRBASE_RADIUS * 1.8 * k2, 1.0)
 	return true
 
+var _near_cities: Array[City] = []
+
 ## Uygun değilse null; aksi halde yükseklik farkı (düz = küçük)
 func _site_score(p: Vector2, sid: int) -> Variant:
+	for c: City in _near_cities:
+		var gap := CityLayer3D.footprint_radius(c) + AIRBASE_RADIUS + 3.0
+		if c.position.distance_squared_to(p) < gap * gap:
+			return null
 	var lo := INF
 	var hi := -INF
 	for dy: float in [-10.0, 0.0, 10.0]:
@@ -193,6 +205,45 @@ func _flatten_disc(center: Vector2, r: float, outer: float, strength: float) -> 
 			var w := (1.0 - smoothstep(r, outer, d)) * strength
 			var h := _height_image.get_pixel(x, y).r
 			_height_image.set_pixel(x, y, Color(lerpf(h, h0, w), 0, 0))
+
+## İnşaat parselini düzleştir (tesis ya da şantiye dikilen yer düz olur; kenarı yumuşak geçişle araziye bağlanır).
+## Değişiklik CPU'daki yükseklik görüntüsüne yazılır; commit_height() GPU dokusunu bir kez günceller.
+func flatten_site(p: Vector2, radius: float) -> void:
+	var k := float(_height_image.get_width()) / map_size.x
+	var c := p * k
+	var r := maxf(radius * 1.3 * k, 1.5)          # yükseklik haritası parsele göre kaba: tam düz bölge biraz geniş
+	var outer := r + maxf(radius * 1.0 * k, 1.5)
+	var hs := Vector2i(_height_image.get_size())
+	var R := int(ceil(outer))
+	var ci := Vector2i(c)
+	# hedef: parseldeki kara piksellerinin ortalaması (merkez pikseli tek başına tepeyi/çukuru yakalar)
+	var sum := 0.0
+	var n := 0
+	for y in range(maxi(ci.y - R, 0), mini(ci.y + R + 1, hs.y)):
+		for x in range(maxi(ci.x - R, 0), mini(ci.x + R + 1, hs.x)):
+			var h := _height_image.get_pixel(x, y).r
+			if h > 0.0 and Vector2(x, y).distance_to(c) <= r:
+				sum += h
+				n += 1
+	if n == 0:
+		return
+	var h0 := sum / n
+	for y in range(maxi(ci.y - R, 0), mini(ci.y + R + 1, hs.y)):
+		for x in range(maxi(ci.x - R, 0), mini(ci.x + R + 1, hs.x)):
+			var d := Vector2(x, y).distance_to(c)
+			if d > outer:
+				continue
+			var h := _height_image.get_pixel(x, y).r
+			if h <= 0.0:
+				continue                                   # deniz: kıyı çizgisi değişmesin
+			var w := 1.0 - smoothstep(r, outer, d)
+			_height_image.set_pixel(x, y, Color(maxf(lerpf(h, h0, w), 0.01), 0, 0))
+	_height_dirty = true
+
+func commit_height() -> void:
+	if _height_dirty and height_texture:
+		_height_dirty = false
+		height_texture.update(_height_image)
 
 ## Şehir modellerinin altındaki araziyi merkez yüksekliğine yumuşakça düzleştir
 ## (engebeli arazide binalar tepelere gömülmesin).

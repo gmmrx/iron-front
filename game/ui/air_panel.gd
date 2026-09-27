@@ -148,12 +148,12 @@ func _card(w: AirWing) -> Control:
 		b.theme_type_variation = "Tab"
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
-		b.icon = UiTheme.icon(MISSION_ICON[m])
+		b.icon = UiTheme.trimmed(UiTheme.icon(MISSION_ICON[m]))
 		b.add_theme_constant_override("icon_max_width", 18)
 		b.expand_icon = false
 		b.clip_text = true
 		b.text = tr("AIR_MISSION_%d" % m)
-		b.add_theme_font_size_override("font_size", 13)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(13))
 		b.tooltip_text = tr("TIP_AIR_MISSION_%d" % m)
 		b.button_pressed = int(w.mission) == m
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -191,7 +191,7 @@ func _card(w: AirWing) -> Control:
 		b.text = tr(spec[0])
 		b.tooltip_text = tr(spec[1])
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 14)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(14))
 		b.pressed.connect(spec[2])
 		row.add_child(b)
 	v.add_child(row)

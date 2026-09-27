@@ -9,6 +9,10 @@ const MODEL_SCALE := 5.0            ## liman
 const AIRBASE_SCALE := 3.4          ## şehirlerle aynı stratejik ölçekte kompakt tesis
 const CITY_SCALE := {"town": 4.4, "medium": 4.2, "large": 4.0, "capital": 3.8}
 const CITY_RADIUS := {"town": 5.2, "medium": 7.2, "large": 9.8, "capital": 12.5}
+## şehir modelinin taban elipsi (model birimi; tools/blender/build_cities.py SIZES ile aynı)
+const CITY_EXTENT := {"town": Vector2(0.95, 0.8), "medium": Vector2(1.45, 1.25), "large": Vector2(2.1, 1.8), "capital": Vector2(2.7, 2.3)}
+## kenarı dağıtılan zemin malzemeleri
+const GROUND_MATERIALS := ["garden", "city_paving", "city_paving_warm", "asphalt", "ground_dirt", "ground_cobble", "concrete"]
 const CELL := 3.0                   ## işgal ızgarası (dünya birimi)
 const CHUNK := 384.0
 const BUILDINGS_PATH := "res://assets/models/buildings.glb"
@@ -23,7 +27,11 @@ var _bold: Font
 var _mesh_cache := {}
 var _lib := {}                      ## düğüm adı -> Mesh (buildings.glb)
 var _occupied := {}                 ## Vector2i hücre -> true (şehirler/limanlar çakışmasın)
+## İğne tasarımı: şehir, liman ve hava üssü modelleri kurulmaz (konum, doluluk, ad ve ağaç hesapları sürer).
+## Modelleri geri açmak için true.
+const SHOW_MODELS := false
 var _visual_positions := {}         ## city id -> kıyıyı taşırmayan model merkezi
+var labels := {}                    ## city id -> ad etiketi (iğne haritası adları iğne başına taşır)
 const CONFORM_SHADER := preload("res://assets/shaders/conform.gdshader")
 const BUILDING_SHADER := preload("res://assets/shaders/building.gdshader")
 
@@ -33,17 +41,11 @@ func _ready() -> void:
 	_load_library()
 	_build_models()
 	_build_labels()
-	_build_straits_and_airbases()
+	for sid: int in map.airbase_sites:
+		_mark_airbase(sid)
 	_build_industry()
+	_build_straits_and_airbases()
 	Economy.building_completed.connect(_on_building_completed)
-	Economy.building_completed.connect(func(_t: String, _s: int, _b: String) -> void: _industry_dirty = true)
-	Economy.construction_changed.connect(func(_t: String) -> void: _industry_dirty = true)
-	World.ownership_changed.connect(func() -> void: _industry_dirty = true)
-
-func _process(_delta: float) -> void:
-	if _industry_dirty:
-		_industry_dirty = false
-		_refresh_industry()
 
 ## Şehrin zemindeki yaklaşık yarıçapı (dünya birimi): düzleştirme ve liman uzaklığı için
 static func footprint_radius(c: City) -> float:
@@ -82,11 +84,15 @@ func _mesh(path: String) -> Mesh:
 			stack.append_array(n.get_children())
 		scene.free()
 		if mesh:
-			mesh = _conform(mesh, path.contains("/city_"))
+			var extent := Vector2.ZERO
+			for size: String in CITY_EXTENT:
+				if path.ends_with("_%s.gltf" % size):
+					extent = CITY_EXTENT[size] * 1.04
+			mesh = _conform(mesh, path.contains("/city_"), extent)
 	_mesh_cache[path] = mesh
 	return mesh
 
-func _conform(src: Mesh, clip_water := false) -> Mesh:
+func _conform(src: Mesh, clip_water := false, fade_extent := Vector2.ZERO) -> Mesh:
 	var mesh: Mesh = src.duplicate()
 	for i in mesh.get_surface_count():
 		var sm := ShaderMaterial.new()
@@ -103,6 +109,9 @@ func _conform(src: Mesh, clip_water := false) -> Mesh:
 			if bm.normal_enabled and bm.normal_texture:
 				sm.set_shader_parameter("normal_tex", bm.normal_texture)
 				sm.set_shader_parameter("has_normal", true)
+			if fade_extent != Vector2.ZERO and String(bm.resource_name) in GROUND_MATERIALS:
+				sm.set_shader_parameter("fade_edge", true)
+				sm.set_shader_parameter("fade_extent", fade_extent)
 		sm.set_shader_parameter("height_tex", map.height_texture)
 		sm.set_shader_parameter("map_size", map.map_size)
 		sm.set_shader_parameter("height_scale", MapView3D.HEIGHT_SCALE)
@@ -133,21 +142,22 @@ func _build_models() -> void:
 		var h := _hash(c.id)
 		var angle := float(h % 628) / 100.0
 		c.grid_angle = angle
-		var city_path := "res://assets/models/city_%s_%s.glb" % [c.style, size]
+		var city_path := "res://assets/models/city_%s_%s.gltf" % [c.style, size]
 		var scale: float = CITY_SCALE[size]
 		var radius: float = CITY_RADIUS[size]
 		var visual_pos := _best_city_position(c, radius)
 		_visual_positions[c.id] = visual_pos
-		var city_t := Transform3D(Basis(Vector3.UP, -angle).scaled(Vector3.ONE * scale),
-				Vector3(visual_pos.x, _ground(visual_pos), visual_pos.y))
-		_add(groups, city_path, city_t.origin, city_t)
-		ranges[city_path] = MODEL_RANGE[size]
+		if SHOW_MODELS:
+			var city_t := Transform3D(Basis(Vector3.UP, -angle).scaled(Vector3.ONE * scale),
+					Vector3(visual_pos.x, _ground(visual_pos), visual_pos.y))
+			_add(groups, city_path, city_t.origin, city_t)
+			ranges[city_path] = MODEL_RANGE[size]
 		for oy in range(-ceili(radius / CELL), ceili(radius / CELL) + 1):
 			for ox in range(-ceili(radius / CELL), ceili(radius / CELL) + 1):
 				var p := visual_pos + Vector2(ox, oy) * CELL
 				if p.distance_squared_to(visual_pos) <= radius * radius:
 					_occupied[_cell_of(p)] = true
-		if c.is_port:
+		if c.is_port and SHOW_MODELS:
 			var pt = _port_transform(c)
 			if pt != null:
 				_add(groups, "port_0", pt.origin, pt)
@@ -248,11 +258,18 @@ func _build_straits_and_airbases() -> void:
 	add_child(icons)
 	var trees := TreeLayer.new()
 	trees.map = map
+	var zones: Array[Vector2] = []
+	if _industry and IndustryLayer.SHOW_MODELS:
+		zones = _industry.plot_positions()      # tesis modelleri varsa parsellerde ağaç yok
+	trees.clear_zones = zones
+	trees.clear_radius = IndustryLayer.FLAT_RADIUS * 1.1
 	add_child(trees)
 	for sid: int in map.airbase_sites:
 		_add_airbase(sid)
 
 func _add_airbase(sid: int) -> void:
+	if not SHOW_MODELS:
+		return
 	var site: Array = map.airbase_sites[sid]
 	var pos: Vector2 = site[0]
 	var mi := MeshInstance3D.new()
@@ -265,7 +282,59 @@ func _add_airbase(sid: int) -> void:
 
 func _on_building_completed(_tag: String, sid: int, building: String) -> void:
 	if building == "air_base" and map.add_airbase_site(World.states[sid]):
+		_mark_airbase(sid)
 		_add_airbase(sid)
+
+## Hava üssünün alanı dolu sayılır: sanayi parselleri ve birimler üstüne gelmez
+func _mark_airbase(sid: int) -> void:
+	var pos: Vector2 = map.airbase_sites[sid][0]
+	var r := MapView3D.AIRBASE_RADIUS * 1.1
+	for oy in range(-ceili(r / CELL), ceili(r / CELL) + 1):
+		for ox in range(-ceili(r / CELL), ceili(r / CELL) + 1):
+			var p := pos + Vector2(ox, oy) * CELL
+			if p.distance_squared_to(pos) <= r * r:
+				_occupied[_cell_of(p)] = true
+	_unit_spots.clear()
+
+## Tümen modelinin durduğu yer: şehir modelinin, hava üssünün, limanın ve dolu sanayi parsellerinin dışında,
+## bölge merkezine en yakın boş kara noktası (modeller üst üste binmesin). Önbellekli; sanayi değişince yenilenir.
+var _unit_spots := {}
+var _unit_spots_version := -1
+func unit_spot(pid: int, p: Vector2) -> Vector2:
+	if _industry and _industry.version != _unit_spots_version:
+		_unit_spots.clear()
+		_unit_spots_version = _industry.version
+	if _unit_spots.has(pid):
+		return _unit_spots[pid]
+	var best := p
+	if _blocked(p):
+		var found := false
+		for ring in range(1, 9):
+			for k in 12:
+				var a := TAU * float(k) / 12.0 + float(ring) * 0.37
+				var q := p + Vector2(cos(a), sin(a)) * float(ring) * 3.5
+				if _is_land(q) and not _blocked(q):
+					best = q
+					found = true
+					break
+			if found:
+				break
+	_unit_spots[pid] = best
+	return best
+
+const UNIT_CLEARANCE := 4.5         ## figürün kendi yarıçapı (tank boyu) kadar pay
+
+func _blocked(q: Vector2) -> bool:
+	for off: Vector2 in [Vector2.ZERO, Vector2(UNIT_CLEARANCE, 0), Vector2(-UNIT_CLEARANCE, 0), Vector2(0, UNIT_CLEARANCE),
+			Vector2(0, -UNIT_CLEARANCE)]:
+		if _occupied.has(_cell_of(q + off)):
+			return true
+	if _industry:
+		var r := IndustryLayer.SCALE * 0.7 + UNIT_CLEARANCE
+		for pl: Vector2 in _industry.active_plots:
+			if pl.distance_squared_to(q) < r * r:
+				return true
+	return false
 
 ## Limanı şehirden en yakın deniz bölgesine doğru, gemi denize bakacak şekilde yerleştir.
 func _port_transform(c: City) -> Variant:
@@ -342,119 +411,19 @@ func _build_labels() -> void:
 		l.visibility_range_end_margin = LABEL_RANGE[tier] * 0.1
 		l.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(l)
+		labels[c.id] = l
 
+## İnşaat binaları (fabrika, rafineri, tersane, deniz üssü, uçaksavar, demiryolu, şantiye): IndustryLayer
+var _industry: IndustryLayer
 
-# ------------------------------------------------------------------ sanayi ve inşaat görünürlüğü
-## Eyaletin fabrikaları (sivil + askerî + tersane) ana şehrin çevresinde küçük fabrika modelleri olarak görünür
-## (2 fabrika ≈ 1 model, en çok 8); kuyruktaki inşaat için turuncu iskele işareti. Oyuncu "ne inşa ettim,
-## nerede?" sorusunun cevabını haritada görür; sanayi bölgeleri uzaktan da okunur.
-## MultiMesh'ler şehirler gibi CHUNK parçalarına bölünür (görünürlük mesafesi parça başına hesaplanır).
-const INDUSTRY_SCALE := 2.8
-const INDUSTRY_RANGE := 620.0
-const INDUSTRY_MAX := 8
-var _industry_dirty := false
-var _industry_slots := {}          ## sid -> [[Vector2, yaw], ...]
-var _industry_style := {}          ## sid -> "west" | "east" | ...
-var _industry_nodes := {}          ## [stil|"scaffold", Vector2i chunk] -> MultiMeshInstance3D
-var _scaffold_mesh: BoxMesh
+func industry() -> IndustryLayer:
+	return _industry
 
 func _build_industry() -> void:
-	for st: StateRegion in World.states.values():
-		if st.cities.is_empty():
-			continue
-		var main: City = st.cities[0]
-		for c: City in st.cities:
-			if c.victory_points > main.victory_points:
-				main = c
-		var center: Vector2 = _visual_positions.get(main.id, main.position)
-		var r := footprint_radius(main) * 1.12 + 3.2
-		var phase := float(_hash(main.id + 77) % 628) / 100.0
-		var slots: Array = []
-		for ring: float in [1.0, 1.3]:
-			for i in 12:
-				if slots.size() >= INDUSTRY_MAX + 3:
-					break
-				var a: float = phase + TAU * float(i) / 12.0 + (0.26 if ring > 1.2 else 0.0)
-				var p: Vector2 = center + Vector2(cos(a), sin(a)) * r * ring
-				var cell := _cell_of(p)
-				if _occupied.has(cell) or not _is_land(p):
-					continue
-				if map.province_at(p) <= 0 or World.province(map.province_at(p)).state_id != st.id:
-					continue
-				_occupied[cell] = true
-				slots.append([p, -a + PI * 0.5])
-		if slots.is_empty():
-			continue
-		_industry_slots[st.id] = slots
-		_industry_style[st.id] = main.style
-	_scaffold_mesh = BoxMesh.new()
-	_scaffold_mesh.size = Vector3(0.6, 0.9, 0.6)
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.95, 0.62, 0.15)
-	mat.emission_enabled = true
-	mat.emission = Color(1.0, 0.55, 0.1)
-	mat.emission_energy_multiplier = 0.9
-	mat.roughness = 0.7
-	_scaffold_mesh.material = mat
-	_refresh_industry()
-
-func _industry_count(st: StateRegion) -> int:
-	var n := st.building_level("civilian_factory") + st.building_level("military_factory") + st.building_level("dockyard")
-	return clampi(ceili(n / 2.0), 0, INDUSTRY_MAX)
-
-func _industry_node(key: Array) -> MultiMeshInstance3D:
-	if _industry_nodes.has(key):
-		return _industry_nodes[key]
-	var mesh: Mesh = _scaffold_mesh if key[0] == "scaffold" else _building_mesh("%s_factory_0" % key[0])
-	if mesh == null:
-		return null
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = mesh
-	var mmi := MultiMeshInstance3D.new()
-	mmi.multimesh = mm
-	mmi.visibility_range_end = INDUSTRY_RANGE
-	mmi.visibility_range_end_margin = INDUSTRY_RANGE * 0.12
-	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-	add_child(mmi)
-	_industry_nodes[key] = mmi
-	return mmi
-
-func _refresh_industry() -> void:
-	var lists := {}                    # key -> [Transform3D]
-	var building_now := {}
-	for c: Country in World.countries.values():
-		for pr: ConstructionProject in c.construction_queue:
-			if pr.building in ["civilian_factory", "military_factory", "dockyard", "synthetic_refinery", "anti_air"]:
-				building_now[pr.state_id] = int(building_now.get(pr.state_id, 0)) + 1
-	for sid: int in _industry_slots:
-		var st: StateRegion = World.states[sid]
-		var slots: Array = _industry_slots[sid]
-		var n := mini(_industry_count(st), slots.size())
-		var style: String = _industry_style[sid]
-		for i in n:
-			var p: Vector2 = slots[i][0]
-			var key := [style, Vector2i(int(p.x / CHUNK), int(p.y / CHUNK))]
-			if not lists.has(key):
-				lists[key] = []
-			lists[key].append(Transform3D(Basis(Vector3.UP, float(slots[i][1])).scaled(Vector3.ONE * INDUSTRY_SCALE), Vector3(p.x, _ground(p), p.y)))
-		if building_now.has(sid) and n < slots.size():
-			var p: Vector2 = slots[n][0]
-			var key := ["scaffold", Vector2i(int(p.x / CHUNK), int(p.y / CHUNK))]
-			if not lists.has(key):
-				lists[key] = []
-			lists[key].append(Transform3D(Basis(Vector3.UP, float(slots[n][1])).scaled(Vector3.ONE * INDUSTRY_SCALE), Vector3(p.x, _ground(p) + 0.45 * INDUSTRY_SCALE, p.y)))
-	for key: Array in _industry_nodes:
-		if not lists.has(key):
-			(_industry_nodes[key] as MultiMeshInstance3D).multimesh.instance_count = 0
-	for key: Array in lists:
-		var node := _industry_node(key)
-		if node == null:
-			continue
-		var arr: Array = lists[key]
-		var mm := node.multimesh
-		mm.instance_count = arr.size()
-		for i in arr.size():
-			mm.set_instance_transform(i, arr[i])
-	if OS.has_environment("INDDBG"):
-		print("INDDBG nodes=%d states=%d" % [_industry_nodes.size(), _industry_slots.size()])
+	var ind := IndustryLayer.new()
+	_industry = ind
+	ind.map = map
+	ind.occupied = _occupied
+	ind.city_positions = _visual_positions
+	ind.cell_size = CELL
+	add_child(ind)

@@ -91,7 +91,7 @@ func _process(delta: float) -> void:
 	var dt := minf(delta, 0.1)
 	_update_positions(dt)
 	_update_counters()
-	var close := camera.distance < SHIP_DIST
+	var close := camera.distance < SHIP_DIST and not PinLayer.active()    # iğne haritasında gemi modeli yok
 	for name: String in _mmi:
 		_mmi[name].visible = close
 	_wake.visible = close
@@ -229,7 +229,7 @@ func _update_counters() -> void:
 		var pos: Vector2 = _positions[f.id][0]
 		var root: Node3D = c["root"]
 		var idx: int = _positions[f.id][4]
-		root.position = Vector3(pos.x, 6.0, pos.y)
+		root.position = Vector3(pos.x, PinLayer.lift(camera.distance, PinLayer.SEA_LIFT) if PinLayer.active() else 6.0, pos.y)
 		# aynı yer + rota + sahip: tek sayaç (ilk filo gösterir, toplam gemi); diğerleri gizli — kayan yan yana sayaç yok
 		if idx > 0:
 			root.visible = false
@@ -249,6 +249,15 @@ func _update_counters() -> void:
 		var gk: String = _positions[f.id][5]
 		c["label"].text = str(int(_group_ships.get(gk, f.total())))
 		root.scale = Vector3.ONE * ((1.0 + 0.07 * sin(_pulse * 5.0)) if sel else 1.0)
+
+## İğne haritası: görünen filo sayaçlarının kökleri
+func pin_roots() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	for id: int in _counters:
+		var root: Node3D = _counters[id]["root"]
+		if root.visible:
+			out.append(root)
+	return out
 
 func _make_counter(tag: String) -> Dictionary:
 	var root := Node3D.new()

@@ -1,6 +1,7 @@
 class_name UnitModels
 extends Node3D
-## Yakın zoom'da tümenlerin 3D figürleri: şablona göre asker/top/tank/kamyon grupları.
+## Yakın zoom'da tümenlerin 3D figürleri: tümen başına tek figür (zırhlı tümen tank, diğerleri asker); duran tümen
+## şehir, sanayi ve hava üssü modellerinin dışındaki boş noktaya oturur (CityLayer3D.unit_spot).
 ## Kara modelleri: Muster WWII Model Archive (MIT, github.com/Kenton-GMI/muster-ww2) — ülkeye özgü
 ## teçhizat (Alman, Sovyet, İngiliz, ABD, İtalyan, Japon); diğer ülkelerin piyadesi dönem üniforma rengine boyanır.
 ## Figürler bölgeler arasında hareket ilerlemesine göre yürür; muharebede düşmana döner ve ateş eder.
@@ -10,7 +11,7 @@ const MODEL_FILES := ["res://assets/models/muster_units.glb", "res://assets/mode
 const SHADER := preload("res://assets/shaders/unit.gdshader")
 const VISIBLE_DIST := 700.0          ## kamera mesafesi: bunun altında figürler görünür
 ## rol önekine göre ölçek (modeller gerçek metre; piyade okunabilirlik için abartılı)
-const ROLE_SCALE := {"inf": 2.6, "mg": 2.6, "art": 0.95, "aa": 0.85, "tank": 0.8, "heavy": 0.78, "truck": 0.72, "cargo": 0.75}
+const ROLE_SCALE := {"inf": 2.9, "mg": 2.6, "art": 0.95, "aa": 0.85, "tank": 0.6, "heavy": 0.6, "truck": 0.72, "cargo": 0.75}
 ## ülke -> teçhizat seti (muster_units.glb içindeki model son eki)
 const FACTION := {
 	"GER": "germany", "AUS": "germany", "SOV": "soviet", "MON": "soviet", "ENG": "uk", "CAN": "uk", "AST": "uk",
@@ -33,6 +34,7 @@ const VEHICLE := {"turn": 2.6, "accel": 3.0, "stride": 0.0, "vmax": 9.0}
 
 var map: MapView3D
 var camera: MapCamera3D
+var cities: CityLayer3D              ## duran tümen şehir/sanayi/hava üssü modellerinin dışına oturur
 var _meshes := {}
 var _zs := ZS
 var _mmi := {}                       ## model adı -> MultiMeshInstance3D
@@ -62,11 +64,14 @@ static func compat_colors(mm: MultiMesh) -> void:
 		for i in mm.instance_count:
 			mm.set_instance_color(i, Color.WHITE)
 
+## İğne tasarımı: tümen figürleri çizilmez (tümen = sayaç iğnesi); akıcı konumlar (çapalar) hesaplanmaya devam eder
+const SHOW_MODELS := false
+
 func _ready() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
 	compat_material(mat)
-	for path: String in MODEL_FILES:
+	for path: String in (MODEL_FILES if SHOW_MODELS else []):
 		var scene: Node = (load(path) as PackedScene).instantiate()
 		var stack: Array[Node] = [scene]
 		while not stack.is_empty():
@@ -120,7 +125,7 @@ func _ready() -> void:
 	add_child(_gtracer_mmi)
 
 func _process(delta: float) -> void:
-	var close := camera != null and camera.distance < VISIBLE_DIST and World.in_game
+	var close := camera != null and camera.distance < VISIBLE_DIST and World.in_game and SHOW_MODELS
 	visible = close
 	_update_anchors()
 	if not close:
@@ -162,7 +167,7 @@ func _update_anchors() -> void:
 			var d: Division = divs[i]
 			var here := World.province(d.province).center
 			var facing := _facing(d)
-			var pos := here
+			var pos := cities.unit_spot(d.province, here) if cities else here
 			var state := 0.0
 			if d.attacking > 0:
 				var tgt := World.province(d.attacking).center
@@ -263,35 +268,15 @@ func _model(role: String, fac: String) -> Array:
 		"cargo": return ["cargo_ship", true]
 	return [name, true]
 
-## Tümenin figür yuvaları: yürüyüşte iki sıralı kol, beklerken savunma hattı, muharebede yayılmış hat
-func _slots(d: Division, moving: bool, firing: bool) -> Array:
-	# denizde (nakliye): askerler değil, nakliye gemisi
+## Tümen haritada tek figürle gösterilir: zırhlı tümen tek tank, diğerleri tek asker; denizde (nakliye) nakliye gemisi.
+## Tümenin gücü ve sayısı sayaçta yazar; uçaksavar, top ve kamyon ayrıca çizilmez (modeller üst üste binmesin).
+func _slots(d: Division, moving: bool, _firing: bool) -> Array:
 	if not World.province(d.province).is_land() or (not d.path.is_empty() and not World.province(d.path[0]).is_land() and moving):
 		return [["cargo", 0.0, 0.0]]
 	var c: Country = World.countries[d.owner]
 	var bats: Dictionary = c.templates[clampi(d.template, 0, c.templates.size() - 1)]["battalions"]
 	var armor := int(bats.get("light_armor", 0)) + int(bats.get("medium_armor", 0))
-	var arty := int(bats.get("artillery", 0)) + int(bats.get("anti_tank", 0))
-	var motor := int(bats.get("motorized", 0))
-	if armor > 0:
-		if moving:
-			return [["tank", 0.0, 3.0], ["tank", 0.0, -1.2], ["truck", 0.0, -5.2]]
-		return [["tank", -2.6, 1.4], ["tank", 2.6, 1.4], ["truck", 0.0, -3.6]]
-	var out: Array = []
-	if moving:
-		out = [["inf", -0.55, 2.4], ["inf", 0.55, 2.4], ["inf", -0.55, 1.1], ["inf", 0.55, 1.1], ["mg", 0.0, -0.2]]
-		if motor > 0:
-			out.append(["truck", 0.0, -3.4])
-		elif arty > 0:
-			out.append(["art", 0.0, -3.2])
-		return out
-	var spread := 1.35 if firing else 1.0
-	out = [["inf", -1.7 * spread, 1.0], ["inf", 0.0, 1.5], ["inf", 1.7 * spread, 1.0], ["mg", -0.8, 0.0], ["inf", 0.9, -0.2]]
-	if motor > 0:
-		out.append(["truck", 0.0, -3.4])
-	elif arty > 0:
-		out.append(["art", 0.0, -3.0])
-	return out
+	return [["tank", 0.0, 0.0]] if armor > 0 else [["inf", 0.0, 0.0]]
 
 func _place_division(d: Division, a: Array, lists: Dictionary, seen: Dictionary, dt: float) -> void:
 	var pos: Vector2 = a[0]

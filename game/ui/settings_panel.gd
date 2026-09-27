@@ -79,7 +79,7 @@ func _ready() -> void:
 		b.text = pair[1]
 		b.custom_minimum_size = Vector2(0, 44)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", 17)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(17))
 		b.pressed.connect(func() -> void: _set_lang(pair[0]))
 		lr.add_child(b)
 	PanelLayout.empty(right, tr("SET_LANG_HINT"))
@@ -125,7 +125,7 @@ func _check(parent: Container, label: String, on: bool, cb: Callable) -> void:
 	c.text = label
 	c.focus_mode = Control.FOCUS_NONE
 	c.button_pressed = on
-	c.add_theme_font_size_override("font_size", 16)
+	c.add_theme_font_size_override("font_size", UiTheme.fs(16))
 	c.toggled.connect(func(x: bool) -> void:
 		cb.call(x)
 		GameSettings.save())
@@ -150,12 +150,12 @@ func _build_music() -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.set_pressed_no_signal(Audio.forced_track == it[0])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.icon = UiTheme.icon("play")
+		b.icon = UiTheme.trimmed(UiTheme.icon("play"))
 		b.add_theme_constant_override("icon_max_width", 18)
 		b.text = "%s%s" % [it[1], ("   " + it[2]) if it[0] != "" and it[2] != "" else ""]
 		b.tooltip_text = it[1] + ("\n" + it[2] if it[0] == "" else "")
 		b.custom_minimum_size = Vector2(0, 38)
-		b.add_theme_font_size_override("font_size", 15)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(15))
 		if Audio._track == it[0] and it[0] != "":
 			b.add_theme_color_override("font_color", UiTheme.ACCENT)
 		var key: String = it[0]

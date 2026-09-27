@@ -25,7 +25,7 @@ func _ready() -> void:
 	_play_btn.pressed.connect(_on_play_pressed)
 	_diplo_btn = Button.new()
 	_diplo_btn.text = tr("UI_DIPLOMACY_BTN")
-	_diplo_btn.icon = UiTheme.icon("diplomacy")
+	_diplo_btn.icon = UiTheme.trimmed(UiTheme.icon("diplomacy"))
 	_diplo_btn.add_theme_constant_override("icon_max_width", 22)
 	_diplo_btn.focus_mode = Control.FOCUS_NONE
 	_diplo_btn.custom_minimum_size.y = 40
@@ -108,23 +108,25 @@ func _refresh() -> void:
 			if q.state_id == st.id:
 				queued[q.building] = int(queued.get(q.building, 0)) + 1
 	PanelLayout.section(_body, tr("ST_SLOTS") % [st.used_slots(), st.building_slots])
-	var slots := HFlowContainer.new()
-	slots.add_theme_constant_override("h_separation", 3)
-	slots.add_theme_constant_override("v_separation", 3)
+	# yuvalar eşit genişlikte sütunlara bölünür (en çok 6), yüksek hücreler
+	var slots := GridContainer.new()
+	slots.columns = clampi(st.building_slots, 1, 6)
+	slots.add_theme_constant_override("h_separation", 4)
+	slots.add_theme_constant_override("v_separation", 4)
 	_body.add_child(slots)
 	var used := 0
 	for b: String in SHARED:
 		for k in st.building_level(b):
-			slots.add_child(PanelLayout.slot(UiTheme.building_icon(b), 38, Economy.building_name(b), "SlotGold"))
+			slots.add_child(_slot_cell(UiTheme.building_icon(b), Economy.building_name(b), "SlotGold"))
 			used += 1
 	for b: String in SHARED:
 		for k in int(queued.get(b, 0)):
-			var s := PanelLayout.slot(UiTheme.building_icon(b), 38, Economy.building_name(b) + " — " + tr("ST_QUEUED"), "Slot")
+			var s := _slot_cell(UiTheme.building_icon(b), Economy.building_name(b) + " — " + tr("ST_QUEUED"), "Slot")
 			s.modulate = Color(1, 1, 1, 0.55)
 			slots.add_child(s)
 			used += 1
 	for k in maxi(st.building_slots - used, 0):
-		slots.add_child(PanelLayout.slot(null, 38, tr("ST_FREE_SLOT")))
+		slots.add_child(_slot_cell(null, tr("ST_FREE_SLOT"), "Slot"))
 	# bölge binaları (seviye çubukları)
 	PanelLayout.section(_body, tr("ST_PROVINCIAL"))
 	for b: String in PROVINCIAL:
@@ -134,11 +136,12 @@ func _refresh() -> void:
 		row.add_theme_constant_override("separation", 6)
 		row.tooltip_text = "%s: %d / %d" % [Economy.building_name(b), lv, mx]
 		row.mouse_filter = Control.MOUSE_FILTER_STOP
-		var ic := UiTheme.icon_texture(UiTheme.building_icon(b), 26)
+		var ic := UiTheme.icon_texture(UiTheme.building_icon(b), 36)
 		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(ic)
 		var nl := UiTheme.make_label(Economy.building_name(b), 15)
-		nl.custom_minimum_size.x = 130
+		nl.custom_minimum_size.x = 150
+		nl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(nl)
 		var pips := HBoxContainer.new()
@@ -147,7 +150,7 @@ func _refresh() -> void:
 		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		for k in mini(mx, 10):
 			var pip := ColorRect.new()
-			pip.custom_minimum_size = Vector2(14, 10)
+			pip.custom_minimum_size = Vector2(18, 14)
 			pip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			pip.color = UiTheme.ACCENT if k < lv else (Color(0.55, 0.45, 0.25, 0.6) if k < lv + int(queued.get(b, 0)) else Color(0, 0, 0, 0.55))
 			pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -167,7 +170,7 @@ func _refresh() -> void:
 			var cell := PanelContainer.new()
 			cell.theme_type_variation = "Slot"
 			cell.tooltip_text = "%s: %d" % [tr("RES_" + r), st.resources[r]]
-			cell.add_child(PanelLayout.icon_label(UiTheme.resource_icon(r), "%s %d" % [tr("RES_" + r), st.resources[r]], 24, 14))
+			cell.add_child(PanelLayout.icon_label(UiTheme.resource_icon(r), "%s %d" % [tr("RES_" + r), st.resources[r]], 32, 14))
 			rr.add_child(cell)
 	# doğrudan inşa (yalnız oyuncunun eyaleti)
 	if mine:
@@ -177,9 +180,7 @@ func _refresh() -> void:
 		for b: String in SHARED + PROVINCIAL:
 			var err := Economy.can_build(player, st, b)
 			var t := PanelLayout.tile(UiTheme.building_icon(b), Economy.building_name(b), UiTheme.format_number(Economy.defs[b]["cost"]),
-				"%s\n%s\n\n%s" % [Economy.building_name(b), tr("BDESC_" + b), tr("TIP_BUILD_COST") % UiTheme.format_number(Economy.defs[b]["cost"])] + ("" if err == "" else "\n\n⚠ " + tr(err)), 80, 84)
-			t.add_theme_constant_override("icon_max_width", 36)
-			t.add_theme_font_size_override("font_size", 12)
+				"%s\n%s\n\n%s" % [Economy.building_name(b), tr("BDESC_" + b), tr("TIP_BUILD_COST") % UiTheme.format_number(Economy.defs[b]["cost"])] + ("" if err == "" else "\n\n⚠ " + tr(err)), 80, 128)
 			t.disabled = err != ""
 			t.pressed.connect(func() -> void:
 				if Economy.queue_building(player, st, b):
@@ -189,6 +190,13 @@ func _refresh() -> void:
 	_play_btn.text = tr("UI_PLAY_AS") % c.display_name()
 	_play_btn.visible = st.owner != World.player_tag and not World.in_game
 	_diplo_btn.visible = st.owner != World.player_tag and World.in_game
+
+## Bina yuvası hücresi: sütun genişliğini doldurur, yüksek; içinde büyük bina ikonu
+func _slot_cell(tex: Texture2D, tip: String, variant: String) -> PanelContainer:
+	var pc := PanelLayout.slot(tex, 64, tip, variant)
+	pc.custom_minimum_size = Vector2(0, 64)
+	pc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return pc
 
 func _on_play_pressed() -> void:
 	if _state_id > 0:

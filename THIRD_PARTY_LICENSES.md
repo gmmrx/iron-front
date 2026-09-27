@@ -1,8 +1,10 @@
-# Üçüncü taraf lisansları
+**English** · [Türkçe](THIRD_PARTY_LICENSES.tr.md)
+
+# Third-party licences
 
 ## Muster – WWII Model Archive
-Kara birimi ve uçak 3D modelleri (`assets/models/muster_units.glb`) Muster projesinden
-dışa aktarılıp sadeleştirilmiştir: https://github.com/Kenton-GMI/muster-ww2
+The land unit and aircraft 3D models (`assets/models/muster_units.glb`) were exported from the Muster project and
+simplified: https://github.com/Kenton-GMI/muster-ww2
 
 ```
 MIT License
@@ -29,13 +31,13 @@ SOFTWARE.
 ```
 
 ## Natural Earth
-İdari bölgeler (admin-1, 10m), nehirler, göller, şehirler ve kabartma raster'ları (`HYP_50M_SR_W.tif`, `SR_50M.tif`)
-harita üreticisinin girdisidir (`tools/fetch_data.py`, `tools/generate_map.py`). Natural Earth verisi kamu malıdır;
-atıf zorunlu değildir ama önerilir: **Made with Natural Earth.** Kaynak: https://www.naturalearthdata.com/
+Administrative regions (admin-1, 10m), rivers, lakes, cities and the relief rasters (`HYP_50M_SR_W.tif`, `SR_50M.tif`)
+are inputs of the map generator (`tools/fetch_data.py`, `tools/generate_map.py`). Natural Earth data is in the public
+domain; attribution is not required but recommended: **Made with Natural Earth.** Source: https://www.naturalearthdata.com/
 
-## Yükseklik verisi (Terrain Tiles, Terrarium biçimi)
-Harita yükseltisi AWS Open Data'daki Terrain Tiles karolarından üretilir (`tools/fetch_data.py`). Kaynak veri sağlayıcılarının
-istediği atıf (https://github.com/tilezen/joerd/blob/master/docs/attribution.md):
+## Elevation data (Terrain Tiles, Terrarium format)
+The map elevation is built from the Terrain Tiles on AWS Open Data (`tools/fetch_data.py`). Attribution required by the
+source data providers (https://github.com/tilezen/joerd/blob/master/docs/attribution.md):
 
 - Mapzen
 - ArcticDEM terrain data DEM(s) were created from DigitalGlobe, Inc., imagery and funded under National Science Foundation
@@ -52,13 +54,14 @@ istediği atıf (https://github.com/tilezen/joerd/blob/master/docs/attribution.m
 - United Kingdom terrain data © Environment Agency copyright and/or database right 2015. All rights reserved
 - United States 3DEP (formerly NED) and global GMTED2010 and SRTM terrain data courtesy of the U.S. Geological Survey
 
-## Bayraklar (Wikimedia Commons)
-`assets/flags/*.svg` dosyaları Wikimedia Commons'tan indirilir (`tools/fetch_data.py --flags`); dosyası olmayan ülkelerin
-bayrağı oyunda prosedürel çizilir. Ulusal bayrak çizimlerinin çoğu Commons'ta kamu malıdır, ama lisans dosyadan dosyaya
-değişir. **Yayından önce her dosyanın Commons sayfasındaki lisansı tek tek doğrulanır** ve kamu malı olmayanlar için
-yazar ve lisans buraya yazılır (ör. CC BY-SA: yazar adı + lisans + değişiklik notu).
+## Flags (Wikimedia Commons)
+The `assets/flags/*.svg` files are downloaded from Wikimedia Commons (`tools/fetch_data.py --flags`); the flag of a
+country without a file is drawn procedurally in the game. Most national flag drawings on Commons are in the public domain,
+but the licence varies from file to file. **Before release the licence on each file's Commons page is verified one by
+one**, and for those not in the public domain the author and licence are written here (e.g. CC BY-SA: author name +
+licence + note of changes).
 
-| Etiket | Commons dosyası | Lisans (doğrulanacak) |
+| Tag | Commons file | Licence (to be verified) |
 |---|---|---|
 | TUR | File:Flag_of_Turkey.svg | ☐ |
 | ENG | File:Flag_of_the_United_Kingdom.svg | ☐ |
@@ -82,17 +85,27 @@ yazar ve lisans buraya yazılır (ör. CC BY-SA: yazar adı + lisans + değişik
 | IRQ | File:Flag_of_Iraq_(1924-1959).svg | ☐ |
 | SAU | File:Flag_of_Saudi_Arabia_(1934-1938).svg | ☐ |
 
-## Yazı tipleri (SIL Open Font License 1.1)
-Lisans metni: `assets/fonts/OFL.txt`.
+## Fonts (SIL Open Font License 1.1)
+Licence text: `assets/fonts/OFL.txt`.
 
 - **Barlow Condensed** (`assets/fonts/BarlowCondensed-*.ttf`) — Copyright 2017 The Barlow Project Authors
   (https://github.com/jpt/barlow)
 - **Cinzel** (`assets/fonts/CinzelVariable.ttf`) — Copyright 2020 The Cinzel Project Authors
   (https://github.com/NDISCOVER/Cinzel)
 
-## Almanya 1936 lider portresi (`assets/portraits/GER.png`)
-Fotoğraf: Heinrich Hoffmann, Adolf Hitler at the Berghof, 1936; Bundesarchiv, Bild 146-1990-048-29A.
-Kaynak: https://commons.wikimedia.org/wiki/File:Adolf_Hitler_Berghof-1936.jpg
-Lisans: [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en).
-Oyun portresi için kırpıldı ve 400×500 piksele ölçeklendi; kaynak fotoğraf siyah-beyaz bırakıldı.
-Değiştirilmiş görsel CC BY-SA 3.0 DE altında dağıtılır; bu varlık için kaynak ve lisans bildirimi burada korunmalıdır.
+## Germany 1936 leader portrait (`assets/portraits/GER.png`)
+Photo: Heinrich Hoffmann, Adolf Hitler at the Berghof, 1936; Bundesarchiv, Bild 146-1990-048-29A.
+Source: https://commons.wikimedia.org/wiki/File:Adolf_Hitler_Berghof-1936.jpg
+Licence: [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en).
+Cropped and scaled to 400×500 pixels for the game portrait; the source photo was left black and white.
+The modified image is distributed under CC BY-SA 3.0 DE; the source and licence notice for this asset must be kept here.
+
+## Historical commander portraits (`assets/portraits/commanders/`)
+
+Per-image source page, credited author, and licence are recorded in
+[`assets/portraits/commanders/SOURCES.csv`](assets/portraits/commanders/SOURCES.csv).
+The portraits are archival images from Wikimedia Commons and remain under the
+licences stated in that manifest. Keep the manifest with the assets; apply any
+share-alike terms to modified portraits. Entries marked “AI-generated” are
+illustrative reconstructions, not authentic historical photographs; the source
+atlas for each set is kept beside the cropped portraits.

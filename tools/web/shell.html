@@ -12,7 +12,7 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 #canvas { display: block; }
 #canvas:focus { outline: none; }
 
-/* Yükleme ekranı */
+/* Loading screen */
 #status {
 	position: absolute; inset: 0;
 	display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
@@ -81,17 +81,17 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 			<img id="status-splash" class="$GODOT_SPLASH_CLASSES" src="$GODOT_SPLASH" alt="">
 			<div id="status-title">IRON FRONT</div>
 			<div id="status-rule"></div>
-			<div id="status-sub">1936 – 1945 · Büyük Strateji</div>
+			<div id="status-sub">1936 – 1945 · Grand Strategy</div>
 			<div id="status-panel">
-				<div id="status-head">YÜKLENİYOR</div>
-				<div id="status-text">Hazırlanıyor…</div>
+				<div id="status-head">LOADING</div>
+				<div id="status-text">Preparing…</div>
 				<div id="status-bar"><div id="status-fill"></div></div>
 				<div id="status-tip"></div>
 				<progress id="status-progress"></progress>
 				<div id="status-notice"></div>
 			</div>
-			<div id="status-music" title="Yükleme müziği">♪ Müzik: açık</div>
-			<div id="status-hint">İlk yükleme yaklaşık 370 MB · masaüstü tarayıcı önerilir</div>
+			<div id="status-music" title="Loading music">♪ Music: on</div>
+			<div id="status-hint">First load is about 370 MB · a desktop browser is recommended</div>
 		</div>
 
 		<audio id="loading-music" src="loading_theme.mp3" loop preload="auto"></audio>
@@ -111,24 +111,24 @@ const engine = new Engine(GODOT_CONFIG);
 	const statusText = document.getElementById('status-text');
 	let phase = 'pack';
 	const TIPS = [
-		'İkmal hatlarını korumak, cephedeki birliklerin savaş gücünü belirler.',
-		'Bir tümen düşmana komşu bölgede beklerken planlama biriktirir: ilk darbe daha güçlü olur.',
-		'Nehir geçişinde saldırı %30 zayıflar; köprübaşını başka yönden açmayı deneyin.',
-		'Kışın 45° kuzeyinde saldırılar zayıflar; kış donanımı yoksa birlikler yıpranır.',
-		'Deniz hâkimiyeti olmadan çıkarma yapan tümenler yolda kayıp verir.',
-		'Sivil fabrika inşaatı, askerî fabrika üretimi demektir: önce sanayi, sonra ordu.',
-		'Odak ağacındaki kararlar geri alınamaz; her odak 35–70 gün sürer.',
-		'Uçak kanatlarını üsse konuşlandırıp görev bölgesi verin; menzil dışı bölgeye gidemezler.',
-		'Zırhlı ve motorlu tümenler yakıt tüketir; petrol yoksa güçleri %35 düşer.',
-		'Ordu kurup cephe atayın: tümenler düşman yoğunluğuna göre kendiliğinden dağılır.',
+		'Guarding your supply lines decides how hard your front-line troops can fight.',
+		'A division waiting next to the enemy builds up preparation: its first blow lands harder.',
+		'Attacks across a river lose 30%; try to open the bridgehead from another side.',
+		'In winter, attacks north of 45° weaken and troops without winter kit wear down.',
+		'Divisions shipped across seas you do not control take losses on the way.',
+		'Civilian factories build military factories: industry first, then the army.',
+		'State programs cannot be undone; each one takes 35–70 days.',
+		'Deploy air wings to a base and give them a mission region; they cannot fly beyond their range.',
+		'Armoured and motorised divisions burn fuel; without oil they lose 35% of their strength.',
+		'Form armies and give them a front: their divisions spread out to match the enemy.',
 	];
-	// yükleme müziği: tarayıcı kendiliğinden çalmaya izin vermezse ilk tıklamada/tuşta başlar; tercih hatırlanır
+	// loading music: if the browser blocks autoplay it starts on the first click/key; the choice is remembered
 	const music = document.getElementById('loading-music');
 	const musicBtn = document.getElementById('status-music');
 	let musicOn = true;
-	try { musicOn = localStorage.getItem('ironfront_loading_music') !== 'off'; } catch (e) { /* gizli pencere */ }
+	try { musicOn = localStorage.getItem('ironfront_loading_music') !== 'off'; } catch (e) { /* private window */ }
 	music.volume = 0.55;
-	const showMusic = () => { musicBtn.textContent = '♪ Müzik: ' + (musicOn ? 'açık' : 'kapalı'); };
+	const showMusic = () => { musicBtn.textContent = '♪ Music: ' + (musicOn ? 'on' : 'off'); };
 	const tryPlay = () => { if (musicOn && music.paused) { music.play().catch(() => {}); } };
 	showMusic();
 	tryPlay();
@@ -247,15 +247,15 @@ const engine = new Engine(GODOT_CONFIG);
 			if (current > 0 && total > 0) {
 				statusBar.classList.remove('indeterminate');
 				statusFill.style.width = (100 * current / total).toFixed(1) + '%';
-				statusText.textContent = (phase === 'pack' ? 'Harita ve birlikler indiriliyor' : 'Motor yükleniyor') + ' · ' + mb(current) + ' / ' + mb(total) + ' MB';
+				statusText.textContent = (phase === 'pack' ? 'Downloading map and units' : 'Loading engine') + ' · ' + mb(current) + ' / ' + mb(total) + ' MB';
 			} else {
 				statusBar.classList.add('indeterminate');
-				statusText.textContent = phase === 'pack' ? 'Hazırlanıyor…' : 'Başlatılıyor… (harita hazırlanıyor, birkaç saniye sürebilir)';
+				statusText.textContent = phase === 'pack' ? 'Preparing…' : 'Starting… (building the map, this can take a few seconds)';
 			}
 		};
 
-		// GitHub Pages dosya başına 100 MB sınırı: pck CI'da parçalanır (index.pck.partNN + index.pck.parts.json),
-		// burada indirilip tek Blob olarak motora verilir. Parça listesi yoksa normal index.pck kullanılır.
+		// GitHub Pages allows 100 MB per file: CI splits the pck (index.pck.partNN + index.pck.parts.json),
+		// here the parts are downloaded and handed to the engine as one Blob. Without a part list the plain index.pck is used.
 		async function loadSplitPack() {
 			const exe = GODOT_CONFIG['executable'] || 'index';
 			let manifest;
@@ -269,7 +269,7 @@ const engine = new Engine(GODOT_CONFIG);
 			const buffers = [];
 			for (const name of manifest.parts) {
 				const r = await fetch(name);
-				if (!r.ok) { throw new Error('Paket parçası indirilemedi: ' + name); }
+				if (!r.ok) { throw new Error('Could not download package part: ' + name); }
 				const reader = r.body.getReader();
 				const chunks = [];
 				for (;;) {
@@ -286,7 +286,7 @@ const engine = new Engine(GODOT_CONFIG);
 		loadSplitPack().then((mainPack) => {
 			phase = 'engine';
 			statusBar.classList.add('indeterminate');
-			statusText.textContent = 'Başlatılıyor… (harita hazırlanıyor, birkaç saniye sürebilir)';
+			statusText.textContent = 'Starting… (building the map, this can take a few seconds)';
 			const opts = { 'onProgress': onProgress };
 			if (mainPack) { opts['mainPack'] = mainPack; }
 			return engine.startGame(opts);

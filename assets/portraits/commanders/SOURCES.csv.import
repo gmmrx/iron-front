@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cbrwn44fp1hoa"
+
+[deps]
+
+files=["res://assets/portraits/commanders/SOURCES.file.translation", "res://assets/portraits/commanders/SOURCES.title.translation", "res://assets/portraits/commanders/SOURCES.artist.translation", "res://assets/portraits/commanders/SOURCES.license.translation", "res://assets/portraits/commanders/SOURCES.source.translation"]
+
+source_file="res://assets/portraits/commanders/SOURCES.csv"
+dest_files=["res://assets/portraits/commanders/SOURCES.file.translation", "res://assets/portraits/commanders/SOURCES.title.translation", "res://assets/portraits/commanders/SOURCES.artist.translation", "res://assets/portraits/commanders/SOURCES.license.translation", "res://assets/portraits/commanders/SOURCES.source.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
