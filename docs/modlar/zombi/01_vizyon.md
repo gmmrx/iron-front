@@ -229,7 +229,7 @@ bilimsel bir bulgudur, bir suçlama değildir (§6).
 
 ### 6.1 Ton
 - **Belgesel gerilim.** Dil: telgraf, resmî bülten, kabine tutanağı, radyo anonsu, halk sağlığı afişi. Ses: telsiz cızırtısı, uzak
-  kilise çanı, sessizlik. Korku ani şoktan değil, yavaş yaklaşan sayılardan gelir.
+  istasyon çanı, sessizlik. Korku ani şoktan değil, yavaş yaklaşan sayılardan gelir.
 - **Ciddiyet.** Kara mizah, parodi ve "eğlenceli zombi öldürme" dili yoktur. Kayıplar sayıdır ama her olayın metni insanı hatırlatır
   (bir istasyon şefinin raporu, bir hemşirenin mektubu).
 - **Görsel dil.** Harita düzeyinde soyut: düşmüş bölge işgal gibi çizgili görünür, sürüler yakın zoom'da yavaş yürüyen kalabalık

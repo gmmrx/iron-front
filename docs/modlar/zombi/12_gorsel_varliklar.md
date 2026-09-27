@@ -24,7 +24,7 @@
 
 | Sınır | Neden | Komuttaki ifade |
 |---|---|---|
-| Kan, yara, uzuv kaybı, çürüme yok | 01 §6.2: korku karar ağırlığından gelir; 12+ hedefi | `no blood, no gore, no wounds` |
+| Kan, yara, uzuv kaybı, çürüme yok | 01 §6.2: korku karar ağırlığından gelir; 16+ hedefi (01 §6.6) | `no blood, no gore, no wounds` |
 | Çocuk figürü yok (hasta ya da kurban) | 01 §6.2 | `no children` |
 | Yüzler uzakta, dönük ya da gölgede | Gerçek kişiye benzeme riskini ve dehşet yakın çekimini önler | `figures faceless, turned away or at a distance` |
 | Din simgesi yok | 01 §6.4 gerçek inançlara saygı | `no religious symbols` |
