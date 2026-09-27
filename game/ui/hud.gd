@@ -141,6 +141,7 @@ func _decorate_side_panel(p: Control) -> void:
 	p.position = Vector2(SIDE_X, SIDE_Y)
 	_add_close(p)
 	p.visibility_changed.connect(func() -> void:
+		Audio.panel(p.visible)
 		if p.visible:
 			p.position = Vector2(-p.size.x - 20.0, SIDE_Y)
 			p.modulate.a = 0.0

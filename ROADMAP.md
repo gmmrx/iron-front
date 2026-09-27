@@ -400,13 +400,17 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 
 ---
 
-## BÖLÜM E — SES (Faz 14) ◐
-- [x] Temel sesler: arayüz tıkları, savaş ilanı, muharebe başlangıcı
-- [ ] Her eylem için ses: seçim/emir (asker onayı), inşaat, araştırma bitişi
-- [ ] Muharebe ambiyansı (zoom'a göre silah, top, tank, uçak sesleri)
-- [ ] Haber sesleri: savaş ilanı (basit var), teslim, ittifak
-- [ ] Dinamik müzik: barış / gerginlik / savaş / zafer / yenilgi
-- [ ] Ayrı ses kanalları (müzik / efekt / arayüz)
+## BÖLÜM E — SES (Faz 14) ✔
+- [x] Prosedürel sentez motoru (`tools/audio_synth.py`): dalga tablolu yaylı/bakır/üflemeli, piyano, vurmalılar, salon yankısı, mastering
+- [x] Dinamik müzik (`tools/make_music.py`, 7 parça ~16 dk, OGG): menü teması, barış (2), gerginlik, uzak savaş, oyuncunun savaşı (2);
+      çapraz kararma, tekrarsız sıra; web yükleme ekranında ana tema (açma/kapama düğmeli)
+- [x] Olay müzikleri: oyuncunun savaşı (siren + tutti) ile dünyada savaş farklı; zafer, yenilgi, barış; çalarken müzik kısılır
+- [x] Her eylem için ses (`tools/make_audio.py`, 51 efekt, çeşitlemeli): tık/panel/sekme/anahtar/onay damgası, hız ve duraklatma,
+      inşaat, üretim hattı, araştırma, odak, ticaret, diplomasi, konuşlandırma, telsizli birlik emirleri
+- [x] Bildirim ve bitiş sesleri yumuşak ve kendine özgü; üst üste binmez, sırayla çalar (kuyruk)
+- [x] Muharebe ambiyansı (3D, yakın zoom: tüfek, makineli, top, tank, uçak, gemi topu)
+- [x] Müzik / efekt ses düzeyi ayarı
+- [ ] İttifak ve barış konferansı sesleri; ses kanalları (bus) ve sıkıştırma
 
 ---
 

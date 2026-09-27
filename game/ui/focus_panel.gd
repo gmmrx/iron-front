@@ -57,9 +57,12 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+	Audio.panel(true)
 	refresh()
 
 func close() -> void:
+	if visible:
+		Audio.panel(false)
 	visible = false
 
 func _update_status() -> void:
