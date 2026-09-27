@@ -582,7 +582,7 @@ func _valid_date(s: String) -> bool:
 		return false
 	var m := int(parts[1])
 	var d := int(parts[2])
-	return int(parts[0]) >= 1900 and m >= 1 and m <= 12 and d >= 1 and d <= GameClock.DAYS_IN_MONTH[m - 1]
+	return int(parts[0]) >= 1900 and m >= 1 and m <= 12 and d >= 1 and d <= GameClock.days_in_month(int(parts[0]), m)
 
 ## Geçerli ideolojiler: spirits.json popülerlik şablonlarından (_democratic, _fascism...)
 func _ideologies() -> Array[String]:

@@ -939,7 +939,7 @@ func to_save() -> Array:
 	var out := []
 	for f in fleets:
 		out.append({"id": f.id, "o": f.owner, "n": f.name, "s": f.ships, "d": f.damage, "l": f.location, "h": f.home,
-			"p": Array(f.path), "pr": f.progress, "m": int(f.mission), "z": f.zone_center, "org": f.org, "r": f.returning, "res": f.reserve})
+			"p": Array(f.path), "pr": f.progress, "m": int(f.mission), "z": f.zone_center, "org": f.org, "r": f.returning, "res": f.reserve, "w": f.wander, "pt": f.patrol})
 	return out
 
 func from_save(arr: Array, next_id: int) -> void:
@@ -956,6 +956,7 @@ func from_save(arr: Array, next_id: int) -> void:
 		f.location = int(fd["l"]); f.home = int(fd["h"]); f.path = PackedInt32Array(fd["p"]); f.progress = float(fd["pr"])
 		f.mission = int(fd["m"]) as Fleet.Mission
 		f.zone_center = int(fd["z"]); f.org = float(fd["org"]); f.returning = bool(fd["r"]); f.reserve = bool(fd.get("res", false))
+		f.wander = int(fd.get("w", 0)); f.patrol = bool(fd.get("pt", false))
 		fleets.append(f)
 	_next_id = next_id
 	_power_cache.clear()

@@ -15,7 +15,8 @@ Saldırganlıkla artar (gerekçe hazırlama, ilhak, savaş). Herkesin savaş des
 - **Bağımsızlık garantisi**: ona saldırana karşı savaşa girersin.
 - **Askerî geçiş**: tümenlerin topraklarından geçer (aynı ideoloji ya da müttefik kabul eder, diğerleri %30).
 - **İttifaka davet**: yalnız ittifak lideri.
-- **Beyaz barış**: toprak değişmeden barış; kaybeden taraf kabul eder.
+- **Beyaz barış**: toprak değişmeden barış; kaybeden taraf kabul eder. İki savaş lideri arasındaysa savaş herkes için biter;
+  taraflardan biri müttefik üyeyse yalnız o savaştan çıkar, lider diğerleriyle savaşmayı sürdürür.
 - Kapalı eylemin nedeni satırın altında turuncu yazar.
 
 ## Teslim

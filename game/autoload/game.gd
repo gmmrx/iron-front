@@ -67,7 +67,7 @@ func save_game(slot: String) -> bool:
 		"day_count": World.day_count, "tension": World.world_tension,
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
-		"factions": Politics.factions, "fired_events": Politics.fired_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
+		"factions": Politics.factions, "fired_events": Politics.fired_events, "pending_events": Politics.pending_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
 		"fleets": Navy.to_save(), "fleet_id": Navy._next_id, "wings": Air.to_save(), "wing_id": Air._next_id,
 	}
 	for st: StateRegion in World.states.values():
@@ -93,7 +93,7 @@ func save_game(slot: String) -> bool:
 		}
 	for d in Military.divisions:
 		data["divisions"].append({"id": d.id, "o": d.owner, "t": d.template, "n": d.name, "p": d.province,
-			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold})
+			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold, "ih": d.idle_hours, "sp": d.supplied})
 	data["armies"] = []
 	for a in Military.armies:
 		data["armies"].append({"id": a.id, "o": a.owner, "n": a.name, "e": a.enemy, "m": int(a.mode), "c": a.color.to_html()})
@@ -179,6 +179,7 @@ func load_game(slot: String) -> bool:
 	Diplomacy._start_vp = data.get("start_vp", {})
 	Politics.factions = data["factions"]
 	Politics.fired_events = data.get("fired_events", [])
+	Politics.pending_events = data.get("pending_events", [])      # oyuncunun cevaplamadığı olaylar
 	Military.divisions.clear()
 	Military._stats_cache.clear()
 	for dd: Dictionary in data["divisions"]:
@@ -187,6 +188,7 @@ func load_game(slot: String) -> bool:
 		d.path = PackedInt32Array(dd["path"]); d.progress = float(dd["pr"]); d.strength = float(dd["s"])
 		d.org = float(dd["org"]); d.attacking = int(dd["a"]); d.training = int(dd["tr"])
 		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0)); d.hold = bool(dd.get("h", false))
+		d.idle_hours = int(dd.get("ih", 0)); d.supplied = bool(dd.get("sp", true))
 		Military.divisions.append(d)
 	Military._next_id = int(data["div_id"])
 	if data.has("wings"):
@@ -203,5 +205,8 @@ func load_game(slot: String) -> bool:
 	Military._rebuild_index()
 	World.flush_ownership()
 	World.player_tag = data["player"]
+	# kayıttan türeyen durum hemen yeniden hesaplanır (yoksa bir sonraki ay başına kadar 1936 ticareti kalır)
+	Economy._run_trade()
+	Military._compute_supply()
 	loaded = true
 	return true

@@ -47,6 +47,7 @@ var _fleets: Dictionary = {}
 ## Yeni oyun: 1936 binaları, yasalar, başlangıç üretimi (World.reset() sonrası çağrılır)
 func reset() -> void:
 	var lw := {"start": _law_start}
+	invalidate_counts()          # önceki oyunun (aynı gün numaralı) sayım önbelleği kalmasın
 	load_history()
 	for c: Country in World.countries.values():
 		var start: Dictionary = lw["start"].get(c.tag, lw["start"]["_default"])
@@ -379,8 +380,11 @@ func trade_sellers(c: Country, res: String) -> Array:
 	out.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
 	return out
 
-## Elle ticaret anlaşması ekle / miktarını değiştir (8 kaynak = 1 sivil fabrika)
+## Elle ticaret anlaşması ekle / miktarını değiştir (8 kaynak = 1 sivil fabrika). Düşmandan alınmaz.
 func add_trade(c: Country, res: String, from: String, amount: float) -> bool:
+	var s: Country = World.countries.get(from)
+	if s == null or s == c or not s.exists() or Diplomacy.are_enemies(c.tag, from):
+		return false
 	if not trade_affordable(c, amount):
 		return false
 	for o: Dictionary in c.trade_orders:
@@ -409,6 +413,16 @@ func set_auto_trade(c: Country, on: bool) -> void:
 
 func mark_trade_dirty() -> void:
 	_trade_dirty = true
+
+## Savaş başlayınca elle yapılan (oyuncu) anlaşmalardan düşmanla olanlar aynı gün kesilir
+func on_wars_changed() -> void:
+	for c: Country in World.countries.values():
+		if c.auto_trade:
+			continue
+		for o: Dictionary in c.trade_orders:
+			if Diplomacy.are_enemies(c.tag, str(o["from"])):
+				_run_trade()
+				return
 
 ## Her ay başı (ve hat/yasa değişince) yeniden hesaplanır: açığı olan ülkeler piyasadan alır.
 ## İhracatçının piyasaya açtığı pay ticaret yasasına bağlıdır; alıcı 8 kaynak başına 1 sivil fabrika öder.
@@ -459,6 +473,7 @@ func _run_trade() -> void:
 			if deficit <= 0.0:
 				continue
 			# ihracatçılar: en çok arzı olan önce
+			# NOT: yapay zekâ savaştığı ülkeden de alır; kesmek (abluka) dengeyi değiştirir, bkz. ROADMAP P1
 			var sellers: Array = World.countries.values().filter(func(x: Country) -> bool: return x != c and float(offered[x.tag].get(r, 0)) > 0.0)
 			sellers.sort_custom(func(a: Country, b: Country) -> bool: return offered[a.tag][r] > offered[b.tag][r])
 			for s: Country in sellers:
