@@ -47,7 +47,7 @@ func _add_city(c: City) -> void:
 	var end := 7000.0 if c.is_capital else (3200.0 if c.victory_points >= 10 else 1900.0)
 	var root := _add_icon(tex, c.position, 0, Vector2(begin, end), c.display_name())
 	var sprite := root.get_child(0) as Sprite3D
-	sprite.pixel_size = 0.00022 if c.is_capital else 0.00016
+	sprite.pixel_size = (0.00022 if c.is_capital else 0.00016) * UiTheme.px_scale(tex, 154.0)
 
 func _add_icon(tex: Texture2D, pos: Vector2, level: int, rng: Vector2, _tip: String) -> Node3D:
 	var root := Node3D.new()
@@ -57,7 +57,7 @@ func _add_icon(tex: Texture2D, pos: Vector2, level: int, rng: Vector2, _tip: Str
 	s.texture = tex
 	s.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	s.fixed_size = true
-	s.pixel_size = 0.00016
+	s.pixel_size = 0.00016 * UiTheme.px_scale(tex, 154.0)
 	s.no_depth_test = true
 	s.render_priority = 6
 	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS

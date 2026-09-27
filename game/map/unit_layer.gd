@@ -280,7 +280,7 @@ func _update_battles() -> void:
 		if not _battle_nodes.has(pid):
 			var root := Node3D.new()
 			add_child(root)
-			var s := _sprite(tex, PIXEL * 0.35, 13)
+			var s := _sprite(tex, PIXEL * 0.35 * UiTheme.px_scale(tex, 102.0), 13)
 			root.add_child(s)
 			var l := Label3D.new()
 			l.font = UiTheme.bold_font()

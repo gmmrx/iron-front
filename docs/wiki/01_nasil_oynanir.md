@@ -26,7 +26,9 @@
 | Ticaret, İnşaat, Üretim, Ordu | R, T, Y, U |
 | Donanma, Hava, Lojistik | N, H, L |
 | Tümen seç / kutu seçimi / seçime ekle | Sol tık / sürükle / Shift |
-| Hareket veya saldırı emri | Sağ tık (web'de ve Mac'te Ctrl + sol tık) |
+| Hareket veya saldırı emri | Sağ tık (web'de ve Mac'te tümen seçiliyken Ctrl + sol tık) |
+| Ülkenin genel durumu | Haritada Ctrl basılı tut |
+| O ülkenin siyaset ekranı (salt okunur) | Ctrl + sol tık (tümen seçili değilken) |
 | Kamera | Orta tuş sürükle, tekerlek, iki parmak |
 
 Hareket okları **yeşil** (hareket) ya da **kırmızı** (düşman toprağına taarruz) çizilir. Uzak zoom'da tümen sayıları

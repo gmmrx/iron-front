@@ -7,12 +7,14 @@ const STEP := 8.0          ## bir sivil fabrikanın karşıladığı kaynak
 
 var _cells: Array[Label] = []
 var _auto: CheckButton
-var _body: VBoxContainer
+var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
+var _res := "steel"               ## pazarı gösterilen kaynak
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_body = PanelLayout.frame(self, tr("TRADE_TITLE"), "trade", 520.0)
+	_root = PanelLayout.frame(self, tr("TRADE_TITLE"), "trade", -1.0)     # tam ekran: kaynaklar · pazar · anlaşmalar
 	var top := PanelLayout.fixed(self)
 	_cells = PanelLayout.info_cells(top, [
 		["trade", tr("TRD_CELL_LAW"), tr("TRD_CELL_LAW_TIP")],
@@ -52,11 +54,15 @@ func refresh() -> void:
 	_cells[3].text = "%d%%" % roundi(cf * 100)
 	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if cf >= 0.999 else UiTheme.BAD)
 	_auto.set_pressed_no_signal(c.auto_trade)
-	for ch in _body.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
+	var cols := PanelLayout.columns(_root, [1.25, 1.0, 1.0])
+	_body = cols[1]
+	_market(c)
+	_body = cols[0]
 	PanelLayout.section(_body, tr("TRD_RESOURCES"))
 	var t := PanelLayout.table(_body, [tr("TRADE_RES"), tr("TRADE_PROD"), tr("TRADE_NEED"), tr("TRADE_IMPORT"), tr("TRADE_EXPORT"), tr("TRADE_BALANCE"), ""],
-		[120, 50, 50, 50, 50, 54, 66])
+		[150, 64, 64, 64, 64, 70, 96])
 	var prod_ := Economy.resource_production(c)
 	var need := Economy.resource_need(c)
 	var avail := Economy.resource_available(c)
@@ -68,9 +74,11 @@ func refresh() -> void:
 		for e: Dictionary in c.exports:
 			if e["res"] == r: exp += float(e["amount"])
 		var bal := float(avail.get(r, 0)) - float(need.get(r, 0.0))
-		var buy: Control = Control.new()
-		if not c.auto_trade:
-			buy = _buy_button(c, r, maxf(-bal, 0.0))
+		var buy := PanelLayout.small_button(tr("TRD_MARKET"), func() -> void:
+			_res = r
+			refresh(), true, tr("TRD_MARKET_TIP") % tr("RES_" + r))
+		if r == _res:
+			buy.add_theme_color_override("font_color", UiTheme.ACCENT)
 		var row := PanelLayout.table_row(t, [
 			PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 26),
 			str(int(prod_.get(r, 0))), str(int(need.get(r, 0.0))),
@@ -82,6 +90,7 @@ func refresh() -> void:
 		if bal < -0.5:
 			row.theme_type_variation = "SlotBad"
 	# anlaşmalar
+	_body = cols[2]
 	PanelLayout.section(_body, tr("TRD_DEALS_MANUAL") if not c.auto_trade else tr("TRD_DEALS_AUTO"))
 	if c.imports.is_empty() and c.trade_orders.is_empty():
 		PanelLayout.empty(_body, tr("TRD_NO_IMPORTS"))
@@ -119,6 +128,37 @@ func refresh() -> void:
 			var buyer: Country = World.countries.get(e["to"])
 			PanelLayout.row(_body, FlagFactory.get_flag(buyer) if buyer else null,
 				"-%d %s  →  %s" % [int(e["amount"]), tr("RES_" + e["res"]), buyer.display_name() if buyer else e["to"]], "")
+
+## Pazar: seçili kaynağın satıcıları, ellerindeki arz ve doğrudan satın alma (8'lik adımlar, ödenebildiği kadar)
+func _market(c: Country) -> void:
+	PanelLayout.section(_body, tr("TRD_MARKET_HEAD") % tr("RES_" + _res))
+	var need := float(Economy.resource_need(c).get(_res, 0.0))
+	var avail := float(Economy.resource_available(c).get(_res, 0.0))
+	var cells := PanelLayout.info_cells(_body, [[UiTheme.resource_icon(_res), tr("TRADE_NEED"), ""], ["factory", tr("TRADE_BALANCE"), ""]])
+	cells[0].text = str(int(need))
+	cells[1].text = "%+d" % int(avail - need)
+	cells[1].add_theme_color_override("font_color", UiTheme.GOOD if avail - need >= 0 else UiTheme.BAD)
+	if c.auto_trade:
+		PanelLayout.empty(_body, tr("TRD_AUTO_ON"))
+		return
+	var sellers := Economy.trade_sellers(c, _res)
+	if sellers.is_empty():
+		PanelLayout.empty(_body, tr("TRD_NO_SELLERS"))
+		return
+	for k in mini(sellers.size(), 14):
+		var s: Country = World.countries[sellers[k][0]]
+		var amount := int(sellers[k][1])
+		var col := PanelLayout.row(_body, FlagFactory.get_flag(s), s.display_name(), tr("TRD_SELLER_SUB") % amount, "")
+		var ctl := HBoxContainer.new()
+		ctl.add_theme_constant_override("separation", 3)
+		for q in [8, 16, 24]:
+			var qty := float(mini(q, amount))
+			var ok := qty >= 1.0 and Economy.trade_affordable(c, qty)
+			ctl.add_child(PanelLayout.small_button("+%d" % int(qty), func() -> void:
+				if not Economy.add_trade(c, _res, s.tag, qty):
+					World.notify(tr("TRD_CANT_PAY"), "bad")
+				refresh(), ok, tr("TRD_BUY_QTY") % [int(qty), tr("RES_" + _res), s.display_name(), int(ceil(qty / STEP))] if ok else tr("TRD_CANT_PAY")))
+		PanelLayout.row_action(col, ctl)
 
 ## Açığı olan kaynak için satıcı menüsü
 func _buy_button(c: Country, r: String, deficit: float) -> Control:

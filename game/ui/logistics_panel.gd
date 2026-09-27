@@ -4,12 +4,13 @@ extends PanelContainer
 ## ihtiyaç (eksik + takviye), denge; kaynak üretimi/kullanımı; fabrika ve tersane kullanımı.
 
 var _cells: Array[Label] = []
-var _body: VBoxContainer
+var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_body = PanelLayout.frame(self, tr("LOG_TITLE"), "army", 560.0)
+	_root = PanelLayout.frame(self, tr("LOG_TITLE"), "army", -1.0)     # tam ekran: ekipman · kaynaklar
 	var top := PanelLayout.fixed(self)
 	_cells = PanelLayout.info_cells(top, [
 		["military_factory", tr("PRO_CELL_MIL"), tr("PRO_CELL_MIL_TIP")],
@@ -43,8 +44,10 @@ func refresh() -> void:
 	_cells[1].text = "%d / %d" % [dock_used, Economy.count(c, "dockyard")]
 	_cells[2].text = UiTheme.format_number(maxf(c.fuel, 0.0))
 	_cells[3].text = UiTheme.format_number(c.available_manpower())
-	for ch in _body.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
+	var cols := PanelLayout.columns(_root, [1.4, 1.0])
+	_body = cols[0]
 	# kullanımda: tümenlerin taşıdığı ekipman; ihtiyaç: eksik güç için gereken
 	var in_use := {}
 	var need := {}
@@ -59,7 +62,7 @@ func refresh() -> void:
 		daily[l.equipment] = float(daily.get(l.equipment, 0.0)) + l.last_output
 	PanelLayout.section(_body, tr("LOG_EQUIPMENT"))
 	var t := PanelLayout.table(_body, [tr("LOG_EQUIPMENT"), tr("LOG_STOCK"), tr("LOG_IN_USE"), tr("LOG_DAILY"), tr("LOG_NEED"), tr("LOG_BALANCE")],
-		[150, 62, 70, 58, 62, 70])
+		[220, 90, 100, 90, 90, 100])
 	var any := false
 	for e: String in Economy.equipment.keys():
 		if not (float(c.stockpile.get(e, 0.0)) > 0.0 or in_use.has(e) or daily.has(e)):
@@ -80,6 +83,7 @@ func refresh() -> void:
 			row.theme_type_variation = "SlotBad"
 	if not any:
 		PanelLayout.empty(_body, "—")
+	_body = cols[1]
 	PanelLayout.section(_body, tr("LOG_RESOURCES"))
 	var rt := PanelLayout.table(_body, [tr("LOG_RESOURCES"), tr("LOG_RES_PROD"), tr("LOG_RES_USE"), tr("LOG_BALANCE")], [180, 90, 90, 90])
 	var avail := Economy.resource_available(c)

@@ -20,6 +20,7 @@ var xp := 0.15                         ## tecrübe 0..1: Yeşil · Eğitimli · 
 var planning := 0.0                    ## 0..1 → en çok +%20 saldırı (cephede bekledikçe birikir)
 var army := 0                          ## bağlı olduğu ordu (0 = yok)
 var hold := false                      ## "son askere kadar savun": organizasyon bitince geri çekilmez (oyuncu seçer)
+var manual := false                    ## oyuncu doğrudan emir verdi: orduda kalır ama ordu planı onu oynatmaz
 var s: Dictionary = {}                 ## istatistik önbelleği (Military.div_stats)
 
 const XP_LEVELS := [0.1, 0.3, 0.55, 0.8]          ## eşikler

@@ -542,10 +542,18 @@ UI_SUPPLY_TIP,"SUPPLY\nShare of your divisions that are supplied. Unsupplied div
 UI_SUPPLY_DETAIL,Supplied: %d / %d divisions,İkmalli: %d / %d tümen
 UI_CONVOY_TIP,"CONVOYS\nMerchant ships carrying imports and overseas troops. 1 convoy per 2 imported resources; submarines sink them.","KONVOYLAR\nİthalatı ve deniz aşırı birlikleri taşıyan yük gemileri. İthal edilen her 2 kaynak için 1 konvoy gerekir; denizaltılar batırır."
 UI_CONVOY_DETAIL,In stock: %d · needed for imports: %d,Stokta: %d · ithalat için gereken: %d
-UI_COMMAND_TIP,"STAFF CAPACITY (+%.1f/day, max 200)\nSpent on generals, doctrines and special orders.","KARARGÂH KAPASİTESİ (+%.1f/gün, en çok 200)\nGeneraller, doktrinler ve özel emirler için harcanır."
-UI_XP_ARMY_TIP,"LAND KNOW-HOW\nGained in land battles. Spent on division templates and land doctrines.","KARA BİRİKİMİ\nKara muharebelerinde kazanılır. Tümen şablonları ve kara doktrinleri için harcanır."
-UI_XP_NAVY_TIP,"NAVAL KNOW-HOW\nGained in naval battles. Spent on ship refits and naval doctrines.","DENİZ BİRİKİMİ\nDeniz muharebelerinde kazanılır. Gemi tadilatı ve deniz doktrinleri için harcanır."
-UI_XP_AIR_TIP,"AIR KNOW-HOW\nGained in air combat. Spent on aircraft variants and air doctrines.","HAVA BİRİKİMİ\nHava çatışmalarında kazanılır. Uçak varyantları ve hava doktrinleri için harcanır."
+UI_COMMAND_TIP,"COMMAND POWER (+%.1f/day, max 200)
+Spent on the chain of command: promoting a general to field marshal (30) and training a new general (15). Army screen → Chain of command.","KOMUTA GÜCÜ (+%.1f/gün, en çok 200)
+Komuta zincirinde harcanır: generali mareşalliğe terfi (30), yeni general yetiştirmek (15). Ordu ekranı → Komuta zinciri."
+UI_XP_ARMY_TIP,"LAND KNOW-HOW (NOT IN USE YET)
+Builds up in land battles. Land doctrines to spend it on come in a later phase; it has no effect on the game yet.","KARA BİRİKİMİ (HENÜZ KULLANILMIYOR)
+Kara muharebelerinde birikir. Harcanacağı kara doktrinleri sonraki bir aşamada gelecek; şu an oyuna etkisi yok."
+UI_XP_NAVY_TIP,"NAVAL KNOW-HOW (NOT IN USE YET)
+Builds up in naval battles. Naval doctrines to spend it on come in a later phase; it has no effect on the game yet.","DENİZ BİRİKİMİ (HENÜZ KULLANILMIYOR)
+Deniz muharebelerinde birikir. Harcanacağı deniz doktrinleri sonraki bir aşamada gelecek; şu an oyuna etkisi yok."
+UI_XP_AIR_TIP,"AIR KNOW-HOW (NOT IN USE YET)
+Builds up in air combat. Air doctrines to spend it on come in a later phase; it has no effect on the game yet.","HAVA BİRİKİMİ (HENÜZ KULLANILMIYOR)
+Hava çatışmalarında birikir. Harcanacağı hava doktrinleri sonraki bir aşamada gelecek; şu an oyuna etkisi yok."
 TASK_LOGISTICS_KEY,Logistics (L),Lojistik (L)
 TIP_TASK_LOGISTICS,"Equipment stockpile, daily production, needs and resource balance","Ekipman stoğu, günlük üretim, ihtiyaç ve kaynak dengesi"
 LOG_TITLE,Logistics,Lojistik
@@ -762,7 +770,7 @@ A high crisis index strengthens everyone's home front.","KRİZ ENDEKSİ
 Saldırganlıkla artar: gerekçeler, ilhaklar, savaşlar.
 Demokrasiler ancak yüksek endekste harekete geçebilir; faşist ve komünist devletler daha erken.
 Yüksek kriz endeksi herkesin iç cephesini güçlendirir."
-FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir.
+FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two. Hold and drag on empty space to move around the tree.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir. Ağacı kaydırmak için boş yerde basılı tutup sürükleyin.
 EVENT_CHOICES,Your decision,Kararınız
 ST_SLOTS,Building slots %d / %d,Bina yuvaları %d / %d
 ST_QUEUED,under construction,inşa ediliyor
@@ -776,3 +784,234 @@ EVENT_OPTION_LOCKED,Conditions for this choice are not met.,Bu seçeneğin şart
 DIV_HOLD,Hold to the last man,Son askere kadar
 TIP_DIV_HOLD,HOLD TO THE LAST MAN\nOn: the division never retreats by itself; when its cohesion is exhausted it keeps fighting at half strength until destroyed.\nOff: it retreats to the nearest safe province when cohesion runs out.\nYour divisions start with this on: nobody pulls back without your order.,SON ASKERE KADAR SAVUN\nAçık: tümen kendiliğinden geri çekilmez; bütünlüğü bitince yarı güçle yok olana kadar savaşır.\nKapalı: bütünlük bitince en yakın güvenli bölgeye çekilir.\nTümenlerin açık başlar: emrin olmadan kimse geri dönmez.
 TRD_CANT_PAY,"Not enough civilian factories to pay for more imports (8 resources = 1 factory, after consumer goods).",İthalatı ödeyecek sivil fabrika yok (8 kaynak = 1 fabrika; tüketim malından arta kalanla ödenir).
+RES_TODAY,Today,Bugün
+DIP_COUNTRIES,Countries,Ülkeler
+DIP_SELECT,Select a country,Bir ülke seçin
+DIP_SELECT_HINT,Pick a country from the list on the left (or click one on the map) to see its situation and your diplomatic options.,Durumunu ve diplomatik seçeneklerinizi görmek için soldaki listeden (ya da haritadan) bir ülke seçin.
+TRD_MARKET,Market,Pazar
+TRD_MARKET_TIP,Show the sellers of %s in the market column.,%s satıcılarını pazar sütununda göster.
+TRD_MARKET_HEAD,Market: %s,Pazar: %s
+TRD_AUTO_ON,Automatic trade is on: missing resources are bought for you. Turn it off to make your own deals.,Otomatik ticaret açık: eksik kaynaklar sizin yerinize alınıyor. Kendi anlaşmalarınızı yapmak için kapatın.
+TRD_SELLER_SUB,%d available on the market,Pazarda %d arz
+TRD_BUY_QTY,BUY\n%d %s from %s\nCost: %d civilian factory per day,"SATIN AL\n%d %s, %s ülkesinden\nBedel: günde %d sivil fabrika"
+SET_SECTION_SOUND,Sound,Ses
+SET_SECTION_DISPLAY,Display and game,Görüntü ve oyun
+SET_SECTION_LANG,Language,Dil
+SET_SECTION_MUSIC,Music,Müzik
+SET_UI_SOUNDS,Interface sounds,Arayüz sesleri
+SET_LANG_TR,Türkçe,Türkçe
+SET_LANG_EN,English,English
+SET_LANG_HINT,The interface switches at once; a game in progress continues where it was.,Arayüz hemen değişir; süren oyun kaldığı yerden devam eder.
+SET_MUSIC_AUTO,Automatic (follows the game),Otomatik (oyunun durumuna göre)
+SET_MUSIC_AUTO_TIP,"Menu theme, peace, tension, distant wars and your own war each have their own music; events get short cues.","Menü teması, barış, gerginlik, uzak savaşlar ve sizin savaşınızın ayrı müzikleri var; olaylarda kısa müzikler çalar."
+SET_DONE,Done,Tamam
+MUSIC_main_theme,Main Theme,Ana Tema
+MUSIC_peace_1,Anatolian Morning,Anadolu Sabahı
+MUSIC_peace_2,The Diplomats,Diplomatlar
+MUSIC_tension,Uneasy Peace,Gergin Barış
+MUSIC_war_world,Distant Fronts,Uzak Cepheler
+MUSIC_war_front,Front Line,Cephe Hattı
+MUSIC_war_hold,Last Stand,Son Mevzi
+CTRY_US,Our country,Bizim ülkemiz
+CTRY_ENEMY,At war with us,Bizimle savaşta
+CTRY_ALLY,Ally,Müttefik
+CTRY_NEUTRAL,Not at war with us,Bizimle savaşta değil
+CTRY_AT_WAR,At war with: %s,Savaşta: %s
+CTRY_WAR_GOALS,Holds %d war goal(s),%d savaş gerekçesi var
+CTRY_STATES,States,Eyalet
+CTRY_FOCUS,Program: %s (%d days left),Program: %s (%d gün kaldı)
+CTRY_FORCES,Divisions %d  ·  Ships %d  ·  Aircraft %d,Tümen %d  ·  Gemi %d  ·  Uçak %d
+CTRY_HINT,Ctrl + click: open this country's politics,Ctrl + tık: bu ülkenin siyasetini aç
+CTRY_HINT_ORDER,Ctrl + click gives a move order while units are selected; deselect them to open this country's politics,Birlik seçiliyken Ctrl + tık hareket emridir; bu ülkenin siyaseti için seçimi kaldırın
+CTRY_DAYS_LEFT,%d days left,%d gün kaldı
+POL_VIEWING,You are viewing the government of %s (%s). This screen is read-only.,%s hükümetine bakıyorsunuz (%s). Bu ekran yalnızca görüntüleme içindir.
+POL_VIEW_DIPLOMACY,Diplomacy,Diplomasi
+POL_VIEW_MINE,Back to our government,Kendi hükümetimize dön
+POL_THEIR_FOCUS,STATE PROGRAM,DEVLET PROGRAMI
+POL_NO_FOCUS,No program under way.,Sürdürülen program yok.
+POL_FOCUS_DONE,Completed programs: %d. Latest: %s,Tamamlanan program: %d. Son olanlar: %s
+POL_NO_DECISIONS,No decisions in effect.,Yürürlükte karar yok.
+CMD_RANK_0,General,General
+CMD_RANK_1,Field Marshal,Mareşal
+ARMY_GROUP_NAME,%d. Army Group,%d. Ordular Grubu
+NOTE_CMD_SKILL,%s gained experience in battle: skill %d,%s muharebede tecrübe kazandı: beceri %d
+ARM_CELL_CP,Command power,Komuta gücü
+ARM_CELL_CP_TIP,"COMMAND POWER
+Spent on promoting generals to field marshal and training new generals. Grows every day, faster at war.","KOMUTA GÜCÜ
+Generali mareşalliğe terfi ettirmek ve yeni general yetiştirmek için harcanır. Her gün artar, savaşta daha hızlı."
+ARM_TAB_COMMAND,Chain of command,Komuta zinciri
+ARM_TAB_TEMPLATES,Division templates,Tümen şablonları
+ARM_CHAIN,CHAIN OF COMMAND,KOMUTA ZİNCİRİ
+ARM_INDEPENDENT,INDEPENDENT ARMIES,BAĞIMSIZ ORDULAR
+ARM_NO_ARMIES,No armies yet. Create one below or select divisions on the map and press Create army.,Henüz ordu yok. Aşağıdan kurun ya da haritada tümen seçip Ordu kur'a basın.
+ARM_FREE_NODE,Unassigned divisions: %d,Bağlanmamış tümenler: %d
+ARM_FREE_NODE_SUB,Act only on direct orders,Yalnız doğrudan emirle hareket eder
+ARM_NEW_ARMY,New army,Yeni ordu
+TIP_ARM_NEW_ARMY,"NEW ARMY
+Creates an empty army. Add divisions and pick a commander from the detail view.","YENİ ORDU
+Boş bir ordu kurar. Ayrıntı ekranından tümen katın ve komutan seçin."
+ARM_NEW_GROUP,New army group,Yeni ordular grubu
+TIP_ARM_NEW_GROUP,"NEW ARMY GROUP
+Groups several armies under one field marshal. Front and stance can be given to all its armies at once.","YENİ ORDULAR GRUBU
+Birkaç orduyu bir mareşalin komutasında toplar. Cephe ve duruş bütün ordularına tek seferde verilebilir."
+ARM_CHAIN_HELP,An army group (field marshal) leads several armies; an army (general) leads the divisions on a front. A general's skill is added to the attack and defense of the army's divisions (full effect up to 24 divisions); a field marshal adds half as much to every army in the group. Commanders gain experience in battle and their skill rises.,"Ordular grubu (mareşal) birkaç orduyu, ordu (general) bir cephedeki tümenleri yönetir. Generalin becerisi ordunun tümenlerinin saldırı ve savunmasına eklenir (24 tümene kadar tam etki); mareşal gruptaki bütün ordulara yarısı kadar katkı verir. Komutanlar muharebede tecrübe kazanır, becerileri yükselir."
+ARM_GROUP_COUNTS,%d armies · %d div.,%d ordu · %d tümen
+ARM_NO_MARSHAL,No field marshal,Mareşal yok
+ARM_NO_COMMANDER,No commander,Komutan yok
+ARM_PICK_NONE,— No commander —,— Komutansız —
+ARM_CURRENT,current,şu an
+ARM_BONUS_ARMY,Command bonus for this army's divisions: +%d%% attack and defense,Bu ordunun tümenlerine komuta katkısı: +%%%d saldırı ve savunma
+ARM_NO_COMMANDER_HINT,Without a commander the army gets no command bonus. Pick one from the list or the roster on the right.,Komutansız ordu komuta katkısı almaz. Listeden ya da sağdaki kadrodan birini seçin.
+ARM_FRONT,Front,Cephe
+ARM_STANCE,Stance,Duruş
+ARM_GROUP,Army group,Ordular grubu
+ARM_PICK_INDEPENDENT,Independent,Bağımsız
+TIP_ARM_GROUP,"ARMY GROUP
+The army group this army belongs to. Its field marshal adds to the army's command bonus.","ORDULAR GRUBU
+Bu ordunun bağlı olduğu ordular grubu. Grubun mareşali ordunun komuta katkısına eklenir."
+ARM_DIVS_OF,DIVISIONS (%d/%d),TÜMENLER (%d/%d)
+ARM_OVER_CAP,Too many divisions: above %d the general's bonus is spread thin. Split the army or move divisions.,Tümen fazla: %d tümenin üstünde generalin katkısı bölünür. Orduyu ikiye ayırın ya da tümen aktarın.
+ARM_EMPTY_ARMY,This army has no divisions yet. Add unassigned divisions below or move them from another army.,Bu orduda henüz tümen yok. Aşağıdan bağlanmamış tümen katın ya da başka bir ordudan aktarın.
+ARM_MOVE_TO,Move to…,Aktar…
+ARM_UNASSIGN,Leave the army,Ordudan çıkar
+TIP_ARM_MOVE_DIV,"MOVE DIVISION
+Moves this division to another army or takes it out of the army.","TÜMEN AKTAR
+Tümeni başka bir orduya aktarır ya da ordudan çıkarır."
+ARM_ADD_FREE,UNASSIGNED DIVISIONS (%d),BAĞLANMAMIŞ TÜMENLER (%d)
+ARM_ADD_ALL,Add all %d to this army,%d tümenin hepsini bu orduya kat
+ARM_ADD_ONE,Add,Kat
+ARM_BONUS_GROUP,Command bonus for every army in the group: +%d%% attack and defense,Gruptaki bütün ordulara komuta katkısı: +%%%d saldırı ve savunma
+ARM_NO_MARSHAL_HINT,Only a field marshal can lead an army group. Promote a general in the roster on the right.,Ordular grubunu yalnız bir mareşal yönetebilir. Sağdaki kadrodan bir generali terfi ettirin.
+ARM_GROUP_FRONT,Front of all armies,Bütün orduların cephesi
+ARM_PICK_KEEP,— Keep as it is —,— Olduğu gibi kalsın —
+TIP_ARM_GROUP_FRONT,"GROUP FRONT
+Gives the same front to every army in the group.","GRUP CEPHESİ
+Gruptaki bütün ordulara aynı cepheyi verir."
+ARM_GROUP_STANCE,Stance of all armies,Bütün orduların duruşu
+ARM_GROUP_ARMIES,ARMIES (%d),ORDULAR (%d)
+ARM_GROUP_EMPTY,No armies in this group yet. Add one from the list below.,Bu grupta henüz ordu yok. Aşağıdaki listeden ekleyin.
+ARM_OPEN,Open,Aç
+ARM_REMOVE_FROM_GROUP,Remove,Çıkar
+ARM_ADD_ARMY_PICK,Add an army to the group…,Gruba ordu ekle…
+TIP_ARM_ADD_ARMY,"ADD ARMY
+Puts an army under this group's command.","ORDU EKLE
+Bir orduyu bu grubun komutasına verir."
+ARM_DISBAND_GROUP,Dissolve group,Grubu dağıt
+TIP_ARM_DISBAND_GROUP,"DISSOLVE GROUP
+The armies stay; they become independent.","GRUBU DAĞIT
+Ordular kalır, bağımsız olur."
+ARM_FREE_TITLE,UNASSIGNED DIVISIONS (%d),BAĞLANMAMIŞ TÜMENLER (%d)
+ARM_FREE_HELP,"These divisions belong to no army: they do not hold a front by themselves and get no command bonus. Give them to an army, or form a new army with all of them.","Bu tümenler hiçbir orduya bağlı değil: cepheyi kendiliğinden tutmaz, komuta katkısı almaz. Bir orduya verin ya da hepsiyle yeni bir ordu kurun."
+ARM_FREE_NONE,Every division belongs to an army.,Bütün tümenler bir orduya bağlı.
+ARM_FREE_NEW_ARMY,New army with all %d,%d tümenin hepsiyle yeni ordu
+ARM_JOIN_ARMY,Join army…,Orduya kat…
+TIP_ARM_JOIN,"JOIN ARMY
+Gives this division to the chosen army.","ORDUYA KAT
+Tümeni seçilen orduya verir."
+ARM_ROSTER,COMMANDERS (%d),KOMUTANLAR (%d)
+ARM_ROSTER_HELP,"Command power: %d. Promotion to field marshal: %d, training a new general: %d.","Komuta gücü: %d. Mareşalliğe terfi: %d, yeni general yetiştirmek: %d."
+ARM_IDLE,Unassigned,Boşta
+TIP_COMMANDER,"%s
+Rank: %s
+Skill: %d/5 (experience %d%%)
+As army commander: +%d%% attack and defense
+As army group commander: +%d%% to every army","%s
+Rütbe: %s
+Beceri: %d/5 (tecrübe %%%d)
+Ordu komutanıyken: +%%%d saldırı ve savunma
+Ordular grubu komutanıyken: bütün ordulara +%%%d"
+ARM_ASSIGN,Assign,Ata
+TIP_ARM_ASSIGN,"ASSIGN
+%s takes command of %s. If already commanding elsewhere, that post becomes vacant.","ATA
+%s, %s komutasını alır. Başka bir yerde görevliyse o görev boşalır."
+ARM_PROMOTE,Promote (%d),Terfi (%d)
+TIP_ARM_PROMOTE,"PROMOTE TO FIELD MARSHAL
+%s becomes a field marshal and can lead an army group.
+Cost: %d command power (you have %d).","MAREŞALLİĞE TERFİ
+%s mareşal olur ve bir ordular grubunu yönetebilir.
+Bedel: %d komuta gücü (elinizde %d)."
+ARM_RECRUIT,Train a new general (%d),Yeni general yetiştir (%d)
+TIP_ARM_RECRUIT,"NEW GENERAL
+Promotes a staff officer to general (skill 1).
+Cost: %d command power (you have %d).","YENİ GENERAL
+Kurmay subaylardan birini generalliğe yükseltir (beceri 1).
+Bedel: %d komuta gücü (elinizde %d)."
+ARM_XP,experience %d%%,tecrübe %%%d
+TIP_ARM_PICK,"COMMANDER
+Pick who leads. A commander serving elsewhere is listed only if unassigned.","KOMUTAN
+Komutayı kimin alacağını seçin. Listede boştaki komutanlar yer alır."
+ARM_MANAGE,Manage,Yönet
+TIP_ARM_MANAGE,"MANAGE ARMY
+Opens this army in the chain of command: commander, front, divisions.","ORDUYU YÖNET
+Bu orduyu komuta zincirinde açar: komutan, cephe, tümenler."
+DIVSEL_ORG,Cohesion %d%%,Bütünlük %%%d
+DIVSEL_STR,Strength %d%%,Güç %%%d
+DIVSEL_COMBAT,%d in combat,%d muharebede
+DIVSEL_NOSUP,%d out of supply,%d ikmalsiz
+DIVSEL_MANUAL,%d on direct orders,%d doğrudan emirde
+DIVSEL_MANUAL_TAG,direct,doğrudan
+TIP_DIVSEL_ONLY,"%s
+Click: keep only these in the selection.","%s
+Tıkla: seçimde yalnız bunlar kalsın."
+DIVSEL_MIXED,Divisions from %d different armies,%d ayrı ordudan tümenler
+DIVSEL_NO_ARMY,Not in an army: these divisions act only on direct orders,Orduya bağlı değil: bu tümenler yalnız doğrudan emirle hareket eder
+DIVSEL_NEW_ARMY,New army with these (%d),Seçilenlerle yeni ordu (%d)
+TIP_DIVSEL_NEW_ARMY,"NEW ARMY
+Forms a new army from the selected divisions (they leave their old armies). Pick its commander and front in the Army screen.","YENİ ORDU
+Seçili tümenlerden yeni bir ordu kurar (eski ordularından ayrılırlar). Komutanını ve cephesini Ordu ekranında seçin."
+NOTE_ARMY_FORMED,%s formed with %d divisions,%s kuruldu (%d tümen)
+DIVSEL_JOIN,Join army…,Orduya kat…
+TIP_DIVSEL_JOIN,"JOIN ARMY
+Gives the selected divisions to the chosen army.","ORDUYA KAT
+Seçili tümenleri seçilen orduya verir."
+DIVSEL_LEAVE,Leave army (%d),Ordudan çıkar (%d)
+TIP_DIVSEL_LEAVE,"LEAVE ARMY
+Takes the selected divisions out of their army; they act only on your direct orders.","ORDUDAN ÇIKAR
+Seçili tümenleri ordularından çıkarır; yalnız sizin doğrudan emrinizle hareket ederler."
+DIVSEL_SPLIT,"Split: keep %d, release %d","Böl: %d kalsın, %d bırak"
+TIP_DIVSEL_SPLIT,"SPLIT SELECTION
+Keeps the first half selected and releases the rest, so you can send the two halves to different places.","SEÇİMİ BÖL
+İlk yarı seçili kalır, öbür yarı bırakılır; iki yarıyı ayrı yerlere gönderebilirsiniz."
+DIVSEL_TO_PLAN,Back to army plan (%d),Ordu planına döndür (%d)
+TIP_DIVSEL_TO_PLAN,"BACK TO ARMY PLAN
+A division you order directly stays in its army but the army no longer moves it. This hands it back to the army's front plan.","ORDU PLANINA DÖNDÜR
+Doğrudan emir verdiğiniz tümen ordusunda kalır ama ordu artık onu oynatmaz. Bu düğme tümeni yeniden ordunun cephe planına verir."
+TIP_DIVSEL_ROW,"%s
+Click: select only this division","%s
+Tıkla: yalnız bu tümeni seç"
+TIP_DIVSEL_REMOVE,Remove from selection,Seçimden çıkar
+SEA_CONTROL_TITLE,Naval control,Deniz hâkimiyeti
+SEA_NO_CONTROL,No navy is patrolling this region.,Bu bölgede görevli donanma yok.
+SEA_OUR_SIDE,Our side %d%% · enemy %d%%,Bizim taraf %%%d · düşman %%%d
+SEA_TRANSPORT_RISK,Enemy control: transports and convoys take losses here,Düşman hâkimiyeti: nakliye ve konvoylar burada kayıp verir
+SEA_TRANSPORT_SAFE,Safe for our transports and convoys,Nakliye ve konvoylarımız için güvenli
+SEA_SHIPS,ships,gemi
+CTRY_POPULARITY,%s support: %d%%,%s desteği: %%%d
+CTRY_CIV,Civil. factories,Sivil fabrika
+CTRY_MIL,Mil. factories,Askerî fabrika
+CTRY_DIVS,Divisions,Tümen
+CTRY_SHIPS,Ships,Gemi
+CTRY_PLANES,Aircraft,Uçak
+CTRY_AT_PEACE,At peace,Barış içinde
+CTRY_GOALS_ON,War goals against: %s,Savaş gerekçesi: %s
+CTRY_HOLD_CTRL,Hold Ctrl: this country's overall situation,Ctrl basılı tut: bu ülkenin genel durumu
+DIVSEL_C_DIVS,Divisions,Tümen
+DIVSEL_C_TRAINING,%d still in training,%d tümen hâlâ eğitimde
+DIVSEL_C_ORG,Cohesion,Bütünlük
+DIVSEL_C_STR,Strength,Güç
+DIVSEL_C_COMBAT,In combat,Muharebede
+DIVSEL_C_SUPPLY,Supply,İkmal
+DIVSEL_SUPPLY_OK,Supplied,Tam
+DIVSEL_SUPPLY_BAD,%d cut off,%d ikmalsiz
+DIVSEL_C_MANUAL,Direct orders,Doğrudan emir
+TIP_DIVSEL_TILE,"%s
+%s · %s%s
+Cohesion %d/%d · Strength %d%%
+Experience: %s · Preparation +%d%%
+%s · %s
+Click: select only this division","%s
+%s · %s%s
+Bütünlük %d/%d · Güç %%%d
+Tecrübe: %s · Hazırlık +%%%d
+%s · %s
+Tıkla: yalnız bu tümeni seç"

@@ -1,77 +1,67 @@
 #!/usr/bin/env python3
-"""Iron Front ses seti (prosedürel sentez) -> assets/audio/*.wav
+"""Iron Front ses efektleri (prosedürel sentez) -> assets/audio/*.wav
 
-Amaç: 2. Dünya Savaşı büyük strateji hissi. Arayüz sesleri mekanik/kâğıt dokulu ve kısa; birim sesleri
-telsiz cızırtılı; uyarılar telgraf/daktilo; büyük olaylar davul + boru; muharebe sesleri (3D, yakın zoom'da
-duyulur) tüfek, makineli, top, tank motoru, uçak geçişi, gemi topu. Telifli örnek kullanılmaz.
+Arayüz sesleri mekanik ve kâğıt dokulu (şalter, dosya kapağı, lastik damga, daktilo, telgraf); birim emirleri telsiz
+cızırtısı ve boğuk konuşma; muharebe sesleri (3D, yakın zoom'da) tüfek, makineli, top, tank, uçak, gemi topu.
+Sık çalan sesler 2–3 çeşitlemeyle üretilir (ad_1.wav, ad_2.wav...); oyun rastgele birini seçer.
+Müzikler ve olay müzikleri: tools/make_music.py. Telifli örnek kullanılmaz.
 
 Çalıştır: python3 tools/make_audio.py
 """
-import wave
+import sys
 from pathlib import Path
 
 import numpy as np
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from audio_synth import SR, bandpass, bell as _bell, highpass, lowpass, write_wav  # noqa: E402
+
 OUT = Path(__file__).resolve().parent.parent / "assets" / "audio"
-SR = 44100
-rng = np.random.default_rng(7)
+rng = np.random.default_rng(1938)
 
 
 # ------------------------------------------------------------------ yardımcılar
-def write(name, x, peak=0.8):
-    x = np.asarray(x, dtype=np.float64)
-    x = np.clip(x / (np.abs(x).max() + 1e-9) * peak, -1, 1)
-    data = (x * 32767).astype("<i2")
-    with wave.open(str(OUT / f"{name}.wav"), "wb") as w:
-        w.setnchannels(1)
-        w.setsampwidth(2)
-        w.setframerate(SR)
-        w.writeframes(data.tobytes())
+class Sig(np.ndarray):
+    """Uzunlukları farklı sinyaller toplanınca kısa olan sıfırla uzatılır."""
+    def __add__(self, other):
+        if isinstance(other, np.ndarray) and other.ndim == 1 and self.ndim == 1 and len(other) != len(self):
+            n = max(len(self), len(other))
+            out = np.zeros(n)
+            out[: len(self)] += np.asarray(self)
+            out[: len(other)] += np.asarray(other)
+            return out.view(Sig)
+        return np.ndarray.__add__(self, other)
+
+    __radd__ = __add__
+
+
+def S(x):
+    return np.asarray(x).view(Sig)
+
+
+def bell(*a, **k):
+    return S(_bell(*a, **k))
 
 
 def t_(d):
     return np.arange(int(SR * d)) / SR
 
 
-def env(n, a=0.005, r=0.1, hold=0.0):
-    t = np.arange(n) / SR
-    return np.minimum(t / max(a, 1e-5), 1.0) * np.exp(-np.maximum(t - hold, 0) / r)
-
-
 def noise(d):
-    return rng.standard_normal(int(SR * d))
+    return rng.standard_normal(max(int(SR * d), 1))
 
 
-def band(x, lo, hi):
-    """FFT bant geçiren (yumuşak kenarlı)."""
-    n = len(x)
-    f = np.fft.rfftfreq(n, 1 / SR)
-    m = np.clip((f - lo) / max(lo * 0.3, 20), 0, 1) * np.clip((hi - f) / max(hi * 0.3, 40), 0, 1)
-    return np.fft.irfft(np.fft.rfft(x) * m, n)
+def dec(d, tau):
+    return np.exp(-t_(d) / tau)
 
 
-def lowpass(x, fc):
-    return band(x, 0, fc)
-
-
-def tone(f, d, harm=(1.0,), fm=None):
-    t = t_(d)
-    ph = 2 * np.pi * f * t if fm is None else 2 * np.pi * np.cumsum(fm(t)) / SR
-    x = np.zeros_like(t)
-    for i, h in enumerate(harm, 1):
-        x += h * np.sin(ph * i)
-    return x
-
-
-def reverb(x, d=0.5, wet=0.35, dark=3000):
-    """Basit uzay: azalan gürültü darbe yanıtı ile evrişim."""
-    ir = noise(d) * np.exp(-t_(d) / (d / 3.5))
-    ir = lowpass(ir, dark)
-    ir /= np.abs(ir).sum() / 40
-    y = np.fft.irfft(np.fft.rfft(x, len(x) + len(ir)) * np.fft.rfft(ir, len(x) + len(ir)))
-    out = np.zeros(len(y))
-    out[: len(x)] += x
-    return out + wet * y
+def at(x, offset, part):
+    o = int(SR * offset)
+    n = max(len(x), o + len(part))
+    out = np.zeros(n)
+    out[: len(x)] = x
+    out[o:o + len(part)] += part
+    return S(out)
 
 
 def mix(*parts):
@@ -79,247 +69,419 @@ def mix(*parts):
     out = np.zeros(n)
     for p in parts:
         out[: len(p)] += p
-    return out
+    return S(out)
 
 
-def at(x, offset, part):
-    """x içine offset saniyede part ekle (gerekirse uzatır)."""
-    o = int(SR * offset)
-    n = max(len(x), o + len(part))
+def room(x, d=0.35, wet=0.25, dark=4000, seed=0):
+    """Küçük oda / masa yankısı."""
+    g = np.random.default_rng(seed)
+    ir = g.standard_normal(int(d * SR)) * np.exp(-t_(d) / (d / 4))
+    ir = lowpass(ir, dark)
+    ir /= np.abs(ir).sum() / 30
+    n = len(x) + len(ir)
+    y = np.fft.irfft(np.fft.rfft(x, n) * np.fft.rfft(ir, n), n)
     out = np.zeros(n)
-    out[: len(x)] = x
-    out[o:o + len(part)] += part
-    return out
+    out[: len(x)] += x
+    return out + wet * y
 
 
-def thump(f=70.0, d=0.35, decay=6.0, punch=0.4):
-    """Alçak vuruş: aşağı kayan sinüs + kısa gürültü darbesi."""
+def hall(x, d=1.2, wet=0.4, dark=2500, seed=1):
+    return room(x, d, wet, dark, seed)
+
+
+def tick(d=0.012, lo=2500, hi=9000, tau=0.0015):
+    return S(bandpass(noise(d), lo, hi) * dec(d, tau))
+
+
+def partials(freqs, amps, taus, d):
     t = t_(d)
-    x = np.sin(2 * np.pi * f * (1 + 1.6 * np.exp(-t * 18)) * t) * np.exp(-t * decay)
-    x += lowpass(noise(d), 900) * np.exp(-t * 40) * punch
-    return x
+    x = np.zeros_like(t)
+    for f, a, tau in zip(freqs, amps, taus):
+        x += a * np.sin(2 * np.pi * f * t + rng.uniform(0, 6.28)) * np.exp(-t / tau)
+    return S(x)
 
 
-def crack(d=0.09, lo=900, hi=5000, decay=60):
-    return band(noise(d), lo, hi) * np.exp(-t_(d) * decay)
+def thump(f=70.0, d=0.35, tau=0.12, punch=0.4):
+    t = t_(d)
+    x = np.sin(2 * np.pi * np.cumsum(f * (1 + 1.4 * np.exp(-t / 0.02))) / SR) * np.exp(-t / tau)
+    x += lowpass(noise(d), 900) * np.exp(-t / 0.012) * punch
+    return S(x)
+
+
+def sweep_noise(d, f0, f1, width=0.6):
+    """Merkezi f0'dan f1'e kayan bant gürültüsü (kısa pencerelerle)."""
+    n = int(d * SR)
+    out = np.zeros(n)
+    seg = int(0.02 * SR)
+    for i in range(0, n, seg // 2):
+        fc = f0 + (f1 - f0) * (i / max(n, 1))
+        part = bandpass(noise(seg / SR), fc * (1 - width / 2), fc * (1 + width / 2)) * np.hanning(seg)
+        e = min(n, i + seg)
+        out[i:e] += part[: e - i]
+    return S(out)
+
+
+def radio(x, drive=2.5):
+    """Telsiz: bant sınırlı + hafif doyum."""
+    y = bandpass(x, 350, 3000)
+    y = np.tanh(y * drive / (np.abs(y).max() + 1e-9)) / np.tanh(drive)
+    return S(y)
+
+
+def squelch(d=0.08):
+    return S(bandpass(noise(d), 800, 3500) * np.minimum(t_(d) / 0.004, 1) * dec(d, 0.03))
+
+
+def chatter(d=0.35, seed=0):
+    """Boğuk telsiz konuşması izlenimi: hece zarflı, formantlı gürültü + titreşimli ses tellerini andıran ton (sözsüz)."""
+    g = np.random.default_rng(seed)
+    t = t_(d)
+    syll = np.zeros_like(t)
+    pos = 0.0
+    while pos < d:
+        ln = g.uniform(0.06, 0.13)
+        c = pos + ln / 2
+        syll += np.exp(-((t - c) / (ln / 2.5)) ** 2) * g.uniform(0.5, 1.0)
+        pos += ln + g.uniform(0.01, 0.05)
+    f0 = g.uniform(105, 140) * (1 + 0.08 * np.sin(2 * np.pi * g.uniform(2, 4) * t))
+    ph = 2 * np.pi * np.cumsum(f0) / SR
+    voice = sum(np.sin(k * ph) / k for k in range(1, 18))
+    formants = np.zeros_like(t)
+    for fc, bw in ((g.uniform(500, 800), 200), (g.uniform(1100, 1700), 300), (2500, 400)):
+        formants += bandpass(voice, fc - bw, fc + bw)
+    x = (formants * 0.8 + bandpass(noise(d), 1500, 3000) * 0.15) * syll
+    return S(radio(x, 3.0) * 0.6)
+
+
+def beep(f, d, level=0.5):
+    return S(np.sin(2 * np.pi * f * t_(d)) * np.minimum(t_(d) / 0.003, 1) * np.minimum((d - t_(d)) / 0.006, 1) * level)
+
+
+def step(level=1.0):
+    return S((lowpass(noise(0.08), 1400) * dec(0.08, 0.018) + thump(95, 0.1, 0.03, 0.2) * 0.6) * level)
+
+
+def w(name, x, peak=0.7):
+    write_wav(OUT / f"{name}.wav", x, peak)
 
 
 # ------------------------------------------------------------------ arayüz
 def ui_click():
-    # mekanik tık: kısa yüksek transient + ahşap gövde
-    n = int(SR * 0.05)
-    x = band(noise(0.05), 1800, 6500) * env(n, 0.0005, 0.006)
-    x += np.sin(2 * np.pi * 190 * t_(0.05)) * env(n, 0.0008, 0.02) * 0.9
-    write("ui_click", x, 0.6)
+    """Pirinç şalter: basma + bırakma iki tık, kısa metal çınlama, ahşap gövde."""
+    for i, (pitch, gap) in enumerate(((3100, 0.026), (2750, 0.031), (3450, 0.022)), 1):
+        press = tick(0.012, 2200, 9000, 0.0012) + partials([pitch, pitch * 1.47, pitch * 2.09], [0.35, 0.2, 0.1], [0.01, 0.007, 0.005], 0.04)
+        press = at(press, 0.0, thump(170, 0.05, 0.012, 0.25) * 0.5)
+        rel = tick(0.01, 3000, 9000, 0.001) * 0.45
+        w(f"ui_click_{i}", room(at(press, gap, rel), 0.12, 0.12, 6000, i), 0.55)
 
 
 def ui_hover():
-    n = int(SR * 0.02)
-    x = band(noise(0.02), 3000, 8000) * env(n, 0.0003, 0.003)
-    write("ui_hover", x, 0.25)
+    w("ui_hover", tick(0.008, 4000, 10000, 0.0009), 0.18)
 
 
 def ui_open():
-    # kâğıt kayması + kapanış tıkı
-    n = int(SR * 0.16)
-    slide = band(noise(0.16), 700, 3500) * np.minimum(t_(0.16) / 0.06, 1) * np.exp(-np.maximum(t_(0.16) - 0.09, 0) * 40)
-    x = at(slide * 0.6, 0.12, band(noise(0.04), 1500, 6000) * env(int(SR * 0.04), 0.0005, 0.006))
-    write("ui_open", x, 0.55)
+    """Dosya kapağı açılır: yükselen kâğıt hışırtısı + yumuşak deri tokluğu."""
+    for i, (f0, f1) in enumerate(((900, 3200), (700, 2600)), 1):
+        swish = sweep_noise(0.2, f0, f1) * np.sin(np.pi * np.clip(t_(0.2) / 0.2, 0, 1)) ** 1.5
+        thud = thump(120, 0.12, 0.03, 0.25) * 0.5
+        x = at(swish * 0.7, 0.17, thud)
+        x = at(x, 0.18, tick(0.01, 1500, 6000, 0.002) * 0.3)
+        w(f"ui_open_{i}", room(x, 0.2, 0.18, 5000, 10 + i), 0.5)
 
 
 def ui_close():
-    click = band(noise(0.04), 1500, 6000) * env(int(SR * 0.04), 0.0005, 0.006)
-    slide = band(noise(0.12), 500, 2500) * np.exp(-t_(0.12) * 25)
-    write("ui_close", at(click, 0.02, slide * 0.5), 0.5)
+    """Dosya kapanır: alçalan hışırtı + mandal tıkı."""
+    for i, (f0, f1) in enumerate(((2800, 800), (2400, 700)), 1):
+        swish = sweep_noise(0.15, f0, f1) * np.sin(np.pi * np.clip(t_(0.15) / 0.15, 0, 1)) ** 1.5
+        latch = tick(0.012, 2000, 8000, 0.0015) + partials([2300, 3500], [0.3, 0.15], [0.008, 0.005], 0.03)
+        x = at(swish * 0.6, 0.13, latch * 0.8)
+        w(f"ui_close_{i}", room(x, 0.18, 0.15, 5000, 20 + i), 0.5)
 
 
 def ui_tab():
-    n = int(SR * 0.04)
-    x = band(noise(0.04), 2500, 7000) * env(n, 0.0004, 0.005) + np.sin(2 * np.pi * 320 * t_(0.04)) * env(n, 0.001, 0.012) * 0.5
-    write("ui_tab", x, 0.5)
+    x = tick(0.02, 2000, 7000, 0.004) + beep(520, 0.03, 0.15) * dec(0.03, 0.01)
+    w("ui_tab", room(x, 0.1, 0.1, 6000, 3), 0.45)
 
 
 def ui_error():
-    t = t_(0.18)
-    x = np.sign(np.sin(2 * np.pi * 140 * t)) * 0.4 + np.sin(2 * np.pi * 140 * t)
-    x = lowpass(x, 1200) * env(len(t), 0.005, 0.08)
-    write("ui_error", x, 0.5)
+    knock = lambda: thump(210, 0.08, 0.02, 0.5) + tick(0.01, 800, 3000, 0.003) * 0.5
+    t = t_(0.16)
+    buzz = lowpass(np.sign(np.sin(2 * np.pi * 98 * t)), 900) * np.minimum(t / 0.01, 1) * dec(0.16, 0.06) * 0.35
+    x = at(at(knock(), 0.09, knock() * 0.8), 0.04, buzz)
+    w("ui_error", room(x, 0.15, 0.15, 4000, 4), 0.5)
 
 
-# ------------------------------------------------------------------ birim / emir
-def radio_blip(f=1200, d=0.05):
-    return tone(f, d) * env(int(SR * d), 0.002, 0.02)
+def ui_confirm():
+    """Lastik damga: kâğıda tok vuruş + kâğıt şaklaması + masa yankısı."""
+    for i, f in enumerate((110, 95), 1):
+        stamp = thump(f, 0.18, 0.045, 0.9)
+        slap = bandpass(noise(0.05), 900, 4500) * dec(0.05, 0.01) * 0.6
+        x = at(stamp, 0.004, slap)
+        x = at(x, 0.09, bandpass(noise(0.08), 1200, 5000) * dec(0.08, 0.025) * 0.15)
+        w(f"ui_confirm_{i}", room(x, 0.25, 0.25, 3500, 30 + i), 0.6)
 
 
-def squelch(d=0.07):
-    return band(noise(d), 900, 3200) * env(int(SR * d), 0.002, 0.03)
+def ui_toggle():
+    x = at(tick(0.01, 2500, 9000, 0.001), 0.012, partials([1800, 2700], [0.3, 0.12], [0.02, 0.012], 0.05))
+    w("ui_toggle", room(x, 0.1, 0.1, 6000, 5), 0.45)
 
 
+def ui_speed():
+    x = partials([1400, 3100], [0.5, 0.25], [0.012, 0.006], 0.05) + tick(0.006, 3000, 9000, 0.0008) * 0.6
+    w("ui_speed", room(x, 0.12, 0.12, 6000, 6), 0.4)
+
+
+def ui_pause():
+    """Kol indirme: ağır metal kilitlenme."""
+    x = thump(80, 0.25, 0.06, 0.6) + partials([420, 980, 1630], [0.35, 0.2, 0.12], [0.08, 0.05, 0.03], 0.25)
+    x = at(tick(0.015, 1500, 6000, 0.003) * 0.5, 0.0, x)
+    w("ui_pause", room(x, 0.25, 0.2, 3500, 7), 0.55)
+
+
+def ui_resume():
+    x = at(thump(90, 0.15, 0.04, 0.4), 0.0, tick(0.01, 2000, 8000, 0.002) * 0.4)
+    for k in range(3):
+        x = at(x, 0.12 + k * 0.14, partials([1250, 2800], [0.35, 0.15], [0.012, 0.006], 0.04))
+    w("ui_resume", room(x, 0.2, 0.15, 5000, 8), 0.5)
+
+
+# ------------------------------------------------------------------ eylemler
+def build_queued():
+    """İnşaat: örse iki çekiç + vinç cırcırı."""
+    x = np.zeros(1)
+    for k, (off, f) in enumerate(((0.0, 2150), (0.19, 2310))):
+        hit = partials([f, f * 1.61, f * 2.37, f * 3.2], [0.6, 0.35, 0.2, 0.1], [0.12, 0.08, 0.05, 0.03], 0.3) + tick(0.01, 2000, 9000, 0.001)
+        x = at(x, off, hit * (1.0 - 0.15 * k))
+    for k in range(6):
+        x = at(x, 0.42 + k * 0.035, tick(0.012, 1500, 5000, 0.003) * 0.35)
+    w("build_queued", room(x, 0.35, 0.25, 4000, 40), 0.55)
+
+
+def production_line():
+    """Üretim: pres vuruşu + metal şangırtı + buhar tıslaması."""
+    x = thump(65, 0.35, 0.09, 0.8)
+    x = at(x, 0.03, partials([640, 1450, 2380], [0.4, 0.25, 0.15], [0.1, 0.06, 0.04], 0.3))
+    x = at(x, 0.2, highpass(noise(0.35), 3000) * np.minimum(t_(0.35) / 0.03, 1) * dec(0.35, 0.12) * 0.25)
+    w("production_line", room(x, 0.4, 0.25, 3500, 41), 0.6)
+
+
+def research_start():
+    """Daktilo: düzensiz tuş vuruşları."""
+    x = np.zeros(1)
+    off = 0.0
+    for k in range(7):
+        key = tick(0.02, 1500, 7000, 0.003) + thump(260, 0.03, 0.006, 0.3) * 0.4
+        x = at(x, off, key * rng.uniform(0.7, 1.0))
+        off += rng.uniform(0.055, 0.1)
+    w("research_start", room(x, 0.2, 0.15, 5000, 42), 0.5)
+
+
+def focus_start():
+    """Karar: kâğıt çevirme + damga."""
+    paper = sweep_noise(0.18, 1500, 3500) * np.sin(np.pi * t_(0.18) / 0.18) * 0.5
+    stamp = thump(105, 0.18, 0.045, 0.9) + bandpass(noise(0.05), 900, 4500) * dec(0.05, 0.01) * 0.6
+    w("focus_start", room(at(paper, 0.2, stamp), 0.25, 0.25, 3500, 43), 0.6)
+
+
+def trade_deal():
+    """Ticaret: telgraf 'dit-dah' + madenî para şıngırtısı."""
+    x = np.zeros(1)
+    for off, d in ((0.0, 0.05), (0.09, 0.15)):
+        x = at(x, off, beep(760, d, 0.5) + tick(0.006, 2000, 6000, 0.001) * 0.4)
+    coin = partials([4200, 6100, 7900], [0.4, 0.3, 0.2], [0.12, 0.08, 0.05], 0.3)
+    x = at(x, 0.33, coin)
+    x = at(x, 0.4, coin * 0.6)
+    w("trade_deal", room(x, 0.25, 0.2, 6000, 44), 0.5)
+
+
+def diplomacy():
+    """Diplomasi: kalem gıcırtısı + mühür bası."""
+    t = t_(0.45)
+    pen = bandpass(noise(0.45), 3000, 7000) * (0.5 + 0.5 * np.sin(2 * np.pi * 9 * t) ** 2) * np.minimum(t / 0.03, 1) * dec(0.45, 0.3) * 0.35
+    seal = thump(85, 0.25, 0.06, 0.7) + partials([380, 820], [0.2, 0.1], [0.05, 0.03], 0.1)
+    w("diplomacy", room(at(pen, 0.45, seal), 0.3, 0.25, 3500, 45), 0.55)
+
+
+def deploy():
+    """Konuşlandırma: dört ağır adım + tüfek şakırtısı."""
+    x = np.zeros(1)
+    for k in range(4):
+        x = at(x, k * 0.24, step(0.8 + 0.05 * k))
+        x = at(x, k * 0.24 + 0.02, partials([2600, 3900], [0.15, 0.08], [0.02, 0.012], 0.05))
+    w("deploy", room(x, 0.3, 0.2, 3500, 46), 0.55)
+
+
+# ------------------------------------------------------------------ birimler (telsiz)
 def select_unit():
-    x = mix(squelch(0.08) * 0.8, at(np.zeros(1), 0.03, radio_blip(1100, 0.05)))
-    write("select_unit", x, 0.5)
+    for i in range(1, 4):
+        x = radio(squelch(0.07) * 0.8)
+        x = at(x, 0.05, chatter(rng.uniform(0.22, 0.34), i))
+        x = at(x, 0.05 + 0.34, radio(beep(1150 + 120 * i, 0.04)))
+        w(f"select_unit_{i}", x, 0.5)
 
 
 def order_move():
-    # telsiz "anlaşıldı": iki blip + üç adım
-    x = mix(squelch(0.06) * 0.6, radio_blip(1000, 0.05))
-    x = at(x, 0.08, radio_blip(1350, 0.05))
-    for i in range(3):
-        step = mix(lowpass(noise(0.07), 1200) * env(int(SR * 0.07), 0.001, 0.02), thump(110, 0.08, 40, 0.2) * 0.6)
-        x = at(x, 0.22 + i * 0.13, step * (0.7 + 0.15 * i))
-    write("order_move", x, 0.55)
+    for i in range(1, 4):
+        x = radio(squelch(0.06) * 0.7)
+        x = at(x, 0.04, chatter(rng.uniform(0.25, 0.4), 10 + i))
+        x = at(x, 0.46, radio(beep(1000, 0.045)))
+        x = at(x, 0.52, radio(beep(1350, 0.045)))
+        for k in range(3):
+            x = at(x, 0.62 + k * 0.16, step(0.45 + 0.1 * k))
+        w(f"order_move_{i}", x, 0.55)
 
 
 def order_attack():
-    # telsiz + subay düdüğü
-    x = mix(squelch(0.06) * 0.6, radio_blip(1000, 0.05))
-    whistle = tone(2600, 0.32, harm=(1, 0.25), fm=lambda t: 2600 + 500 * np.minimum(t / 0.1, 1) + 60 * np.sin(2 * np.pi * 28 * t))
-    whistle *= env(int(SR * 0.32), 0.01, 0.12, hold=0.15)
-    x = at(x, 0.1, whistle * 0.5)
-    write("order_attack", x, 0.55)
+    for i in range(1, 3):
+        x = radio(squelch(0.06) * 0.7)
+        x = at(x, 0.04, chatter(rng.uniform(0.25, 0.35), 20 + i) * 1.1)
+        t = t_(0.28)
+        fw = 2700 + 450 * np.minimum(t / 0.06, 1) + 70 * np.sin(2 * np.pi * 30 * t)
+        whistle = np.sin(2 * np.pi * np.cumsum(fw) / SR) * np.minimum(t / 0.01, 1) * np.minimum((0.28 - t) / 0.03, 1)
+        x = at(x, 0.45, whistle * 0.35)
+        x = at(x, 0.8, whistle[: int(0.16 * SR)] * 0.35)
+        x = at(x, 1.0, thump(55, 0.6, 0.2, 0.3) * 0.4)
+        w(f"order_attack_{i}", hall(x, 0.6, 0.2, 2500, 21 + i), 0.55)
 
 
 def select_fleet():
-    # gemi çanı
-    t = t_(0.9)
-    x = np.zeros_like(t)
-    for f, a, dec in ((1050, 1.0, 3.2), (2480, 0.55, 5), (3950, 0.3, 7), (5300, 0.15, 9)):
-        x += a * np.sin(2 * np.pi * f * t) * np.exp(-t * dec)
-    x = at(x, 0.0, band(noise(0.015), 2000, 9000) * env(int(SR * 0.015), 0.0003, 0.004) * 0.6)
-    write("select_fleet", x, 0.5)
+    # 1: gemi çanı iki vuruş; 2: gemi düdüğü
+    b = bell(81, 0.7, 1.2, 1.0)
+    w("select_fleet_1", hall(at(b, 0.28, b * 0.8), 0.8, 0.3, 3000, 50), 0.5)
+    t = t_(1.0)
+    horn = sum(np.sin(2 * np.pi * 117 * k * t) / k ** 1.1 for k in range(1, 14))
+    horn = lowpass(horn, 1400) * np.minimum(t / 0.08, 1) * np.minimum((1.0 - t) / 0.25, 1)
+    w("select_fleet_2", hall(horn * 0.6, 1.2, 0.45, 1500, 51), 0.5)
 
 
 def select_air():
-    # telsiz + pervane vızıltısı
-    t = t_(0.45)
-    prop = np.zeros_like(t)
-    for i, h in enumerate((1, 0.6, 0.4, 0.25, 0.15), 1):
-        prop += h * np.sin(2 * np.pi * 95 * i * t + 0.3 * i)
-    prop = lowpass(prop, 1800) * env(len(t), 0.03, 0.18, hold=0.15)
-    x = mix(squelch(0.06) * 0.6, at(prop * 0.5, 0.0, radio_blip(1250, 0.05)))
-    write("select_air", x, 0.5)
+    for i in range(1, 3):
+        d = 0.8
+        t = t_(d)
+        f = (80 + 45 * i) * (0.6 + 0.4 * np.minimum(t / 0.5, 1))
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        prop = sum(np.sin(k * ph) * (0.8 ** k) for k in range(1, 9))
+        prop = lowpass(prop, 2000) * np.minimum(t / 0.1, 1) * np.minimum((d - t) / 0.25, 1)
+        x = mix(radio(squelch(0.06) * 0.6), at(prop * 0.45, 0.05, radio(beep(1250, 0.04))))
+        w(f"select_air_{i}", x, 0.5)
 
 
-# ------------------------------------------------------------------ uyarılar
+# ------------------------------------------------------------------ uyarılar ve olaylar
+def soft_note(m, d=1.2, vel=0.6, kind="marimba", tau=0.45):
+    """Yumuşak girişli, tizleri alınmış perdeli ses (bildirimler için)."""
+    f = 440 * 2 ** ((m - 69) / 12)
+    t = t_(d)
+    if kind == "marimba":
+        ratios, amps, taus = (1.0, 3.93, 9.2), (1.0, 0.25, 0.06), (tau, tau * 0.35, tau * 0.15)
+    elif kind == "celesta":
+        ratios, amps, taus = (1.0, 2.0, 3.0, 4.1), (1.0, 0.35, 0.12, 0.06), (tau, tau * 0.6, tau * 0.4, tau * 0.3)
+    else:  # "warm": bakır benzeri yumuşak akor sesi
+        ratios, amps, taus = (1.0, 2.0, 3.0, 4.0, 5.0), (1.0, 0.55, 0.3, 0.15, 0.08), (tau,) * 5
+    x = np.zeros_like(t)
+    for r, a, tt in zip(ratios, amps, taus):
+        x += a * np.sin(2 * np.pi * f * r * t + rng.uniform(0, 6.28)) * np.exp(-t / tt)
+    atk = 0.012 if kind != "warm" else 0.09
+    x *= np.minimum(t / atk, 1)
+    return S(lowpass(x, 3500) * vel)
+
+
 def alert():
-    # telgraf: di di dah
-    x = np.zeros(1)
-    for off, d in ((0.0, 0.06), (0.11, 0.06), (0.22, 0.18)):
-        beep = tone(720, d, harm=(1, 0.2)) * env(int(SR * d), 0.003, 0.05, hold=d * 0.6)
-        x = at(x, off, beep)
-        x = at(x, off, band(noise(0.01), 2000, 6000) * env(int(SR * 0.01), 0.0003, 0.003) * 0.5)
-    write("alert", x, 0.45)
-
-
-def research_done():
-    a = tone(988, 0.5, harm=(1, 0.35, 0.12)) * env(int(SR * 0.5), 0.004, 0.16)
-    b = tone(1319, 0.6, harm=(1, 0.3, 0.1)) * env(int(SR * 0.6), 0.004, 0.2)
-    write("research_done", reverb(at(a, 0.12, b), 0.4, 0.3), 0.5)
-
-
-def focus_done():
-    # kauçuk damga: kâğıda vuruş + kısa kâğıt hışırtısı
-    st = thump(140, 0.18, 22, 0.8)
-    paper = band(noise(0.12), 900, 4000) * np.exp(-t_(0.12) * 30) * 0.4
-    write("focus_done", reverb(at(st, 0.03, paper), 0.25, 0.2), 0.6)
+    """1: iyi haber (yükselen büyük üçlü, marimba); 2: kötü haber (alçak, boğuk inen küçük ikili + yumuşak davul)."""
+    good = at(soft_note(72, 1.0, 0.5), 0.13, soft_note(76, 1.2, 0.55))
+    w("notify_good", room(good, 0.4, 0.3, 3000, 61), 0.4)
+    bad = at(soft_note(58, 1.0, 0.55, tau=0.35), 0.16, soft_note(57, 1.3, 0.6, tau=0.45))
+    bad = at(bad, 0.0, thump(70, 0.4, 0.12, 0.05) * 0.35)
+    w("notify_bad", room(bad, 0.45, 0.3, 2500, 62), 0.42)
 
 
 def event():
-    # daktilo şaryo zili + tuş
-    key = band(noise(0.03), 1500, 6000) * env(int(SR * 0.03), 0.0004, 0.006)
-    bell = tone(2100, 0.7, harm=(1, 0.4, 0.15)) * env(int(SR * 0.7), 0.002, 0.22)
-    write("event", reverb(at(key, 0.05, bell * 0.8), 0.35, 0.25), 0.5)
+    """Olay: kısık teleks şakırtısı + derin, yumuşak çan."""
+    x = np.zeros(1)
+    off = 0.0
+    while off < 0.3:
+        x = at(x, off, lowpass(tick(0.012, 1200, 4000, 0.002), 3500) * rng.uniform(0.2, 0.4))
+        off += rng.uniform(0.03, 0.05)
+    x = at(x, 0.36, S(lowpass(bell(67, 0.5, 2.2, 0.5), 3000)))
+    w("event", hall(x, 0.8, 0.3, 3000, 63), 0.45)
+
+
+def research_done():
+    """Araştırma bitti: yükselen üç notalı çelesta arpeji (Do majör)."""
+    x = np.zeros(1)
+    for k, m in enumerate((72, 76, 79)):
+        x = at(x, k * 0.11, soft_note(m, 1.4, 0.45, "celesta", 0.5))
+    w("research_done", hall(x, 0.8, 0.3, 3500, 64), 0.42)
+
+
+def focus_done():
+    """Odak bitti: yumuşak kabaran sıcak bakır beşli (Fa + Do) ve altında kâğıt."""
+    x = mix(soft_note(53, 1.6, 0.5, "warm", 0.7), soft_note(60, 1.6, 0.45, "warm", 0.7), soft_note(65, 1.6, 0.3, "warm", 0.7))
+    x = at(x, 0.0, lowpass(sweep_noise(0.15, 1200, 2500), 3000) * 0.12)
+    w("focus_done", hall(x, 0.9, 0.35, 2500, 65), 0.45)
 
 
 def production_done():
-    # kısa fabrika düdüğü
-    t = t_(0.55)
-    x = tone(640, 0.55, harm=(1, 0.5, 0.3, 0.2)) + band(noise(0.55), 500, 2500) * 0.35
-    x *= env(len(t), 0.03, 0.15, hold=0.25)
-    write("production_done", reverb(x, 0.5, 0.35), 0.45)
+    """İnşaat bitti: tahta vuruş + alçak marimba beşlisi."""
+    knock = lowpass(thump(180, 0.1, 0.02, 0.4), 2500) * 0.6
+    x = at(knock, 0.08, soft_note(60, 1.1, 0.45))
+    x = at(x, 0.2, soft_note(67, 1.2, 0.4))
+    w("production_done", room(x, 0.4, 0.3, 3000, 66), 0.4)
 
 
 def capitulation():
-    # alçalan boru + davul yuvarlaması
-    horn = tone(196, 1.6, harm=(1, 0.6, 0.35, 0.2), fm=lambda t: 196 - 30 * np.minimum(t / 1.2, 1)) * env(int(SR * 1.6), 0.08, 0.5, hold=0.6)
-    roll = np.zeros(1)
-    for i in range(28):
-        roll = at(roll, i * 0.045, band(noise(0.05), 200, 3000) * env(int(SR * 0.05), 0.001, 0.015) * (0.4 + i / 40))
-    x = mix(horn, roll * 0.5, at(np.zeros(1), 1.3, thump(55, 1.2, 3, 0.6)))
-    write("capitulation", reverb(x, 0.9, 0.4), 0.7)
-
-
-def victory():
-    # yükselen boru fanfarı (majör)
-    x = np.zeros(1)
-    for off, f, d in ((0.0, 262, 0.22), (0.22, 330, 0.22), (0.44, 392, 0.22), (0.66, 523, 0.9)):
-        b = tone(f, d, harm=(1, 0.7, 0.45, 0.3, 0.15)) * env(int(SR * d), 0.02, 0.25, hold=d * 0.6)
-        x = at(x, off, b)
-    x = at(x, 0.66, thump(65, 0.9, 3.5, 0.5) * 0.8)
-    write("victory", reverb(x, 0.8, 0.4), 0.7)
-
-
-def war_declare():
-    # üç timpani vuruşu + minör boru akoru + trampet
-    x = np.zeros(1)
-    for off in (0.0, 0.32, 0.64):
-        x = at(x, off, thump(58, 0.7, 4, 0.6))
-    roll = np.zeros(1)
-    for i in range(40):
-        roll = at(roll, 0.55 + i * 0.04, band(noise(0.05), 300, 4000) * env(int(SR * 0.05), 0.001, 0.014) * (0.3 + i / 60))
-    t = t_(2.4)
-    brass = np.zeros_like(t)
-    for f in (110, 130.8, 164.8, 220):
-        brass += tone(f, 2.4, harm=(1, 0.6, 0.35, 0.2, 0.1))
-    brass *= np.minimum(np.maximum(t - 0.6, 0) / 0.3, 1) * np.exp(-np.maximum(t - 1.5, 0) * 2.2) * 0.22
-    x = mix(x, roll * 0.5, brass)
-    write("war_declare", reverb(x, 1.0, 0.4), 0.75)
+    """Başka bir büyük gücün teslimi: uzak çan + boğuk davul."""
+    x = mix(bell(45, 0.7, 4.0, 0.6), at(np.zeros(1), 0.05, thump(50, 1.2, 0.35, 0.4) * 0.6))
+    x = at(x, 1.6, bell(45, 0.5, 4.0, 0.6))
+    w("capitulation", hall(x, 1.6, 0.45, 2000, 66), 0.6)
 
 
 def battle_start():
-    # uzak topçu: iki boğuk gümbürtü
-    x = mix(reverb(thump(48, 1.2, 2.5, 0.3), 1.2, 0.6, 900), at(np.zeros(1), 0.45, reverb(thump(42, 1.4, 2.2, 0.25), 1.2, 0.6, 700) * 0.8))
-    write("battle_start", lowpass(x, 1200), 0.6)
+    for i in range(1, 3):
+        x = mix(hall(thump(46, 1.2, 0.5, 0.3), 1.2, 0.6, 900, 70 + i),
+                at(np.zeros(1), 0.35 + 0.2 * i, hall(thump(40, 1.4, 0.5, 0.25), 1.2, 0.6, 700, 72 + i) * 0.8))
+        w(f"battle_start_{i}", lowpass(x, 1200), 0.6)
 
 
-# ------------------------------------------------------------------ muharebe (3D, yakın zoom)
+# ------------------------------------------------------------------ muharebe (3D, yakın zoom) — önceki tasarım korunur
+def crack(d=0.09, lo=900, hi=5000, tau=0.017):
+    return S(bandpass(noise(d), lo, hi) * dec(d, tau))
+
+
 def rifle_crack():
-    x = mix(crack(0.12, 700, 6000, 45), thump(160, 0.1, 40, 0.5) * 0.5)
-    write("rifle_crack", reverb(x, 0.35, 0.3, 2500), 0.7)
+    x = mix(crack(0.12, 700, 6000, 0.022), thump(160, 0.1, 0.025, 0.5) * 0.5)
+    w("rifle_crack", room(x, 0.35, 0.3, 2500, 80), 0.7)
 
 
 def mg_burst():
     x = np.zeros(1)
     for i in range(7):
-        x = at(x, i * 0.085, mix(crack(0.08, 600, 5000, 55) * (0.9 + 0.2 * rng.random()), thump(140, 0.07, 45, 0.4) * 0.4))
-    write("mg_burst", reverb(x, 0.4, 0.3, 2500), 0.7)
+        x = at(x, i * 0.085, mix(crack(0.08, 600, 5000, 0.018) * (0.9 + 0.2 * rng.random()), thump(140, 0.07, 0.022, 0.4) * 0.4))
+    w("mg_burst", room(x, 0.4, 0.3, 2500, 81), 0.7)
 
 
 def artillery_boom():
-    x = mix(thump(50, 1.4, 2.6, 0.9), crack(0.05, 300, 3000, 80) * 0.6)
-    write("artillery_boom", reverb(x, 1.0, 0.5, 1200), 0.8)
+    x = mix(thump(50, 1.4, 0.38, 0.9), crack(0.05, 300, 3000, 0.012) * 0.6)
+    w("artillery_boom", hall(x, 1.0, 0.5, 1200, 82), 0.8)
 
 
 def explosion():
-    x = mix(thump(38, 1.9, 2.0, 1.2), band(noise(1.4), 200, 4000) * np.exp(-t_(1.4) * 3.5) * 0.5)
+    x = mix(thump(38, 1.9, 0.5, 1.2), bandpass(noise(1.4), 200, 4000) * dec(1.4, 0.28) * 0.5)
     debris = np.zeros(1)
-    for i in range(10):
-        debris = at(debris, 0.25 + rng.random() * 0.9, crack(0.03, 1500, 7000, 120) * 0.25)
-    write("explosion", reverb(mix(x, debris), 1.2, 0.5, 1500), 0.85)
+    for _ in range(10):
+        debris = at(debris, 0.25 + rng.random() * 0.9, crack(0.03, 1500, 7000, 0.008) * 0.25)
+    w("explosion", hall(mix(x, debris), 1.2, 0.5, 1500, 83), 0.85)
 
 
 def tank_engine():
-    # döngü: 2 sn, dizel darbeleri + egzoz gürültüsü (baş/son eşleşir)
     d = 2.0
     t = t_(d)
     pulses = np.sign(np.sin(2 * np.pi * 27 * t)) * 0.5 + np.sin(2 * np.pi * 54 * t) * 0.6 + np.sin(2 * np.pi * 81 * t) * 0.3
-    x = lowpass(pulses, 600) + band(noise(d), 300, 2200) * 0.25
+    x = lowpass(pulses, 600) + bandpass(noise(d), 300, 2200) * 0.25
     x *= 1 + 0.08 * np.sin(2 * np.pi * 1.0 * t)
-    write("tank_engine", x, 0.5)
+    w("tank_engine", x, 0.5)
 
 
 def plane_flyby():
-    # doppler'lı pervane geçişi
     d = 2.6
     t = t_(d)
     f0 = 118 - 40 * (t / d)
@@ -327,61 +489,33 @@ def plane_flyby():
     for i, h in enumerate((1, 0.7, 0.5, 0.35, 0.2, 0.12), 1):
         x += h * np.sin(2 * np.pi * np.cumsum(f0 * i) / SR)
     x = lowpass(x, 2200)
-    wind = band(noise(d), 400, 3000)
+    wind = bandpass(noise(d), 400, 3000)
     amp = np.exp(-((t - d * 0.45) ** 2) / (2 * 0.45 ** 2))
-    write("plane_flyby", (x * 0.7 + wind * 0.3) * amp, 0.6)
+    w("plane_flyby", (x * 0.7 + wind * 0.3) * amp, 0.6)
 
 
 def naval_gun():
-    x = mix(crack(0.06, 200, 2500, 60) * 0.7, thump(44, 1.8, 2.0, 1.0))
-    write("naval_gun", reverb(x, 1.4, 0.55, 900), 0.85)
+    x = mix(crack(0.06, 200, 2500, 0.016) * 0.7, thump(44, 1.8, 0.5, 1.0))
+    w("naval_gun", hall(x, 1.4, 0.55, 900, 84), 0.85)
 
 
-# ------------------------------------------------------------------ ortam
-def ambient():
-    """75 sn: karanlık akor döngüsü + rüzgâr + arada uzak gümbürtü (döngüye uygun)."""
-    d = 75.0
-    n = int(SR * d)
-    t = np.arange(n) / SR
-    chords = [(55, 65.4, 82.4, 110), (49, 61.7, 73.4, 98), (43.7, 55, 65.4, 87.3), (41.2, 49, 61.7, 82.4)]
-    seg = d / len(chords)
-    x = np.zeros(n)
-    for i, ch in enumerate(chords):
-        s = int(i * seg * SR)
-        e = int((i + 1) * seg * SR)
-        tt = t[s:e] - t[s]
-        fade = np.minimum(tt / 4.0, 1.0) * np.minimum((seg - tt) / 4.0, 1.0)
-        for k, f in enumerate(ch):
-            det = 1 + 0.002 * (k - 1.5)
-            v = np.sin(2 * np.pi * f * det * tt) + 0.35 * np.sin(4 * np.pi * f * det * tt) + 0.12 * np.sin(6 * np.pi * f * tt)
-            x[s:e] += v * fade * (0.9 - k * 0.12) * (1 + 0.15 * np.sin(2 * np.pi * 0.1 * tt + k))
-    x = x / np.abs(x).max() * 0.55
-    wind = band(rng.standard_normal(n), 150, 900)
-    wind *= 0.5 + 0.5 * np.sin(2 * np.pi * 0.05 * t) * np.sin(2 * np.pi * 0.013 * t + 1)
-    x += wind * 0.18
-    for off in (9, 27, 44, 61):
-        r = reverb(thump(40, 2.0, 1.8, 0.3), 1.5, 0.7, 600)
-        o = int(off * SR)
-        x[o:o + len(r)] += r[: n - o] * 0.35
-    # döngü dikişini yumuşat
-    k = int(SR * 2)
-    x[:k] *= np.linspace(0, 1, k)
-    x[-k:] *= np.linspace(1, 0, k)
-    write("ambient", x, 0.8)
+ALL = (ui_click, ui_hover, ui_open, ui_close, ui_tab, ui_error, ui_confirm, ui_toggle, ui_speed, ui_pause, ui_resume,
+       build_queued, production_line, research_start, focus_start, trade_deal, diplomacy, deploy,
+       select_unit, order_move, order_attack, select_fleet, select_air,
+       alert, event, research_done, focus_done, production_done, capitulation, battle_start,
+       rifle_crack, mg_burst, artillery_boom, explosion, tank_engine, plane_flyby, naval_gun)
 
+# artık kullanılmayan dosyalar (müzik ve olay müzikleri tools/make_music.py'ye geçti; tek dosyalar çeşitlemeye bölündü)
+OBSOLETE = ("alert_1", "alert_2", "ambient", "victory", "war_declare", "ui_click", "ui_open", "ui_close", "select_unit", "order_move",
+            "order_attack", "select_fleet", "select_air", "alert", "battle_start", "click", "notify", "war")
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
-    for old in ("click", "notify", "war"):
-        p = OUT / f"{old}.wav"
-        if p.exists():
-            p.unlink()
-        pi = OUT / f"{old}.wav.import"
-        if pi.exists():
-            pi.unlink()
-    for fn in (ui_click, ui_hover, ui_open, ui_close, ui_tab, ui_error, select_unit, order_move, order_attack,
-               select_fleet, select_air, alert, research_done, focus_done, event, production_done, capitulation,
-               victory, war_declare, battle_start, rifle_crack, mg_burst, artillery_boom, explosion, tank_engine,
-               plane_flyby, naval_gun, ambient):
+    for old in OBSOLETE:
+        for ext in (".wav", ".wav.import"):
+            p = OUT / f"{old}{ext}"
+            if p.exists():
+                p.unlink()
+    for fn in ALL:
         fn()
-    print(sorted(p.name for p in OUT.glob("*.wav")))
+    print(len(list(OUT.glob("*.wav"))), "efekt:", sorted(p.stem for p in OUT.glob("*.wav")))

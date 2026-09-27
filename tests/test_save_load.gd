@@ -33,6 +33,16 @@ func _play() -> void:
 	var army: Army = Military.create_army("TUR", divs.slice(0, 10))
 	army.enemy = "IRQ"
 	army.mode = Army.Mode.ATTACK
+	# komuta zinciri: ordular grubu, mareşal, general, terfi, yeni general, doğrudan emirdeki tümen
+	var grp := Military.create_group("TUR")
+	var marshal: Commander = Military.commanders_of("TUR").filter(func(x: Commander) -> bool: return x.is_marshal())[0]
+	Military.assign_group_commander(grp, marshal.id)
+	Military.set_army_group(army, grp.id)
+	Military.assign_army_commander(army, Military.free_commanders("TUR")[0].id)
+	c.command_power = 100.0
+	Military.promote(Military.free_commanders("TUR")[0])
+	Military.recruit_commander("TUR")
+	divs[1].manual = true
 	for w in Air.wings_of("TUR"):
 		w.auto = true                       # oyuncu bir kanadı yapay zekâya bırakır
 		break

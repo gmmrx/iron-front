@@ -90,7 +90,7 @@ func _main_buttons() -> void:
 	var saves := Game.list_saves()
 	var can_continue := not saves.is_empty() and GameModes.exists(Game.save_mode(saves[0]))
 	_col.add_child(_menu_button(tr("MENU_CONTINUE"), can_continue, func() -> void: load_pressed.emit(saves[0])))
-	_col.add_child(_menu_button(tr("MENU_SETTINGS"), false, Callable()))
+	_col.add_child(_menu_button(tr("MENU_SETTINGS"), true, open_settings))
 	_col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
 
 ## Mod listesi: her mod için ad düğmesi ve kısa açıklama; en altta geri
@@ -170,3 +170,6 @@ func _menu_button(text: String, enabled: bool, action: Callable) -> Button:
 	if enabled and action.is_valid():
 		b.pressed.connect(action)
 	return b
+
+func open_settings() -> void:
+	add_child(SettingsPanel.new())

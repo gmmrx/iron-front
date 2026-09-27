@@ -62,6 +62,8 @@ jobs:
         run: |
           mkdir -p build/web
           ~/godot/godot --headless --path . --export-release Web build/web/index.html 2>&1 | tail -n 60
+          # yükleme ekranı müziği (tools/make_music.py ana temadan üretir)
+          cp tools/web/loading_theme.mp3 build/web/loading_theme.mp3
           ls -la build/web
 
       - name: Paketi parçala (100 MB sınırı)

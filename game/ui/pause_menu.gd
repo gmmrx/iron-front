@@ -85,49 +85,10 @@ func _load_list() -> void:
 	_btn(tr("SELECT_BACK"), _main)
 
 func _settings() -> void:
-	_clear(tr("PAUSE_SETTINGS"))
-	var fs := CheckButton.new()
-	fs.text = tr("SET_FULLSCREEN")
-	fs.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
-	fs.toggled.connect(func(on: bool) -> void:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if on else DisplayServer.WINDOW_MODE_WINDOWED))
-	_box.add_child(fs)
-	var lang := CheckButton.new()
-	lang.text = tr("SET_ENGLISH")
-	lang.button_pressed = TranslationServer.get_locale().begins_with("en")
-	lang.toggled.connect(func(on: bool) -> void:
-		TranslationServer.set_locale("en" if on else "tr")
-		World.notify(tr("SET_LANG_NOTE"), "info"))
-	_box.add_child(lang)
-	var edge := CheckButton.new()
-	edge.text = tr("SET_EDGE_PAN")
-	var cam := get_viewport().get_camera_3d()
-	edge.button_pressed = cam.edge_pan_enabled if cam and "edge_pan_enabled" in cam else true
-	edge.toggled.connect(func(on: bool) -> void:
-		if cam and "edge_pan_enabled" in cam: cam.edge_pan_enabled = on)
-	_box.add_child(edge)
-	var vol := HSlider.new()
-	vol.min_value = 0.0
-	vol.max_value = 1.0
-	vol.step = 0.05
-	vol.value = db_to_linear(AudioServer.get_bus_volume_db(0))
-	vol.custom_minimum_size.x = 300
-	vol.value_changed.connect(func(v: float) -> void: AudioServer.set_bus_volume_db(0, linear_to_db(maxf(v, 0.001))))
-	_box.add_child(UiTheme.make_label(tr("SET_VOLUME"), 16))
-	_box.add_child(vol)
-	for pair in [["SET_MUSIC", Audio.music_linear(), Audio.set_music_linear], ["SET_SFX", Audio.sfx_linear(), Audio.set_sfx_linear]]:
-		var sl := HSlider.new()
-		sl.min_value = 0.0
-		sl.max_value = 1.0
-		sl.step = 0.05
-		sl.value = pair[1]
-		sl.custom_minimum_size.x = 300
-		sl.value_changed.connect(pair[2])
-		_box.add_child(UiTheme.make_label(tr(pair[0]), 16))
-		_box.add_child(sl)
-	var ai := CheckButton.new()
-	ai.text = tr("SET_AI")
-	ai.button_pressed = AI.enabled
-	ai.toggled.connect(func(on: bool) -> void: AI.enabled = on)
-	_box.add_child(ai)
-	_btn(tr("SELECT_BACK"), _main)
+	var box_panel := _box.get_parent() as Control
+	box_panel.visible = false
+	var sp := SettingsPanel.new()
+	sp.closed.connect(func() -> void:
+		box_panel.visible = true
+		_main())
+	add_child(sp)

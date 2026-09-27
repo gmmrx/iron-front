@@ -3,13 +3,22 @@ extends RefCounted
 ## Yan panel şablonu ve ortak parçalar: başlık bandı (ikon + başlık + kapat), tam boy kaydırmalı
 ## gövde, oyulmuş bölüm çubukları, gömük ikon yuvaları, istatistik satırları, sekmeler, pasta grafik.
 
-const SIDE_TOP := 128.0       ## yan panellerin üst kenarı (üst blok + menü tepsisi altı)
+const SIDE_TOP := 96.0        ## yan panellerin üst kenarı (üst satırın altı)
+const SIDE_LEFT := 84.0       ## yan panellerin sol kenarı (sol menü tepsisinin sağı)
+const SIDE_RIGHT := 12.0
+const WIDTH_SCALE := 1.25     ## paneller tasarım genişliğinden bu kadar geniş açılır
 const SIDE_BOTTOM := 14.0
 
 ## Paneli çerçevele: başlık + kaydırmalı gövde. Gövde VBox'ı döner. Panelde meta "scroll" ve "body" saklanır.
+## width: tasarım genişliği (WIDTH_SCALE ile büyütülür); width <= 0 ise panel tam ekran açılır (menünün sağından ekranın
+## sağına). Kaydırma çubuğu yok: boş yerde basılı tutup sürükleyerek ya da tekerlekle kaydırılır (DragScroll).
 static func frame(panel: PanelContainer, title: String, icon_name: String = "", width: float = 480.0) -> VBoxContainer:
+	var fullscreen := width <= 0.0
+	width = 1200.0 if fullscreen else width * WIDTH_SCALE
 	panel.custom_minimum_size.x = width
 	panel.set_meta("framed", true)
+	if fullscreen:
+		panel.set_meta("fullscreen", true)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 6)
 	panel.add_child(root)
@@ -22,8 +31,8 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	if icon_name != "":
 		var tex := UiTheme.icon(icon_name)
 		if tex:
-			hb.add_child(UiTheme.icon_texture(tex, 26))
-	var t := UiTheme.make_label(title.to_upper(), 19, UiTheme.ACCENT)
+			hb.add_child(UiTheme.icon_texture(tex, 32))
+	var t := UiTheme.make_label(title.to_upper(), 22, UiTheme.ACCENT)
 	t.add_theme_font_override("font", UiTheme.title_font())
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -33,13 +42,14 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 		if panel.has_method("close"):
 			panel.call("close")
 		else:
-			panel.visible = false, 26)
+			panel.visible = false, 30)
 	hb.add_child(close)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size = Vector2(width - 30.0, 200.0)
 	root.add_child(scroll)
+	DragScroll.attach(scroll)
 	var body := VBoxContainer.new()
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 8)
@@ -64,9 +74,13 @@ static func fit_full(panel: Control) -> void:
 	var scroll: ScrollContainer = panel.get_meta("scroll")
 	var vp := panel.get_viewport_rect().size
 	var avail := vp.y - SIDE_TOP - SIDE_BOTTOM
+	if panel.has_meta("fullscreen"):
+		var w := vp.x - SIDE_LEFT - SIDE_RIGHT
+		panel.custom_minimum_size.x = w
+		scroll.custom_minimum_size.x = w - 30.0
 	var fixed := panel.get_combined_minimum_size().y - scroll.custom_minimum_size.y
 	scroll.custom_minimum_size.y = maxf(avail - fixed, 120.0)
-	panel.size = Vector2(panel.size.x, avail)
+	panel.size = Vector2(panel.custom_minimum_size.x if panel.has_meta("fullscreen") else panel.size.x, avail)
 
 ## Oyulmuş bölüm çubuğu (ortada başlık)
 static func section(parent: Container, text: String) -> PanelContainer:
@@ -355,6 +369,36 @@ static func empty(parent: Container, text: String) -> Label:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(l)
 	return l
+
+## Geniş/tam ekran paneller için sütunlar: ratios oranında genişleyen VBox'lar döner
+static func columns(parent: Container, ratios: Array, gap: int = 14) -> Array[VBoxContainer]:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", gap)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(row)
+	var out: Array[VBoxContainer] = []
+	for r in ratios:
+		var col := VBoxContainer.new()
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.size_flags_stretch_ratio = float(r)
+		col.add_theme_constant_override("separation", 8)
+		row.add_child(col)
+		out.append(col)
+	return out
+
+## Renkli (iyi yeşil / kötü kırmızı) ayrıntı kutusu: ipucu metinlerini sayfada da göstermek için
+static func detail(parent: Container, text: String, size: int = 15) -> RichTextLabel:
+	var r := RichTextLabel.new()
+	r.bbcode_enabled = true
+	r.fit_content = true
+	r.scroll_active = false
+	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_color_override("default_color", UiTheme.TEXT)
+	r.text = UiTheme.colorize(text)
+	parent.add_child(r)
+	return r
 
 ## Eski düzen uyumluluğu
 static func fit_scroll(panel: Control, scroll: ScrollContainer, preferred: float) -> void:

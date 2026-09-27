@@ -52,6 +52,12 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 #status-bar.indeterminate #status-fill { width: 30%; animation: slide 1.4s ease-in-out infinite; }
 @keyframes slide { 0% { left: -30%; } 100% { left: 100%; } }
 #status-text { margin-top: 12px; font-size: 17px; color: #d8cba8; min-height: 22px; }
+#status-music {
+	position: absolute; bottom: 8px; left: 14px; font-size: 13px; letter-spacing: 0.08em; cursor: pointer;
+	color: rgba(224,184,94,0.85); background: rgba(10,10,9,0.55); border: 1px solid rgba(140,122,75,0.6);
+	padding: 4px 10px; border-radius: 2px; user-select: none;
+}
+#status-music:hover { color: #f0d08a; border-color: rgba(224,184,94,0.9); }
 #status-hint { position: absolute; bottom: 8px; right: 14px; font-size: 13px; color: rgba(200,190,160,0.55); letter-spacing: 0.08em; }
 #status-progress { display: none; }
 #status-notice {
@@ -84,8 +90,11 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 				<progress id="status-progress"></progress>
 				<div id="status-notice"></div>
 			</div>
+			<div id="status-music" title="Yükleme müziği">♪ Müzik: açık</div>
 			<div id="status-hint">İlk yükleme yaklaşık 370 MB · masaüstü tarayıcı önerilir</div>
 		</div>
+
+		<audio id="loading-music" src="loading_theme.mp3" loop preload="auto"></audio>
 
 		<script src="$GODOT_URL"></script>
 		<script>
@@ -113,6 +122,38 @@ const engine = new Engine(GODOT_CONFIG);
 		'Zırhlı ve motorlu tümenler yakıt tüketir; petrol yoksa güçleri %35 düşer.',
 		'Ordu kurup cephe atayın: tümenler düşman yoğunluğuna göre kendiliğinden dağılır.',
 	];
+	// yükleme müziği: tarayıcı kendiliğinden çalmaya izin vermezse ilk tıklamada/tuşta başlar; tercih hatırlanır
+	const music = document.getElementById('loading-music');
+	const musicBtn = document.getElementById('status-music');
+	let musicOn = true;
+	try { musicOn = localStorage.getItem('ironfront_loading_music') !== 'off'; } catch (e) { /* gizli pencere */ }
+	music.volume = 0.55;
+	const showMusic = () => { musicBtn.textContent = '♪ Müzik: ' + (musicOn ? 'açık' : 'kapalı'); };
+	const tryPlay = () => { if (musicOn && music.paused) { music.play().catch(() => {}); } };
+	showMusic();
+	tryPlay();
+	const firstGesture = () => { tryPlay(); window.removeEventListener('pointerdown', firstGesture); window.removeEventListener('keydown', firstGesture); };
+	window.addEventListener('pointerdown', firstGesture);
+	window.addEventListener('keydown', firstGesture);
+	musicBtn.addEventListener('click', (ev) => {
+		ev.stopPropagation();
+		musicOn = !musicOn;
+		try { localStorage.setItem('ironfront_loading_music', musicOn ? 'on' : 'off'); } catch (e) { /* yok say */ }
+		if (musicOn) { tryPlay(); } else { music.pause(); }
+		showMusic();
+	});
+	function fadeOutMusic() {
+		if (music.paused) { return; }
+		const start = music.volume;
+		const t0 = performance.now();
+		const stepFade = (now) => {
+			const k = Math.min((now - t0) / 2500, 1);
+			music.volume = start * (1 - k);
+			if (k < 1) { requestAnimationFrame(stepFade); } else { music.pause(); }
+		};
+		requestAnimationFrame(stepFade);
+	}
+
 	const statusTip = document.getElementById('status-tip');
 	let tipIndex = Math.floor(Math.random() * TIPS.length);
 	const showTip = () => { statusTip.textContent = TIPS[tipIndex % TIPS.length]; tipIndex += 1; };
@@ -127,6 +168,7 @@ const engine = new Engine(GODOT_CONFIG);
 			return;
 		}
 		if (mode === 'hidden') {
+			fadeOutMusic();
 			statusOverlay.classList.add('fade');
 			setTimeout(() => statusOverlay.remove(), 700);
 			initializing = false;

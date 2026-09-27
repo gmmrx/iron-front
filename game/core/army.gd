@@ -1,6 +1,7 @@
 class_name Army
 extends RefCounted
 ## Ordu: tümen grubu, bir cepheye (hedef ülkeyle sınır) atanır; tümenler cephe boyunca kendiliğinden dağılır.
+## Komuta zinciri: ordular grubu (mareşal) → ordu (general) → tümen.
 ## Duruş: savun (hattı tut) ya da taarruz (cephe bütünlüğünü bozmadan komşu düşman bölgelerine ilerle).
 
 enum Mode { HOLD, ATTACK }
@@ -11,3 +12,5 @@ var name: String
 var enemy := ""                         ## cephe: bu ülkeyle sınır ("" = cephe yok, yerinde bekler)
 var mode: Mode = Mode.HOLD
 var color := Color(0.95, 0.8, 0.3)
+var commander := 0                      ## ordu komutanı (0 = yok)
+var group := 0                          ## bağlı olduğu ordular grubu (0 = bağımsız)

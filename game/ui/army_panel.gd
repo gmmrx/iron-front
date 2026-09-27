@@ -1,31 +1,58 @@
 class_name ArmyPanel
 extends PanelContainer
-## Ordu (U): tümen şablonları, şablon tasarımcısı (tabur dizilişi,
-## +/- tabur, hesaplanan değerler), konuşlandırma şartları ipucunda.
+## Ordu (U), iki sekme:
+## - Komuta zinciri: ordular grubu (mareşal) → ordu (general) → tümen ağacı; seçili düğümün ayrıntısı (komutan,
+##   cephe, duruş, bağlı tümenler, tümen aktarma) ve komutan kadrosu (atama, mareşalliğe terfi, yeni general).
+## - Tümen şablonları: şablon listesi, tabur tasarımcısı, konuşlandırma.
+## Her karar oyuncunundur: oyuncunun ordularına kendiliğinden komutan atanmaz, tümen aktarılmaz.
 
+var units: UnitLayer              ## "haritada seç" için (main bağlar)
 var _cells: Array[Label] = []
-var _body: VBoxContainer
+var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 var _edit := -1
+var _tab := 0                     ## 0 komuta zinciri, 1 şablonlar
+var _sel := ""                    ## "a:ID" ordu, "g:ID" ordular grubu, "free" bağlanmamış tümenler
+var _pending := false
+var _popup_open := false          ## açılır liste açıkken günlük yenileme listeyi kapatmasın
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_body = PanelLayout.frame(self, tr("ARMY_TITLE"), "army", 520.0)
+	_root = PanelLayout.frame(self, tr("ARMY_TITLE"), "army", -1.0)     # tam ekran
 	var top := PanelLayout.fixed(self)
 	_cells = PanelLayout.info_cells(top, [
 		["army", tr("ARM_CELL_DIVS"), tr("ARM_CELL_DIVS_TIP")],
+		["command_power", tr("ARM_CELL_CP"), tr("ARM_CELL_CP_TIP")],
 		["manpower", tr("LOG_CELL_MANPOWER"), tr("LOG_CELL_MANPOWER_TIP")],
-		["equipment_infantry_equipment", tr("ARM_CELL_INF"), tr("ARM_CELL_INF_TIP")],
-		["air", tr("ARM_CELL_AIR"), tr("ARM_CELL_AIR_TIP")]])
+		["equipment_infantry_equipment", tr("ARM_CELL_INF"), tr("ARM_CELL_INF_TIP")]])
 	World.daily_update.connect(func() -> void:
-		if visible: refresh())
+		if visible and not _popup_open and World.day_count % 2 == 0: _queue_refresh())
+	Military.armies_changed.connect(func() -> void:
+		if visible: _queue_refresh())
 
 func open() -> void:
 	visible = true
 	refresh()
 
+## Bir orduyu seçili açar (seçili tümen panelindeki "Yönet")
+func open_army(id: int) -> void:
+	_tab = 0
+	_sel = "a:%d" % id
+	visible = true
+	refresh()
+
 func close() -> void:
 	visible = false
+	_popup_open = false
+
+func _queue_refresh() -> void:
+	if _pending:
+		return
+	_pending = true
+	(func() -> void:
+		_pending = false
+		if visible: refresh()).call_deferred()
 
 static func bat_icon(b: String) -> Texture2D:
 	var eq: Dictionary = Military.battalions[b].get("equipment", {})
@@ -38,11 +65,543 @@ func refresh() -> void:
 		return
 	var divs := Military.country_divisions(c.tag)
 	_cells[0].text = str(divs.size())
-	_cells[1].text = UiTheme.format_number(c.available_manpower())
-	_cells[2].text = UiTheme.format_number(c.stockpile.get("infantry_equipment", 0.0))
-	_cells[3].text = UiTheme.format_number(Military.air_power(c))
-	for ch in _body.get_children():
+	_cells[1].text = "%d" % int(c.command_power)
+	_cells[2].text = UiTheme.format_number(c.available_manpower())
+	_cells[3].text = UiTheme.format_number(c.stockpile.get("infantry_equipment", 0.0))
+	for ch in _root.get_children():
 		ch.queue_free()
+	_popup_open = false
+	PanelLayout.tabs(_root, [tr("ARM_TAB_COMMAND"), tr("ARM_TAB_TEMPLATES")], func(i: int) -> void:
+		_tab = i
+		refresh(), _tab)
+	if _tab == 0:
+		_build_command(c)
+	else:
+		_build_templates(c)
+
+# ================================================================== komuta zinciri
+func _build_command(c: Country) -> void:
+	_validate_sel(c)
+	var cols := PanelLayout.columns(_root, [1.0, 1.5, 1.0])
+	_tree(cols[0], c)
+	var kind := _sel.get_slice(":", 0)
+	var id := int(_sel.get_slice(":", 1)) if _sel.contains(":") else 0
+	if kind == "a" and Military.army_by_id(id):
+		_army_detail(cols[1], c, Military.army_by_id(id))
+	elif kind == "g" and Military.group_by_id(id):
+		_group_detail(cols[1], c, Military.group_by_id(id))
+	else:
+		_free_detail(cols[1], c)
+	_roster(cols[2], c)
+
+func _validate_sel(c: Country) -> void:
+	var kind := _sel.get_slice(":", 0)
+	var id := int(_sel.get_slice(":", 1)) if _sel.contains(":") else 0
+	if kind == "a":
+		var a := Military.army_by_id(id)
+		if a and a.owner == c.tag:
+			return
+	elif kind == "g":
+		var g := Military.group_by_id(id)
+		if g and g.owner == c.tag:
+			return
+	var mine := Military.armies_of(c.tag)
+	_sel = "a:%d" % mine[0].id if not mine.is_empty() else "free"
+
+func _free_divisions(c: Country) -> Array[Division]:
+	var out: Array[Division] = []
+	for d in Military.country_divisions(c.tag):
+		if d.army == 0 or Military.army_by_id(d.army) == null:
+			out.append(d)
+	return out
+
+# ------------------------------------------------------------------ ağaç
+func _tree(col: VBoxContainer, c: Country) -> void:
+	PanelLayout.section(col, tr("ARM_CHAIN"))
+	var groups := Military.groups_of(c.tag)
+	for g in groups:
+		_group_node(col, g)
+		for a in Military.group_armies(g):
+			_army_node(col, a, 26)
+	var solo := Military.armies_of(c.tag).filter(func(a: Army) -> bool: return Military.group_by_id(a.group) == null)
+	if not solo.is_empty() and not groups.is_empty():
+		PanelLayout.section(col, tr("ARM_INDEPENDENT"))
+	for a: Army in solo:
+		_army_node(col, a, 0)
+	if groups.is_empty() and solo.is_empty():
+		PanelLayout.empty(col, tr("ARM_NO_ARMIES"))
+	var free := _free_divisions(c)
+	var fv := _node(col, "free", 0)
+	var fl := UiTheme.make_label(tr("ARM_FREE_NODE") % free.size(), 16, UiTheme.TEXT if not free.is_empty() else UiTheme.TEXT_DIM)
+	fl.add_theme_font_override("font", UiTheme.bold_font())
+	fv.add_child(fl)
+	fv.add_child(_dim(tr("ARM_FREE_NODE_SUB")))
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 6)
+	col.add_child(hb)
+	var na := PanelLayout.small_button(tr("ARM_NEW_ARMY"), func() -> void:
+		var a := Military.create_army(c.tag, [])
+		_sel = "a:%d" % a.id, true, tr("TIP_ARM_NEW_ARMY"))
+	na.icon = UiTheme.icon("plus")
+	na.expand_icon = true
+	na.add_theme_constant_override("icon_max_width", 18)
+	na.custom_minimum_size.y = 38
+	na.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hb.add_child(na)
+	var ng := PanelLayout.small_button(tr("ARM_NEW_GROUP"), func() -> void:
+		var g := Military.create_group(c.tag)
+		_sel = "g:%d" % g.id, true, tr("TIP_ARM_NEW_GROUP"))
+	ng.icon = UiTheme.icon("plus")
+	ng.expand_icon = true
+	ng.add_theme_constant_override("icon_max_width", 18)
+	ng.custom_minimum_size.y = 38
+	ng.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hb.add_child(ng)
+	PanelLayout.detail(col, tr("ARM_CHAIN_HELP"), 13)
+
+## Tıklanınca seçilen ağaç düğümü (seçiliyse altın çerçeve)
+func _node(parent: Container, key: String, indent: int) -> VBoxContainer:
+	var wrap := MarginContainer.new()
+	wrap.add_theme_constant_override("margin_left", indent)
+	parent.add_child(wrap)
+	var pc := PanelContainer.new()
+	pc.theme_type_variation = "SlotGold" if _sel == key else "Row"
+	pc.mouse_filter = Control.MOUSE_FILTER_STOP
+	pc.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	pc.gui_input.connect(func(e: InputEvent) -> void:
+		if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+			Audio.play("ui_click", 120)
+			_sel = key
+			refresh())
+	wrap.add_child(pc)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 2)
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pc.add_child(v)
+	return v
+
+func _group_node(col: VBoxContainer, g: ArmyGroup) -> void:
+	var v := _node(col, "g:%d" % g.id, 0)
+	var hb := _hrow(v)
+	hb.add_child(UiTheme.icon_texture(UiTheme.icon("command_power"), 26))
+	var n := UiTheme.make_label(g.name, 18, UiTheme.ACCENT)
+	n.add_theme_font_override("font", UiTheme.title_font())
+	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hb.add_child(n)
+	var nd := 0
+	var armies := Military.group_armies(g)
+	for a in armies:
+		nd += Military.army_divisions(a).size()
+	hb.add_child(_dim(tr("ARM_GROUP_COUNTS") % [armies.size(), nd]))
+	_commander_line(v, Military.commander_by_id(g.commander), true)
+
+func _army_node(col: VBoxContainer, a: Army, indent: int) -> void:
+	var v := _node(col, "a:%d" % a.id, indent)
+	var divs := Military.army_divisions(a)
+	var hb := _hrow(v)
+	var sw := ColorRect.new()
+	sw.color = a.color
+	sw.custom_minimum_size = Vector2(6, 20)
+	sw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hb.add_child(sw)
+	var n := UiTheme.make_label(a.name, 16, a.color.lightened(0.2))
+	n.add_theme_font_override("font", UiTheme.bold_font())
+	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hb.add_child(n)
+	var cnt := UiTheme.make_label("%d/%d" % [divs.size(), Military.ARMY_CAP], 15, UiTheme.BAD if divs.size() > Military.ARMY_CAP else UiTheme.TEXT)
+	cnt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hb.add_child(cnt)
+	_commander_line(v, Military.commander_by_id(a.commander), false)
+	var front: String = World.countries[a.enemy].display_name() if World.countries.has(a.enemy) else tr("ARMY_NO_FRONT")
+	var st := _hrow(v)
+	var fl := _dim("%s  ·  %s" % [front, tr("ARMY_ATTACK") if a.mode == Army.Mode.ATTACK else tr("ARMY_HOLD")])
+	fl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	st.add_child(fl)
+	st.add_child(_bar(_avg_org(divs), Color(0.45, 0.85, 0.35), 70.0, 5.0))
+
+func _commander_line(v: VBoxContainer, cm: Commander, marshal_slot: bool) -> void:
+	var hb := _hrow(v)
+	if cm == null:
+		var l := UiTheme.make_label(tr("ARM_NO_MARSHAL") if marshal_slot else tr("ARM_NO_COMMANDER"), 14, UiTheme.BAD.lightened(0.2))
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		hb.add_child(l)
+		return
+	var l := UiTheme.make_label("%s %s" % [cm.rank_name(), cm.name], 14, UiTheme.TEXT)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.clip_text = true
+	hb.add_child(l)
+	hb.add_child(_pips(cm.skill))
+
+# ------------------------------------------------------------------ ordu ayrıntısı
+func _army_detail(col: VBoxContainer, c: Country, a: Army) -> void:
+	var divs := Military.army_divisions(a)
+	PanelLayout.section(col, a.name.to_upper())
+	# komutan
+	var cm := Military.commander_by_id(a.commander)
+	var picks: Array = [[tr("ARM_PICK_NONE"), 0]]
+	if cm:
+		picks.append(["%s  (%s)" % [cm.name, tr("ARM_CURRENT")], cm.id])
+	for f in Military.free_commanders(c.tag):
+		picks.append(["%s  ·  %s %d" % [f.name, f.rank_name(), f.skill], f.id])
+	_commander_box(col, cm, picks, a.commander, func(v: int) -> void: Military.assign_army_commander(a, v),
+		tr("ARM_BONUS_ARMY") % roundi(Military.army_bonus(a) * 100.0) if cm or Military.group_by_id(a.group) else tr("ARM_NO_COMMANDER_HINT"))
+	# ayarlar
+	var g := PanelLayout.grid(2)
+	g.add_theme_constant_override("h_separation", 12)
+	col.add_child(g)
+	g.add_child(_label_cell(tr("ARM_FRONT")))
+	var fronts: Array = [[tr("ARMY_NO_FRONT"), ""]]
+	for t in DivisionPanel.front_candidates():
+		fronts.append([World.countries[t].display_name(), t])
+	g.add_child(_option(fronts, a.enemy, func(v: String) -> void:
+		a.enemy = v
+		Military.armies_changed.emit(), tr("TIP_ARMY_FRONT")))
+	g.add_child(_label_cell(tr("ARM_STANCE")))
+	g.add_child(_stance(func() -> Army.Mode: return a.mode, func(m: Army.Mode) -> void:
+		a.mode = m
+		Military.armies_changed.emit()))
+	g.add_child(_label_cell(tr("ARM_GROUP")))
+	var gl: Array = [[tr("ARM_PICK_INDEPENDENT"), 0]]
+	for gr in Military.groups_of(c.tag):
+		gl.append([gr.name, gr.id])
+	g.add_child(_option(gl, a.group, func(v: int) -> void: Military.set_army_group(a, v), tr("TIP_ARM_GROUP")))
+	var act := HBoxContainer.new()
+	act.add_theme_constant_override("separation", 6)
+	col.add_child(act)
+	act.add_child(PanelLayout.small_button(tr("ARMY_SELECT"), func() -> void:
+		if units:
+			units.select_divisions(Military.army_divisions(a), false), not divs.is_empty(), tr("TIP_ARMY_SELECT")))
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	act.add_child(spacer)
+	act.add_child(PanelLayout.small_button(tr("ARMY_DISBAND"), func() -> void: Military.disband_army(a), true, tr("TIP_ARMY_DISBAND")))
+	# tümenler
+	PanelLayout.section(col, tr("ARM_DIVS_OF") % [divs.size(), Military.ARMY_CAP])
+	if divs.size() > Military.ARMY_CAP:
+		PanelLayout.detail(col, tr("ARM_OVER_CAP") % Military.ARMY_CAP, 14)
+	if divs.is_empty():
+		PanelLayout.empty(col, tr("ARM_EMPTY_ARMY"))
+	var targets: Array = [[tr("ARM_MOVE_TO"), -1], [tr("ARM_UNASSIGN"), 0]]
+	for o in Military.armies_of(c.tag):
+		if o != a:
+			targets.append([o.name, o.id])
+	for d in divs:
+		_division_row(col, c, d, _option(targets, -1, func(v: int) -> void:
+			if v >= 0: Military.set_division_army(d, v), tr("TIP_ARM_MOVE_DIV")))
+	# bağlanmamış tümenler buraya katılabilir
+	var free := _free_divisions(c)
+	if not free.is_empty():
+		PanelLayout.section(col, tr("ARM_ADD_FREE") % free.size())
+		col.add_child(PanelLayout.small_button(tr("ARM_ADD_ALL") % free.size(), func() -> void:
+			for d in free:
+				d.army = a.id
+			Military.armies_changed.emit()))
+		for d in free.slice(0, 12):
+			_division_row(col, c, d, PanelLayout.small_button(tr("ARM_ADD_ONE"), func() -> void: Military.set_division_army(d, a.id)))
+		if free.size() > 12:
+			PanelLayout.empty(col, tr("DIV_MORE") % (free.size() - 12))
+
+# ------------------------------------------------------------------ ordular grubu ayrıntısı
+func _group_detail(col: VBoxContainer, c: Country, g: ArmyGroup) -> void:
+	var armies := Military.group_armies(g)
+	PanelLayout.section(col, g.name.to_upper())
+	var cm := Military.commander_by_id(g.commander)
+	var picks: Array = [[tr("ARM_PICK_NONE"), 0]]
+	if cm:
+		picks.append(["%s  (%s)" % [cm.name, tr("ARM_CURRENT")], cm.id])
+	for f in Military.free_commanders(c.tag, true):
+		picks.append(["%s  ·  %s %d" % [f.name, f.rank_name(), f.skill], f.id])
+	_commander_box(col, cm, picks, g.commander, func(v: int) -> void: Military.assign_group_commander(g, v),
+		tr("ARM_BONUS_GROUP") % roundi(Military.MARSHAL_BONUS * (cm.skill if cm else 0) * 100.0) if cm else tr("ARM_NO_MARSHAL_HINT"))
+	# bütün ordulara tek seferde
+	var g2 := PanelLayout.grid(2)
+	g2.add_theme_constant_override("h_separation", 12)
+	col.add_child(g2)
+	g2.add_child(_label_cell(tr("ARM_GROUP_FRONT")))
+	var fronts: Array = [[tr("ARM_PICK_KEEP"), "?"], [tr("ARMY_NO_FRONT"), ""]]
+	for t in DivisionPanel.front_candidates():
+		fronts.append([World.countries[t].display_name(), t])
+	g2.add_child(_option(fronts, "?", func(v: String) -> void:
+		if v == "?": return
+		for a in armies:
+			a.enemy = v
+		Military.armies_changed.emit(), tr("TIP_ARM_GROUP_FRONT")))
+	g2.add_child(_label_cell(tr("ARM_GROUP_STANCE")))
+	var mode := Army.Mode.ATTACK
+	for a in armies:
+		if a.mode == Army.Mode.HOLD:
+			mode = Army.Mode.HOLD
+	g2.add_child(_stance(func() -> Army.Mode: return mode if not armies.is_empty() else Army.Mode.HOLD, func(m: Army.Mode) -> void:
+		for a in armies:
+			a.mode = m
+		Military.armies_changed.emit()))
+	PanelLayout.section(col, tr("ARM_GROUP_ARMIES") % armies.size())
+	if armies.is_empty():
+		PanelLayout.empty(col, tr("ARM_GROUP_EMPTY"))
+	for a in armies:
+		var divs := Military.army_divisions(a)
+		var acm := Military.commander_by_id(a.commander)
+		var r := PanelLayout.row(col, UiTheme.icon("army"), a.name,
+			"%s  ·  %d/%d  ·  %s" % [acm.name if acm else tr("ARM_NO_COMMANDER"), divs.size(), Military.ARMY_CAP,
+				tr("ARMY_ATTACK") if a.mode == Army.Mode.ATTACK else tr("ARMY_HOLD")])
+		var ctl := HBoxContainer.new()
+		ctl.add_theme_constant_override("separation", 4)
+		ctl.add_child(PanelLayout.small_button(tr("ARM_OPEN"), func() -> void:
+			_sel = "a:%d" % a.id
+			refresh()))
+		ctl.add_child(PanelLayout.small_button(tr("ARM_REMOVE_FROM_GROUP"), func() -> void: Military.set_army_group(a, 0)))
+		PanelLayout.row_action(r, ctl)
+	var others: Array = [[tr("ARM_ADD_ARMY_PICK"), 0]]
+	for a in Military.armies_of(c.tag):
+		if a.group != g.id:
+			others.append([a.name + ("  (%s)" % Military.group_by_id(a.group).name if Military.group_by_id(a.group) else ""), a.id])
+	if others.size() > 1:
+		col.add_child(_option(others, 0, func(v: int) -> void:
+			if v > 0: Military.set_army_group(Military.army_by_id(v), g.id), tr("TIP_ARM_ADD_ARMY")))
+	col.add_child(PanelLayout.small_button(tr("ARM_DISBAND_GROUP"), func() -> void: Military.disband_group(g), true, tr("TIP_ARM_DISBAND_GROUP")))
+
+# ------------------------------------------------------------------ bağlanmamış tümenler
+func _free_detail(col: VBoxContainer, c: Country) -> void:
+	var free := _free_divisions(c)
+	PanelLayout.section(col, tr("ARM_FREE_TITLE") % free.size())
+	PanelLayout.detail(col, tr("ARM_FREE_HELP"), 14)
+	if free.is_empty():
+		PanelLayout.empty(col, tr("ARM_FREE_NONE"))
+		return
+	col.add_child(PanelLayout.small_button(tr("ARM_FREE_NEW_ARMY") % free.size(), func() -> void:
+		var a := Military.create_army(c.tag, free)
+		_sel = "a:%d" % a.id, true, tr("TIP_ARMY_CREATE")))
+	var targets: Array = [[tr("ARM_JOIN_ARMY"), 0]]
+	for o in Military.armies_of(c.tag):
+		targets.append([o.name, o.id])
+	for d in free:
+		_division_row(col, c, d, _option(targets, 0, func(v: int) -> void:
+			if v > 0: Military.set_division_army(d, v), tr("TIP_ARM_JOIN")) if targets.size() > 1 else Control.new())
+
+# ------------------------------------------------------------------ komutan kadrosu
+func _roster(col: VBoxContainer, c: Country) -> void:
+	var list := Military.commanders_of(c.tag)
+	list.sort_custom(func(x: Commander, y: Commander) -> bool:
+		if x.rank != y.rank: return x.rank > y.rank
+		if x.skill != y.skill: return x.skill > y.skill
+		return x.name < y.name)
+	PanelLayout.section(col, tr("ARM_ROSTER") % list.size())
+	PanelLayout.detail(col, tr("ARM_ROSTER_HELP") % [int(c.command_power), int(Military.PROMOTE_COST), int(Military.RECRUIT_COST)], 13)
+	var kind := _sel.get_slice(":", 0)
+	var sel_army := Military.army_by_id(int(_sel.get_slice(":", 1))) if kind == "a" else null
+	var sel_group := Military.group_by_id(int(_sel.get_slice(":", 1))) if kind == "g" else null
+	for cm in list:
+		var post := Military.post_of(cm)
+		var post_txt := tr("ARM_IDLE")
+		if post is Army:
+			post_txt = (post as Army).name
+		elif post is ArmyGroup:
+			post_txt = (post as ArmyGroup).name
+		var pc := PanelContainer.new()
+		pc.theme_type_variation = "SlotGold" if cm.is_marshal() else "Row"
+		pc.tooltip_text = tr("TIP_COMMANDER") % [cm.name, cm.rank_name(), cm.skill, roundi(cm.xp * 100),
+			roundi(Military.GENERAL_BONUS * cm.skill * 100), roundi(Military.MARSHAL_BONUS * cm.skill * 100)]
+		col.add_child(pc)
+		var hb := HBoxContainer.new()
+		hb.add_theme_constant_override("separation", 8)
+		pc.add_child(hb)
+		var v := VBoxContainer.new()
+		v.add_theme_constant_override("separation", 1)
+		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hb.add_child(v)
+		var n := UiTheme.make_label(cm.name, 15, UiTheme.ACCENT if cm.is_marshal() else UiTheme.TEXT)
+		n.add_theme_font_override("font", UiTheme.bold_font())
+		n.clip_text = true
+		v.add_child(n)
+		var r2 := HBoxContainer.new()
+		r2.add_theme_constant_override("separation", 6)
+		v.add_child(r2)
+		r2.add_child(_dim(cm.rank_name()))
+		r2.add_child(_pips(cm.skill))
+		r2.add_child(_bar(cm.xp, Color(0.72, 0.5, 0.95), 50.0, 4.0))
+		var pl := _dim(post_txt)
+		if post == null:
+			pl.add_theme_color_override("font_color", UiTheme.TEXT_DIM.darkened(0.2))
+		v.add_child(pl)
+		var btns := VBoxContainer.new()
+		btns.add_theme_constant_override("separation", 2)
+		btns.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		hb.add_child(btns)
+		if sel_army and sel_army.commander != cm.id:
+			btns.add_child(PanelLayout.small_button(tr("ARM_ASSIGN"), func() -> void: Military.assign_army_commander(sel_army, cm.id),
+				true, tr("TIP_ARM_ASSIGN") % [cm.name, sel_army.name]))
+		elif sel_group and sel_group.commander != cm.id and cm.is_marshal():
+			btns.add_child(PanelLayout.small_button(tr("ARM_ASSIGN"), func() -> void: Military.assign_group_commander(sel_group, cm.id),
+				true, tr("TIP_ARM_ASSIGN") % [cm.name, sel_group.name]))
+		if not cm.is_marshal():
+			btns.add_child(PanelLayout.small_button(tr("ARM_PROMOTE") % int(Military.PROMOTE_COST), func() -> void: Military.promote(cm),
+				Military.can_promote(cm), tr("TIP_ARM_PROMOTE") % [cm.name, int(Military.PROMOTE_COST), int(c.command_power)]))
+	col.add_child(PanelLayout.small_button(tr("ARM_RECRUIT") % int(Military.RECRUIT_COST), func() -> void: Military.recruit_commander(c.tag),
+		Military.can_recruit(c.tag), tr("TIP_ARM_RECRUIT") % [int(Military.RECRUIT_COST), int(c.command_power)]))
+
+# ------------------------------------------------------------------ ortak parçalar
+func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: int, on_pick: Callable, bonus_text: String) -> void:
+	var box := PanelContainer.new()
+	box.theme_type_variation = "Row"
+	col.add_child(box)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 12)
+	box.add_child(hb)
+	var s := PanelLayout.slot(UiTheme.icon("command_power"), 64, "", "SlotGold" if cm else "SlotBad")
+	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hb.add_child(s)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 2)
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hb.add_child(v)
+	if cm:
+		var n := UiTheme.make_label(cm.name, 20, UiTheme.ACCENT)
+		n.add_theme_font_override("font", UiTheme.title_font())
+		v.add_child(n)
+		var r := HBoxContainer.new()
+		r.add_theme_constant_override("separation", 8)
+		v.add_child(r)
+		r.add_child(UiTheme.make_label(cm.rank_name(), 15, UiTheme.TEXT))
+		r.add_child(_pips(cm.skill))
+		r.add_child(_dim(tr("ARM_XP") % roundi(cm.xp * 100)))
+		r.add_child(_bar(cm.xp, Color(0.72, 0.5, 0.95), 90.0, 5.0))
+	else:
+		v.add_child(UiTheme.make_label(tr("ARM_NO_COMMANDER"), 18, UiTheme.BAD.lightened(0.2)))
+	PanelLayout.detail(v, bonus_text, 14)
+	var pick := _option(picks, current, on_pick, tr("TIP_ARM_PICK"))
+	pick.custom_minimum_size.x = 250
+	pick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hb.add_child(pick)
+
+func _division_row(col: VBoxContainer, c: Country, d: Division, action: Control) -> void:
+	var s := Military.div_stats(d)
+	var pc := PanelContainer.new()
+	pc.theme_type_variation = "PanelFlat"
+	col.add_child(pc)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 10)
+	pc.add_child(hb)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", -2)
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hb.add_child(v)
+	var n := UiTheme.make_label(d.name, 15, UiTheme.TEXT)
+	n.clip_text = true
+	v.add_child(n)
+	var st := World.state_of_province(d.province)
+	v.add_child(_dim("%s  ·  %s" % [Military.template_name(c, d.template), st.display_name() if st else "—"]))
+	var bars := VBoxContainer.new()
+	bars.add_theme_constant_override("separation", 3)
+	bars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hb.add_child(bars)
+	var ob := _bar(d.org / maxf(s["org"], 1.0), Color(0.45, 0.85, 0.35), 80.0, 5.0)
+	var sb := _bar(d.strength, Color(0.95, 0.78, 0.3), 80.0, 5.0)
+	bars.add_child(ob)
+	bars.add_child(sb)
+	bars.tooltip_text = tr("TIP_ORG") % [int(d.org), int(s["org"])] + "\n" + tr("TIP_STR") % roundi(d.strength * 100)
+	bars.mouse_filter = Control.MOUSE_FILTER_STOP
+	var status := tr("DIV_TRAINING") % d.training if d.training > 0 else (tr("DIV_COMBAT") if d.in_combat else (tr("DIV_MOVING") if d.is_moving() else tr("DIV_IDLE")))
+	if not d.supplied:
+		status += " · " + tr("DIV_NO_SUPPLY")
+	var sl := UiTheme.make_label(status, 13, UiTheme.BAD if not d.supplied or d.in_combat else UiTheme.TEXT_DIM)
+	sl.custom_minimum_size.x = 96
+	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hb.add_child(sl)
+	action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hb.add_child(action)
+
+## Açılır liste: items [[etiket, değer], ...]; seçilince cb(değer)
+func _option(items: Array, current: Variant, cb: Callable, tip: String = "") -> OptionButton:
+	var ob := OptionButton.new()
+	ob.focus_mode = Control.FOCUS_NONE
+	ob.tooltip_text = tip
+	ob.add_theme_font_size_override("font_size", 15)
+	ob.fit_to_longest_item = false
+	ob.custom_minimum_size.x = 170
+	for i in items.size():
+		ob.add_item(str(items[i][0]))
+		if items[i][1] == current:
+			ob.select(i)
+	ob.item_selected.connect(func(i: int) -> void:
+		_popup_open = false
+		cb.call(items[i][1]))
+	ob.get_popup().about_to_popup.connect(func() -> void: _popup_open = true)
+	ob.get_popup().popup_hide.connect(func() -> void: _popup_open = false)
+	return ob
+
+## Savun / Taarruz ikilisi
+func _stance(get_mode: Callable, set_mode: Callable) -> HBoxContainer:
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 4)
+	var group := ButtonGroup.new()
+	for pair: Array in [[Army.Mode.HOLD, tr("ARMY_HOLD"), tr("TIP_ARMY_HOLD")], [Army.Mode.ATTACK, tr("ARMY_ATTACK"), tr("TIP_ARMY_ATTACK")]]:
+		var b := Button.new()
+		b.theme_type_variation = "Tab"
+		b.toggle_mode = true
+		b.button_group = group
+		b.focus_mode = Control.FOCUS_NONE
+		b.text = pair[1]
+		b.tooltip_text = pair[2]
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.set_pressed_no_signal(get_mode.call() == pair[0])
+		var m: Army.Mode = pair[0]
+		b.pressed.connect(func() -> void: set_mode.call(m))
+		hb.add_child(b)
+	return hb
+
+## İnce çubuk, satır yüksekliğine uzamaz
+func _bar(value: float, color: Color, width: float, height: float) -> Control:
+	var b := PanelLayout.bar(value, color, width, height)
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return b
+
+func _pips(skill: int) -> HBoxContainer:
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 2)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for i in Commander.MAX_SKILL:
+		var r := ColorRect.new()
+		r.custom_minimum_size = Vector2(9, 9)
+		r.color = UiTheme.ACCENT if i < skill else Color(1, 1, 1, 0.12)
+		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		h.add_child(r)
+	return h
+
+func _hrow(v: VBoxContainer) -> HBoxContainer:
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 8)
+	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(hb)
+	return hb
+
+func _dim(text: String) -> Label:
+	var l := UiTheme.make_label(text, 13, UiTheme.TEXT_DIM)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return l
+
+func _label_cell(text: String) -> Label:
+	var l := UiTheme.make_label(text, 15, UiTheme.TEXT_DIM)
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return l
+
+func _avg_org(divs: Array[Division]) -> float:
+	if divs.is_empty():
+		return 0.0
+	var t := 0.0
+	for d in divs:
+		t += d.org / maxf(Military.div_stats(d)["org"], 1.0)
+	return t / divs.size()
+
+# ================================================================== tümen şablonları
+func _build_templates(c: Country) -> void:
+	var cols := PanelLayout.columns(_root, [1.0, 1.1])
+	_body = cols[0]
+	if _edit < 0 and not c.templates.is_empty():
+		_edit = 0
 	PanelLayout.section(_body, tr("ARM_TEMPLATES") % c.templates.size())
 	for i in c.templates.size():
 		_template_row(c, i)
@@ -58,6 +617,7 @@ func refresh() -> void:
 		_edit = c.templates.size() - 1
 		refresh())
 	_body.add_child(newb)
+	_body = cols[1]
 	if _edit >= 0 and _edit < c.templates.size():
 		_build_designer(c, _edit)
 

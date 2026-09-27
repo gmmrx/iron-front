@@ -26,7 +26,7 @@ var events: EventPopup
 var feed: NotificationFeed
 var pause_menu: PauseMenu
 var game_over: GameOverScreen
-var task_bar: HBoxContainer
+var task_bar: VBoxContainer
 var alerts: AlertBar
 var select_box: Panel
 
@@ -59,9 +59,15 @@ func _ready() -> void:
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
 	politics.focus_requested.connect(func() -> void: toggle_focus())
+	politics.diplomacy_requested.connect(func(tag: String) -> void:
+		_close_all()
+		diplomacy.open_for(tag))
 	root.add_child(focus)
 	divisions = DivisionPanel.new()
 	root.add_child(divisions)
+	divisions.manage_army.connect(func(id: int) -> void:
+		_close_all()
+		army.open_army(id))
 	feed = NotificationFeed.new()
 	root.add_child(feed)
 	task_bar = top_bar.task_row
@@ -78,9 +84,9 @@ func _ready() -> void:
 		b.icon = UiTheme.icon_or(t[3], t[1])
 		b.expand_icon = true
 		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.add_theme_constant_override("icon_max_width", 38)
+		b.add_theme_constant_override("icon_max_width", 54)
 		for spec: Array in [["normal", "menu_btn"], ["hover", "menu_btn_hover"], ["pressed", "menu_btn_pressed"], ["hover_pressed", "menu_btn_pressed"]]:
-			var sb2 := UiTheme.skin(spec[1], 8, 3)
+			var sb2 := UiTheme.skin(spec[1], 8, 1)          # resim düğmeyi doldursun (iç boşluk 1 px)
 			b.add_theme_stylebox_override(spec[0], sb2)
 		b.add_theme_color_override("icon_normal_color", Color(1.25, 1.2, 1.1))
 		b.add_theme_color_override("icon_hover_color", Color(1.45, 1.4, 1.3))
@@ -89,14 +95,14 @@ func _ready() -> void:
 		var label: String = tr(t[0])
 		var tipkey: String = "TIP_" + String(t[0]).replace("_KEY", "")
 		b.tooltip_text = "%s\n%s" % [label, tr(tipkey)]
-		b.custom_minimum_size = Vector2(54, 46)
+		b.custom_minimum_size = Vector2(58, 52)
 		b.pressed.connect(t[2])
 		var m := RegEx.create_from_string("\\(([^)]+)\\)").search(label)
 		if m:
 			var k := UiTheme.make_label(m.get_string(1), 13, Color(1.0, 0.93, 0.75))
 			k.add_theme_font_override("font", UiTheme.bold_font())
 			k.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			k.position = Vector2(40, 27)
+			k.position = Vector2(45, 33)
 			k.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 1))
 			k.add_theme_constant_override("shadow_offset_x", 1)
 			k.add_theme_constant_override("shadow_offset_y", 1)
@@ -104,12 +110,10 @@ func _ready() -> void:
 			k.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 			b.add_child(k)
 		task_bar.add_child(b)
-	var sep := VSeparator.new()
-	sep.custom_minimum_size = Vector2(14, 0)
-	task_bar.add_child(sep)
 	alerts = AlertBar.new()
 	alerts.hud = self
-	task_bar.add_child(alerts)
+	alerts.strip = top_bar.alert_strip
+	top_bar.alert_row.add_child(alerts)
 	select_box = Panel.new()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(1.0, 0.85, 0.4, 0.12)
@@ -133,14 +137,15 @@ func _ready() -> void:
 		_close_all()
 		diplomacy.open_for(tag))
 
-const SIDE_X := 12.0
-const SIDE_Y := 128.0
+const SIDE_X := PanelLayout.SIDE_LEFT      ## yan paneller sol menünün sağından açılır
+const SIDE_Y := PanelLayout.SIDE_TOP
 
 ## Yan paneller: sol kenara sabit, başlıkta kapatma düğmesi, açılırken kayarak gelir
 func _decorate_side_panel(p: Control) -> void:
 	p.position = Vector2(SIDE_X, SIDE_Y)
 	_add_close(p)
 	p.visibility_changed.connect(func() -> void:
+		Audio.panel(p.visible)
 		if p.visible:
 			p.position = Vector2(-p.size.x - 20.0, SIDE_Y)
 			p.modulate.a = 0.0
@@ -167,6 +172,15 @@ func _add_close(p: Control) -> void:
 func is_mouse_over_ui() -> bool:
 	var c := root.get_viewport().gui_get_hovered_control()
 	return c != null and c != root
+
+## Tam ekran bir panel (odak ağacı, araştırma) açık mı: açıkken harita hiçbir girdiyle kıpırdamaz
+func fullscreen_open() -> bool:
+	if focus != null and focus.visible:
+		return true
+	for p in _left_panels():
+		if p != null and p.visible and p.has_meta("fullscreen"):
+			return true
+	return false
 
 func _left_panels() -> Array:
 	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]
@@ -200,6 +214,11 @@ func close_panels() -> void:
 func toggle_construction() -> void: _open_only(construction)
 func toggle_production() -> void: _open_only(production)
 func toggle_politics() -> void: _open_only(politics)
+## Haritada Ctrl + tık: o ülkenin siyaset ekranı (başka ülkeyse salt okunur)
+func show_politics_of(tag: String) -> void:
+	_close_all()
+	politics.open_country(tag)
+	construction_toggled.emit(false)
 func toggle_trade() -> void: _open_only(trade)
 func toggle_army() -> void: _open_only(army)
 func toggle_navy() -> void: _open_only(navy)

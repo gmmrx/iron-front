@@ -6,12 +6,13 @@ extends PanelContainer
 const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"), "fascism": Color("8a6a3a"), "neutrality": Color("8a8a7a")}
 
 var target := ""
-var _v: VBoxContainer
+var _v: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
+var _root: VBoxContainer
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
-	_v = PanelLayout.frame(self, tr("DIPLO_TITLE"), "diplomacy", 500.0)
+	_root = PanelLayout.frame(self, tr("DIPLO_TITLE"), "diplomacy", -1.0)     # tam ekran: ülkeler · seçili ülke · dünya
 	Diplomacy.wars_changed.connect(func() -> void:
 		if visible: refresh())
 	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void:
@@ -32,13 +33,20 @@ func close() -> void:
 	target = ""
 
 func refresh() -> void:
-	for ch in _v.get_children():
+	for ch in _root.get_children():
 		ch.queue_free()
 	var me := World.player()
+	var cols := PanelLayout.columns(_root, [0.9, 1.3, 1.0])
+	_v = cols[0]
+	_country_list(me)
+	_v = cols[2]
+	_overview(me)
+	_v = cols[1]
 	var t: Country = World.countries.get(target)
 	if t == null or t == me or not t.exists():
 		PanelLayout.set_title(self, tr("DIPLO_TITLE"))
-		_overview(me)
+		PanelLayout.section(_v, tr("DIP_SELECT"))
+		PanelLayout.empty(_v, tr("DIP_SELECT_HINT"))
 		return
 	PanelLayout.set_title(self, tr("DIPLO_TITLE") + " — " + t.display_name())
 	# başlık bloğu
@@ -135,6 +143,51 @@ func refresh() -> void:
 	_action("political_power", tr("DIPLO_PEACE"), tr("TIP_PEACE"), p_err, func() -> void:
 		if not Diplomacy.offer_white_peace(me.tag, t.tag):
 			World.notify(tr("NOTE_PEACE_NO") % t.display_name(), "bad"))
+
+## Ülke listesi: büyük güçler üstte (sanayiye göre), sonra ada göre; ideoloji rengi, ilişki; tıklayınca seçilir
+func _country_list(me: Country) -> void:
+	PanelLayout.section(_v, tr("DIP_COUNTRIES"))
+	var all: Array = World.countries.values().filter(func(c: Country) -> bool: return c.exists() and c != me)
+	all.sort_custom(func(a: Country, b: Country) -> bool:
+		if a.is_major() != b.is_major():
+			return a.is_major()
+		if a.is_major():
+			return Economy.count(a, "civilian_factory") + Economy.count(a, "military_factory") > Economy.count(b, "civilian_factory") + Economy.count(b, "military_factory")
+		return a.display_name() < b.display_name())
+	for c: Country in all:
+		var b := Button.new()
+		b.theme_type_variation = "Card"
+		b.focus_mode = Control.FOCUS_NONE
+		b.toggle_mode = true
+		b.set_pressed_no_signal(c.tag == target)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.icon = FlagFactory.get_flag(c)
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 42)
+		b.custom_minimum_size = Vector2(0, 40)
+		b.add_theme_font_size_override("font_size", 15)
+		var rel := ""
+		if Diplomacy.are_enemies(me.tag, c.tag):
+			rel = "  ⚔"
+			b.add_theme_color_override("font_color", UiTheme.BAD)
+		elif Diplomacy.are_allies(me.tag, c.tag):
+			rel = "  ✦"
+			b.add_theme_color_override("font_color", UiTheme.GOOD)
+		b.text = c.display_name() + rel
+		b.tooltip_text = "%s\n%s · %s" % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology)]
+		var ideo := ColorRect.new()
+		ideo.color = IDEO_COLORS[c.ideology]
+		ideo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ideo.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+		ideo.offset_left = -8
+		ideo.offset_right = -4
+		ideo.offset_top = 6
+		ideo.offset_bottom = -6
+		b.add_child(ideo)
+		b.pressed.connect(func() -> void:
+			target = c.tag
+			refresh())
+		_v.add_child(b)
 
 func _action(icon: String, text: String, tip: String, err: String, fn: Callable) -> void:
 	var col := PanelLayout.row(_v, UiTheme.icon(icon), text, tip if err == "" else "⚠ " + tr(err), tip + ("" if err == "" else "\n\n" + tr(err)))

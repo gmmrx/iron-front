@@ -426,6 +426,7 @@ func _families() -> Dictionary:
 		"MOD_": mods.keys(),
 		"EFFECT_": law_effects,
 		"TIP_": map_modes,
+		"MUSIC_": _const_array("res://game/ui/settings_panel.gd", "TRACKS"),
 	}
 
 ## Son ekli anahtar aileleri: tr(x + "SONEK") biçimindeki kullanımların alabileceği değerler
