@@ -30,7 +30,10 @@ Large screens open full-screen and the map does not move while they are open.
 - **State Program (F)**: full-screen tree. Green = done, gold = in progress, bright = available, faded = locked,
   red dashed line = only one of the two.
 - **Research (I)**: slots on top, all technologies on one timeline by year and category, with prerequisite lines and a
-  "today" line.
+  "today" line. Research never runs out: the last column (1943+) holds each branch's next **refinement** level, open
+  once every technology of the branch is done. Each level takes longer (+15%) and gives less (−15%) than the one before,
+  so a branch keeps paying off in a long game without ever growing out of bounds; a level is dated one year after the
+  previous, so racing ahead costs the usual +150% per year early.
 - **Diplomacy (O)**: country list, the selected country's details and actions (with the reason when an action is closed),
   world situation (crisis index, wars, alliances).
 - **Trade (R)**: resource table, buying, deals (+/−, cancel), exports.

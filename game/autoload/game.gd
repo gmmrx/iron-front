@@ -1,10 +1,11 @@
 extends Node
 ## Oyun yaşam döngüsü: yeni oyun, kaydet/yükle (JSON), oyun sonu kontrolü.
+## Oyunun bitiş tarihi yok: oyuncu dünyayı alınca (oyuncunun tarafı dışında ayakta ülke kalmayınca) kazanır, ülkesi
+## yok olunca (son eyaletini kaybedince ya da ilhak edilince) kaybeder. Teslim olup elinde toprak kalan ülke oynamayı sürdürür.
 
 signal game_over(victory: bool, reason: String)
 
 const SAVE_DIR := "user://saves/"
-const END_DATE := 19480101
 
 var loaded := false            ## sahne yeniden yüklendiğinde doğrudan oyuna gir
 ## Dil değişince sahne yeniden kurulur: Ayarlar yeniden açılır, oyun içindeysek kamera ve duraklatma durumu korunur
@@ -12,6 +13,7 @@ var reopen_settings := false
 var resume_view := Vector3.ZERO   ## x, z, uzaklık (0 = başkente odaklan)
 var resume_was_paused := false
 var over := false
+var won := false               ## dünya alındı ve oyuncu "oynamaya devam et" dedi: zafer ekranı yeniden gelmez
 
 func _ready() -> void:
 	Research.grant_start_equipment()
@@ -37,15 +39,26 @@ func new_game() -> void:
 	AI.reset()
 	loaded = false
 	over = false
+	won = false
 
 func _check_end() -> void:
 	if not World.in_game or over:
 		return
 	var p := World.player()
-	if p and p.capitulated:
-		_end(false, "GAMEOVER_CAPITULATED")
-	elif World.date_value() >= END_DATE:
-		_end(true, "GAMEOVER_TIME")
+	if p == null or not p.exists():
+		_end(false, "GAMEOVER_DEFEAT")
+	elif not won and world_conquered(World.player_tag):
+		won = true
+		_end(true, "GAMEOVER_WORLD")
+
+## Dünya alındı mı: oyuncu ve müttefikleri dışında ayakta ülke kalmadı
+func world_conquered(tag: String) -> bool:
+	for c: Country in World.countries.values():
+		if c.tag == tag or not c.exists():
+			continue
+		if not Diplomacy.are_allies(c.tag, tag):
+			return false
+	return true
 
 func _end(victory: bool, reason: String) -> void:
 	over = true
@@ -68,7 +81,7 @@ func save_game(slot: String) -> bool:
 	var data := {
 		"version": 1, "player": World.player_tag,
 		"date": [GameClock.year, GameClock.month, GameClock.day, GameClock.hour],
-		"day_count": World.day_count, "tension": World.world_tension,
+		"day_count": World.day_count, "tension": World.world_tension, "won": won,
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
 		"factions": Politics.factions, "fired_events": Politics.fired_events, "pending_events": Politics.pending_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
@@ -141,6 +154,7 @@ func load_game(slot: String) -> bool:
 	GameClock.year = int(dt[0]); GameClock.month = int(dt[1]); GameClock.day = int(dt[2]); GameClock.hour = int(dt[3])
 	World.day_count = int(data["day_count"])
 	World.world_tension = float(data["tension"])
+	won = bool(data.get("won", false))
 	# eyaletler: önce sahiplik
 	for key: String in data["states"]:
 		var sd: Dictionary = data["states"][key]
@@ -181,6 +195,8 @@ func load_game(slot: String) -> bool:
 		c.tech_mods.clear()
 		for t: String in cd["research_done"]:
 			Research._complete(c, t, false)
+		for r: Dictionary in c.research_current:
+			Research.ensure(String(r["tech"]))          # sürmekte olan iyileştirme seviyesinin tanımı
 		c.research_bonus = cd["research_bonus"]; c.decisions_active = cd["decisions"]
 		c.manpower_used = int(cd["manpower_used"]); c.templates = cd["templates"]; c.faction = cd["faction"]
 		c.war_goals = cd["war_goals"]; c.justify_progress = cd["justify"]

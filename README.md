@@ -40,7 +40,8 @@ Open the project with Godot 4.7 and press F5. Or:
 3. Click a country → **Diplomacy**: prepare a casus belli (30 days), declare war.
 4. Select divisions (click / drag) and right-click to send them into enemy regions. Take cities with victory points; when
    the enemy surrenders, the states you occupy become yours.
-5. The game ends on 1 January 1948 (or when you surrender).
+5. There is no end date: you win when no country is left outside your side, and lose when your country no longer
+   exists. Research never runs out (refinement levels after each branch).
 
 ## Tests / development
 ```

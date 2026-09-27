@@ -42,6 +42,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |
 | `test_fleet_motion.gd` | Filo görsel konumu (köşe kavisleri, limandan çıkış, seyir) denizde; FleetLayer düzeni karaya taşmaz |
 | `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
+| `test_open_game.gd` | Bitiş tarihi yok; oyuncunun tarafı dışında ülke kalmayınca zafer, ülke yok olunca yenilgi, teslim olup toprağı kalan oyuncu sürer; iyileştirme seviyeleri (dal bitince açılır, maliyet artar, kazanç azalır, kayıtta kalır, yapay zekâ da araştırır, yeni oyunda sıfırlanır) |
 | `test_map_pins.gd` | Yapı rozetleri (orta uzaklıkta ikon, yakında iğne), fare altındaki rozetin seçimi, büyümesi, yapı kartı, yapı seslerinin tanımı, ordu sayacında komutan portresi, muharebe durum okları |
 
 Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;

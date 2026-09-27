@@ -66,9 +66,9 @@ Son güncelleme: **27 Eylül 2026**
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. ◐ **Yeni ikon seti ve portreler** (kullanıcı üretiyor): ✔ ikon seti oyunda; portreler geliyor → geldikçe görsel kontrol
-3. **Açık uçlu oyun (BÖLÜM AÇIK)**: bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana kadar
-   sürer; bitmeyen araştırma (tekrarlanabilir seviyeler); dünyada olanları izlemek ve cevap vermek için solda bir dünya
-   olayları menüsü (BÖLÜM OL)
+3. ◐ **Açık uçlu oyun (BÖLÜM AÇIK)**: ✔ bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana
+   kadar sürer; ✔ bitmeyen araştırma (iyileştirme seviyeleri); dünyada olanları izlemek ve cevap vermek için solda bir
+   dünya olayları menüsü (BÖLÜM OL)
 3b. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
@@ -204,6 +204,13 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
 - [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
       rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
+- [x] Yapı rozetleri geç gelir (28 Eyl 2026): orta uzaklıkta haritanın üstünde ikon olarak durur, iğne ancak çok
+      yakında yükselir. Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
+      gelene kadar yakın bir eylem sesi) ve kart yapıyı anlatır (seviye / en çok, inşaat, ülke toplamı, konuşlu kanatlar);
+      tıklamak eyaletini açar
+- [x] Oyuncunun ordusu yakında ana sayacının üstünde komutanının portresini taşır (resim yoksa baş harfleri)
+- [x] Muharebe durum okları: durumu az önce düzelen tarafta küçük yeşil ▲, zemin kaybedende kırmızı ▼; yükselip söner
+      (`game/map/battle_ticker.gd`)
 - [x] Uçaklar: ülke renginde tek küçük uçak modeli, üste park etmiş ya da görevinde uçarken
 - [x] Eyalet sınırları her zoom'da net çizgi (yakında daha kalın), province sınırları (farenin vurguladığı birim) eyaletlerin
       içinde daha ince ve açık çizgi
@@ -582,15 +589,18 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 
 ---
 
-## BÖLÜM AÇIK — AÇIK UÇLU OYUN ☐ ← uçtan uca oyundan önce gerekli
-Bugün oyun 1 Ocak 1948'de bitiyor (`Game.END_DATE`) ve araştırma ağacı 1942 civarında tükeniyor. Bir strateji oyunu bir
-tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok olana** kadar sürer. Bunun
-kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
-- [ ] Bitiş tarihi yok: zafer = oyuncu bütün eyaletleri kontrol eder (ya da diğer bütün ülkeler oyuncunun tarafına teslim
-      olmuştur); yenilgi = oyuncunun ülkesi artık yoktur (son eyaleti kaybedildi ya da ilhak edildi). `END_DATE` kalkar;
-      oyun sonu ekranı nedeni ve tarihi gösterir
-- [ ] Bitmeyen araştırma: son tarihî teknolojiden sonra araştırma sürer — her dalda tekrarlanabilir seviyeler (ör. "Piyade
-      silahları IV, V, ..."), her seviyede artan maliyet ve azalan kazanç; hiçbir dal tükenmez
+## BÖLÜM AÇIK — AÇIK UÇLU OYUN ◐ ← uçtan uca oyundan önce gerekli
+Bir strateji oyunu bir tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok
+olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
+- [x] Bitiş tarihi yok (`END_DATE` kalktı): zafer = oyuncunun tarafının (oyuncu ve ittifakı) dışında ayakta ülke
+      kalmaması; yenilgi = oyuncunun ülkesinin artık olmaması (son eyaleti kaybedildi ya da ilhak edildi). Teslim olup
+      elinde toprak kalan oyuncu oynamayı sürdürür. Oyun sonu ekranı nedeni ve tarihi gösterir; zaferden sonra oyuncu
+      oynamayı sürdürebilir (zafer kayda geçer, yeniden gelmez). `tests/test_open_game.gd`
+- [x] Bitmeyen araştırma: bir dalın tarihî teknolojileri bitince dal iyileştirme seviyeleriyle sürer ("Piyade
+      İyileştirmesi I, II, ...", `rep_<dal>_<n>`): maliyet 180 gün, seviye başına +%15; kazanç seviye başına −%15
+      (toplamı sınırlı); her seviyenin yılı bir öncekinden bir yıl sonra (1943'ten), yıl cezası iyileştirmeleri tarihî
+      ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır (formül ve gerekçeler
+      `data/common/technologies.json` → `repeatable`)
 - [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
 - [ ] Tarihî akıştan sonra olaylar ve yapay zekâ: tarihli olaylar bitince dünya durmaz — kurala dayalı olaylar (krizler,
       sınır olayları, ayaklanmalar, darbeler, ekonomik şoklar) ve yeni savaşlar planlayan yapay zekâ

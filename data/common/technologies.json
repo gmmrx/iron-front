@@ -34,6 +34,23 @@
    "tr": "Kara Doktrini"
   }
  },
+ "repeatable": {
+  "_comment": "Endless research: once every technology of a branch is researched, the branch goes on with refinement levels (rep_<branch>_<n>). Level n is dated first_year + n - 1 (first_year = one year after the last historical technology), so the year penalty keeps refinements after the historical tree. Cost: cost * (1 + cost_growth)^(n-1): 180 days is just above the last historical tier (170) so a refinement is never cheaper than an invention, and +15% per level makes each level take longer. Gain: effects * gain_decay^(n-1): each level gives 15% less, so a branch never runs out but its total stays bounded (at most 1 / (1 - 0.85) = 6.7 times the first level).",
+  "cost": 180,
+  "cost_growth": 0.15,
+  "gain_decay": 0.85,
+  "name": {"en": "%s Refinement %s", "tr": "%s İyileştirmesi %s"},
+  "effects": {
+   "infantry": {"infantry_soft": 0.05, "infantry_defense": 0.03},
+   "artillery": {"artillery_soft": 0.05, "artillery_hard": 0.03},
+   "armor": {"armor_soft": 0.04, "armor_hard": 0.04, "armor_breakthrough": 0.04},
+   "air": {"air_power": 0.05},
+   "naval": {"naval_power": 0.05},
+   "industry": {"factory_output": 0.03, "construction_speed": 0.03},
+   "electronics": {"research_speed": 0.02, "org": 0.02},
+   "doctrine": {"org": 0.03, "defense": 0.03}
+  }
+ },
  "techs": {
   "infantry_weapons_1": {
    "cat": "infantry",

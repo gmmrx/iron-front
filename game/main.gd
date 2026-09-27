@@ -288,7 +288,7 @@ func _handle_dev_args() -> void:
 	if args.has("pause_menu"):
 		hud.pause_menu.toggle()
 	if args.has("gameover"):
-		Game._end(args["gameover"] != "lose", "GAMEOVER_TIME" if args["gameover"] != "lose" else "GAMEOVER_CAPITULATED")
+		Game._end(args["gameover"] != "lose", "GAMEOVER_WORLD" if args["gameover"] != "lose" else "GAMEOVER_DEFEAT")
 	if args.has("event"):
 		# test: oyuncuya olay gönder --event=id[,from]
 		var ea: PackedStringArray = args["event"].split(",")

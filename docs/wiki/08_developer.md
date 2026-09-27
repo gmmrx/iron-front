@@ -43,6 +43,7 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |
 | `test_fleet_motion.gd` | The fleet's visual position (corner curves, leaving port, sailing) stays at sea; the FleetLayer formation never spills onto land |
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
+| `test_open_game.gd` | No end date; victory when no country is left outside the player's side, defeat when the country is gone, a surrendered player with land plays on; refinement levels (open after the branch, rising cost, falling gain, saved, AI researches them, reset in a new game) |
 | `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer

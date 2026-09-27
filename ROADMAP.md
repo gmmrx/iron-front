@@ -70,8 +70,8 @@ Last update: **27 September 2026**
    missing port–sea 12 → 0), node corner curves with a radius that stays on water, a fleet group that falls on land is
    moved to the nearest water; `tests/test_sea_lanes.gd`, `tests/test_fleet_motion.gd` check this with numbers
 2. ◐ **New icon set and portraits** (made by the user): ✔ icon set in the game; portraits arriving → visual check as they come
-3. **An open-ended game (PART OPEN)**: no end date — the game goes on until the player takes the whole world or is
-   destroyed; research without an end (repeatable levels); a world events menu on the left to follow and answer what
+3. ◐ **An open-ended game (PART OPEN)**: ✔ no end date — the game goes on until the player takes the whole world or is
+   destroyed; ✔ research without an end (refinement levels); a world events menu on the left to follow and answer what
    happens in the world (PART EV)
 3b. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
 4. **Content**: ◐ 1936 events with choices added: Japan (26 February), Italy (League sanctions), Britain (the Defence White
@@ -216,6 +216,13 @@ The player must **see** the war: soldiers, tanks, ships, submarines, aircraft as
 - [x] Buildings as pins: one pin per state with its buildings side by side as pictures (civilian/military factory,
       dockyard, refinery, anti-air, naval base) and their level; a construction in progress is an orange-framed picture
       with "+n"; the air base has its own pin
+- [x] Building badges come late (28 Sep 2026): at middle distance they lie on the map as icons, the pin rises only very
+      close. Hovering a badge makes it grow, plays that building's sound (`map_<building>.wav`, a nearby action sound
+      until the file exists) and the card describes it (level / maximum, construction, country total, air wings based);
+      clicking opens its state
+- [x] The player's army shows its commander's portrait above its main counter up close (initials if there is no picture)
+- [x] Battle status arrows: a small green ▲ on the side that has just improved, a red ▼ on the side losing ground; they
+      rise and fade (`game/map/battle_ticker.gd`)
 - [x] Aircraft: one small plane model in the country's colour, parked at the air base or flying its mission
 - [x] State borders as clear lines at every zoom (thicker up close) and province borders (the unit the mouse highlights)
       as thinner, lighter lines inside the states
@@ -610,15 +617,18 @@ Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
 
 ---
 
-## PART OPEN — AN OPEN-ENDED GAME ☐ ← needed before the end-to-end game
-Today the game ends on 1 January 1948 (`Game.END_DATE`) and the research tree stops around 1942. A strategy game does not
-end on a date: it goes on until **the player has taken the whole world** or **the player's country is completely
-destroyed**. How many years that takes cannot be known in advance, so nothing may assume an end year.
-- [ ] No end date: victory = the player controls every state (or every other country has surrendered to the player's
-      side); defeat = the player's country no longer exists (last state lost or annexed). Remove `END_DATE`; the game-over
-      screen shows the reason and the date
-- [ ] Research without an end: after the last historical technology, research goes on — repeatable levels per branch
-      (e.g. "Infantry weapons IV, V, …") with rising cost and a smaller gain each level, so no branch runs out
+## PART OPEN — AN OPEN-ENDED GAME ◐ ← needed before the end-to-end game
+A strategy game does not end on a date: it goes on until **the player has taken the whole world** or **the player's
+country is completely destroyed**. How many years that takes cannot be known in advance, so nothing may assume an end year.
+- [x] No end date (`END_DATE` removed): victory = no country is left standing outside the player's side (the player and
+      the alliance); defeat = the player's country no longer exists (last state lost or annexed). A surrendered player who
+      still holds land plays on. The game-over screen shows the reason and the date; after a victory the player can keep
+      playing (the victory is saved and does not come back). `tests/test_open_game.gd`
+- [x] Research without an end: once a branch's historical technologies are done it goes on with refinement levels
+      ("Infantry Refinement I, II, …", `rep_<branch>_<n>`): cost 180 days +15% per level, gain −15% per level (bounded
+      total), dated one year after the previous level (from 1943) so the year penalty keeps them after the historical
+      tree; the last column of the research timeline; the AI researches them too (formula and reasons in
+      `data/common/technologies.json` → `repeatable`)
 - [ ] Production and units after the war years: later equipment generations follow the repeatable research levels
 - [ ] Events and AI after the historical flow: when the dated historical events run out, the world keeps moving —
       rules-based events (crises, border incidents, uprisings, coups, economic shocks) and AI that plans new wars

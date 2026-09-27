@@ -40,11 +40,15 @@ Movement arrows are drawn **green** (move) or **red** (attack into enemy land). 
 division counts; further out unit markers are hidden to keep the map clean.
 
 ## Winning and losing
-- **Losing**: your country surrenders. Surrender progress is the share of your cities' victory points held by the enemy
-  (colonies count ¼, +10% if the capital falls); the limit is 80%, dropping as low as 50% when the home front is under 50%
-  (see [Diplomacy](06_diplomacy.md)).
-- **Winning**: stay standing until 1 January 1948. The end screen appears on that date. To conquer the world, repeat the
-  chain casus belli → war → surrender. The occupied states of a surrendering country pass to the occupier.
+The game has **no end date**: it goes on until one of these happens.
+- **Losing**: your country no longer exists (it has lost its last state or has been annexed). A surrender alone does not
+  end the game: when your country surrenders, the occupied states pass to the occupiers and you leave the war; if you
+  still hold land, you play on and can rebuild. Surrender progress is the share of your cities' victory points held by
+  the enemy (colonies count ¼, +10% if the capital falls); the limit is 80%, dropping as low as 50% when the home front is
+  under 50% (see [Diplomacy](06_diplomacy.md)).
+- **Winning**: no country is left standing outside your side (you and your alliance). Conquer the world with the chain
+  casus belli → war → surrender (the occupied states of a surrendering country pass to the occupier), or bring countries
+  into your alliance. The end screen shows the reason and the date; after a victory you can keep playing.
 
 ## Tips for Turkey
 - In May 1936 the **Soviet pressure over the Straits** arrives: a polite refusal recalling Atatürk's friendship (only while

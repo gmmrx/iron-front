@@ -190,8 +190,8 @@ DIPLO_ERR_NO_GOAL,We need a casus belli first.,Önce bir savaş gerekçesi gerek
 "NOTE_DIV_DESTROYED","%s of %s was encircled and destroyed.","%s (%s) kuşatıldı ve yok edildi."
 NOTE_SAVED,Game saved: %s,Oyun kaydedildi: %s
 GAMEOVER_DEFEAT,Your nation has been destroyed.,Ülkeniz yok edildi.
-GAMEOVER_CAPITULATED,Your nation has capitulated.,Ülkeniz teslim oldu.
-GAMEOVER_TIME,The war is over: 1 January 1948.,Savaş sona erdi: 1 Ocak 1948.
+GAMEOVER_WORLD,No nation is left outside your side: the world is yours.,Tarafınızın dışında ayakta ülke kalmadı: dünya sizin.
+GAMEOVER_DATE,Date: %s,Tarih: %s
 EFF_PP,%+d influence,%+d nüfuz
 EFF_STABILITY,%+d%% stability,%%%+d istikrar
 EFF_WAR_SUPPORT,%+d%% home front,%%%+d iç cephe
@@ -283,6 +283,8 @@ TASK_RESEARCH_KEY,Research (I),Araştırma (I)
 UI_DAYS,days,gün
 RESEARCH_UNLOCK,Unlocks: %s,Açar: %s
 RESEARCH_REQ,Requires: %s,Gerekli: %s
+"RES_REPEAT_TIP","Refinement: the branch goes on after its last technology; each level takes longer and gives less. Levels done: %d","İyileştirme: dal son teknolojisinden sonra sürer; her seviye daha uzun sürer, daha az kazandırır. Biten seviye: %d"
+"RES_REPEAT_REQ","Requires every %s technology.","%s dalının bütün teknolojilerini ister."
 "RESEARCH_AHEAD","%d years ahead of time: +%d%% research time","%d yıl erken: %%+%d araştırma süresi"
 TIP_RESEARCH_CANCEL,Cancel research (progress is lost),Araştırmayı iptal et (ilerleme kaybolur)
 RESEARCH_EMPTY_SLOT,Slot %d is empty — pick a technology!,%d. slot boş — bir teknoloji seçin!
@@ -352,7 +354,7 @@ SET_ENGLISH,English interface,İngilizce arayüz
 SET_LANG_NOTE,Language changes fully apply after returning to the main menu.,Dil değişikliği ana menüye dönünce tamamen uygulanır.
 SET_EDGE_PAN,Scroll at screen edges,Ekran kenarında kaydır
 SET_AI,AI countries act,Yapay zekâ ülkeleri hareket etsin
-GAMEOVER_VICTORY,The War Is Over,Savaş Bitti
+GAMEOVER_VICTORY,Victory,Zafer
 GAMEOVER_LOST,Defeat,Yenilgi
 GAMEOVER_RANKING,VICTORY POINTS,ZAFER PUANLARI
 GAMEOVER_CONTINUE,Keep playing,Oynamaya devam et

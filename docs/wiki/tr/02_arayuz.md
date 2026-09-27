@@ -30,7 +30,10 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
 - **Devlet Programı (F)**: tam ekran ağaç. Yeşil = bitti, altın = sürüyor, parlak = seçilebilir, soluk = kilitli,
   kırmızı kesik çizgi = ikisinden biri.
 - **Araştırma (I)**: üstte yuvalar; bütün teknolojiler tek sayfada, yıllara ve kategorilere göre zaman çizelgesinde
-  (önkoşul çizgileri ve "bugün" çizgisiyle).
+  (önkoşul çizgileri ve "bugün" çizgisiyle). Araştırma bitmez: son sütunda (1943+) her dalın sıradaki **iyileştirme**
+  seviyesi durur; dalın bütün teknolojileri bitince açılır. Her seviye bir öncekinden daha uzun sürer (+%15) ve daha az
+  kazandırır (−%15): uzun oyunda dal hep işe yarar ama sınırsız büyümez. Her seviyenin yılı bir öncekinden bir yıl
+  sonradır; erken araştırmak her yıl için yine +%150 süre alır.
 - **Diplomasi (O)**: ülke listesi, seçili ülkenin ayrıntısı ve eylemleri (kapalı olanların nedeniyle), dünya durumu
   (kriz endeksi, savaşlar, ittifaklar).
 - **Ticaret (R)**: kaynak tablosu, satın alma, anlaşmalar (+/−, iptal), ihracat.
