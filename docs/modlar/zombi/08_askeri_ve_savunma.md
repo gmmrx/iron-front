@@ -1172,10 +1172,8 @@ Bu yüzden aşağıdakiler **ikinci önceliktir**:
 
 ## 19. Açık sorular
 
-1. **06'ya geri bildirim (B5):** `zm_wire_obstacles` ve `zm_final_protective_fire`'ın etkileri sürüye karşı işlemiyor. Önerilen yeniden
-   hedefleme (`zm_obstacle`, yalnız savunmada topçu eki) kabul edilecek mi? 02 §3.4'teki "Her karışı savun: savunma +%10" seçeneği de aynı
-   durumda.
-2. **`at_war` (B2, K10):** Salgında seçimler yapılacak mı? 1918'de bazı ülkeler salgın sırasında seçim yaptı. Karar siyaset belgesinin.
+1. ~~**06'ya geri bildirim (B5):**~~ — **Çözüldü:** 06'daki `zm_wire_obstacles` → `zm_obstacle +0,05`, `zm_final_protective_fire` → `artillery_soft +0,08` (savunmada) ve 02 §3.4'teki seçenek düzeltildi.
+2. ~~**`at_war` (B2, K10):**~~ — **Çözüldü:** salgın savaşı `at_war`'a sayılmaz, seçimler yapılır (09 S1 = 14 H02).
 3. **Boğaz geçişi:** 03'e göre sürüler `land_crossing` boğazlarını geçer. 1936'da çoğunda köprü yoktu, geçiş vapurlaydı (Küçük Belt'te 1935
    köprüsü bir istisnaydı). Boşlar yalnız köprülü boğazı mı geçsin? Öyle olursa boğaz nöbeti (§11.1) gereksizleşir ama Sazlıkçı'nın limandan
    sıçraması önem kazanır.

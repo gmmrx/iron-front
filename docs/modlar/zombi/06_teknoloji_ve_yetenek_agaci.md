@@ -174,7 +174,7 @@ Not: 05 §3.2'deki `zm_evacuation_plans` etkisi ("tahliye hızı +%50") bu belge
 | `zm_gauntlets` | Gauntlets and Puttees / Eldiven ve Dolak | 1936 | 50 | — | `zm_inranks_mult −0,25` | 04 §3.4: ısırıkların kol payı 0,22, bacak payı 0,12 (Tanzanya verisi); deri eldiven ve dolak bu 0,34'ün ~3/4'ünü kapatır → ısırık kaynaklı bulaş ~−%25 | leather gauntlets and wound puttees on a wooden bench |
 | `zm_searchlights` | Searchlights and Flares / Işıldak ve İşaret Fişeği | 1936 | 60 | `radio` | Ekipman `zm_illumination` açılır | 04 T07 Gecegezer'in karşılığı; ışıldak ve fişek siper savaşının gece aracıydı | a searchlight beam over a dark field and a falling flare |
 | `zm_fire_discipline` | Short-Burst Fire Discipline / Kısa Atış Disiplini | 1936 | 70 | `artillery_1` | `zm_noise_mult −0,40`; `artillery_soft −0,05` | 04: topçulu muharebe 2 bölgedeki sürüleri günde 0,3 olasılıkla çeker → 0,18. Bedel: az atış, az hasar | a field gun crew with ear covers waiting beside a stopwatch |
-| `zm_final_protective_fire` | Final Protective Fire / Son Savunma Ateşi | 1937 | 100 | `artillery_1`, `infantry_weapons_1` | `defense +0,08` | Önceden nişanlanmış savunma barajı. 04 §3.3: siperli tümen 3 sürüde %30 bütünlükle zor tutar; +%8 savunma bu payı büyütür (motor taklidiyle yeniden ölçülmeli, §10) | a map board with pre-registered target lines and a field telephone |
+| `zm_final_protective_fire` | Final Protective Fire / Son Savunma Ateşi | 1937 | 100 | `artillery_1`, `infantry_weapons_1` | `artillery_soft +0,08` (yalnız savunmada) | Önceden nişanlanmış savunma barajı. 04 §3.3: siperli tümen 3 sürüde %30 bütünlükle zor tutar. **Güncellendi (08 §2.2 B5):** savunma artışı sürüye karşı sonucu değiştirmediği için etki topçunun personel ateşine yazıldı | a map board with pre-registered target lines and a field telephone |
 | `zm_marksman_teams` | Marksman Teams / Nişancı Takımları | 1937 | 90 | `infantry_weapons_1` | `zm_leader_damage +0,50` | 04 T04: Kösemen dağılınca bağlı birimler %50 bütünlük kaybeder; önderi hedeflemek en ucuz arındırmadır | a pair of binoculars and a rifle resting on a sandbag at dawn |
 | 9 temel teknoloji | `infantry_weapons_1`, `infantry_weapons_2`, `support_weapons`, `artillery_1`, `light_tank_2`, `medium_tank_1`, `fighter_1`, `cas_1`, `bomber_1` | — | — | Değişmez | Değişmez | Kilit açan (`unlock`) teknolojiler silinirse ekipman herkese serbest kalır (`Research.is_unlocked`), bu yüzden taşınır | Mevcut ikonlar |
 
@@ -187,7 +187,7 @@ oranla uygulanır.
 
 | Kimlik | EN / TR | Yıl | Cost | Önkoşul | Etki | Gerekçe ve dayanak | İkon konusu (EN) |
 |---|---|---|---|---|---|---|---|
-| `zm_wire_obstacles` | Barbed-Wire Obstacles / Dikenli Tel Engelleri | 1936 | 50 | — | `entrenchment +0,15`; `defense +0,03` | Silahsız kalabalığı tel durdurur, kesmez. 04 §3.1: siper savunmayı 10 günde %15 artırır; tel bu süreyi kısaltır | coils of barbed wire on wooden stakes across a muddy field |
+| `zm_wire_obstacles` | Barbed-Wire Obstacles / Dikenli Tel Engelleri | 1936 | 50 | — | `zm_obstacle +0,05` | Silahsız kalabalığı tel durdurur, kesmez. **Güncellendi (08 §2.2 B5):** siper ve savunma artışı sürüye karşı işlemez; engel etkisi sürünün saldırı çarpanına ve şok değerine yazılır (08 §5.1) | coils of barbed wire on wooden stakes across a muddy field |
 | `zm_cordon_posts` | Cordon Watch-Posts / Kordon Gözetleme Karakolları | 1936 | 70 | `zm_wire_obstacles` | `zm_leak_mult −0,15` | Habsburg askerî sınırı: birbirini gören gözetleme kuleleri zinciri ve kontumaz istasyonları; yolcular 2–3 hafta tutulurdu | a wooden watchtower on stilts beside a striped barrier |
 | `zm_bridge_demolition` | Bridge Demolition Teams / Köprü Yıkım Takımları | 1936 | 60 | — | Emir `zmo_blow_bridges` açılır | 03 §7: yıkılmış köprüde sürü yürüyüşü ×0,15 | a stone bridge with a demolition charge box on its pier |
 | `zm_tunnel_sealing` | Tunnel Sealing and Flooding / Tünel Kapatma ve Su Basma | 1937 | 90 | `zm_bridge_demolition` | Emir `zmo_tunnel_sweep` açılır | 04 T08 Dehlizci kanalizasyon, maden ve metroyu kullanır; karşılığı istihkâm taraması (altyapı −1 bedelli) | a brick sewer mouth being bricked up, a water hose beside it |
@@ -1010,8 +1010,7 @@ Doktrin benimsenince mevcut `focus_done` (kauçuk damga), teknoloji bitince mevc
 5. **Emirlerin hedefi:** Sürüm 1'de emirler ülke genelidir. Ordu ya da eyalet seçerek verilen emir daha doğal olur ama ordu
    paneline yeni bir düğme ister (yalnız `small_button`, stil yok). Ne zaman?
 6. **Komutan özellikleri** ROADMAP V3 generallerine bağlı; V3 bu moddan önce gelmezse §4.10 ertelenir.
-7. **Gıda kaynağı yok:** Tarım/gıda yalnız istikrar, insan gücü ve Boş ömrü üzerinden etki ediyor. Kıtlık olayları (01 Sütun 3)
-   için bu yeterli mi, yoksa eyalet düzeyinde bir "hasat kaybı" çarpanı mı gerekir? Öneri: sürüm 1'de yeterli.
+7. ~~**Gıda kaynağı yok:**~~ — **Çözüldü:** gıda yedinci kaynak olarak eklendi (07 §3).
 8. **Temel teknolojilerin silinmesi** (13) yalnız bu modda geçerli; WWII'ye etkisi yok. Ama 1939 teknolojileri (orta tank, hafif
    makineli) 1939'da da yıl cezasız alınabiliyor; oyunun son yılında askerî sıçrama isteniyor mu?
 9. **İkon bütçesi:** 94 ikon, 01'in ~40'lık tahmininin iki katından fazla. P1 listesi (25) ile başlamak kabul mü?

@@ -59,7 +59,7 @@ Son güncelleme: **27 Eylül 2026**
    savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
 6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
 7. ◐ **Oyun modları (BÖLÜM MOD)**: ✔ mod altyapısı (WWII ilk mod, veri katmanı, kural kancaları, kayıt sürümü 2, katkıcı
-   rehberi `docs/modlar/`); ☐ ilk yeni mod: zombi istilası (tasarım araştırması `docs/modlar/zombi/`)
+   rehberi `docs/modlar/`); ✔ zombi istilası tasarım araştırması (`docs/modlar/zombi/`); ☐ zombi modunun uygulaması (önce motor kancaları)
 
 ---
 
@@ -538,8 +538,10 @@ Oyun birden çok mod taşır; ilki bugünkü 2. Dünya Savaşı oyunu (`ww2`). K
 - [x] Kayıt sürümü 2 (mod + mod durumu), mod başına kayıt yuvası, bozuk/bilinmeyen modlu kaydın reddi
 - [x] Ana menüde mod seçimi (birden çok görünür mod varken), gizli ama CI'da test edilen örnek mod `_template`
 - [x] `tools/new_mode.py` (iskelet, denetim, kopyala, boşalt, sil), `yeni-mod` Claude Code yeteneği, asistan özeti
-- [ ] Zombi istilası modu: tasarım araştırması [docs/modlar/zombi](docs/modlar/zombi/README.md); uygulama planı oradaki
-      teknik plan sayfasında (yeni motor kancaları gerektirir: salgın katmanı, sürü birimleri, harita modu)
+- [x] Zombi istilası modu: tasarım araştırması (17 belge) [docs/modlar/zombi](docs/modlar/zombi/README.md)
+- [ ] Zombi istilası modu: uygulama — teknik plan [14_teknik_plan.md](docs/modlar/zombi/14_teknik_plan.md) (48 motor kancası, 8'i
+      zorunlu), yol haritası [16_yol_haritasi.md](docs/modlar/zombi/16_yol_haritasi.md) (kancalar → MVP "Sessiz Başlangıç" → alfa →
+      içerik → cila)
 - [ ] Moda özel harita (bugün harita ortak), moda özel arayüz paneli kancası, mod başına ses/müzik listesi
 
 ---

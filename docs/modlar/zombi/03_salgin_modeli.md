@@ -859,17 +859,18 @@ yazım hatasını yakalar (`"betta"` gibi).
 
 ## 16. Açık sorular
 
-1. **Düşme ölçütü:** "H > S + R + V + Vb" 02'nin tablosuyla uyumlu. 02 §2.5'teki metin buna göre düzeltilsin mi?
+1. ~~**Düşme ölçütü**~~ — **Çözüldü:** 02 §2.3 tablosu ve §2.5 durum makinesi "H > S + R + V + Vb" olarak düzeltildi.
 2. **8 bağlantı sınırı:** Çift yönlü deniz hatlarıyla 37 liman eyaleti 8'i aşıyor, en büyük merkez 196 bağa ulaşıyor. Sınır yalnız kara
    ve başkent bağları için mi geçerli olsun? Hatlar yüklemede mi hesaplansın (24 ms), yoksa modcunun görebileceği bir
    `links.json`'a mı yazılsın?
 3. **Evre 1→2 koşulu:** KSE ≥ 1 mi, yoksa "3 ülkede **bildirilen** ≥ 100" mü? İkincisi bilgi sisi sütunuyla daha uyumlu ama
    yapay zekânın şeffaflığına bağlı.
 4. **İki yamalı eyalet** (şehir + kırsal): 120 eyalette kent payı %50'nin üstünde. Maliyet ×2, şehir alanı verisi yok. Sürüm 2'ye mi kalsın?
-5. **Isı haritası gölgelendiricisi** (§13.3 B): kim, ne zaman, hangi paletle yapacak? 01 ve 02'deki "iki düzeyli işaret" ifadesi düzeltilmeli.
+5. **Isı haritası gölgelendiricisi** (§13.3 B): kim, ne zaman yapacak? Palet önerisi 11 §2.4'te (renk körlüğüne göre optimize edilmiş
+   ardışık ölçek). 01'deki "iki düzeyli işaret" ifadesi düzeltildi.
 6. **Web ölçümü:** WASM'da salgın adımı ve 800 birimle `sim` süresi ölçülmeli. Masaüstü ile web arasında bit aynılığı test edilmeli.
-7. **Anahtar adı uyumu:** 04'teki suş tanımları `phi` kullanıyor, 02 ve bu belge `phi_febrile_bite`. Tek ad seçilmeli (öneri:
-   `phi_febrile_bite`, `eps_incubating_bite`, `p_recover_febrile`).
+7. ~~**Anahtar adı uyumu**~~ — **Çözüldü:** tek ad `phi_febrile_bite` (ayrıca `eps_incubating_bite`, `p_recover_febrile`); 04 §12
+   şeması buna göre düzeltildi.
 8. **Mülteci olay sıklığı:** Kaynak eyalet başına 30 günde bir olay, büyük çöküşte yine çok olay üretebilir. Ülke başına haftalık
    toplu olay mı olsun?
 9. **Nehir hatları** (`river_routes`) varsayılan veride olsun mu? Olacaksa hangi nehirler, günde kaç yolcu?

@@ -896,12 +896,10 @@ Sesler (`tools/make_audio.py` yaklaşımı, mono 44,1 kHz, telifli örnek yok):
    bağ mı, fazla mı sert? Öneri: kalsın, ama `zm_filling_line` kauçuk ihtiyacını yarıya indirsin.
 5. **Öldürülmüş aşı yolu** iki dozla ve 0,75 etkinlikle Tedavi Zaferi'ni ada ülkeleri için bile zorlaştırıyor;
    02 açık soru 2 (ada ülkelerinin kolay Arındırma Zaferi) ile birlikte dengelenmeli.
-6. **Yapay zekânın bilim önceliği:** enstitü kurma eşiği neye bağlanacak (fabrika sayısı, KSE, ilk vaka)? 02 §8'deki
-   denge testinde "bir ülke serumu bulur" kontrolünü tutturacak en basit kural aranmalı.
+6. ~~**Yapay zekânın bilim önceliği:**~~ — **Çözüldü:** enstitü eşiği kapasite + vaka/evre şartına bağlandı (10 §4.4e).
 7. **Kaza olaylarının sıklığı** ihtiyatlı oyuncu için çok seyrek (kampanyada ~%5). Kaza dışında bir "etik ikilem" kaynağı
    gerekir mi (ör. kadro yorgunluğu, denetim baskısı)? Öneri: §10.1, §10.2, §10.8 zaten kazadan bağımsız tetikleniyor.
-8. **Komisyon ve havuz üyeliğinin** yapay zekâ tarafından yürütülmesi diplomasi belgesiyle birlikte kesinleşmeli
-   (kurum bir aktör olarak nasıl karar verir?).
+8. ~~**Komisyon ve havuz üyeliğinin**~~ — **Çözüldü:** Uluslararası Karantina Konseyi yapay zekâsı 09 §6.6 ve 10 §5'te.
 9. **Numune taşıma süresi** deniz yolu kesilirse ne olur (ada ülkesi, abluka)? Öneri: konvoy/deniz yolu yoksa numune
    G2/G3 için gelmez; bu, donanmayı bilime bağlar.
 

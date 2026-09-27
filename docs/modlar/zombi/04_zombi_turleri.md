@@ -744,7 +744,7 @@ sesi yoktur; korku ritimden ve sessizlikten gelir (01 §6.1). Dosya yolu `assets
   "traits": {
     "rasping": {
       "name": {"en": "Rasping strain", "tr": "Hırıltılı suş"},
-      "disease": {"phi": 0.45},
+      "disease": {"phi_febrile_bite": 0.45},
       "horde": {"bite_share_add": 0.15},
       "emerge": {"k": 5.6e-5, "where": {"all": [{"winter_at_least": 0.6}, {"density_mult_at_least": 1.5}]},
                  "boost": [{"if": {"policy": "mass_winter_shelters"}, "x": 2.0}]},

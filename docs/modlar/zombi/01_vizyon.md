@@ -129,7 +129,7 @@ Ayrıntılar diğer belgelerdedir; burada yalnız başlık ve bir cümle var.
 | İnsan gücü, fabrika çıktısı | Eyaletin **yaşayan ve çalışabilen** nüfus oranıyla çarpılır |
 | Yasalar | Yeni gruplar: karantina politikası, sivil silahlanma/sivil savunma, basın ve bilgi politikası; mevcut askerlik ve ekonomi yasaları kalır |
 | Yapay zekâ (`AI`) | Salgın yanıtı katmanı: sınır tutumu, kordon, araştırma önceliği |
-| Harita işaretleri | Mevcut eyalet işaret dokusu (`MapView3D.set_marked_states`, iki düzey) "enfekte / düşmüş" eyaletleri göstermek için kullanılır; ayrı bir yoğunluk harita modu gölgelendirici değişikliği ister (§9) |
+| Harita işaretleri | Düşmüş bölgeler mevcut **işgal çizgisiyle** görünür (kontrol `UND`'de). Eyalet işaret dokusu (`MapView3D.set_marked_states`) yalnız "uygun hedef / güvenli" anlamında kullanılır; salgın yoğunluğu için ayrı harita modu gölgelendirici değişikliği ister (11 §2; güncellendi, 03 §13.1 bulgusu) |
 | Oyun sonu (`Game._check_end`) | Mod kendi kazanma/kaybetme koşullarını tanımlar |
 
 **Yeni sistemler** (her biri kendi belgesinde)
@@ -365,9 +365,9 @@ Oyun içi metinlerde bu karşılıklar kullanılır; bütün metinler `strings.c
 1. **Direniş yönetimi olarak devam:** Hükümet çöktüğünde elinde en az bir eyalet kalan oyuncu "direniş yönetimi" olarak devam edebilsin mi?
    (Öneri: kapalı başlayan bir seçenek; açıksa çöküş kaybı yerine puan cezalı devam.)
 2. **Yoğunluk harita modu:** Eyalet başına Boş yoğunluğunu renk ölçeğiyle gösteren bir harita modu gölgelendirici değişikliği ister;
-   CLAUDE.md kural 5 gereği insan gözüyle doğrulanmalı. O zamana kadar mevcut iki düzeyli eyalet işareti kullanılır. Kim ve ne zaman?
-3. **Devletler arası savaş:** Yapay zekâ salgın sırasında çöken komşuya saldırabilsin mi? (Öneri: evet, ama yalnız KSE Çöküş evresinde ve
-   hedef çökmüşse; ayrıntı diplomasi belgesinde.)
+   CLAUDE.md kural 5 gereği insan gözüyle doğrulanmalı. O zamana kadar düşmüş bölgeler işgal çizgisiyle, salgın yoğunluğu Salgın
+   panelinde ve ipuçlarında gösterilir (11 §2). Kim ve ne zaman?
+3. ~~**Devletler arası savaş:**~~ — **Çözüldü:** varsayılan "Yalnız Çöküş evresinde", hedef çökmüşse (09 §5.5, 10 §4.6); ayar 02 §7.2.
 4. **Mod adı marka araştırması** ne zaman ve kimce yapılacak?
 5. **Sürü birimi üst sınırı** (öneri 1.200) performans testiyle doğrulanmalı; web sürümünde daha düşük olabilir.
 6. **Hayvanlar:** Etken hayvanlara geçsin mi? (Öneri: hayır; DSÖ adlandırma ilkesiyle uyumlu ve hayvan kıyımını ödüllendirmemek için.)

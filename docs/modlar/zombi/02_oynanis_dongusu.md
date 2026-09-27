@@ -136,7 +136,7 @@ aşı        : S → V      (dağıtılan doz kadar)
 
 **R₀ hesabı** (tamamen sağlam nüfusta): `R₀ = φ·β·d/γ + (1 − p_ölüm) · β·d / (κ·d + μ)`
 
-| Eyalet | d | R₀ | İkiye katlanma | %1 yaygınlık | Düşme (H > yaşayan) |
+| Eyalet | d | R₀ | İkiye katlanma | %1 yaygınlık | Düşme (H > S+R+V+Vb, 03 §3.7) |
 |---|---|---|---|---|---|
 | Çok seyrek | 0,35 | 2,2 | 22 gün | 127. gün | 268. gün |
 | Medyan | 0,64 | 2,8 | 13 gün | 75. gün | 162. gün |
@@ -166,7 +166,7 @@ sonucu: kırsalı yasa ve bilgilendirme korur, **şehirleri asker ve serum korur
 ### 2.5 Eyalet durum makinesi
 
 ```
-         yolcu/sürü          bildirilen > 0          yaygınlık ≥ %1          H > yaşayan ve eyalette tümen yok
+         yolcu/sürü          bildirilen > 0          yaygınlık ≥ %1          H > S+R+V+Vb ve eyalette tümen yok
  TEMİZ ───────────▶ MARUZ ───────────────▶ BİLDİRİLMİŞ ─────────────▶ SALGIN ───────────────────────────────▶ DÜŞMÜŞ
    ▲   (gizli, oyuncu     (gizli)            (panoda)                   │                                       │
    │    göremez)                                                        │ E+F+H → 0                             │ arındırma harekâtı:
@@ -252,7 +252,7 @@ etkiler (ör. `border_posture`, `detection`) iki sözlüğe birden eklenir (CLAU
 | Seçenek | Etki | Bedel |
 |---|---|---|
 | Hattı kısalt, düşen eyaletleri bırak | Kordon cephesi kısalır; tahliye edilebilen nüfus komşu eyaletlere | İstikrar −%10, iç cephe −%8 |
-| Her karışı savun | Kordon ordularına savunma +%10 (120 gün) | Fabrika çıktısı −%10, insan gücü kaybı artar |
+| Her karışı savun | Kordon ordularına engel `zm_obstacle` +0,05 (120 gün; savunma artışı sürüye karşı işlemez, 08 §2.2 B5) | Fabrika çıktısı −%10, insan gücü kaybı artar |
 | Sıkıyönetim ilan et | Bastırma gücü +0,05 tüm eyaletlerde | İstikrar −%15, uluslararası itibar düşer (diplomasi kabul oranları −%20) |
 
 ## 4. Kazanma ve kaybetme
