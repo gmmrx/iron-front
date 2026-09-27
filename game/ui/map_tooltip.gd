@@ -532,6 +532,45 @@ func show_fleet(f: Fleet, screen_pos: Vector2) -> void:
 	_show_sections()
 	_position_card(screen_pos)
 
+## Haritada yapı rozetinin üstündeyken: yapının adı, eyaleti, seviyesi, süren inşaatı ve ülkedeki toplamı
+func show_building(sid: int, building: String, screen_pos: Vector2) -> void:
+	_shown_key = ""
+	_clear_extra()
+	var st: StateRegion = World.states[sid]
+	var owner: Country = World.countries.get(st.owner)
+	_flag.texture = FlagFactory.get_flag(owner) if owner else null
+	_title.text = Economy.building_name(building)
+	_subtitle.text = "%s · %s" % [st.display_name(), owner.display_name()] if owner else st.display_name()
+	_political.text = tr("BDESC_" + building)
+	var mx := int((Economy.defs.get(building, {}) as Dictionary).get("max", 0))
+	_facts.text = tr("TIPMAP_BUILD_LEVEL") % [st.building_level(building), mx]
+	var queued := 0
+	var first: ConstructionProject = null
+	if owner:
+		for pr: ConstructionProject in owner.construction_queue:
+			if pr.state_id == sid and pr.building == building:
+				queued += 1
+				if first == null:
+					first = pr
+	_economy.text = ""
+	if first:
+		_economy.text = tr("TIPMAP_BUILD_QUEUE") % [queued, roundi(first.fraction() * 100.0)]
+		if first.days_left() >= 0:
+			_economy.text += tr("TIPMAP_BUILD_DAYS") % first.days_left()
+	_military.text = ""
+	if building == "air_base":
+		var wings := 0
+		for w: AirWing in Air.wings:
+			if w.base == sid:
+				wings += 1
+		if wings > 0:
+			_military.text = tr("TIPMAP_BUILD_WINGS") % wings
+	elif owner:
+		_military.text = tr("TIPMAP_BUILD_TOTAL") % [owner.display_name(), Economy.count(owner, building)]
+	_hint.text = tr("TIPMAP_BUILD_HINT") if st.owner == World.player_tag else ""
+	_show_sections()
+	_position_card(screen_pos)
+
 ## Yollar modunda rota üzerindeyken (ticaret / filo / hava)
 func show_route(r: Dictionary, screen_pos: Vector2) -> void:
 	_shown_key = ""

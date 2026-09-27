@@ -8,6 +8,8 @@ const FLAG_MODE := 1250.0          ## bu mesafeden uzakta sayı yerine küçük 
 const HIDE_ALL := 3000.0           ## bu mesafeden uzakta hiç işaret yok: harita okunur, kare hızı korunur
 const LIFT := 5.0
 const NAME_DIST := 520.0           ## ordu/tümen adı bu mesafenin içinde yazar
+const PORTRAIT_PX := 40.0          ## ordu komutanının portresi (ekran pikseli, 1080p), ordunun ana sayacının üstünde
+const PX := 1766.0                 ## sabit boy sprite: doku pikseli * pixel_size * PX = ekran pikseli (34° görüş, 1080p)
 
 var map: MapView3D
 var camera: Camera3D
@@ -29,6 +31,10 @@ var _sel_keys: Array[String] = []
 var _vis_dirty := true
 var _cluster_timer := 0.0
 var _names_close := true
+var _portrait_map := {}            ## "TAG|Ad" -> resim yolu (data/common/commander_portraits.json)
+var _portrait_loaded := false
+var _pframe: Texture2D
+var _ptex := {}                    ## komutan id -> küçük kare portre (ya da null: resmi yok)
 
 func _ready() -> void:
 	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
@@ -89,6 +95,8 @@ func _process(delta: float) -> void:
 			c["label"].visible = far == 0
 			c["flag"].visible = far == 1
 			c["army"].visible = far == 0 and (c["army"] as Label3D).text != "" and _names_close
+			if c.has("pnode"):
+				c["pnode"].visible = far == 0 and _names_close and int(c.get("pcm", 0)) != 0
 			c["root"].visible = c["base_vis"] and not c.get("merged", false)
 	_cluster_timer -= delta
 	if _cluster_timer <= 0.0 and not hide_all:
@@ -270,6 +278,16 @@ func _rebuild() -> void:
 		if not groups.has(key):
 			_counters[key]["root"].queue_free()
 			_counters.erase(key)
+	# oyuncunun her ordusunun ana sayacı (en çok tümen): komutanın portresi yalnız orada (cephe boyu portre dolmasın)
+	var hq := {}
+	for key: String in groups:
+		var aid := int(key.get_slice(":", 2))
+		if aid == 0 or key.get_slice(":", 1) != World.player_tag:
+			continue
+		var best: String = hq.get(aid, "")
+		if best == "" or (groups[key] as Array).size() > (groups[best] as Array).size() \
+				or ((groups[key] as Array).size() == (groups[best] as Array).size() and key < best):
+			hq[aid] = key
 	# bir bölgedeki farklı ülkeler yan yana
 	var per_pid := {}
 	for key: String in groups:
@@ -302,6 +320,10 @@ func _rebuild() -> void:
 			else:
 				an.text = ""
 			an.visible = an.text != "" and _was_far == 0 and _names_close
+			var cm: Commander = null
+			if army and hq.get(army_id, "") == key:
+				cm = Military.commander_by_id(army.commander)
+			_set_portrait(c, cm)
 			if models == null or c["root"].position == Vector3.ZERO:
 				c["root"].position = _group_pos(pid, tag, i, keys.size())
 			var org := 0.0
@@ -385,6 +407,113 @@ func _make_counter(tag: String) -> Dictionary:
 	root.add_child(an)
 	_vis_dirty = true
 	return {"root": root, "label": lbl, "bg": bg, "flag": flag, "army": an, "tag": tag, "divs": [], "selected": false}
+
+## Ordu komutanının portresi sayacın üstünde (yan yana sayaçlara binmesin), altın çerçevede (resmi yoksa adının baş harfleri). Yakın zoom'da görünür:
+## oyuncu ordusunu haritada komutanının yüzünden tanır.
+func _set_portrait(c: Dictionary, cm: Commander) -> void:
+	var id := cm.id if cm else 0
+	if int(c.get("pcm", 0)) == id:
+		return
+	c["pcm"] = id
+	if cm == null:
+		if c.has("pnode"):
+			(c["pnode"] as Node3D).visible = false
+		return
+	if not c.has("pnode"):
+		var node := Node3D.new()
+		(c["root"] as Node3D).add_child(node)
+		var frame := _sprite(_portrait_frame(), 0.0, 13)
+		frame.pixel_size = (PORTRAIT_PX + 6.0) / (float(frame.texture.get_height()) * PX)
+		frame.offset = _portrait_at() / (frame.pixel_size * PX)
+		node.add_child(frame)
+		var img := _sprite(null, 0.0, 14)
+		node.add_child(img)
+		var ini := Label3D.new()
+		ini.font = UiTheme.bold_font()
+		ini.font_size = 30
+		ini.outline_size = 6
+		ini.outline_modulate = Color(0, 0, 0, 0.9)
+		ini.modulate = UiTheme.ACCENT
+		ini.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		ini.fixed_size = true
+		ini.pixel_size = PIXEL * 0.8
+		ini.offset = _portrait_at() / (ini.pixel_size * PX)
+		ini.no_depth_test = true
+		ini.render_priority = 15
+		ini.outline_render_priority = 14
+		node.add_child(ini)
+		c["pnode"] = node
+		c["pimg"] = img
+		c["pini"] = ini
+	var tex := _commander_texture(cm)
+	var sp: Sprite3D = c["pimg"]
+	var ini2: Label3D = c["pini"]
+	sp.visible = tex != null
+	ini2.visible = tex == null
+	if tex:
+		sp.texture = tex
+		sp.pixel_size = PORTRAIT_PX / (float(tex.get_height()) * PX)
+		sp.offset = _portrait_at() / (sp.pixel_size * PX)
+	else:
+		var parts := cm.name.split(" ", false)
+		ini2.text = (parts[0].left(1) + (parts[parts.size() - 1].left(1) if parts.size() > 1 else "")).to_upper()
+	(c["pnode"] as Node3D).visible = _was_far == 0 and _names_close
+
+## Portrenin sayaca göre yeri (ekran pikseli): sayacın üst kenarının üstünde, sol kenarına hizalı
+static func _portrait_at() -> Vector2:
+	var cw := 132.0 * PIXEL * 0.6 * PX
+	var ch := 64.0 * PIXEL * 0.6 * PX
+	return Vector2(-cw * 0.5 + (PORTRAIT_PX + 6.0) * 0.5, ch * 0.5 + 3.0 + (PORTRAIT_PX + 6.0) * 0.5)
+
+func _commander_texture(cm: Commander) -> Texture2D:
+	if _ptex.has(cm.id):
+		return _ptex[cm.id]
+	if not _portrait_loaded:
+		_portrait_loaded = true
+		var path := "res://data/common/commander_portraits.json"
+		if FileAccess.file_exists(path):
+			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+			if parsed is Dictionary:
+				_portrait_map = parsed
+	var out: Texture2D = null
+	var image_path := str(_portrait_map.get("%s|%s" % [cm.owner, cm.name], ""))
+	var src: Texture2D = load(image_path) as Texture2D if image_path != "" and ResourceLoader.exists(image_path) else null
+	var img: Image = src.get_image() if src else null
+	if img:
+		if img.is_compressed():
+			img.decompress()
+		# yüz üst tarafta: dikey resmin üstünden kare kırpılır, harita boyuna küçültülür (büyük resim küçük çizilince kumlanır)
+		var side := mini(img.get_width(), img.get_height())
+		var sq := img.get_region(Rect2i((img.get_width() - side) / 2, int((img.get_height() - side) * 0.2), side, side))
+		sq.resize(96, 96, Image.INTERPOLATE_LANCZOS)
+		out = ImageTexture.create_from_image(sq)
+	_ptex[cm.id] = out
+	return out
+
+## Portre çerçevesi: koyu zemin, altın kenar (yuvarlatılmış kare)
+func _portrait_frame() -> Texture2D:
+	if _pframe:
+		return _pframe
+	var n := 64
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var half := n * 0.5
+	var r := 8.0
+	for y in n:
+		for x in n:
+			var qx := absf(float(x) + 0.5 - half) - (half - r)
+			var qy := absf(float(y) + 0.5 - half) - (half - r)
+			var sd := Vector2(maxf(qx, 0.0), maxf(qy, 0.0)).length() + minf(maxf(qx, qy), 0.0) - r
+			if sd > 0.5:
+				continue
+			var col := Color(0.06, 0.06, 0.05, 0.95)
+			if sd > -1.0:
+				col = Color(0, 0, 0, 1)
+			elif sd > -3.5:
+				col = UiTheme.ACCENT
+			col.a *= clampf(0.5 - sd, 0.0, 1.0)
+			img.set_pixel(x, y, col)
+	_pframe = ImageTexture.create_from_image(img)
+	return _pframe
 
 # ------------------------------------------------------------------ muharebe işaretleri
 func _update_battles() -> void:

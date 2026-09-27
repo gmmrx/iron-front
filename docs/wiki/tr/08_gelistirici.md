@@ -42,6 +42,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |
 | `test_fleet_motion.gd` | Filo görsel konumu (köşe kavisleri, limandan çıkış, seyir) denizde; FleetLayer düzeni karaya taşmaz |
 | `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
+| `test_map_pins.gd` | Yapı rozetleri (orta uzaklıkta ikon, yakında iğne), fare altındaki rozetin seçimi, büyümesi, yapı kartı, yapı seslerinin tanımı, ordu sayacında komutan portresi, muharebe durum okları |
 
 Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;
 katman testleri ağır dokuları yüklemeyen `ProbeMap` (MapView3D alt sınıfı) kullanır. Deniz yolları değişirse
@@ -58,7 +59,9 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 `--pause_menu`, `--settings` (oyun içi ayarlar), `--menu_settings` (ana menü ayarları), `--lang_test=en|tr`,
 `--gameover=win|lose`, `--politics_of=TAG` (başka ülkenin siyaseti), `--ctrl_hover=x,y` (ülke kartı),
 `--hover_at=x,y` (ekran konumundaki bölge kartı), `--army=TAG [--army_select --army_cmd]` (bütün tümenler TAG'e karşı tek
-ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim).
+ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim),
+`--split_demo=UZAKLIK` (aynı bölgede başka sayacın yanında komutanlı yeni ordu), `--hover_building` (ekranın ortasına en
+yakın yapı rozetinin üstüne gel).
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3B varlıklar (Blender, ekransız)

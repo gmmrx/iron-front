@@ -60,10 +60,17 @@ Far away you see the usual map icons (cities, ports, air bases); zoom in and eac
 - **City**: a pin with a head in the colour of the country holding it; the bigger the city, the bigger the pin. The name
   sits on the head.
 - **Division, fleet, air wing**: the counter is the pin's flag. Each army has its own pin (armies in the same region stand
-  side by side, the name of your army written under its counter).
-- **Buildings**: one pin per state carrying the state's buildings side by side as pictures (civilian and military
-  factories, dockyards, refineries, anti-air, naval base) with their level in the corner; a construction in progress is
-  an orange-framed picture with "+n". The air base has its own pin.
+  side by side, the name of your army written under its counter). Up close, the portrait of the army's commander sits
+  above the army's main counter (the one with the most divisions), so you can tell your armies apart at a glance; an
+  army whose commander has no picture shows his initials.
+- **Buildings**: each state's buildings side by side as pictures (civilian and military factories, dockyards,
+  refineries, anti-air, naval base) with their level in the corner; a construction in progress is an orange-framed
+  picture with "+n". The air base has its own badge. At middle distance the badges lie on the map as icons; only very
+  close does the pin rise under them. Move the mouse over a badge: it grows, you hear that building, and the card
+  shows the building (level / maximum, construction in progress, the country's total, air wings based at an air base).
+  Clicking a badge opens its state (with Construction open: builds there).
+- **Battles**: small arrows appear beside a battle and fade away: a green ▲ on the side whose position has just
+  improved, a red ▼ on the side that is losing ground (the attacker's arrow on the side the attack comes from).
 - **Aircraft** are the only models: one small plane in the country's colour, parked by the air base or flying its mission.
 - **State borders** are drawn as clear dark lines at every zoom, thicker up close.
 Pins keep the same size on screen at every zoom.

@@ -43,6 +43,7 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |
 | `test_fleet_motion.gd` | The fleet's visual position (corner curves, leaving port, sailing) stays at sea; the FleetLayer formation never spills onto land |
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
+| `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer
 tests use `ProbeMap` (a MapView3D subclass that skips the heavy textures). If the sea lanes change,
@@ -60,7 +61,9 @@ save as well: `test_save_load.gd` catches an unsaved field by name (fields recom
 `--pause_menu`, `--settings` (in-game settings), `--menu_settings` (main menu settings), `--lang_test=en|tr`,
 `--gameover=win|lose`, `--politics_of=TAG` (another country's politics), `--ctrl_hover=x,y` (country card),
 `--hover_at=x,y` (region card at a screen position), `--army=TAG [--army_select --army_cmd]` (all divisions in one army
-facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection).
+facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection),
+`--split_demo=DIST` (a new army with a commander next to another counter in the same region), `--hover_building`
+(hover the building badge nearest the screen centre).
 To try the web renderer on desktop: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3D assets (Blender, headless)

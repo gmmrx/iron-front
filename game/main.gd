@@ -20,6 +20,7 @@ var cities: CityLayer3D
 var units: UnitLayer
 var fleets: FleetLayer
 var routes: RouteLayer
+var pins: PinLayer
 var _zone_pick: Fleet = null          ## "Bölge seç": sonraki tıklama filo görev bölgesi
 var _wing_pick: AirWing = null        ## hava kanadı için bölge / üs seçimi
 var hud: Hud
@@ -75,6 +76,10 @@ func _ready() -> void:
 	battle_icons.map = map_view
 	battle_icons.camera = camera
 	add_child(battle_icons)
+	var ticker := BattleTicker.new()          # muharebede durumu düzelen tarafta yeşil ▲, kötüleşende kırmızı ▼
+	ticker.map = map_view
+	ticker.camera = camera
+	add_child(ticker)
 	World.daily_update.connect(map_view.update_season)
 	map_view.update_season()
 	routes = RouteLayer.new()
@@ -87,7 +92,7 @@ func _ready() -> void:
 	air_layer.camera = camera
 	air_layer.models = models
 	add_child(air_layer)
-	var pins := PinLayer.new()
+	pins = PinLayer.new()
 	pins.map = map_view
 	pins.camera = camera
 	pins.cities = cities
@@ -332,7 +337,11 @@ func _handle_dev_args() -> void:
 			for d: Division in four:
 				d.province = four[0].province
 				d.path.clear()
-			Military.create_army(World.player_tag, four.slice(0, 2))
+			var army := Military.create_army(World.player_tag, four.slice(0, 2))
+			for cm: Commander in Military.commanders:
+				if cm.owner == World.player_tag and not cm.is_marshal():
+					Military.assign_army_commander(army, cm.id)       # sayacın yanında komutanın portresi
+					break
 			Military.divisions_changed.emit()
 			var fp := World.province(four[0].province).center
 			var fd := float(args["split_demo"]) if args["split_demo"] != "" else 160.0
@@ -628,7 +637,7 @@ func _handle_dev_args() -> void:
 		for i in (int(args["wait"]) if args.has("wait") else 40):
 			await get_tree().process_frame
 		# Görsel QA: belirli bir bölgenin bilgi kartını ve gerçek cursor dokusunu kadraja ekle.
-		if not args.has("hover") and not args.has("hover_route"):
+		if not args.has("hover") and not args.has("hover_route") and not args.has("hover_building"):
 			set_process(false)          # gerçek imlecin harita ipucu kareye girmesin
 			hud.tooltip.visible = false
 		if args.has("hover"):
@@ -648,6 +657,24 @@ func _handle_dev_args() -> void:
 			var hv3: PackedStringArray = args["hover_at"].split(",")
 			var hp3 := Vector2(float(hv3[0]), float(hv3[1]))
 			hud.tooltip.show_province(_pick(hp3), hp3)
+			await get_tree().process_frame
+		if args.has("hover_building"):
+			# test: ekranın ortasına en yakın yapı rozetinin üstüne gel (büyüme, ses, kart) --hover_building
+			var best := {}
+			var bp := Vector2.ZERO
+			var mid := get_viewport().get_visible_rect().size * 0.5
+			for gy in range(40, int(mid.y * 2.0) - 40, 6):
+				for gx in range(40, int(mid.x * 2.0) - 40, 6):
+					var q := Vector2(gx, gy)
+					if best.is_empty() or q.distance_to(mid) < bp.distance_to(mid):
+						var h := pins.pick_building(q)
+						if not h.is_empty():
+							best = h
+							bp = q
+			print("hover_building ", best, " at ", bp)
+			if not best.is_empty():
+				pins.set_hovered_building(best)
+				hud.tooltip.show_building(int(best["sid"]), String(best["building"]), bp)
 			await get_tree().process_frame
 		if args.has("ctrl_hover"):
 			# test: Ctrl basılıyken ülke kartı --ctrl_hover=x,y (ekran konumu)
@@ -693,10 +720,14 @@ func _process(delta: float) -> void:
 		var cursor_pid := _pick(get_viewport().get_mouse_position())
 		var cursor_province := World.province(cursor_pid)
 		Input.set_default_cursor_shape(Input.CURSOR_CROSS if cursor_province and cursor_province.is_land() else Input.CURSOR_FORBIDDEN)
+	elif pins and pins.hovered_building() != "":
+		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 	else:
 		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	if hud.is_mouse_over_ui():
 		hud.tooltip.visible = false
+		if pins:
+			pins.set_hovered_building({})
 	if _ctrl_country != "" and (hud.is_mouse_over_ui() or not Input.is_key_pressed(KEY_CTRL)):
 		_country_hover(0, Vector2.ZERO)        # Ctrl bırakıldı (pencere dışında da) ya da imleç arayüzde: vurgu kalkar
 		map_view.set_hovered(0)
@@ -773,11 +804,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		_last_mouse = mm.position
 		var pid := _pick(mm.position)
 		map_view.set_hovered(pid)
+		var hb := pins.pick_building(mm.position) if not _dragging and not _middle_down else {}
+		pins.set_hovered_building(hb)
 		var hf := fleets.pick(mm.position)
 		var hr := _route_at(mm.position)
 		_country_hover(pid if mm.ctrl_pressed else 0, mm.position)
 		if _ctrl_country != "":
 			pass
+		elif not hb.is_empty():
+			hud.tooltip.show_building(int(hb["sid"]), String(hb["building"]), mm.position)
 		elif hf:
 			hud.tooltip.show_fleet(hf, mm.position)
 		elif not hr.is_empty():
@@ -911,10 +946,13 @@ func _left_click(pos: Vector2, shift: bool) -> void:
 		return
 	if not shift:
 		units.clear_selection()
+	# yapı rozetine tıklanınca rozetin eyaleti (iğne ucu yerden yüksekte: imlecin altındaki bölge başka olabilir)
+	var hb := pins.pick_building(pos)
+	var target := int(hb["pid"]) if not hb.is_empty() and int(hb["pid"]) > 0 else _pick(pos)
 	if hud.construction.visible and hud.construction.selected != "":
-		_try_build(_pick(pos))
+		_try_build(target)
 	else:
-		World.select_province(_pick(pos))
+		World.select_province(target)
 
 ## Seçili tümenlere hareket/saldırı emri
 func _order_move(pid: int) -> void:

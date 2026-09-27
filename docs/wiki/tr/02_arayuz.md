@@ -60,10 +60,15 @@ Harita bir kurmay masasıdır: 3D arazi kalır, üstündeki her şey model yerin
 her zamanki harita ikonları (şehir, liman, hava üssü) görünür; yaklaştıkça her ikon yerden yükselen bir iğneye dönüşür.
 - **Şehir**: şehri elinde tutan ülkenin renginde başlı iğne; şehir büyüdükçe iğne büyür. Adı başın üstündedir.
 - **Tümen, filo, hava kanadı**: sayaç iğnenin bayrağıdır. Her ordunun kendi iğnesi vardır (aynı bölgedeki ordular yan
-  yana durur, ordunun adı sayacının altında yazar).
-- **Yapılar**: eyalet başına bir iğne; ucunda eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane,
-  rafineri, uçaksavar, deniz üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi
-  iğnesi vardır.
+  yana durur, ordunun adı sayacının altında yazar). Yakında ordunun ana sayacının (en çok tümenli olan) üstünde
+  komutanının portresi durur; ordular bir bakışta ayırt edilir. Komutanın resmi yoksa adının baş harfleri görünür.
+- **Yapılar**: eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane, rafineri, uçaksavar, deniz
+  üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi rozeti vardır. Orta
+  uzaklıkta rozetler haritanın üstünde ikon olarak durur; iğne ancak çok yaklaşınca altlarından yükselir. Farenin
+  rozetin üstüne gelmesiyle rozet büyür, o yapının sesi duyulur ve kart o yapıyı anlatır (seviye / en çok, süren inşaat,
+  ülkedeki toplamı, hava üssünde konuşlu kanatlar). Rozete tıklamak eyaletini açar (İnşaat açıkken: oraya inşa eder).
+- **Muharebeler**: muharebenin yanında küçük oklar belirip söner: durumu az önce düzelen tarafta yeşil ▲, zemin
+  kaybeden tarafta kırmızı ▼ (saldıranın oku saldırının geldiği yanda).
 - **Uçaklar** tek modeldir: ülke renginde küçük bir uçak, üste park etmiş ya da görevinde uçarken.
 - **Eyalet sınırları** her zoom'da belirgin koyu çizgidir, yakında daha kalın.
 İğneler her zoom'da ekranda aynı boydadır.

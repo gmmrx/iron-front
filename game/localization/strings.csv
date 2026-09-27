@@ -436,6 +436,12 @@ NAVY_CONVOY_FACTOR,"Convoys carry %d%% of imports","Konvoylar ithalatın %%%d'in
 TIPMAP_FLEET_TITLE,%s,%s
 "TIPMAP_FLEET_HINT","Left click: select · Right click (fleet selected): send to sea zone or rebase to own port","Sol tık: seç · Sağ tık (filo seçiliyken): deniz bölgesine gönder ya da kendi limanına üs değiştir"
 TIPMAP_FLEET_MISSION,Mission: %s · Zone: %s,Görev: %s · Bölge: %s
+TIPMAP_BUILD_LEVEL,Level %d / %d,Seviye %d / %d
+TIPMAP_BUILD_QUEUE,Under construction: %d level(s) · first %d%%,İnşaatta: %d seviye · ilki %%%d
+TIPMAP_BUILD_DAYS," · about %d days"," · yaklaşık %d gün"
+TIPMAP_BUILD_TOTAL,%s in total: %d,%s toplamı: %d
+TIPMAP_BUILD_WINGS,Air wings based here: %d,Burada konuşlu hava kanadı: %d
+"TIPMAP_BUILD_HINT","Left click: open the state · with Construction open: build here","Sol tık: eyaleti aç · İnşaat açıkken: buraya inşa et"
 NAVY_ORDER_OK,%s: new orders — %s,%s: yeni emir — %s
 TIPMAP_FLEETS,Fleets,Filolar
 TIPMAP_SEA_CONTROL,Our naval control here: %d%%,Buradaki deniz hâkimiyetimiz: %%%d
