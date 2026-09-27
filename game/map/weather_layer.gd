@@ -16,7 +16,7 @@ var camera: MapCamera3D
 var rain: GPUParticles3D
 var snow: GPUParticles3D
 var _day := -1
-var _cache := {}               ## hücre -> [kind, intensity]
+var _cache := {}               ## (hücre x, hücre y, bölge) -> [kind, intensity]
 var current := Kind.CLEAR      ## kamera hedefindeki hava (HUD gösterir)
 var force := -1                ## geliştirici: -1 serbest, yoksa zorlanan Kind
 var current_intensity := 0.0
@@ -27,17 +27,19 @@ func _ready() -> void:
 	add_child(rain)
 	add_child(snow)
 
-## Bölgesel hava: hücre + gün tohumlu gürültü; mevsim ve enlem olasılığı belirler
+## Bölgesel hava: hücre + gün tohumlu gürültü; mevsim ve enlem olasılığı belirler. Sonuç yalnız (gün, hücre, bölge)'ye
+## bağlıdır: önbellek anahtarında bölge de var (yoksa hücrede ilk sorgulanan noktanın bölgesi hücrenin tamamına yazılıyor,
+## sonuç sorgu sırasına bağlı oluyordu)
 func weather_at(world_xz: Vector2) -> Array:
 	if _day != World.day_count:
 		_cache.clear()
 		_day = World.day_count
 	var cx := floori(world_xz.x / CELL)
 	var cy := floori(world_xz.y / CELL)
-	var key := cx * 100000 + cy
+	var pid := map.province_at(world_xz) if map else 0
+	var key := Vector3i(cx, cy, pid)
 	if _cache.has(key):
 		return _cache[key]
-	var pid := map.province_at(world_xz) if map else 0
 	var p := World.province(pid) if pid > 0 else null
 	var lat: float = p.lonlat.y if p else 45.0
 	var alat := absf(lat)

@@ -414,19 +414,13 @@ func _update_ships(dt: float) -> void:
 				if shown.size() < MAX_SHOWN:
 					shown.append(t)
 		var roll := clampf(-float(g["rate"]) * 0.25, -0.12, 0.12)
-		# kıyı / ada yakınında düzen yumuşakça sıkışır (gemiler karaya taşmaz, zıplamaz)
-		var want_spread := 0.0
-		for sp: float in [1.0, 0.7, 0.45, 0.25]:
-			var ok := true
-			for i in shown.size():
-				var q := _ship_pos(gpos, fwd, right, shown[i], i, port, sp)
-				var hl := _half_len(shown[i]) * 0.9
-				if not is_water(q) or not is_water(q + fwd * hl) or not is_water(q - fwd * hl):
-					ok = false
-					break
-			if ok:
-				want_spread = sp
-				break
+		# kıyı / ada yakınında: grup konumu karaya düştüyse en yakın suya alınır, düzen yumuşakça sıkışır
+		# (gemiler karaya taşmaz, zıplamaz)
+		var fit := fit_formation(gpos, fwd, shown, port, _zs, is_water)
+		if fit[0] != gpos:
+			gpos = fit[0]
+			g["pos"] = gpos
+		var want_spread: float = fit[1]
 		g["spread"] = lerpf(float(g.get("spread", 1.0)), want_spread, minf(dt * 2.5, 1.0))
 		var spread: float = g["spread"]
 		for i in shown.size():
@@ -465,16 +459,55 @@ func _update_ships(dt: float) -> void:
 		wm.set_instance_transform(i, wakes[i][0])
 		wm.set_instance_custom_data(i, Color(1, 1, 1, wakes[i][1]))
 
-func _half_len(t: String) -> float:
-	return float(MODEL_LEN[t]) * float(SHIP_SCALE[t]) * _zs * 0.5
+func _ship_pos(gpos: Vector2, fwd: Vector2, right: Vector2, t: String, i: int, port: bool, spread: float) -> Vector2:
+	return ship_pos(gpos, fwd, right, t, i, port, spread, _zs)
+
+# ------------------------------------------------------------------ düzen (sahneden bağımsız, ekransız test edilir)
+const SPREADS := [1.0, 0.7, 0.45, 0.25]
+
+static func half_len(t: String, zs: float) -> float:
+	return float(MODEL_LEN[t]) * float(SHIP_SCALE[t]) * zs * 0.5
 
 ## Düzendeki geminin konumu: denizde üçgen; limanda yan yana, kıçı rıhtımda (gövde tamamen suda)
-func _ship_pos(gpos: Vector2, fwd: Vector2, right: Vector2, t: String, i: int, port: bool, spread: float) -> Vector2:
+static func ship_pos(gpos: Vector2, fwd: Vector2, right: Vector2, t: String, i: int, port: bool, spread: float, zs: float) -> Vector2:
 	if port:
 		var s2: Vector2 = PORT_SLOTS[i]
-		return gpos + right * s2.x * _zs * maxf(spread, 0.6) + fwd * (_half_len(t) + 0.8)
+		return gpos + right * s2.x * zs * maxf(spread, 0.6) + fwd * (half_len(t, zs) + 0.8)
 	var s1: Vector2 = SLOTS[i]
-	return gpos + (right * s1.x + fwd * s1.y) * _zs * spread
+	return gpos + (right * s1.x + fwd * s1.y) * zs * spread
+
+## Gemi (baş, orta, kıç) suda mı
+static func ship_in_water(q: Vector2, fwd: Vector2, t: String, zs: float, is_water: Callable) -> bool:
+	var hl := half_len(t, zs) * 0.9
+	return is_water.call(q) and is_water.call(q + fwd * hl) and is_water.call(q - fwd * hl)
+
+## Karadaki noktaya en yakın su noktası (yarıçapı büyüyen halkalar, 16 yön); bulunamazsa noktanın kendisi
+static func nearest_water(p: Vector2, is_water: Callable, max_r := 48.0) -> Vector2:
+	if is_water.call(p):
+		return p
+	var r := 1.0
+	while r <= max_r:
+		for k in 16:
+			var q := p + Vector2.from_angle(TAU * k / 16.0) * r
+			if is_water.call(q):
+				return q
+		r += 1.0
+	return p
+
+## Kıyıda düzen: grup konumu karadaysa en yakın suya alınır; tüm gemiler (baş/kıç dahil) suda kalan en geniş açılım
+## seçilir (hiçbiri sığmazsa 0: gemiler grup noktasında). Dönüş: [grup konumu, açılım]
+static func fit_formation(gpos: Vector2, fwd: Vector2, shown: Array[String], port: bool, zs: float, is_water: Callable) -> Array:
+	var pos := nearest_water(gpos, is_water)
+	var right := Vector2(fwd.y, -fwd.x)
+	for sp: float in SPREADS:
+		var ok := true
+		for i in shown.size():
+			if not ship_in_water(ship_pos(pos, fwd, right, shown[i], i, port, sp, zs), fwd, shown[i], zs, is_water):
+				ok = false
+				break
+		if ok:
+			return [pos, sp]
+	return [pos, 0.0]
 
 ## Filo tek parça hareket eder: konum hedefi hızıyla birlikte izler (gecikme yok), yön sınırlı hızla döner
 func _move_group(g: Dictionary, target: Vector2, want_yaw: float, steer: bool, dt: float) -> void:

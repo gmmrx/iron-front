@@ -26,9 +26,9 @@ Son güncelleme: **25 Eylül 2026 (akşam)**
   [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
 
 ### Sıradaki işler (öncelik sırasıyla)
-1. **Gemiler karaya çıkıyor** (bilinen hata): kıyı/boğaz yakınında filo görüntüsü karaya taşıyor; 62 deniz yolu karaya değiyor
-   (en kötüleri 9033-12949, 9295-13269, 10215-13110), 12 liman–deniz yolu eksik (San Juan, Valparaíso, Newcastle…) → deniz yolu
-   üreticisini düzelt, filo grubunun konumunu suya sabitle
+1. ✔ **Gemiler karaya çıkmıyor**: deniz yolları tam çözünürlükte doğrulanıp onarıldı (kara teması 236 → 0 rota, eksik liman–deniz
+   12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
+   `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. **Yeni ikon seti ve portreler** (kullanıcı üretiyor) → geldikçe görsel kontrol
 3. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
@@ -120,6 +120,9 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
 - [x] Rota kıyıdan en az ~12 px uzak; yol bulma ve hız gerçek rota uzunluğuyla; seyir hızları 13–23 km/sa;
       sıkı üçgen düzen, pruva rota teğetini izler, kıyıya yaklaşınca düzen yumuşakça sıkışır
 - [x] Kamera arazi yüksekliğini izlemez (sabit yükseklik, inip çıkma yok)
+- [x] Deniz yolu üreticisi son aşamada her rotayı tam çözünürlükte doğrular/onarır (kara teması 0), uzak denize açılan
+      limanlar şehrin rıhtımından çıkar, düğüm başına köşe yarıçapı (kavis suda kalır); FleetLayer düzeni (fit_formation)
+      ekransız test edilir, karaya düşen grup konumu en yakın suya alınır
 - [x] Aynı yerdeki filolar/tümenler tek temsilci grup (en çok 3 gemi / 1 tümen düzeni), sayı sayaçta
 - [x] Konvoy / ticaret rotalarının haritada görünmesi (Yollar modu)
 
@@ -213,6 +216,8 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [ ] Yapay zekânın "fırsat kollayıp sonra katılma" kuralı (`Diplomacy.ai_answers_call`) yazılmış ama bağlanmamış
       (ittifak çağrısında İtalya'nın Haziran 1940'ı beklemesi); bağlamak dengeyi değiştirir — karar bekliyor
 - [ ] Oyuncu ordusu karadan ayrı cephe parçalarına (ör. Doğu Prusya) kendiliğinden deniz aşırı tümen göndermez
+- [x] Hareket ve animasyon mantığı testleri: deniz yolları, filo köşe/liman çıkışı/düzen, tümen yolu sürekliliği, hareket
+      okları, hava durumu (belirlenimci; önbellek hatası düzeltildi), zoom kiplerinde sayaç/bayrak/gizli
 
 ## BÖLÜM V — REHBER VİDEOLARINDAN OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
 Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve `game-tutorial-yt2-english.txt`
