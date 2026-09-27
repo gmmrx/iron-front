@@ -1,6 +1,9 @@
 extends SceneTree
 ## Headless simülasyon testi: godot --headless --path . -s game/dev/sim.gd -- --days=1200 [--player=TUR]
+## Sorun bulursa 1 ile çıkar: motor/betik hatası, gün sayacı kayması, tümen/ülke değerlerinde NaN/sonsuz ya da aralık dışı değer.
 func _init() -> void:
+	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
+	OS.add_logger(catcher)
 	await process_frame
 	var days := 1200
 	var player := ""
@@ -20,6 +23,7 @@ func _init() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--watch="): watch = a.substr(8).split(",")
 	var t0 := Time.get_ticks_msec()
+	var day0: int = W.day_count
 	for day in days:
 		clock.advance_hours(24)
 		W.flush_ownership()
@@ -58,4 +62,31 @@ func _init() -> void:
 	var prof: Dictionary = clock.prof
 	for k in prof: print("  profil %s: %.1f sn" % [k, prof[k] / 1e6])
 	print("toplam süre %.1f sn" % ((Time.get_ticks_msec() - t0) / 1000.0))
-	quit()
+	# --- denetimler
+	var problems: Array[String] = []
+	if W.day_count - day0 != days:
+		problems.append("gün sayacı %d ilerledi, beklenen %d" % [W.day_count - day0, days])
+	var bad_divs := 0
+	for d in mil.divisions:
+		if not (is_finite(d.strength) and is_finite(d.org) and d.strength >= 0.0 and d.strength <= 1.0 and d.org >= 0.0):
+			bad_divs += 1
+	if bad_divs > 0:
+		problems.append("%d tümende geçersiz güç/organizasyon" % bad_divs)
+	for c in W.countries.values():
+		if not c.exists():
+			continue
+		if not is_finite(c.political_power) or not is_finite(c.stability) or not is_finite(c.war_support):
+			problems.append("%s: siyasi güç/istikrar/savaş desteği sayı değil" % c.tag)
+		for e: String in c.stockpile:
+			if not is_finite(float(c.stockpile[e])):
+				problems.append("%s: %s stoğu sayı değil" % [c.tag, e])
+	if not is_finite(W.world_tension) or W.world_tension < 0.0 or W.world_tension > 100.0:
+		problems.append("dünya gerginliği aralık dışı: %s" % W.world_tension)
+	for e in catcher.take():
+		problems.append("motor/betik hatası: " + e)
+	print("== sim: %d sorun ==" % problems.size())
+	for p in problems:
+		print("  SORUN " + p)
+	OS.remove_logger(catcher)
+	catcher = null
+	quit(1 if not problems.is_empty() else 0)

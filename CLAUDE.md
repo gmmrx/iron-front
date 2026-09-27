@@ -18,6 +18,8 @@ Python araçları için: `pip install pillow numpy scipy`.
 ## Testler (hepsi ekransız)
 | Komut | Ne ölçer |
 |---|---|
+| `GODOT=$GODOT tools/run_tests.sh` | içe aktarma + `tests/run.gd` + country_check (60 gün); CI'daki iş budur |
+| `$GODOT --headless --path . -s tests/run.gd [-- --file=test_data]` | test paketi (`tests/test_*.gd`, her test temiz oyunla; yazım: `docs/wiki/08_gelistirici.md`) |
 | `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyuncu eylemleri oyunu etkiliyor mu, oyuncu adına otomatik iş var mı (çıkış kodu 1 = sorun) |
 | `GODOT=$GODOT tools/balance_parallel.sh 6` | 1936–1942 tarihî akış, 12 kontrol. Her kontrol en az 5/6 geçmeli |
 | `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 istikrar/savaş desteği, tarihli olaylar, seçimler |

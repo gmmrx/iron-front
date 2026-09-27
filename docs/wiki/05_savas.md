@@ -4,7 +4,7 @@
 - Tabur türleri: piyade, topçu, tanksavar, motorize piyade, hafif tank, orta tank (araştırma ister).
 - Şablon tasarımcısı: tabur başına +/− (şablonda en çok 25 tabur). Değerler: yumuşak/sert saldırı, savunma, yarma,
   organizasyon, hız, genişlik, insan gücü.
-- **Konuşlandır**: insan gücü ve ekipman yeterliyse tümen 14 gün eğitim alır (bu sürede hareket etmez).
+- **Konuşlandır**: insan gücü ve ekipman yeterliyse tümen 14 gün eğitim alır (bu sürede hareket etmez); askerlik yasasının eğitim süresi etkisi bunu uzatır (Geniş Seferberlik 15, Son Kaynaklar 21 gün).
 
 ## Emirler
 - Sol tık / kutu ile seç, **sağ tık** (web ve Mac'te Ctrl + sol tık) hedef bölgeye git ya da saldır.

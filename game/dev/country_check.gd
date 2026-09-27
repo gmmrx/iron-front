@@ -3,8 +3,10 @@ extends SceneTree
 ##   godot --headless --path . -s game/dev/country_check.gd -- [--tags=TUR,GER] [--days=60]
 ## Sütunlar: yasa (insan gücü değişir), ticaret (anlaşma kaynağı artırır), üretim (stok artar), inşaat (ilerler),
 ## araştırma (ilerler), odak (ilerler), danışman (SG kazancı değişir), otomatik yok (oyuncu adına ticaret/kanat yok),
-## olaylar (oyuncuya sorulur, kendiliğinden seçilmez).
+## olaylar (oyuncuya sorulur, kendiliğinden seçilmez). Motor/betik hatası olan ülke de sorunlu sayılır.
 func _init() -> void:
+	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
+	OS.add_logger(catcher)
 	await process_frame
 	var W: Node = root.get_node("World")
 	var P: Node = root.get_node("Politics")
@@ -130,7 +132,10 @@ func _init() -> void:
 				auto_bad = true
 		res["otomatik"] = "YOK(iyi)" if not auto_bad else "VAR!"
 		res["olay"] = "%d soruldu/%d bekliyor" % [fired[0], P.pending_events.size()]
-		var bad := false
+		var errs: Array[String] = catcher.take()
+		if not errs.is_empty():
+			res["hata"] = "%d HATA: %s" % [errs.size(), errs[0]]
+		var bad := not errs.is_empty()
 		for k: String in res:
 			if str(res[k]).contains("ETKİSİZ") or str(res[k]).contains("VAR!"):
 				bad = true
@@ -142,4 +147,6 @@ func _init() -> void:
 		line += "  tümen=%d eyalet=%d" % [M.country_divisions(tag).size(), c.states.size()]
 		print(line)
 	print("== %d ülke, %d sorunlu, %.0f sn ==" % [tags.size(), fails, (Time.get_ticks_msec() - t0) / 1000.0])
+	OS.remove_logger(catcher)
+	catcher = null
 	quit(1 if fails > 0 else 0)

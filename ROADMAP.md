@@ -201,6 +201,8 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [x] Tümenler "Son askere kadar" açık başlar: kendiliğinden geri çekilmez; organizasyon bitince yarı güçle savaşır (tümen panelinden kapatılabilir)
 - [x] Tarihî baskılar seçenekli olay; seçeneklere şart (`require`), şartsız seçenek kilitli görünür, AI da seçmez
 - [x] Her ülke testi (`game/dev/country_check.gd`): oyuncu eylemleri oyunu etkiliyor, oyuncu adına otomatik iş yok
+- [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/odak/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
+      çeviri tablosu), `tools/run_tests.sh`, GitHub Actions; dev betikleri sorun bulunca 1 ile çıkar
 
 ## BÖLÜM V — REHBER VİDEOLARINDAN OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
 Kaynak: `game-tutorial-yt1-turkish.txt` (sistemlerin ayrıntılı anlatımı) ve `game-tutorial-yt2-english.txt`
@@ -481,10 +483,13 @@ game/core/       → saf simülasyon sınıfları (Country, StateRegion, Provinc
 game/map/        → 3D harita, kamera, şehir/ağaç/birim katmanları
 game/ui/         → arayüz
 game/dev/        → headless test ve simülasyon
+tests/           → ekransız test paketi (tests/run.gd koşucu, test_*.gd testler)
 assets/          → shader, model, doku, ikon, yazı tipi, ses
 ```
 
 ## Geliştirici araçları
+- Test paketi: `tools/run_tests.sh` (içe aktarma + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
+  (PR ve main push'ta; denge testi elle tetiklenen ayrı iş)
 - Denge testi: `tools/balance_parallel.sh 6` (6 paralel koşu, ~3,5 dk); tek koşu `game/dev/balance.gd`
 - Performans: `godot --path . -- --play=GER --run --fps=10`
 - Görsel QA (kare dizisi): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`

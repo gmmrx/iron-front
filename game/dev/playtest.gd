@@ -1,6 +1,9 @@
 extends SceneTree
 ## Oyuncu akışı testi: TUR -> IRQ savaşı, tümen emirleri, teslim alma, kaydet/yükle.
+##   godot --headless --path . -s game/dev/playtest.gd      (bir adım kalırsa ya da motor/betik hatası olursa çıkış 1)
 func _init() -> void:
+	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
+	OS.add_logger(catcher)
 	await process_frame
 	var W = root.get_node("World")
 	var clock = root.get_node("GameClock")
@@ -11,9 +14,10 @@ func _init() -> void:
 	W.start_game("TUR")
 	var tur = W.countries["TUR"]
 	var irq = W.countries["IRQ"]
-	W.world_tension = 40.0
+	W.world_tension = 60.0      # bağlantısız Türkiye %50 gerginliğin altında gerekçe hazırlayamaz
 	W.notification.connect(func(t: String, _k: String) -> void: print("    [%d-%02d-%02d] %s" % [clock.year, clock.month, clock.day, t]))
 	tur.political_power = 200.0
+	var states0: int = tur.states.size()
 	var ok := [0, 0]
 	var check := func(name: String, cond: bool) -> void:
 		print(("  OK   " if cond else "  FAIL ") + name)
@@ -61,8 +65,8 @@ func _init() -> void:
 		if not irq.exists() or not dip.are_enemies("TUR", "IRQ"):
 			print("  gün %d: savaş bitti" % i)
 			break
-	check.call("Irak teslim oldu / ilhak", not dip.are_enemies("TUR", "IRQ"))
-	check.call("Türkiye toprak kazandı", tur.states.size() > 42)
+	check.call("Irak teslim oldu / ilhak", (irq.capitulated or not irq.exists()) and not dip.are_enemies("TUR", "IRQ"))
+	check.call("Türkiye toprak kazandı (%d → %d eyalet)" % [states0, tur.states.size()], tur.states.size() > states0)
 	check.call("kaydet", game.save_game("test_kayit"))
 	var date_before: String = clock.date_string()
 	var states_before: int = tur.states.size()
@@ -71,5 +75,9 @@ func _init() -> void:
 	check.call("tarih korunur (%s)" % clock.date_string(), clock.date_string() == date_before)
 	check.call("eyaletler korunur", W.countries["TUR"].states.size() == states_before)
 	check.call("tümenler korunur", mil.country_divisions("TUR").size() == divs_before)
+	for e in catcher.take():
+		check.call("motor/betik hatası: " + e, false)
 	print("SONUÇ: %d başarılı, %d başarısız" % [ok[0], ok[1]])
-	quit()
+	OS.remove_logger(catcher)
+	catcher = null
+	quit(1 if ok[1] > 0 else 0)
