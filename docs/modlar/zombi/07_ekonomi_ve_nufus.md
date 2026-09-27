@@ -65,7 +65,7 @@ geçerlidir: motor dosyasına dokunmak için onay gerekir (docs/modlar/README.md
 | # | Kanca | Varsayılan | Nerede çağrılır | Neden |
 |---|---|---|---|---|
 | M1 | `state_productive(st) -> bool` | `true` | `Economy.count`, `resource_total`, inşaat ilerlemesi | Düşmüş ya da boşalmış eyalet üretmez, inşaatı durur |
-| M1b | `Economy.fit_lines(c)` (yeni yardımcı) | — | Sayım düşünce | Boşta kalmayan fabrikalar son eklenen hattan başlayarak kırpılır; oyuncuya haber gider |
+| M1b | `Economy.fit_lines(c)` (yeni yardımcı) | — | Sayım düşünce | Hatlara atanmış fabrika sayısı eldeki fabrikayı aşarsa fazlası son eklenen hattan başlayarak kırpılır; oyuncuya haber gider |
 | M2 | `extra_resource_need(c) -> Dictionary` | `{}` | `Economy.resource_need` | Gıda ihtiyacı yapay zekânın otomatik ticaretine ve ticaret panelindeki "ihtiyaç" sütununa girer |
 | M2b | `export_cap(c, res, offered) -> float` | `offered` | `_run_trade` içinde arz hesabı | Ülke gıdasının yalnız artığını satar; kendi halkını aç bırakıp ihraç etmez |
 | M3 | `import_factor(c, from_tag) -> float` | `1.0` | `resource_available`, `Military._fuel` (petrol), ticaret paneli | Liman karantinası ve sınır tutumu ortak başına ithalatı azaltır |
@@ -96,7 +96,7 @@ Kancalar yalnız `Game.rules` doluyken çalışır. Yine de CLAUDE.md gereği mo
 |---|---|---|---|---|
 | Healthy / Sağlıklı | S + R + V + Vb | Evet | Evet | Evet |
 | Incubating / Kuluçkada (görünmez) | E | Evet | Evet | Evet |
-| Febrile / Ateşli hasta | F | Hayır; ayrıca 0,5 bakıcı bağlar | Evet | Hayır (haftalık güncellemede sayılır, bkz. §2.4) |
+| Febrile / Ateşli hasta | F | Hayır; ayrıca 0,5 bakıcı bağlar | Evet | Evet (yaşayan nüfusun içinde, §2.4) |
 | In camps / Kampta | Q (mülteci kampı) | Hayır | Evet | Hayır |
 | Hollow / Boş | H | — (yaşayan sayılmaz) | Hayır | Hayır |
 | Dead / Ölen | D (salgın + açlık) | — | — | — |
@@ -109,10 +109,11 @@ aynı ağırlıktadır (01 §6.4: sömürgeler tampon değildir).
 ω_s = max(0, S + E + R + V + Vb − 0,75·U_s − c_bakım·F − Q_s) · (1 − a_s) / N⁰_s
 a_s = a_max · clamp(bildirilen_yaygınlık_s / 0,01, 0, 1)
 ```
+
 | Terim | Değer | Gerekçe |
 |---|---|---|
-| c_bakım | 0,5 | 1918'de fabrikalar ve çiftlikler, çalışanlar hasta olduğu ya da hasta yakınına baktığı için eksik kadroyla çalıştı. Oranın kendisi bizim tahminimiz: iki hastadan birinin evde bir çalışanı bağladığı varsayıldı |
-| a_max (korku devamsızlığı) | 0,25 | 1918'de New York'ta telefon santrali çalışanlarının üçte biri hastaydı ve hizmet %15 kısıldı. Yine 1918'de salgından daha çok etkilenen ABD bölgelerinde imalat çıktısı %18 düştü (Correia ve ark.). Saldırgan bir hastalığın korkusu gripten güçlü olacağı için tavan bu mertebenin biraz üstünde seçildi |
+| c_bakım | 0,5 | 1918'de salgının imalatı vurduğu kanallardan biri işgücü arzıydı (Correia ve ark.). Hemşire açığı o kadar büyüktü ki Kızılhaç işverenlerden çalışanlarına izin vermelerini istedi. Oranın kendisi bizim tahminimiz: iki hastadan birinin evde bir çalışanı bağladığı varsayıldı |
+| a_max (korku devamsızlığı) | 0,25 | 1918'de salgından daha çok etkilenen ABD bölgelerinde imalat çıktısı %18 düştü; düşüşte hastalık ve kaçınma birlikte rol oynadı (Correia ve ark.). 2003 SARS salgınında ekonomik etkinin büyük bölümü kaçınma davranışından geldi (Dünya Bankası). Saldırgan bir hastalığın korkusu gripten güçlü olacağı için tavan bu mertebenin biraz üstünde, %25 seçildi (kendi tahminimiz) |
 | Doyma %1 | bildirilen (F+H)/N⁰ | Korku gerçek değil **bildirilen** sayıya tepki verir (01 Sütun 2). Bilgiyi saklayan hükümet devamsızlığı azaltır, ama bunun bedeli başka yerde (siyaset) ödenir |
 | U_s | uyum bekleyen mülteci | Yeni gelen mülteci önce %25 verimle çalışır (§10.4) |
 | Q_s | kamp nüfusu | §10.3 |
@@ -153,7 +154,7 @@ kordonsuz senaryoda 217.300'e iner.
 doğrusal olarak artar), istikrarı %3 düşürür. Şart: halkın dayanma iradesi ≥ %25.
 Gerekçe: Britanya'da çalışan kadın sayısı 1939'dan 1943'e 5,1 milyondan 7,25 milyona çıktı; çalışma çağındaki kadınların oranı
 %26'dan %36'ya yükseldi. Bu artış yönlendirme emirleriyle ve zorunlu hizmetle sağlandı. Mod bu dört yıllık dönüşümü %8'lik tek bir
-çarpana indirir (kendi tahminimiz). Bu karar, olayı etkileyen bir **seçenektir**: oyun onu kendiliğinden açmaz.
+çarpana indirir (kendi tahminimiz). Bu bir **karardır**: oyun onu oyuncu adına almaz.
 
 ## 3. Gıda ve tarım
 
@@ -228,19 +229,21 @@ m(x)    = 0                                   x ≥ 0,60
         = min(1,35·10⁻⁴ · e^{15(0,40 − x)}, 0,002)    x < 0,60
 ölüm_s  = L_s · (0,8 · m(f_s) + 0,2 · m(f_yoksul_s))
 ```
+
 | x (azık / ihtiyaç) | ≈ kcal | m (günde) | 6 ayda | Ölçek noktası |
 |---|---|---|---|---|
 | 0,60 (eşiğin hemen altı) | 1.260 | 0,0007% | %0,1 | Eşik |
-| 0,50 | 1.050 | 0,003% | %0,5 | Hollanda 1944–45: resmî azık 500–1.000 kcal, ek kaynaklarla fiilî alım ~1.000 kcal; 4,5 milyon kişiden ~20.000 ölüm (~%0,45) |
+| 0,50 | 1.050 | 0,003% | %0,5 | Hollanda 1944–45: resmî azık 500–1.000 kcal, ek kaynaklarla fiilî alım ~1.000 kcal; etkilenen 4,5 milyon kişiden ~22.000 ölüm (~%0,5, yaklaşık 6 ayda) |
 | 0,40 | 840 | 0,014% | %2,4 | Ara bölge |
 | 0,35 | 735 | 0,029% | %5 | Atina 1941–42 kışı: Atina–Pire'de 45.000 ölüm, Aralık 1941'de günde 300 |
 | 0,25 | 525 | 0,13% | — | Leningrad, Aralık 1941: işçiye 250 g, bakmakla yükümlü olunana 125 g ekmek; Ocak 1942'de günde 3.500–4.000 ölüm |
 | ≤ 0,22 | ≤ 460 | 0,2% (tavan) | — | Tavan, en kötü kuşatma aylarının mertebesidir |
 
 Fiilî alım değerleri (x) belgelenmiş resmî azıklardan yaptığımız tahminlerdir. Eğri bu üç kıtlığın büyüklük sırasını izleyecek biçimde
-seçildi, tek tek oturtulmadı (Hollanda ±1,6 kat). Açlık ölümleri 03'ün D bölmesine eklenir, Salgın panelinde ayrı satırda görünür.
+seçildi, tek tek oturtulmadı (Hollanda için model gözlenenin 1,1–1,5 katı). Açlık ölümleri 03'ün D bölmesine eklenir, Salgın panelinde ayrı satırda görünür.
 
 **Açlık kademeleri** (ülke ortalaması f):
+
 | Ulusal durum (EN / TR) | f | İstikrar | Dayanma iradesi | Fabrika çıktısı |
 |---|---|---|---|---|
 | `zm_hunger_1` Lean Tables / Kıt Sofralar | 0,85–0,95 | −%3 | −%2 | 0 |
@@ -273,6 +276,7 @@ iner ve motorun istikrar etkisi −%25 ekler. Toplam kayıp ≈ −%55 olur, yan
   değer "halkın dayanma iradesi"dir.
 
 **Gıda kararları**
+
 | Karar (EN / TR) | Bedel | Etki | Gerekçe |
 |---|---|---|---|
 | `zm_priority_consignment` Priority Consignment / Öncelikli Sevkiyat | 25 nüfuz | Seçilen eyalette 30 gün η +0,25 | Demiryolu önceliği: yük vagonları yolcudan alınır |
@@ -326,6 +330,7 @@ Gerekçe: bakımsız demiryolu ve hat hızla bozulur; 1914–1925 Rusya'sında l
      │   oyuncu: "Sanayiyi taşı"│                                      └─(nüfus ~0)──▶ BOŞALMIŞ ──(yeniden yerleşim olayı, 02)──▶ AKSIYOR
      └──────────────────────────┴──▶ YOLDA (kaynak eyaletten düşer, hedefte yeniden kurma projesi) ──(proje biter)──▶ ÇALIŞIYOR (hedefte)
 ```
+
 | Durum | Sayılır mı (M1) | Üretim | Oyuncuya |
 |---|---|---|---|
 | Çalışıyor | Evet | ω ile | — |
@@ -424,6 +429,7 @@ yıkacaksın, yoksa kuyruğa ve karaborsaya mı?**
 | `zm_black_market_3` Shadow Economy / Gölge Ekonomi | ≥ 0,50 | −%8 | −0,20 | +0,02 |
 
 **Kararlar ve olaylar**
+
 | Ad (EN / TR) | Bedel / koşul | Etki |
 |---|---|---|
 | `zm_crackdown` Crack Down on Profiteers / Vurguncularla Mücadele | 50 nüfuz, 90 gün; tayın yasası ≥ Fiyat Tavanı | d +0,02; istikrar −%2 |
@@ -452,8 +458,8 @@ ile moral arasında **bir sarmal** vardır: açlık → istikrar ↓ → çıkt�
 4. **Ulusal birlik hükümeti:** 02'deki İç Çöküş olayının seçeneği.
 5. **Öncelikli sevkiyat:** Yerel açlığın ulusal krize dönüşmesini önler.
 
-Tarihte bu sarmalın ters örnekleri de vardır. 1830–31 ve 1892 Rusya'sında kordon ve yol yasakları gıda yollarını kesti ve ayaklanmalara
-yol açtı (01 Sütun 3). Modda bunun karşılığı, kordonlu eyaletteki η ×0,8 ile açlık kademesinin birleşmesidir.
+Tarihte bu sarmalın önlemin kendisinden başlayan bir türü de görülür. 1830–31 ve 1892 Rusya'sında kordon ve yol yasakları gıda
+yollarını kesti ve ayaklanmalara yol açtı (01 Sütun 3). Modda bunun karşılığı, kordonlu eyaletteki η ×0,8 ile açlık kademesinin birleşmesidir.
 
 ## 10. Mülteciler: akın, kabul kararları, kamp ekonomisi
 
@@ -504,6 +510,7 @@ tohum, alet, hayvan ve ev verdi. 1928'e kadar 145.127 aile 2.085 tarım köyüne
 | `zm_refugee_strain_2` | %2–5 | −%3 |
 | `zm_refugee_strain_3` | %5–10 | −%6 |
 | `zm_refugee_strain_4` | ≥ %10 | −%10 |
+
 1922 Yunanistan'ı (+%25) 4. kademeye düşer. §13'teki Romanya (35.000 kişi, %0,18) hiçbir kademeye girmez. Mültecinin asıl bedeli
 istikrar değil, kamptaki organizasyondur. Faydası ise kısa sürede işgücü ve yardım puanı olarak geri döner.
 
@@ -533,7 +540,7 @@ mücadele kararı alınır. Politika ideolojiye göre değişmez; yalnız kapasi
 | Kordon ordusu | Kordonlu eyalete gıda sevkiyatı ×0,8; mühimmat §4 | §3.5, §4 |
 | Sıkıyönetim | 02'deki değerler | 02 §3.4 |
 | Tayın yasaları | §3.7 | Bu belge |
-| Sanayi taşıma | Fabrika ~100 gün yok, %15 kayıp | §6.2 |
+| Sanayi taşıma | Fabrika 100–115 gün yok, %15 kayıp riski | §6.2 |
 | Mülteci kampı | Tüketim malı, 25 nüfuz | §10 |
 
 ## 12. Günlük ekonomi adımı, performans ve kayıt
@@ -588,12 +595,12 @@ base64 `PackedFloat64Array` olarak yazılır.
 (fs = fabrika-saat, fg = fabrika-gün; inşaat altyapı çarpanı hariç. Fabrika çıktısı = 1 − 0,10 yasa + işgücü kademesi + istikrar etkisi.)
 
 ### 13.3 Sonuç ve karşı-olgu
-| 150. gün | Kordonlu (yukarıda) | Kordonsuz (garnizon ve kordon yok) |
+| 150. gün | Kordonlu (yukarıda) | Kordonsuz (kordon ve garnizon yok, diğer kararlar aynı) |
 |---|---|---|
 | Gerçek enfekte / nüfus | 840.541 (%4,3) | 2.009.616 (%10,3) |
 | Boş (H) / salgından ölen (D) | 212.785 / 126.215 | 711.538 / 265.780 |
 | Yaşayan nüfus (1936'ya göre) | %93,8 | %86,6 |
-| Düşmüş eyalet | 0 | 1 (Kişinev) |
+| Düşmüş eyalet | 0 | 1 (Kişinev, 149. gün) |
 | İşgücü kademesi / fabrika çıktısı | −%20 / ×0,62 | −%30 / ×0,52 |
 | Askerî üretim (60. güne göre) | 21,8 fs (−%48) | 18,3 fs (−%57) |
 | İnşaat (60. güne göre) | 3,56 fg (−%32) | 2,86 fg (−%46) |
@@ -718,6 +725,7 @@ Eyalete ya da ülkeye hedeflenen kararlar (`zm_priority_consignment`, `zm_reloca
 işlevlerini çağırır.
 
 **Yeni etki ve şart anahtarları** (`rules.gd`; CLAUDE.md kural 2: `apply_effect` ve `describe_effect` birlikte)
+
 | Etki | Anlamı | describe (EN / TR) |
 |---|---|---|
 | `zm_food_stock` | Stok ± gün | "Grain reserve %+d days" / "Tahıl stoku %+d gün" |
@@ -780,6 +788,7 @@ ile aynıdır. Mod tonu için eklenen ifade: *"no gore, no children, figures at 
 Toplam **15 dosya.**
 
 **Ses** (`tools/make_audio.py` yaklaşımı: numpy sentezi, telifli örnek yok; `assets/audio/zm_*.wav`, mono 44,1 kHz):
+
 | Dosya | Süre | Prosedürel tarif | Üretim komutu (EN) |
 |---|---|---|---|
 | `zm_ration_stamp` | 0,4 sn | Tahta masaya lastik damga: 90 Hz darbe (`thump`, 40 ms sönüm) + 2–5 kHz kâğıt hışırtısı taneleri | "a rubber stamp hitting a ration card on a wooden counter" |
@@ -801,6 +810,7 @@ Toplam **15 dosya.**
    (`country_check.gd` benzeri).
 
 **Denge hedefleri** (oyuncusuz dünya, 6 koşu; her kontrol ≥ 5/6):
+
 | # | Kontrol | Hedef |
 |---|---|---|
 | 1 | 540. günde en az bir ülke Açlık (3. kademe) yaşamış | evet |
@@ -836,17 +846,17 @@ Salgın ekonomisi
 - Jonas, O. B. (2013). Pandemic Risk. Dünya Bankası, Dünya Kalkınma Raporu 2014 arka plan çalışması (kaçınma davranışı). — https://www.worldbank.org/content/dam/Worldbank/document/HDN/Health/WDR14_bp_Pandemic_Risk_Jonas.pdf
 - Center for Global Development. Aversion Behavior Exacerbates the Economic Impact of Ebola. — https://www.cgdev.org/blog/aversion-behavior-exacerbates-economic-impact-ebola
 - 1918'de telefon santralleri: New-York Historical Society. — https://womenatthecenter.nyhistory.org/how-telephone-operators-helped-people-connect-during-the-1918-flu-epidemic/
-- 1918'de işgücü ve bakım yükü: Penn Nursing, Bates Center. — https://www.nursing.upenn.edu/history/publications/calm-cool-courageous/
+- 1918'de hemşire açığı ve bakım yükü: Penn Nursing, Bates Center. — https://www.nursing.upenn.edu/history/publications/calm-cool-courageous/
 - Evans, R. J., Hamburg 1892 kolera salgını üzerine söyleşi. — https://blogs.darden.virginia.edu/globalwater/2020/10/27/qa-with-richard-j-evans-on-the-relevance-of-a-past-cholera-epidemic/
 - Marsilya 1720 vebası ve ticaret. — https://brewminate.com/a-commerce-of-corpses-the-great-plague-of-marseille-in-the-18th-century/
 - Marsilya 1720: karantinanın gevşetilmesi. *History Hit.* — https://www.historyhit.com/1720-start-europes-last-deadly-plague/
 - Hamburg liman işçileri ve 1892 sonrası sendika üyeliği. — https://en.wikipedia.org/wiki/1896%E2%80%9397_Hamburg_dockworkers%27_strike
 - Hamburg 1892 kolera salgını. German History in Documents and Images. — https://ghdi.ghi-dc.org/sub_image.cfm?image_id=1608
-- Munro, J. / EH.net. The Economic Impact of the Black Death. — https://eh.net/encyclopedia/the-economic-impact-of-the-black-death/
+- EH.net Encyclopedia. The Economic Impact of the Black Death. — https://eh.net/encyclopedia/the-economic-impact-of-the-black-death/
 
 Kıtlık, tayın ve karaborsa
 - Sen, A. (1981). Poverty and Famines (özet). — https://www.progress.org/wiki/sen-poverty-and-famines/
-- Colonial Biopolitics and the Great Bengal Famine of 1943. *GeoJournal* / PMC. — https://pmc.ncbi.nlm.nih.gov/articles/PMC9735018/
+- Colonial Biopolitics and the Great Bengal Famine of 1943. PMC. — https://pmc.ncbi.nlm.nih.gov/articles/PMC9735018/
 - Lumey, L. H. ve ark. (2007). Cohort Profile: The Dutch Hunger Winter Families Study. *Int. J. Epidemiol.* 36(6). — https://academic.oup.com/ije/article/36/6/1196/814573
 - Science History Institute. The Winter When People Ate Tulips. — https://www.sciencehistory.org/stories/disappearing-pod/the-winter-when-people-ate-tulips/
 - Yunanistan işgal kıtlığı 1941–44. Memories of the Occupation in Greece (Freie Universität Berlin). — https://www.occupation-memories.org/en/deutsche-okkupation/ergebnisse-des-terrors/index.html
