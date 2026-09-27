@@ -37,6 +37,10 @@ func take(include_derived := false) -> Dictionary:
 		s["tümen/%d" % d.id] = _obj(d)
 	for a in Military.armies:
 		s["ordu/%d" % a.id] = _obj(a)
+	for cm in Military.commanders:
+		s["komutan/%d" % cm.id] = _obj(cm)
+	for g in Military.groups:
+		s["ordular grubu/%d" % g.id] = _obj(g)
 	for f in Navy.fleets:
 		s["filo/%d" % f.id] = _obj(f)
 	for w in Air.wings:
@@ -49,7 +53,8 @@ func take(include_derived := false) -> Dictionary:
 	s["ittifaklar"] = _plain(Politics.factions)
 	s["olay geçmişi"] = _plain(Politics.fired_events)
 	s["bekleyen olaylar"] = _plain(Politics.pending_events)
-	s["sayaçlar"] = [Military._next_id, Military._next_army, Navy._next_id, Air._next_id, Diplomacy._next_id]
+	s["sayaçlar"] = [Military._next_id, Military._next_army, Navy._next_id, Air._next_id, Diplomacy._next_id,
+		Military._next_commander, Military._next_group]
 	return s
 
 func _obj(o: Object) -> Dictionary:

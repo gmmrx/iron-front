@@ -7,6 +7,12 @@ signal battles_changed
 signal division_destroyed(tag: String)
 
 const UNITS_PATH := "res://data/common/units.json"
+const COMMANDERS_PATH := "res://data/common/commanders.json"
+const GENERAL_BONUS := 0.04            ## ordu komutanının beceri başına saldırı/savunma katkısı
+const MARSHAL_BONUS := 0.02            ## ordular grubu mareşalinin beceri başına katkısı (gruptaki bütün ordulara)
+const ARMY_CAP := 24                   ## generalin tam etkiyle yönettiği tümen sayısı (fazlası katkıyı böler)
+const PROMOTE_COST := 30.0             ## generali mareşalliğe terfi (komuta gücü)
+const RECRUIT_COST := 15.0             ## subaylar arasından yeni general yetiştir (komuta gücü)
 const ORG_DMG := 0.0367                ## isabet başına bütünlük hasarı (piyade bütünlüğü 100)
 const STR_DMG := 0.022                 ## isabet başına dayanıklılık (hp) hasarı
 const HIT_DEF := 0.1                   ## savunmayla karşılanan saldırının isabet oranı
@@ -25,6 +31,12 @@ var start_divisions: Dictionary = {}
 var divisions: Array[Division] = []
 var armies: Array[Army] = []
 var _next_army := 1
+var commanders: Array[Commander] = []
+var groups: Array[ArmyGroup] = []
+var _next_commander := 1
+var _next_group := 1
+var _cmd_data: Dictionary = {}
+var _bonus_cache := {}                 ## ordu id -> komuta katkısı (değişince temizlenir)
 const ARMY_COLORS := [Color(0.95, 0.8, 0.3), Color(0.45, 0.8, 1.0), Color(1.0, 0.5, 0.4), Color(0.6, 0.95, 0.5),
 		Color(0.85, 0.6, 1.0), Color(1.0, 0.65, 0.2)]
 signal armies_changed
@@ -46,6 +58,8 @@ func _ready() -> void:
 	amphibious_attack = float(d["amphibious_attack"])
 	start_divisions = d["start_divisions"]
 	_division_equipment = d["division_equipment"]
+	_cmd_data = JSON.parse_string(FileAccess.get_file_as_string(COMMANDERS_PATH))
+	armies_changed.connect(func() -> void: _bonus_cache.clear())
 	GameClock.hour_passed.connect(_on_hour)
 	Diplomacy.wars_changed.connect(invalidate_masks)
 	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void: invalidate_masks())
@@ -57,6 +71,8 @@ var _division_equipment: Dictionary = {}
 func reset() -> void:
 	armies.clear()
 	_next_army = 1
+	groups.clear()
+	_next_group = 1
 	divisions.clear()
 	by_province.clear()
 	battles.clear()
@@ -78,6 +94,7 @@ func reset() -> void:
 		c.manpower_used = 0
 		if c.exists():
 			_spawn_start_army(c)
+	init_commanders()
 	_rebuild_index()
 
 # ------------------------------------------------------------------ şablon istatistikleri
@@ -217,6 +234,10 @@ func remove_all(tag: String) -> void:
 	for d in divisions.duplicate():
 		if d.owner == tag:
 			_remove(d)
+	armies = armies.filter(func(a: Army) -> bool: return a.owner != tag)
+	groups = groups.filter(func(g: ArmyGroup) -> bool: return g.owner != tag)
+	commanders = commanders.filter(func(cm: Commander) -> bool: return cm.owner != tag)
+	armies_changed.emit()
 
 var loss_log := {}                    ## hata ayıklama: "TAG:neden" -> yok olan tümen
 
@@ -235,6 +256,7 @@ func create_army(tag: String, divs: Array) -> Army:
 	armies.append(a)
 	for d: Division in divs:
 		d.army = a.id
+		d.manual = false
 	armies_changed.emit()
 	return a
 
@@ -257,6 +279,253 @@ func disband_army(a: Army) -> void:
 			d.army = 0
 	armies.erase(a)
 	armies_changed.emit()
+
+# ------------------------------------------------------------------ komuta zinciri: komutanlar, ordular grupları
+## Her ülkeye komutan kadrosu: dönemin komutanları (data/common/commanders.json), liste kısaysa yöresel isimlerle
+## ordu büyüklüğüne göre tamamlanır.
+func init_commanders() -> void:
+	commanders.clear()
+	_next_commander = 1
+	_bonus_cache.clear()
+	var roster: Dictionary = _cmd_data.get("roster", {})
+	for c: Country in World.countries.values():
+		if not c.exists():
+			continue
+		for e: Array in roster.get(c.tag, []):
+			_add_commander(c.tag, str(e[0]), int(e[1]), int(e[2]))
+		var want := clampi(2 + country_divisions(c.tag).size() / 8, 2, 6)
+		while commanders_of(c.tag).size() < want:
+			_add_commander(c.tag, generate_name(c.tag), 1 + int(commanders_of(c.tag).size() == 0), 0)
+
+func _add_commander(tag: String, cname: String, skill: int, rank: int) -> Commander:
+	var cm := Commander.new()
+	cm.id = _next_commander
+	_next_commander += 1
+	cm.owner = tag
+	cm.name = cname
+	cm.skill = clampi(skill, 1, Commander.MAX_SKILL)
+	cm.rank = rank as Commander.Rank
+	commanders.append(cm)
+	return cm
+
+## Ülkenin yöresine uygun, kadroda olmayan bir isim (belirlenimci: aynı tohumla aynı isimler)
+func generate_name(tag: String) -> String:
+	var pools: Dictionary = _cmd_data.get("pools", {})
+	var pool: Dictionary = pools.get(str(_cmd_data.get("pool", {}).get(tag, "english")), pools.get("english", {}))
+	var given: Array = pool.get("given", ["John"])
+	var family: Array = pool.get("family", ["Smith"])
+	var used := {}
+	for cm in commanders_of(tag):
+		used[cm.name] = true
+	var h := absi(hash(tag))
+	for i in 200:
+		var g: String = given[(h / 7 + i * 5) % given.size()]
+		var f: String = family[(h + i * 3 + i / family.size()) % family.size()]
+		var n := (f + " " + g) if pool.get("family_first", false) else (g + " " + f)
+		if not used.has(n):
+			return n
+	return "%s %d" % [family[0], commanders.size()]
+
+func commanders_of(tag: String) -> Array[Commander]:
+	var out: Array[Commander] = []
+	for cm in commanders:
+		if cm.owner == tag:
+			out.append(cm)
+	return out
+
+func commander_by_id(id: int) -> Commander:
+	if id <= 0:
+		return null
+	for cm in commanders:
+		if cm.id == id:
+			return cm
+	return null
+
+func group_by_id(id: int) -> ArmyGroup:
+	if id <= 0:
+		return null
+	for g in groups:
+		if g.id == id:
+			return g
+	return null
+
+func groups_of(tag: String) -> Array[ArmyGroup]:
+	var out: Array[ArmyGroup] = []
+	for g in groups:
+		if g.owner == tag:
+			out.append(g)
+	return out
+
+func armies_of(tag: String) -> Array[Army]:
+	var out: Array[Army] = []
+	for a in armies:
+		if a.owner == tag:
+			out.append(a)
+	return out
+
+func group_armies(g: ArmyGroup) -> Array[Army]:
+	var out: Array[Army] = []
+	for a in armies:
+		if a.group == g.id:
+			out.append(a)
+	return out
+
+## Komutanın görevi: yönettiği ordu ya da ordular grubu (yoksa null → boşta)
+func post_of(cm: Commander) -> RefCounted:
+	for a in armies:
+		if a.commander == cm.id:
+			return a
+	for g in groups:
+		if g.commander == cm.id:
+			return g
+	return null
+
+func free_commanders(tag: String, marshals_only := false) -> Array[Commander]:
+	var out: Array[Commander] = []
+	for cm in commanders_of(tag):
+		if post_of(cm) == null and (not marshals_only or cm.is_marshal()):
+			out.append(cm)
+	return out
+
+func _release(cm_id: int) -> void:
+	for a in armies:
+		if a.commander == cm_id:
+			a.commander = 0
+	for g in groups:
+		if g.commander == cm_id:
+			g.commander = 0
+
+## Orduya komutan ata (0 = komutansız); komutan başka görevdeyse oradan alınır
+func assign_army_commander(a: Army, cm_id: int) -> void:
+	var cm := commander_by_id(cm_id)
+	if cm_id != 0 and (cm == null or cm.owner != a.owner):
+		return
+	_release(cm_id)
+	a.commander = cm_id
+	armies_changed.emit()
+
+## Ordular grubuna mareşal ata (yalnız mareşal rütbesi)
+func assign_group_commander(g: ArmyGroup, cm_id: int) -> void:
+	var cm := commander_by_id(cm_id)
+	if cm_id != 0 and (cm == null or cm.owner != g.owner or not cm.is_marshal()):
+		return
+	_release(cm_id)
+	g.commander = cm_id
+	armies_changed.emit()
+
+func can_promote(cm: Commander) -> bool:
+	var c: Country = World.countries.get(cm.owner)
+	return c != null and not cm.is_marshal() and c.command_power >= PROMOTE_COST
+
+func promote(cm: Commander) -> bool:
+	if not can_promote(cm):
+		return false
+	World.countries[cm.owner].command_power -= PROMOTE_COST
+	cm.rank = Commander.Rank.MARSHAL
+	armies_changed.emit()
+	return true
+
+func can_recruit(tag: String) -> bool:
+	var c: Country = World.countries.get(tag)
+	return c != null and c.command_power >= RECRUIT_COST
+
+## Subaylar arasından yeni general (beceri 1)
+func recruit_commander(tag: String) -> Commander:
+	if not can_recruit(tag):
+		return null
+	World.countries[tag].command_power -= RECRUIT_COST
+	var cm := _add_commander(tag, generate_name(tag), 1, 0)
+	armies_changed.emit()
+	return cm
+
+func create_group(tag: String) -> ArmyGroup:
+	var g := ArmyGroup.new()
+	g.id = _next_group
+	_next_group += 1
+	g.owner = tag
+	g.name = tr("ARMY_GROUP_NAME") % (groups_of(tag).size() + 1)
+	groups.append(g)
+	armies_changed.emit()
+	return g
+
+func disband_group(g: ArmyGroup) -> void:
+	for a in armies:
+		if a.group == g.id:
+			a.group = 0
+	groups.erase(g)
+	armies_changed.emit()
+
+func set_army_group(a: Army, gid: int) -> void:
+	var g := group_by_id(gid)
+	if gid != 0 and (g == null or g.owner != a.owner):
+		return
+	a.group = gid
+	armies_changed.emit()
+
+## Tümeni orduya kat (0 = ordudan çıkar)
+func set_division_army(d: Division, army_id: int) -> void:
+	var a := army_by_id(army_id)
+	if army_id != 0 and (a == null or a.owner != d.owner):
+		return
+	d.army = army_id
+	d.manual = false
+	armies_changed.emit()
+
+## Yapay zekâ ordusuna en becerikli boştaki komutanı verir (oyuncunun ordularına kendiliğinden atama yapılmaz)
+func ai_assign_commander(a: Army) -> void:
+	if a.commander != 0 or a.owner == World.player_tag:
+		return
+	var best: Commander = null
+	for cm in free_commanders(a.owner):
+		if best == null or cm.skill > best.skill:
+			best = cm
+	if best:
+		a.commander = best.id
+		_bonus_cache.clear()
+
+## Ordunun komuta katkısı: general becerisi (ordu çok büyükse bölünür) + ordular grubu mareşali
+func army_bonus(a: Army) -> float:
+	if _bonus_cache.has(a.id):
+		return _bonus_cache[a.id]
+	var b := 0.0
+	var cm := commander_by_id(a.commander)
+	if cm:
+		var n := army_divisions(a).size()
+		b += GENERAL_BONUS * cm.skill * minf(1.0, float(ARMY_CAP) / maxf(n, 1.0))
+	var g := group_by_id(a.group)
+	if g:
+		var m := commander_by_id(g.commander)
+		if m:
+			b += MARSHAL_BONUS * m.skill
+	_bonus_cache[a.id] = b
+	return b
+
+func command_bonus(d: Division) -> float:
+	if d.army == 0:
+		return 0.0
+	var a := army_by_id(d.army)
+	return army_bonus(a) if a else 0.0
+
+## Muharebedeki tümenlerin komutanları tecrübe kazanır (mareşal gruptaki ordulardan yarı hızla)
+func _commander_xp(in_battle: Dictionary) -> void:
+	for a in armies:
+		var n := int(in_battle.get(a.id, 0))
+		if n <= 0:
+			continue
+		var gain := 0.012 * minf(n, 8.0)
+		var cm := commander_by_id(a.commander)
+		if cm and cm.gain(gain):
+			_on_skill_up(cm)
+		var g := group_by_id(a.group)
+		if g:
+			var m := commander_by_id(g.commander)
+			if m and m.gain(gain * 0.5):
+				_on_skill_up(m)
+
+func _on_skill_up(cm: Commander) -> void:
+	_bonus_cache.clear()
+	if cm.owner == World.player_tag:
+		World.notify(tr("NOTE_CMD_SKILL") % [cm.name, cm.skill], "good")
 
 ## Ordunun hedef ülke indeksleri (günlük önbellek): seçilen ülke + savaştaysak onun bize düşman müttefikleri
 var _target_cache := {}
@@ -332,10 +601,14 @@ func front_provinces(a: Army) -> Array[int]:
 ## kara tecrübesi aktif kara muharebesi başına, deniz/hava kendi çatışmalarından (tavan 500)
 func _experience_tick() -> void:
 	var land := {}
+	var in_battle := {}
 	for pid: int in battles:
 		var b: Dictionary = battles[pid]
 		for d: Division in b["attackers"] + b["defenders"]:
 			land[d.owner] = int(land.get(d.owner, 0)) + 1
+			if d.army != 0:
+				in_battle[d.army] = int(in_battle.get(d.army, 0)) + 1
+	_commander_xp(in_battle)
 	var naval := {}
 	for pid: int in Navy.battles:
 		for side: Array in Navy.battles[pid]["sides"]:
@@ -357,15 +630,21 @@ func _armies_tick() -> void:
 	for a in armies.duplicate():
 		var divs := army_divisions(a)
 		if divs.is_empty():
-			armies.erase(a)
-			armies_changed.emit()
+			if a.owner != World.player_tag:      # oyuncunun boş ordusu kalır (tümen katmayı o seçer)
+				armies.erase(a)
+				armies_changed.emit()
 			continue
 		var front := front_provinces(a)
 		if front.is_empty():
 			continue
-		_army_spread(a, divs, front)
+		# doğrudan emirdeki tümenler (oyuncu haritadan yönetiyor) ordu planının dışında kalır
+		var planned: Array[Division] = []
+		for d in divs:
+			if not d.manual:
+				planned.append(d)
+		_army_spread(a, planned, front)
 		if a.mode == Army.Mode.ATTACK and Diplomacy.are_enemies(a.enemy, a.owner):
-			_army_attack(a, divs, front)
+			_army_attack(a, planned, front)
 
 func _army_spread(a: Army, divs: Array[Division], front: Array[int]) -> void:
 	var fset := {}
@@ -920,12 +1199,12 @@ func attack_mod(d: Division, pid: int) -> float:
 	if not d.supplied:
 		m -= UNSUPPLIED_MALUS
 	m -= _phoney_war_malus(d.owner)
-	m += d.planning * 0.2 - season_attack_malus(pid) - fuel_malus(d)
+	m += d.planning * 0.2 - season_attack_malus(pid) - fuel_malus(d) + command_bonus(d)
 	return maxf(m, MIN_COMBAT_MOD)
 
 ## Savunanın karşı saldırı çarpanı: hava desteği, ikmal, yakıt; organizasyonu bitmiş (bitkin) tümen yarı güçle direnir
 func defend_mod(d: Division, pid: int) -> float:
-	var m := 1.0 + Air.bonus(pid, d.owner) - (0.0 if d.supplied else UNSUPPLIED_MALUS) - fuel_malus(d)
+	var m := 1.0 + Air.bonus(pid, d.owner) - (0.0 if d.supplied else UNSUPPLIED_MALUS) - fuel_malus(d) + command_bonus(d)
 	if d.org < div_stats(d)["org"] * RETREAT_ORG:
 		m -= EXHAUSTED_MALUS
 	return maxf(m, MIN_COMBAT_MOD)
@@ -1085,6 +1364,7 @@ func _recover() -> void:
 # ------------------------------------------------------------------ günlük: ikmal, takviye, eğitim, hava/deniz
 func _on_day() -> void:
 	var t0 := Time.get_ticks_usec()
+	_bonus_cache.clear()          # ordu büyüklükleri değişmiş olabilir
 	if World.day_count % 2 == 0:
 		_compute_supply()
 	GameClock.timed("supply", t0)

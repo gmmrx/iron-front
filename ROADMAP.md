@@ -34,6 +34,12 @@ Son güncelleme: **26 Eylül 2026**
   (emir olmadan geri çekilmez), tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
 - Harita: daha koyu ve doygun; hareket okları yeşil/kırmızı, akan işaretli; uzak zoom'da sayı yerine ülke bayrakları, daha uzakta
   birlik işareti yok.
+- **Komuta zinciri**: ordular grubu (mareşal) → ordu (general) → tümen; 80 ülkenin hepsine komutan kadrosu (57 ülkede
+  dönemin gerçek komutanları, kalanlarda yöresel isimler), beceri 1–5 muharebe katkısı, muharebede tecrübe ve beceri artışı,
+  komuta gücüyle mareşalliğe terfi ve yeni general; Ordu ekranı (U) ağaç + ayrıntı + kadro; seçim panelinde mikro yönetim
+  (bileşim, böl, orduya kat/çıkar, doğrudan emir). Oyuncunun ordusuna kendiliğinden komutan atanmaz.
+- **Ctrl ile ülke özeti** (haritada Ctrl basılı), Ctrl + tık o ülkenin siyaset ekranı (salt okunur); **Ayarlar** (ses, müzik
+  seçimi, dil, tam ekran) ana menüde ve oyun içinde.
 - Oyun wikisi: [docs/wiki](docs/wiki/README.md). Yeni ikon seti ve lider portreleri için prompt listesi:
   [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
 
@@ -49,7 +55,8 @@ Son güncelleme: **26 Eylül 2026**
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
    Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
-5. **Eksik mekanikler** (BÖLÜM M): genelkurmay (generaller, doktrinler), savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
+5. **Eksik mekanikler** (BÖLÜM M): ◐ generaller (komuta zinciri ✔; özellikler, portreler, tarihî giriş/çıkış sırada), doktrinler,
+   savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
 6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
 
 ---
@@ -277,8 +284,15 @@ bulacağıyla yazıldı.
 - [ ] Tümen şablonları: tabur + destek bölükleri (mühendis, keşif, askerî inzibat, bakım, hastane, lojistik, sinyal,
       topçu, uçaksavar, tanksavar); muharebe genişliği hedefi (düzlük 70 → 35/70 bölen şablonlar)
 - [ ] Özel kuvvetler: deniz piyadesi (çıkarma/nehir), dağcı, paraşütçü, ormancı; arazi bonusları
-- [ ] Generaller ve mareşaller: özellikler (hücum, savunma, lojistik, planlama), seviye; karargâh kapasitesi
-      ile özellik alma; ordu → cephe atama (C1), savaş planı okları (C2) ile birlikte
+- [x] Generaller ve mareşaller (temel): ülke kadroları (dönemin komutanları + yöresel isimler), beceri 1–5, ordu/grup ataması,
+      muharebe katkısı (general beceri × %4, 24 tümene kadar tam; mareşal × %2 bütün gruba), muharebede tecrübe → beceri,
+      komuta gücüyle mareşalliğe terfi (30) ve yeni general (15); kayıt/yükleme; `tests/test_commanders.gd`
+- [ ] Generallerin **özellikleri**: hücum, savunma, lojistik, planlama değerleri ayrı; tecrübeyle özellik kazanma
+      (ör. kuşatma ustası, savunma uzmanı, zırhlı birlik komutanı, kış savaşçısı, dağ harbi); karargâh kapasitesiyle özellik alma
+- [ ] Komutan **portreleri** (kullanıcı üretir; prompt listesine eklenecek) ve komutan ayrıntı kartı
+- [ ] Tarihî giriş/çıkış: komutanların yıllara göre kadroya girmesi, 1937 Sovyet tasfiyesi (Tukhachevsky, Blyukher, Yegorov),
+      emeklilik, muharebede yaralanma/yakalanma/ölüm, kuşatılan ordunun generali esir düşer
+- [ ] Komutan başına tümen sınırı ve karargâh (ordu/ordular grubu karargâh sayacı haritada), ordu adı değiştirme
 - [ ] Doktrinler: kara, deniz, hava; yapı ve adlar bizim, dönemin gerçek kavramlarından (hareket savaşı, derin harekât,
       metodik muharebe, sızma taktikleri); kara/deniz/hava birikimi ile açılır
 - [ ] Taarruz tavrı: temkinli / dengeli / "ne olursa olsun" (plan saldırganlığı)
@@ -357,7 +371,8 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 - [x] Aynı yerdeki filolar tek sayaç (toplam gemi), zoom'la kayan yan yana sayaç yok
 - [x] AI: çakışan cepheler (müttefik düşmanlar) tek orduda; taarruzda yığınak (en zayıf 2 noktaya 3 kat tümen);
       ordu kodu performansı (hedef ülke tamsayı kümesi, karadan ulaşılabilir cephe, günlük emir sınırı): 285 sn → 41 sn
-- [ ] Ordu sayacı / ordu kartı, harita üzerinde tıklayarak cephe seçme, general atama (V3)
+- [x] General atama (V3): Ordu ekranında ve komutan kadrosunda; seçili tümen panelinde ordunun komutanı
+- [ ] Ordu sayacı / ordu kartı, harita üzerinde tıklayarak cephe seçme
 - [ ] Kuşatma cepleri görsel olarak işaretli
 
 ### C2. Savaş planları (oklar) ◐
@@ -369,8 +384,12 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 - [ ] İlerleme göstergesi
 
 ### C3. Komuta yapısı
-- [ ] Ordular → Ordu Grupları → Mareşal; generaller (yetenek, özellik, deneyim)
-- [ ] Ordu paneli: tümen listesi, ekipman doluluğu, ikmal durumu
+- [x] Ordular → Ordu Grupları → Mareşal; generaller (beceri, deneyim); özellikler V3'te
+- [x] Ordu paneli: komuta zinciri ağacı, ordu/grup ayrıntısı (komutan, cephe, duruş, grup), tümen listesi (bütünlük, güç,
+      durum, konum), tümen aktarma, bağlanmamış tümenler, komutan kadrosu; ☐ ekipman doluluğu
+- [x] Mikro yönetim (seçim paneli): sayı ve şablon bileşimi (tıkla: yalnız o tür), yarıya böl, seçilenlerle yeni ordu,
+      orduya kat / ordudan çık, **doğrudan emir** (haritadan emir verilen ordu tümeni ordu planının dışında kalır,
+      "Ordu planına döndür" ile geri verilir), tümen satırına tıkla = yalnız onu seç
 - [x] Tümen deneyimi / veteranlık (V1'de yapıldı)
 
 ### C4. Muharebe derinleştirme
@@ -461,7 +480,7 @@ Bugünkü arayüz ilk sürümlerden kalma bir düzeni izliyor; kendi arayüz kim
 | Araştırma | ✔ | doktrin ağaçları (kara/deniz/hava), bilim insanları |
 | Tümen şablonu | ◐ | destek bölükleri, şablon değişimi birikim harcar, takviye önceliği |
 | Muharebe | ◐ | taktikler, cephe genişliği ayrıntısı, gece/gündüz, hava durumunun muharebeye etkisi |
-| Ordular, cepheler | ◐ | taarruz planı okları, ordu grupları, generaller ve özellikleri |
+| Ordular, cepheler | ◐ | taarruz planı okları; ✔ ordu grupları, generaller (beceri/tecrübe); ☐ general özellikleri |
 | Genelkurmay (karargâh kapasitesi, birikim harcama) | ☐ | generaller, doktrinler |
 | Lojistik | ◐ | ikmal merkezleri, demiryolu, kamyon, liman kapasitesi, yakıt ayrıntısı |
 | Deniz | ◐ | görev bölgeleri, deniz çıkarması planı, üslerin menzili |

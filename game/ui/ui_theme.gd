@@ -520,6 +520,12 @@ static func law_icon(law: String) -> Texture2D:
 static func event_icon(event: String) -> Texture2D:
 	return icon("event_" + event)
 
+## Arayüzü hazır ama oyuna henüz etkisi olmayan özellik: görünür kalır, soluklaşır, üstünde yasak imleci çıkar
+## (ipucu nedenini söyler). Oyunu kazandıran ya da kaybettiren her şey açık kalır.
+static func mark_unavailable(c: Control) -> void:
+	c.modulate = Color(1, 1, 1, 0.38)
+	c.mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN
+
 static func icon_texture(tex: Texture2D, side := 28) -> TextureRect:
 	var view := TextureRect.new()
 	view.texture = tex

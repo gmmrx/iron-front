@@ -1,0 +1,2204 @@
+{
+ "_comment": "Kara komutanları: roster = dönemin komutanları [ad, beceri 1-5, rütbe 0 general / 1 mareşal]; listesi kısa ülkeler için pools'tan yöresel isim üretilir (pool = ülke -> havuz).",
+ "roster": {
+  "TUR": [
+   [
+    "Fevzi Çakmak",
+    4,
+    1
+   ],
+   [
+    "Kâzım Orbay",
+    3,
+    0
+   ],
+   [
+    "Asım Gündüz",
+    3,
+    0
+   ],
+   [
+    "Salih Omurtak",
+    3,
+    0
+   ],
+   [
+    "İzzettin Çalışlar",
+    3,
+    0
+   ],
+   [
+    "Fahrettin Altay",
+    3,
+    0
+   ],
+   [
+    "Abdurrahman Nafiz Gürman",
+    2,
+    0
+   ],
+   [
+    "Ali Fuat Erden",
+    2,
+    0
+   ],
+   [
+    "Cemil Cahit Toydemir",
+    2,
+    0
+   ],
+   [
+    "Ali Sait Akbaytogan",
+    2,
+    0
+   ]
+  ],
+  "GER": [
+   [
+    "Werner von Blomberg",
+    2,
+    1
+   ],
+   [
+    "Werner von Fritsch",
+    3,
+    0
+   ],
+   [
+    "Gerd von Rundstedt",
+    4,
+    0
+   ],
+   [
+    "Fedor von Bock",
+    4,
+    0
+   ],
+   [
+    "Wilhelm Ritter von Leeb",
+    3,
+    0
+   ],
+   [
+    "Walther von Brauchitsch",
+    3,
+    0
+   ],
+   [
+    "Erich von Manstein",
+    5,
+    0
+   ],
+   [
+    "Heinz Guderian",
+    5,
+    0
+   ],
+   [
+    "Erwin Rommel",
+    5,
+    0
+   ],
+   [
+    "Walter Model",
+    4,
+    0
+   ],
+   [
+    "Günther von Kluge",
+    3,
+    0
+   ],
+   [
+    "Wilhelm List",
+    3,
+    0
+   ],
+   [
+    "Ewald von Kleist",
+    4,
+    0
+   ],
+   [
+    "Hermann Hoth",
+    4,
+    0
+   ],
+   [
+    "Walther von Reichenau",
+    3,
+    0
+   ],
+   [
+    "Georg-Hans Reinhardt",
+    3,
+    0
+   ]
+  ],
+  "SOV": [
+   [
+    "Mikhail Tukhachevsky",
+    5,
+    1
+   ],
+   [
+    "Kliment Voroshilov",
+    1,
+    1
+   ],
+   [
+    "Semyon Budyonny",
+    2,
+    1
+   ],
+   [
+    "Vasily Blyukher",
+    3,
+    1
+   ],
+   [
+    "Alexander Yegorov",
+    3,
+    1
+   ],
+   [
+    "Boris Shaposhnikov",
+    4,
+    0
+   ],
+   [
+    "Semyon Timoshenko",
+    3,
+    0
+   ],
+   [
+    "Georgy Zhukov",
+    5,
+    0
+   ],
+   [
+    "Konstantin Rokossovsky",
+    5,
+    0
+   ],
+   [
+    "Ivan Konev",
+    4,
+    0
+   ],
+   [
+    "Aleksandr Vasilevsky",
+    4,
+    0
+   ],
+   [
+    "Kirill Meretskov",
+    3,
+    0
+   ],
+   [
+    "Nikolai Vatutin",
+    4,
+    0
+   ],
+   [
+    "Rodion Malinovsky",
+    4,
+    0
+   ],
+   [
+    "Andrey Yeryomenko",
+    3,
+    0
+   ],
+   [
+    "Vasily Chuikov",
+    4,
+    0
+   ]
+  ],
+  "ENG": [
+   [
+    "Cyril Deverell",
+    2,
+    1
+   ],
+   [
+    "Edmund Ironside",
+    2,
+    0
+   ],
+   [
+    "Lord Gort",
+    3,
+    0
+   ],
+   [
+    "Archibald Wavell",
+    4,
+    0
+   ],
+   [
+    "Alan Brooke",
+    4,
+    0
+   ],
+   [
+    "Bernard Montgomery",
+    4,
+    0
+   ],
+   [
+    "Harold Alexander",
+    4,
+    0
+   ],
+   [
+    "Claude Auchinleck",
+    3,
+    0
+   ],
+   [
+    "Richard O'Connor",
+    4,
+    0
+   ],
+   [
+    "William Slim",
+    4,
+    0
+   ],
+   [
+    "Henry Maitland Wilson",
+    3,
+    0
+   ],
+   [
+    "Alan Cunningham",
+    2,
+    0
+   ]
+  ],
+  "FRA": [
+   [
+    "Maurice Gamelin",
+    2,
+    1
+   ],
+   [
+    "Philippe Pétain",
+    2,
+    1
+   ],
+   [
+    "Maxime Weygand",
+    3,
+    0
+   ],
+   [
+    "Alphonse Georges",
+    3,
+    0
+   ],
+   [
+    "Gaston Billotte",
+    2,
+    0
+   ],
+   [
+    "Henri Giraud",
+    3,
+    0
+   ],
+   [
+    "Charles Huntziger",
+    2,
+    0
+   ],
+   [
+    "André-Georges Corap",
+    1,
+    0
+   ],
+   [
+    "Robert Touchon",
+    2,
+    0
+   ],
+   [
+    "Jean de Lattre de Tassigny",
+    4,
+    0
+   ],
+   [
+    "Alphonse Juin",
+    4,
+    0
+   ],
+   [
+    "Charles de Gaulle",
+    4,
+    0
+   ],
+   [
+    "Philippe Leclerc",
+    4,
+    0
+   ]
+  ],
+  "ITA": [
+   [
+    "Pietro Badoglio",
+    3,
+    1
+   ],
+   [
+    "Rodolfo Graziani",
+    2,
+    1
+   ],
+   [
+    "Emilio De Bono",
+    1,
+    1
+   ],
+   [
+    "Italo Balbo",
+    3,
+    0
+   ],
+   [
+    "Ugo Cavallero",
+    2,
+    0
+   ],
+   [
+    "Giovanni Messe",
+    4,
+    0
+   ],
+   [
+    "Ettore Bastico",
+    2,
+    0
+   ],
+   [
+    "Italo Gariboldi",
+    2,
+    0
+   ],
+   [
+    "Mario Roatta",
+    2,
+    0
+   ],
+   [
+    "Alfredo Guzzoni",
+    2,
+    0
+   ],
+   [
+    "Annibale Bergonzoli",
+    2,
+    0
+   ]
+  ],
+  "JAP": [
+   [
+    "Kan'in Kotohito",
+    2,
+    1
+   ],
+   [
+    "Hajime Sugiyama",
+    3,
+    0
+   ],
+   [
+    "Hisaichi Terauchi",
+    3,
+    0
+   ],
+   [
+    "Shunroku Hata",
+    3,
+    0
+   ],
+   [
+    "Tomoyuki Yamashita",
+    5,
+    0
+   ],
+   [
+    "Iwane Matsui",
+    2,
+    0
+   ],
+   [
+    "Yasuji Okamura",
+    4,
+    0
+   ],
+   [
+    "Masaharu Homma",
+    3,
+    0
+   ],
+   [
+    "Seishirō Itagaki",
+    2,
+    0
+   ],
+   [
+    "Kenji Doihara",
+    2,
+    0
+   ],
+   [
+    "Otozō Yamada",
+    2,
+    0
+   ],
+   [
+    "Rikichi Andō",
+    2,
+    0
+   ],
+   [
+    "Tadamichi Kuribayashi",
+    4,
+    0
+   ]
+  ],
+  "USA": [
+   [
+    "Douglas MacArthur",
+    4,
+    1
+   ],
+   [
+    "Malin Craig",
+    2,
+    0
+   ],
+   [
+    "George C. Marshall",
+    4,
+    0
+   ],
+   [
+    "Dwight D. Eisenhower",
+    4,
+    0
+   ],
+   [
+    "Omar Bradley",
+    4,
+    0
+   ],
+   [
+    "George S. Patton",
+    5,
+    0
+   ],
+   [
+    "Mark W. Clark",
+    3,
+    0
+   ],
+   [
+    "Walter Krueger",
+    3,
+    0
+   ],
+   [
+    "Joseph Stilwell",
+    3,
+    0
+   ],
+   [
+    "Courtney Hodges",
+    3,
+    0
+   ],
+   [
+    "Jacob Devers",
+    3,
+    0
+   ],
+   [
+    "Lucian Truscott",
+    4,
+    0
+   ]
+  ],
+  "POL": [
+   [
+    "Edward Rydz-Śmigły",
+    2,
+    1
+   ],
+   [
+    "Kazimierz Sosnkowski",
+    3,
+    0
+   ],
+   [
+    "Władysław Anders",
+    4,
+    0
+   ],
+   [
+    "Tadeusz Kutrzeba",
+    4,
+    0
+   ],
+   [
+    "Juliusz Rómmel",
+    2,
+    0
+   ],
+   [
+    "Władysław Bortnowski",
+    2,
+    0
+   ],
+   [
+    "Stefan Dąb-Biernacki",
+    1,
+    0
+   ],
+   [
+    "Antoni Szylling",
+    2,
+    0
+   ],
+   [
+    "Tadeusz Piskor",
+    2,
+    0
+   ],
+   [
+    "Stanisław Maczek",
+    4,
+    0
+   ]
+  ],
+  "CHI": [
+   [
+    "He Yingqin",
+    2,
+    1
+   ],
+   [
+    "Chen Cheng",
+    3,
+    0
+   ],
+   [
+    "Xue Yue",
+    4,
+    0
+   ],
+   [
+    "Tang Enbo",
+    2,
+    0
+   ],
+   [
+    "Wei Lihuang",
+    3,
+    0
+   ],
+   [
+    "Zhang Zhizhong",
+    3,
+    0
+   ],
+   [
+    "Du Yuming",
+    3,
+    0
+   ],
+   [
+    "Sun Li-jen",
+    4,
+    0
+   ],
+   [
+    "Hu Zongnan",
+    2,
+    0
+   ],
+   [
+    "Gu Zhutong",
+    2,
+    0
+   ],
+   [
+    "Zhang Fakui",
+    3,
+    0
+   ]
+  ],
+  "PRC": [
+   [
+    "Zhu De",
+    4,
+    1
+   ],
+   [
+    "Peng Dehuai",
+    4,
+    0
+   ],
+   [
+    "Lin Biao",
+    5,
+    0
+   ],
+   [
+    "Liu Bocheng",
+    4,
+    0
+   ],
+   [
+    "He Long",
+    3,
+    0
+   ],
+   [
+    "Chen Yi",
+    3,
+    0
+   ],
+   [
+    "Nie Rongzhen",
+    3,
+    0
+   ],
+   [
+    "Xu Xiangqian",
+    3,
+    0
+   ]
+  ],
+  "GXC": [
+   [
+    "Li Zongren",
+    4,
+    1
+   ],
+   [
+    "Bai Chongxi",
+    4,
+    0
+   ],
+   [
+    "Huang Shaohong",
+    2,
+    0
+   ],
+   [
+    "Xia Wei",
+    2,
+    0
+   ],
+   [
+    "Liao Lei",
+    2,
+    0
+   ]
+  ],
+  "SHX": [
+   [
+    "Yan Xishan",
+    2,
+    1
+   ],
+   [
+    "Fu Zuoyi",
+    3,
+    0
+   ]
+  ],
+  "YUN": [
+   [
+    "Long Yun",
+    2,
+    1
+   ],
+   [
+    "Lu Han",
+    2,
+    0
+   ]
+  ],
+  "XSM": [
+   [
+    "Ma Bufang",
+    2,
+    1
+   ],
+   [
+    "Ma Hongkui",
+    2,
+    0
+   ],
+   [
+    "Ma Hongbin",
+    2,
+    0
+   ],
+   [
+    "Ma Buqing",
+    2,
+    0
+   ]
+  ],
+  "SIK": [
+   [
+    "Sheng Shicai",
+    2,
+    1
+   ]
+  ],
+  "MON": [
+   [
+    "Khorloogiin Choibalsan",
+    2,
+    1
+   ],
+   [
+    "Gelegdorjiin Demid",
+    2,
+    0
+   ]
+  ],
+  "SPR": [
+   [
+    "Vicente Rojo",
+    4,
+    0
+   ],
+   [
+    "José Miaja",
+    2,
+    0
+   ],
+   [
+    "Sebastián Pozas",
+    2,
+    0
+   ],
+   [
+    "Juan Modesto",
+    3,
+    0
+   ],
+   [
+    "Enrique Líster",
+    3,
+    0
+   ]
+  ],
+  "HOL": [
+   [
+    "Henri Winkelman",
+    3,
+    0
+   ],
+   [
+    "Izaak Reijnders",
+    2,
+    0
+   ]
+  ],
+  "CZE": [
+   [
+    "Ludvík Krejčí",
+    3,
+    0
+   ],
+   [
+    "Jan Syrový",
+    2,
+    0
+   ],
+   [
+    "Sergej Ingr",
+    2,
+    0
+   ],
+   [
+    "Vojtěch Luža",
+    3,
+    0
+   ]
+  ],
+  "HUN": [
+   [
+    "Ferenc Szombathelyi",
+    2,
+    0
+   ],
+   [
+    "Gusztáv Jány",
+    2,
+    0
+   ],
+   [
+    "Henrik Werth",
+    2,
+    0
+   ],
+   [
+    "Géza Lakatos",
+    2,
+    0
+   ]
+  ],
+  "ROM": [
+   [
+    "Ion Antonescu",
+    3,
+    0
+   ],
+   [
+    "Petre Dumitrescu",
+    3,
+    0
+   ],
+   [
+    "Constantin Constantinescu-Claps",
+    2,
+    0
+   ],
+   [
+    "Nicolae Ciupercă",
+    2,
+    0
+   ]
+  ],
+  "YUG": [
+   [
+    "Dušan Simović",
+    2,
+    0
+   ],
+   [
+    "Milan Nedić",
+    2,
+    0
+   ],
+   [
+    "Danilo Kalafatović",
+    1,
+    0
+   ],
+   [
+    "Petar Pešić",
+    1,
+    0
+   ]
+  ],
+  "GRE": [
+   [
+    "Alexandros Papagos",
+    4,
+    0
+   ],
+   [
+    "Georgios Tsolakoglou",
+    2,
+    0
+   ],
+   [
+    "Ioannis Pitsikas",
+    2,
+    0
+   ],
+   [
+    "Markos Drakos",
+    2,
+    0
+   ],
+   [
+    "Charalambos Katsimitros",
+    3,
+    0
+   ]
+  ],
+  "BUL": [
+   [
+    "Hristo Lukov",
+    2,
+    0
+   ],
+   [
+    "Nikola Mihov",
+    2,
+    0
+   ],
+   [
+    "Vladimir Stoychev",
+    2,
+    0
+   ]
+  ],
+  "FIN": [
+   [
+    "Carl Gustaf Emil Mannerheim",
+    5,
+    1
+   ],
+   [
+    "Hjalmar Siilasvuo",
+    4,
+    0
+   ],
+   [
+    "Erik Heinrichs",
+    3,
+    0
+   ],
+   [
+    "Lennart Oesch",
+    3,
+    0
+   ],
+   [
+    "Paavo Talvela",
+    3,
+    0
+   ],
+   [
+    "Axel Airo",
+    3,
+    0
+   ],
+   [
+    "Harald Öhquist",
+    2,
+    0
+   ]
+  ],
+  "SWE": [
+   [
+    "Olof Thörnell",
+    2,
+    0
+   ],
+   [
+    "Archibald Douglas",
+    2,
+    0
+   ]
+  ],
+  "NOR": [
+   [
+    "Otto Ruge",
+    3,
+    0
+   ],
+   [
+    "Carl Gustav Fleischer",
+    3,
+    0
+   ],
+   [
+    "Kristian Laake",
+    1,
+    0
+   ]
+  ],
+  "DEN": [
+   [
+    "William Wain Prior",
+    2,
+    0
+   ]
+  ],
+  "EST": [
+   [
+    "Johan Laidoner",
+    3,
+    0
+   ],
+   [
+    "Nikolai Reek",
+    2,
+    0
+   ]
+  ],
+  "LAT": [
+   [
+    "Krišjānis Berķis",
+    2,
+    0
+   ],
+   [
+    "Jānis Balodis",
+    2,
+    0
+   ]
+  ],
+  "LIT": [
+   [
+    "Stasys Raštikis",
+    3,
+    0
+   ],
+   [
+    "Vincas Vitkauskas",
+    2,
+    0
+   ]
+  ],
+  "SWI": [
+   [
+    "Henri Guisan",
+    3,
+    0
+   ]
+  ],
+  "AUS": [
+   [
+    "Alfred Jansa",
+    3,
+    0
+   ]
+  ],
+  "AST": [
+   [
+    "Thomas Blamey",
+    3,
+    0
+   ],
+   [
+    "Leslie Morshead",
+    4,
+    0
+   ],
+   [
+    "Iven Mackay",
+    3,
+    0
+   ],
+   [
+    "John Lavarack",
+    3,
+    0
+   ],
+   [
+    "Vernon Sturdee",
+    2,
+    0
+   ]
+  ],
+  "CAN": [
+   [
+    "Andrew McNaughton",
+    3,
+    0
+   ],
+   [
+    "Harry Crerar",
+    3,
+    0
+   ],
+   [
+    "Guy Simonds",
+    4,
+    0
+   ],
+   [
+    "Charles Foulkes",
+    2,
+    0
+   ]
+  ],
+  "NZL": [
+   [
+    "Bernard Freyberg",
+    4,
+    0
+   ],
+   [
+    "Howard Kippenberger",
+    3,
+    0
+   ],
+   [
+    "Edward Puttick",
+    2,
+    0
+   ]
+  ],
+  "SAF": [
+   [
+    "Pierre van Ryneveld",
+    2,
+    0
+   ],
+   [
+    "Dan Pienaar",
+    3,
+    0
+   ],
+   [
+    "George Brink",
+    2,
+    0
+   ]
+  ],
+  "RAJ": [
+   [
+    "Frank Messervy",
+    3,
+    0
+   ],
+   [
+    "Noel Beresford-Peirse",
+    2,
+    0
+   ],
+   [
+    "Lewis Heath",
+    2,
+    0
+   ],
+   [
+    "K. M. Cariappa",
+    2,
+    0
+   ]
+  ],
+  "MEX": [
+   [
+    "Manuel Ávila Camacho",
+    2,
+    0
+   ],
+   [
+    "Joaquín Amaro",
+    2,
+    0
+   ],
+   [
+    "Francisco L. Urquizo",
+    2,
+    0
+   ]
+  ],
+  "BRA": [
+   [
+    "Eurico Gaspar Dutra",
+    2,
+    0
+   ],
+   [
+    "Pedro Aurélio de Góis Monteiro",
+    2,
+    0
+   ],
+   [
+    "João Batista Mascarenhas de Morais",
+    3,
+    0
+   ]
+  ],
+  "ARG": [
+   [
+    "Agustín P. Justo",
+    2,
+    0
+   ],
+   [
+    "Edelmiro Farrell",
+    2,
+    0
+   ],
+   [
+    "Pedro Pablo Ramírez",
+    2,
+    0
+   ],
+   [
+    "Juan Perón",
+    2,
+    0
+   ]
+  ],
+  "PRU": [
+   [
+    "Eloy Ureta",
+    3,
+    0
+   ]
+  ],
+  "BOL": [
+   [
+    "Enrique Peñaranda",
+    2,
+    0
+   ],
+   [
+    "David Toro",
+    2,
+    0
+   ],
+   [
+    "Germán Busch",
+    2,
+    0
+   ]
+  ],
+  "PAR": [
+   [
+    "José Félix Estigarribia",
+    4,
+    1
+   ],
+   [
+    "Higinio Morínigo",
+    2,
+    0
+   ]
+  ],
+  "ETH": [
+   [
+    "Ras Desta Damtew",
+    2,
+    0
+   ],
+   [
+    "Ras Imru Haile Selassie",
+    2,
+    0
+   ],
+   [
+    "Ras Kassa Haile Darge",
+    2,
+    0
+   ],
+   [
+    "Ras Seyoum Mangasha",
+    2,
+    0
+   ],
+   [
+    "Ras Mulugeta Yeggazu",
+    2,
+    0
+   ]
+  ],
+  "IRQ": [
+   [
+    "Bakr Sidqi",
+    2,
+    0
+   ],
+   [
+    "Taha al-Hashimi",
+    2,
+    0
+   ],
+   [
+    "Salah al-Din al-Sabbagh",
+    2,
+    0
+   ]
+  ],
+  "PER": [
+   [
+    "Fazlollah Zahedi",
+    2,
+    0
+   ],
+   [
+    "Haj Ali Razmara",
+    2,
+    0
+   ],
+   [
+    "Amir Ahmadi",
+    2,
+    0
+   ]
+  ],
+  "PHI": [
+   [
+    "Vicente Lim",
+    3,
+    0
+   ],
+   [
+    "Basilio Valdes",
+    2,
+    0
+   ],
+   [
+    "Paulino Santos",
+    2,
+    0
+   ],
+   [
+    "Mateo Capinpin",
+    2,
+    0
+   ]
+  ],
+  "SIA": [
+   [
+    "Plaek Phibunsongkhram",
+    3,
+    0
+   ],
+   [
+    "Phin Choonhavan",
+    2,
+    0
+   ]
+  ],
+  "CUB": [
+   [
+    "Fulgencio Batista",
+    2,
+    0
+   ]
+  ],
+  "IRE": [
+   [
+    "Michael Brennan",
+    2,
+    0
+   ],
+   [
+    "Dan McKenna",
+    2,
+    0
+   ]
+  ],
+  "ALB": [
+   [
+    "Xhemal Aranitasi",
+    2,
+    0
+   ]
+  ]
+ },
+ "pool": {
+  "ARG": "spanish",
+  "BOL": "spanish",
+  "CHL": "spanish",
+  "COL": "spanish",
+  "COS": "spanish",
+  "CUB": "spanish",
+  "DOM": "spanish",
+  "ECU": "spanish",
+  "ELS": "spanish",
+  "GUA": "spanish",
+  "HON": "spanish",
+  "MEX": "spanish",
+  "NIC": "spanish",
+  "PAN": "spanish",
+  "PAR": "spanish",
+  "PRU": "spanish",
+  "URU": "spanish",
+  "VEN": "spanish",
+  "SPR": "spanish",
+  "BRA": "portuguese",
+  "POR": "portuguese",
+  "HAI": "french",
+  "LUX": "french",
+  "BEL": "french",
+  "FRA": "french",
+  "IRQ": "arabic",
+  "SAU": "arabic",
+  "YEM": "arabic",
+  "OMA": "arabic",
+  "PER": "persian",
+  "AFG": "persian",
+  "CHI": "chinese",
+  "PRC": "chinese",
+  "MAN": "chinese",
+  "SHX": "chinese",
+  "YUN": "chinese",
+  "XSM": "chinese",
+  "SIK": "chinese",
+  "GXC": "chinese",
+  "TIB": "tibetan",
+  "BHU": "tibetan",
+  "NEP": "nepali",
+  "MON": "mongol",
+  "TAN": "mongol",
+  "ICE": "nordic",
+  "DEN": "nordic",
+  "NOR": "nordic",
+  "SWE": "nordic",
+  "FIN": "finnish",
+  "ENG": "english",
+  "USA": "english",
+  "CAN": "english",
+  "AST": "english",
+  "NZL": "english",
+  "SAF": "english",
+  "IRE": "english",
+  "LIB": "english",
+  "RAJ": "indian",
+  "BUL": "slavic",
+  "YUG": "slavic",
+  "POL": "polish",
+  "SOV": "russian",
+  "CZE": "czech",
+  "GER": "german",
+  "AUS": "german",
+  "SWI": "german",
+  "HOL": "dutch",
+  "ETH": "ethiopian",
+  "SIA": "thai",
+  "PHI": "filipino",
+  "JAP": "japanese",
+  "ITA": "italian",
+  "TUR": "turkish",
+  "HUN": "hungarian",
+  "ROM": "romanian",
+  "GRE": "greek",
+  "LAT": "latvian",
+  "LIT": "lithuanian",
+  "EST": "estonian",
+  "ALB": "albanian"
+ },
+ "pools": {
+  "spanish": {
+   "given": [
+    "José",
+    "Juan",
+    "Luis",
+    "Carlos",
+    "Manuel",
+    "Francisco",
+    "Antonio",
+    "Pedro",
+    "Miguel",
+    "Rafael",
+    "Alberto",
+    "Enrique"
+   ],
+   "family": [
+    "García",
+    "Rodríguez",
+    "Martínez",
+    "López",
+    "González",
+    "Pérez",
+    "Sánchez",
+    "Ramírez",
+    "Torres",
+    "Flores",
+    "Rivera",
+    "Gómez",
+    "Díaz",
+    "Morales",
+    "Herrera",
+    "Castillo",
+    "Vargas",
+    "Mendoza",
+    "Rojas",
+    "Ortega",
+    "Aguilar",
+    "Navarro",
+    "Salazar",
+    "Cabrera"
+   ]
+  },
+  "portuguese": {
+   "given": [
+    "João",
+    "Antônio",
+    "José",
+    "Manuel",
+    "Francisco",
+    "Luís",
+    "Pedro",
+    "Carlos"
+   ],
+   "family": [
+    "Silva",
+    "Santos",
+    "Oliveira",
+    "Souza",
+    "Pereira",
+    "Costa",
+    "Almeida",
+    "Ferreira",
+    "Carvalho",
+    "Ribeiro",
+    "Lima",
+    "Barros"
+   ]
+  },
+  "french": {
+   "given": [
+    "Jean",
+    "Pierre",
+    "Louis",
+    "Henri",
+    "Charles",
+    "Paul",
+    "Marcel",
+    "André"
+   ],
+   "family": [
+    "Dubois",
+    "Laurent",
+    "Lefèvre",
+    "Moreau",
+    "Girard",
+    "Mercier",
+    "Bonnet",
+    "Dupont",
+    "Lambert",
+    "Fontaine",
+    "Rousseau",
+    "Vincent"
+   ]
+  },
+  "arabic": {
+   "given": [
+    "Ahmad",
+    "Muhammad",
+    "Ali",
+    "Hasan",
+    "Husayn",
+    "Khalid",
+    "Salih",
+    "Umar",
+    "Yusuf",
+    "Ibrahim"
+   ],
+   "family": [
+    "al-Hashimi",
+    "al-Rawi",
+    "al-Jaburi",
+    "al-Saadi",
+    "al-Qahtani",
+    "al-Harbi",
+    "al-Otaibi",
+    "al-Shammari",
+    "al-Zubaidi",
+    "al-Ansari"
+   ]
+  },
+  "persian": {
+   "given": [
+    "Ali",
+    "Hassan",
+    "Reza",
+    "Mahmoud",
+    "Ahmad",
+    "Hossein",
+    "Mohammad",
+    "Karim"
+   ],
+   "family": [
+    "Ahmadi",
+    "Hosseini",
+    "Karimi",
+    "Rezaei",
+    "Moradi",
+    "Mohammadi",
+    "Jafari",
+    "Sadeghi",
+    "Tehrani",
+    "Esfahani"
+   ]
+  },
+  "chinese": {
+   "family_first": true,
+   "given": [
+    "Zhiming",
+    "Guoliang",
+    "Jianguo",
+    "Wenbin",
+    "Deshan",
+    "Yongqing",
+    "Shaoqing",
+    "Tianyi",
+    "Hanwen",
+    "Zhenhua"
+   ],
+   "family": [
+    "Wang",
+    "Li",
+    "Zhang",
+    "Liu",
+    "Chen",
+    "Yang",
+    "Zhao",
+    "Huang",
+    "Zhou",
+    "Wu",
+    "Xu",
+    "Sun",
+    "Ma",
+    "Zhu",
+    "Hu"
+   ]
+  },
+  "tibetan": {
+   "given": [
+    "Tenzin",
+    "Lobsang",
+    "Tashi",
+    "Sonam",
+    "Ngawang",
+    "Jigme",
+    "Karma",
+    "Pema"
+   ],
+   "family": [
+    "Dorje",
+    "Phuntsok",
+    "Namgyal",
+    "Tsering",
+    "Wangchuk",
+    "Gyatso",
+    "Norbu",
+    "Dhondup"
+   ]
+  },
+  "nepali": {
+   "given": [
+    "Krishna",
+    "Ram",
+    "Hari",
+    "Bir",
+    "Dhan",
+    "Padma",
+    "Kaiser",
+    "Mohan"
+   ],
+   "family": [
+    "Rana",
+    "Thapa",
+    "Shah",
+    "Basnet",
+    "Pande",
+    "Gurung",
+    "Khadka",
+    "Karki"
+   ]
+  },
+  "mongol": {
+   "given": [
+    "Batbayar",
+    "Damdin",
+    "Tsend",
+    "Gombo",
+    "Dorj",
+    "Luvsan",
+    "Choijil",
+    "Bat-Ochir"
+   ],
+   "family": [
+    "Dashiin",
+    "Luvsangiin",
+    "Tserengiin",
+    "Dambyn",
+    "Jamyangiin",
+    "Sodnomyn",
+    "Ochiryn",
+    "Gombyn"
+   ],
+   "family_first": true
+  },
+  "nordic": {
+   "given": [
+    "Erik",
+    "Olaf",
+    "Nils",
+    "Carl",
+    "Johan",
+    "Axel",
+    "Gunnar",
+    "Knut"
+   ],
+   "family": [
+    "Hansen",
+    "Johansen",
+    "Larsen",
+    "Andersen",
+    "Nilsson",
+    "Karlsson",
+    "Eriksson",
+    "Olsen",
+    "Berg",
+    "Lund"
+   ]
+  },
+  "english": {
+   "given": [
+    "John",
+    "William",
+    "James",
+    "Robert",
+    "Edward",
+    "Thomas",
+    "Henry",
+    "George"
+   ],
+   "family": [
+    "Smith",
+    "Johnson",
+    "Brown",
+    "Taylor",
+    "Walker",
+    "Wright",
+    "Harris",
+    "Clarke",
+    "Morgan",
+    "Hughes"
+   ]
+  },
+  "slavic": {
+   "given": [
+    "Ivan",
+    "Petar",
+    "Nikola",
+    "Dragan",
+    "Stefan",
+    "Milan",
+    "Georgi",
+    "Todor"
+   ],
+   "family": [
+    "Petrović",
+    "Jovanović",
+    "Nikolić",
+    "Marković",
+    "Ivanov",
+    "Petrov",
+    "Georgiev",
+    "Dimitrov",
+    "Stojanović",
+    "Popović"
+   ]
+  },
+  "polish": {
+   "given": [
+    "Jan",
+    "Józef",
+    "Stanisław",
+    "Tadeusz",
+    "Władysław",
+    "Kazimierz",
+    "Stefan",
+    "Andrzej"
+   ],
+   "family": [
+    "Kowalski",
+    "Nowak",
+    "Wiśniewski",
+    "Wójcik",
+    "Kamiński",
+    "Lewandowski",
+    "Zieliński",
+    "Szymański"
+   ]
+  },
+  "russian": {
+   "given": [
+    "Ivan",
+    "Pyotr",
+    "Nikolai",
+    "Aleksandr",
+    "Mikhail",
+    "Sergei",
+    "Vasily",
+    "Dmitri"
+   ],
+   "family": [
+    "Ivanov",
+    "Petrov",
+    "Sidorov",
+    "Kuznetsov",
+    "Popov",
+    "Sokolov",
+    "Lebedev",
+    "Kozlov",
+    "Novikov",
+    "Morozov"
+   ]
+  },
+  "czech": {
+   "given": [
+    "Josef",
+    "Jan",
+    "František",
+    "Karel",
+    "Václav",
+    "Jaroslav"
+   ],
+   "family": [
+    "Novák",
+    "Svoboda",
+    "Novotný",
+    "Dvořák",
+    "Černý",
+    "Procházka",
+    "Kučera",
+    "Veselý"
+   ]
+  },
+  "ethiopian": {
+   "given": [
+    "Haile",
+    "Tesfaye",
+    "Mengesha",
+    "Wolde",
+    "Gebre",
+    "Tadesse",
+    "Bekele",
+    "Kebede"
+   ],
+   "family": [
+    "Tessema",
+    "Mariam",
+    "Giorgis",
+    "Selassie",
+    "Yohannes",
+    "Abebe",
+    "Desta",
+    "Wolde"
+   ]
+  },
+  "thai": {
+   "given": [
+    "Prasert",
+    "Somchai",
+    "Chaiya",
+    "Wichai",
+    "Suthep",
+    "Anan"
+   ],
+   "family": [
+    "Srisawat",
+    "Rattanakul",
+    "Chaiyaporn",
+    "Suwannarat",
+    "Boonmee",
+    "Thongdee"
+   ]
+  },
+  "filipino": {
+   "given": [
+    "Jose",
+    "Juan",
+    "Manuel",
+    "Vicente",
+    "Pedro",
+    "Emilio"
+   ],
+   "family": [
+    "Santos",
+    "Reyes",
+    "Cruz",
+    "Bautista",
+    "Garcia",
+    "Mendoza",
+    "Torres",
+    "Villanueva"
+   ]
+  },
+  "indian": {
+   "given": [
+    "Rajendra",
+    "Mohan",
+    "Harbans",
+    "Iqbal",
+    "Kartar",
+    "Prem",
+    "Vijay",
+    "Mohammad"
+   ],
+   "family": [
+    "Singh",
+    "Sharma",
+    "Khan",
+    "Rao",
+    "Iyer",
+    "Nair",
+    "Gill",
+    "Chand"
+   ]
+  },
+  "german": {
+   "given": [
+    "Hans",
+    "Karl",
+    "Wilhelm",
+    "Friedrich",
+    "Otto",
+    "Ernst",
+    "Franz",
+    "Josef"
+   ],
+   "family": [
+    "Müller",
+    "Schmidt",
+    "Weber",
+    "Fischer",
+    "Wagner",
+    "Becker",
+    "Hoffmann",
+    "Keller",
+    "Huber",
+    "Brunner"
+   ]
+  },
+  "dutch": {
+   "given": [
+    "Jan",
+    "Hendrik",
+    "Willem",
+    "Pieter",
+    "Cornelis",
+    "Johannes"
+   ],
+   "family": [
+    "de Vries",
+    "Jansen",
+    "Bakker",
+    "Visser",
+    "Smit",
+    "Meijer",
+    "de Jong",
+    "van Dijk"
+   ]
+  },
+  "japanese": {
+   "given": [
+    "Hiroshi",
+    "Kenji",
+    "Takeo",
+    "Masao",
+    "Yoshio",
+    "Ichirō",
+    "Saburō",
+    "Tadashi"
+   ],
+   "family": [
+    "Tanaka",
+    "Suzuki",
+    "Takahashi",
+    "Watanabe",
+    "Itō",
+    "Nakamura",
+    "Kobayashi",
+    "Yamamoto",
+    "Katō",
+    "Yoshida"
+   ]
+  },
+  "italian": {
+   "given": [
+    "Giuseppe",
+    "Giovanni",
+    "Antonio",
+    "Mario",
+    "Luigi",
+    "Francesco",
+    "Carlo",
+    "Vittorio"
+   ],
+   "family": [
+    "Rossi",
+    "Russo",
+    "Ferrari",
+    "Esposito",
+    "Bianchi",
+    "Romano",
+    "Colombo",
+    "Ricci",
+    "Marino",
+    "Greco"
+   ]
+  },
+  "turkish": {
+   "given": [
+    "Mehmet",
+    "Ahmet",
+    "Ali",
+    "Hasan",
+    "Hüseyin",
+    "Mustafa",
+    "İsmail",
+    "Osman"
+   ],
+   "family": [
+    "Yılmaz",
+    "Kaya",
+    "Demir",
+    "Şahin",
+    "Çelik",
+    "Aydın",
+    "Öztürk",
+    "Arslan",
+    "Doğan",
+    "Kılıç"
+   ]
+  },
+  "hungarian": {
+   "family_first": true,
+   "given": [
+    "László",
+    "József",
+    "István",
+    "Ferenc",
+    "János",
+    "Sándor"
+   ],
+   "family": [
+    "Nagy",
+    "Kovács",
+    "Tóth",
+    "Szabó",
+    "Horváth",
+    "Varga",
+    "Kiss",
+    "Molnár"
+   ]
+  },
+  "romanian": {
+   "given": [
+    "Ion",
+    "Gheorghe",
+    "Constantin",
+    "Nicolae",
+    "Vasile",
+    "Mihai"
+   ],
+   "family": [
+    "Popescu",
+    "Ionescu",
+    "Dumitrescu",
+    "Stan",
+    "Stoica",
+    "Gheorghiu",
+    "Constantinescu",
+    "Marin"
+   ]
+  },
+  "greek": {
+   "given": [
+    "Georgios",
+    "Ioannis",
+    "Konstantinos",
+    "Dimitrios",
+    "Nikolaos",
+    "Vasileios"
+   ],
+   "family": [
+    "Papadopoulos",
+    "Georgiou",
+    "Nikolaou",
+    "Dimitriou",
+    "Konstantinou",
+    "Ioannou",
+    "Vasileiou",
+    "Karagiannis"
+   ]
+  },
+  "latvian": {
+   "given": [
+    "Jānis",
+    "Pēteris",
+    "Kārlis",
+    "Andrejs",
+    "Roberts"
+   ],
+   "family": [
+    "Kalniņš",
+    "Ozols",
+    "Bērziņš",
+    "Liepiņš",
+    "Krūmiņš",
+    "Zariņš"
+   ]
+  },
+  "lithuanian": {
+   "given": [
+    "Jonas",
+    "Petras",
+    "Antanas",
+    "Juozas",
+    "Kazys"
+   ],
+   "family": [
+    "Kazlauskas",
+    "Petrauskas",
+    "Jankauskas",
+    "Stankevičius",
+    "Vasiliauskas",
+    "Žukauskas"
+   ]
+  },
+  "estonian": {
+   "given": [
+    "Johannes",
+    "Karl",
+    "August",
+    "Jaan",
+    "Aleksander"
+   ],
+   "family": [
+    "Tamm",
+    "Saar",
+    "Sepp",
+    "Mägi",
+    "Kask",
+    "Kukk"
+   ]
+  },
+  "finnish": {
+   "given": [
+    "Juho",
+    "Matti",
+    "Väinö",
+    "Toivo",
+    "Eino",
+    "Aarne"
+   ],
+   "family": [
+    "Virtanen",
+    "Korhonen",
+    "Nieminen",
+    "Mäkinen",
+    "Hämäläinen",
+    "Laine",
+    "Heikkinen",
+    "Koskinen"
+   ]
+  },
+  "albanian": {
+   "given": [
+    "Gjergj",
+    "Ahmet",
+    "Mehmet",
+    "Pjetër",
+    "Kolë",
+    "Rexhep"
+   ],
+   "family": [
+    "Dervishi",
+    "Leka",
+    "Kola",
+    "Gjoka",
+    "Shehu",
+    "Marku"
+   ]
+  }
+ }
+}

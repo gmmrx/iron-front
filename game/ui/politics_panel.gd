@@ -2,8 +2,11 @@ class_name PoliticsPanel
 extends PanelContainer
 ## Hükümet ekranı (Q): lider ve iktidar partisi, ideoloji pastası, siyasi güç / istikrar /
 ## savaş desteği (dökümlü ipuçları), milli ruhlar, üç yasa yuvası + seçili grubun yasaları, danışmanlar, kararlar.
+## Haritada Ctrl + tık başka bir ülkenin siyasetini salt okunur gösterir (open_country): oyuncu rakibini tanıyıp
+## ona göre hareket eder; düğmeler yalnız kendi ülkemizde çalışır.
 
 signal focus_requested
+signal diplomacy_requested(tag: String)
 
 const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"), "fascism": Color("8a6a3a"), "neutrality": Color("8a8a7a")}
 const IDEO_ORDER := ["democratic", "communism", "fascism", "neutrality"]
@@ -13,31 +16,53 @@ const EFFECT_KEYS := ["manpower", "consumer_goods", "factory_output", "construct
 var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
 var _root: VBoxContainer
 var _law_group := "conscription"
+var _tag := ""                    ## gösterilen ülke ("" = oyuncu)
+var _title: Label
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
 	_root = PanelLayout.frame(self, tr("POLITICS_TITLE"), "politics", -1.0)     # tam ekran, üç sütun
+	_title = find_child("Title", true, false) as Label
 	Politics.politics_changed.connect(func(t: String) -> void:
-		if visible and t == World.player_tag: refresh())
+		if visible and t == _country_tag(): refresh())
 	World.daily_update.connect(func() -> void:
 		if visible: refresh())
 	Economy.laws_changed.connect(func(_t: String) -> void:
 		if visible: refresh())
 
 func open() -> void:
+	_tag = ""
 	visible = true
 	refresh()
+
+## Başka bir ülkenin siyaseti (salt okunur); kendi ülkemizse normal ekran
+func open_country(tag: String) -> void:
+	_tag = "" if tag == World.player_tag else tag
+	visible = true
+	refresh()
+
+func _country_tag() -> String:
+	return _tag if _tag != "" else World.player_tag
+
+func _foreign() -> bool:
+	return _tag != "" and _tag != World.player_tag
 
 func close() -> void:
 	visible = false
 
 func refresh() -> void:
-	var c := World.player()
+	if _foreign() and not World.countries.has(_tag):
+		_tag = ""                  # ülke haritadan silindiyse kendi ülkemize dön
+	var c: Country = World.countries.get(_country_tag())
 	if c == null:
 		return
 	for ch in _root.get_children():
 		ch.queue_free()
+	if _title:
+		_title.text = (tr("POLITICS_TITLE") + ("  —  " + c.display_name() if _foreign() else "")).to_upper()
+	if _foreign():
+		_foreign_banner(c)
 	var cols := PanelLayout.columns(_root, [1.0, 1.35, 1.0])
 	_body = cols[0]
 	_leader_block(c)
@@ -48,6 +73,9 @@ func refresh() -> void:
 	_body = cols[2]
 	_advisors(c)
 	_decisions(c)
+	if _foreign():
+		_foreign_focus(c)
+		return
 	var fb := Button.new()
 	fb.text = tr("POL_OPEN_FOCUS")
 	fb.icon = UiTheme.icon("politics")
@@ -57,6 +85,52 @@ func refresh() -> void:
 	fb.focus_mode = Control.FOCUS_NONE
 	fb.pressed.connect(func() -> void: focus_requested.emit())
 	_body.add_child(fb)
+
+## Başka ülke: kimin ekranına bakıldığı, bizimle ilişkisi ve diplomasiye / kendi ülkemize dönüş
+func _foreign_banner(c: Country) -> void:
+	var box := PanelContainer.new()
+	box.theme_type_variation = "Strip"
+	_root.add_child(box)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 10)
+	box.add_child(hb)
+	hb.add_child(UiTheme.icon_texture(FlagFactory.get_flag(c), 30))
+	var me := World.player_tag
+	var rel := tr("CTRY_ENEMY") if Diplomacy.are_enemies(me, c.tag) else (tr("CTRY_ALLY") if Diplomacy.are_allies(me, c.tag) else tr("CTRY_NEUTRAL"))
+	var l := UiTheme.make_label(tr("POL_VIEWING") % [c.display_name(), rel], 16, UiTheme.TEXT)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hb.add_child(l)
+	var dip := PanelLayout.small_button(tr("POL_VIEW_DIPLOMACY"), func() -> void: diplomacy_requested.emit(c.tag))
+	dip.icon = UiTheme.icon("diplomacy")
+	dip.expand_icon = true
+	dip.add_theme_constant_override("icon_max_width", 20)
+	hb.add_child(dip)
+	var back := PanelLayout.small_button(tr("POL_VIEW_MINE"), func() -> void:
+		_tag = ""
+		refresh())
+	hb.add_child(back)
+
+## Başka ülke: sürdürdüğü devlet programı ve tamamladıkları
+func _foreign_focus(c: Country) -> void:
+	PanelLayout.section(_body, tr("POL_THEIR_FOCUS"))
+	if c.focus_current != "":
+		var fo := Politics.focus_def(c, c.focus_current)
+		if not fo.is_empty():
+			var days := float(fo["days"])
+			var ftex := UiTheme.focus_icon(c.focus_current)
+			var r := PanelLayout.row(_body, ftex if ftex else UiTheme.icon("politics"),
+				Politics.loc(fo["name"]), tr("CTRY_DAYS_LEFT") % maxi(0, int(days - c.focus_progress)))
+			r.add_child(PanelLayout.bar(clampf(c.focus_progress / maxf(days, 1.0), 0.0, 1.0), UiTheme.ACCENT, 200.0, 5.0))
+	else:
+		_body.add_child(UiTheme.make_label(tr("POL_NO_FOCUS"), 15, UiTheme.TEXT_DIM))
+	if not c.focus_done.is_empty():
+		var names: Array[String] = []
+		for id: String in c.focus_done.slice(maxi(0, c.focus_done.size() - 6)):
+			var fd := Politics.focus_def(c, id)
+			if not fd.is_empty():
+				names.append(Politics.loc(fd["name"]))
+		PanelLayout.detail(_body, tr("POL_FOCUS_DONE") % [c.focus_done.size(), ", ".join(names)], 14)
 
 # ------------------------------------------------------------------ lider, parti, ideoloji
 func _leader_block(c: Country) -> void:
@@ -280,17 +354,19 @@ func _laws(c: Country) -> void:
 			var reqs := _law_reqs(d)
 			b.text = Economy.law_name(g, law) + ("  ✓" if current else "")
 			b.add_theme_font_size_override("font_size", 14)
-			b.disabled = not current and not Economy.can_change_law(c, g, law)
+			b.disabled = not current and (_foreign() or not Economy.can_change_law(c, g, law))
 			var tip := Economy.law_name(g, law) + "\n" + _law_effects(d).replace(", ", "\n")
 			if reqs != "":
 				tip += "\n" + tr("LAW_REQUIRES") % reqs
-			if block != "" and not current:
+			if _foreign():
+				pass
+			elif block != "" and not current:
 				tip += "\n⚠ " + tr(block)
 			elif not current:
 				tip += "\n" + tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)
 			b.tooltip_text = tip
 			b.pressed.connect(func() -> void:
-				if not current:
+				if not current and not _foreign():
 					Economy.change_law(c, g, law)
 				refresh())
 			list.add_child(b)
@@ -313,6 +389,11 @@ func _advisors(c: Country) -> void:
 			slots.add_child(PanelLayout.slot(UiTheme.advisor_icon(id), 64, Politics.loc(def["name"]) + "\n" + Politics.describe_mods(def["mods"]), "SlotGold"))
 		else:
 			slots.add_child(PanelLayout.slot(null, 64, tr("POL_EMPTY_ADVISOR")))
+	if _foreign():
+		for id: String in c.advisors:
+			var def: Dictionary = Politics.advisor_defs[id]
+			_row_button(UiTheme.advisor_icon(id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable())
+		return
 	for id: String in Politics.advisor_defs:
 		if id in c.advisors:
 			continue
@@ -346,6 +427,9 @@ func _row_button(icon: Texture2D, title: String, desc: String, action: String, e
 	var d := UiTheme.make_label(desc, 14, UiTheme.TEXT_DIM)
 	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(d)
+	_body.add_child(row)
+	if action == "":
+		return
 	var b := Button.new()
 	b.text = action
 	b.disabled = not enabled
@@ -354,11 +438,18 @@ func _row_button(icon: Texture2D, title: String, desc: String, action: String, e
 	b.add_theme_font_size_override("font_size", 15)
 	b.pressed.connect(cb)
 	hb.add_child(b)
-	_body.add_child(row)
 
 # ------------------------------------------------------------------ kararlar
 func _decisions(c: Country) -> void:
 	PanelLayout.section(_body, tr("POL_DECISIONS"))
+	if _foreign():
+		for id: String in c.decisions_active:
+			var def: Dictionary = Politics.decisions.get(id, {})
+			if not def.is_empty():
+				_row_button(UiTheme.decision_icon(id), Politics.loc(def["name"]) + "  ✓", Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable())
+		if c.decisions_active.is_empty():
+			_body.add_child(UiTheme.make_label(tr("POL_NO_DECISIONS"), 15, UiTheme.TEXT_DIM))
+		return
 	for id: String in Politics.decisions:
 		var def: Dictionary = Politics.decisions[id]
 		var active := c.decisions_active.has(id)

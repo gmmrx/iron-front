@@ -59,9 +59,15 @@ func _ready() -> void:
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
 	politics.focus_requested.connect(func() -> void: toggle_focus())
+	politics.diplomacy_requested.connect(func(tag: String) -> void:
+		_close_all()
+		diplomacy.open_for(tag))
 	root.add_child(focus)
 	divisions = DivisionPanel.new()
 	root.add_child(divisions)
+	divisions.manage_army.connect(func(id: int) -> void:
+		_close_all()
+		army.open_army(id))
 	feed = NotificationFeed.new()
 	root.add_child(feed)
 	task_bar = top_bar.task_row
@@ -208,6 +214,11 @@ func close_panels() -> void:
 func toggle_construction() -> void: _open_only(construction)
 func toggle_production() -> void: _open_only(production)
 func toggle_politics() -> void: _open_only(politics)
+## Haritada Ctrl + tık: o ülkenin siyaset ekranı (başka ülkeyse salt okunur)
+func show_politics_of(tag: String) -> void:
+	_close_all()
+	politics.open_country(tag)
+	construction_toggled.emit(false)
 func toggle_trade() -> void: _open_only(trade)
 func toggle_army() -> void: _open_only(army)
 func toggle_navy() -> void: _open_only(navy)

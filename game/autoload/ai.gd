@@ -271,10 +271,12 @@ func _ai_armies(c: Country) -> void:
 	var by_enemy := {}
 	for a in mine:
 		by_enemy[a.enemy] = a
+		Military.ai_assign_commander(a)
 	for e: String in plans:
 		if not by_enemy.has(e):
 			var na := Military.create_army(c.tag, [])
 			na.enemy = e
+			Military.ai_assign_commander(na)
 			by_enemy[e] = na
 	# havuz: eğitimde / denizde olmayan tümenler; başkentte bir garnizon kalır
 	var cap := World.capital_province(c.tag)

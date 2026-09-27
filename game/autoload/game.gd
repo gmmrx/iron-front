@@ -97,11 +97,20 @@ func save_game(slot: String) -> bool:
 		}
 	for d in Military.divisions:
 		data["divisions"].append({"id": d.id, "o": d.owner, "t": d.template, "n": d.name, "p": d.province,
-			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold, "ih": d.idle_hours, "sp": d.supplied})
+			"path": Array(d.path), "pr": d.progress, "s": d.strength, "org": d.org, "a": d.attacking, "tr": d.training, "xp": d.xp, "pl": d.planning, "ar": d.army, "h": d.hold, "mn": d.manual, "ih": d.idle_hours, "sp": d.supplied})
 	data["armies"] = []
 	for a in Military.armies:
-		data["armies"].append({"id": a.id, "o": a.owner, "n": a.name, "e": a.enemy, "m": int(a.mode), "c": a.color.to_html()})
+		data["armies"].append({"id": a.id, "o": a.owner, "n": a.name, "e": a.enemy, "m": int(a.mode), "c": a.color.to_html(),
+			"cm": a.commander, "g": a.group})
 	data["army_id"] = Military._next_army
+	data["commanders"] = []
+	for cm in Military.commanders:
+		data["commanders"].append({"id": cm.id, "o": cm.owner, "n": cm.name, "r": int(cm.rank), "s": cm.skill, "x": cm.xp})
+	data["commander_id"] = Military._next_commander
+	data["groups"] = []
+	for g in Military.groups:
+		data["groups"].append({"id": g.id, "o": g.owner, "n": g.name, "cm": g.commander})
+	data["group_id"] = Military._next_group
 	var f := FileAccess.open(SAVE_DIR + slot + ".json", FileAccess.WRITE)
 	if f == null:
 		return false
@@ -201,7 +210,7 @@ func load_game(slot: String) -> bool:
 		d.id = int(dd["id"]); d.owner = dd["o"]; d.template = int(dd["t"]); d.name = dd["n"]; d.province = int(dd["p"])
 		d.path = PackedInt32Array(dd["path"]); d.progress = float(dd["pr"]); d.strength = float(dd["s"])
 		d.org = float(dd["org"]); d.attacking = int(dd["a"]); d.training = int(dd["tr"])
-		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0)); d.hold = bool(dd.get("h", false))
+		d.xp = float(dd.get("xp", 0.15)); d.planning = float(dd.get("pl", 0.0)); d.army = int(dd.get("ar", 0)); d.hold = bool(dd.get("h", false)); d.manual = bool(dd.get("mn", false))
 		d.idle_hours = int(dd.get("ih", 0)); d.supplied = bool(dd.get("sp", true))
 		Military.divisions.append(d)
 	Military._next_id = int(data["div_id"])
@@ -212,8 +221,26 @@ func load_game(slot: String) -> bool:
 		var a := Army.new()
 		a.id = int(ad["id"]); a.owner = ad["o"]; a.name = ad["n"]; a.enemy = ad["e"]
 		a.mode = int(ad["m"]) as Army.Mode; a.color = Color(ad["c"])
+		a.commander = int(ad.get("cm", 0)); a.group = int(ad.get("g", 0))
 		Military.armies.append(a)
 	Military._next_army = int(data.get("army_id", Military.armies.size() + 1))
+	if data.has("commanders"):
+		Military.commanders.clear()
+		for cd: Dictionary in data["commanders"]:
+			var cm := Commander.new()
+			cm.id = int(cd["id"]); cm.owner = cd["o"]; cm.name = cd["n"]; cm.rank = int(cd["r"]) as Commander.Rank
+			cm.skill = int(cd["s"]); cm.xp = float(cd["x"])
+			Military.commanders.append(cm)
+		Military._next_commander = int(data.get("commander_id", Military.commanders.size() + 1))
+	else:
+		Military.init_commanders()       # komutanlardan önceki kayıt: kadro baştan kurulur
+	Military.groups.clear()
+	for gd: Dictionary in data.get("groups", []):
+		var g := ArmyGroup.new()
+		g.id = int(gd["id"]); g.owner = gd["o"]; g.name = gd["n"]; g.commander = int(gd["cm"])
+		Military.groups.append(g)
+	Military._next_group = int(data.get("group_id", Military.groups.size() + 1))
+	Military._bonus_cache.clear()
 	if data.has("fleets"):
 		Navy.from_save(data["fleets"], int(data.get("fleet_id", 1)))
 	Military._rebuild_index()

@@ -15,6 +15,7 @@ var _sun: DirectionalLight3D
 
 var map_view: MapView3D
 var camera: MapCamera3D
+var _ctrl_country := ""            ## Ctrl ile üzerine gelinen ülke (vurgulu)
 var cities: CityLayer3D
 var units: UnitLayer
 var fleets: FleetLayer
@@ -88,6 +89,7 @@ func _ready() -> void:
 	hud = Hud.new()
 	add_child(hud)
 	hud.divisions.units = units
+	hud.army.units = units
 	hud.navy.fleet_selected.connect(func(f: Fleet) -> void:
 		units.clear_selection()
 		fleets.select(f)
@@ -267,6 +269,8 @@ func _handle_dev_args() -> void:
 			for sp in find_children("*", "SettingsPanel", true, false):
 				(sp as SettingsPanel)._set_lang(args["lang_test"])
 			return
+	if args.has("politics_of"):
+		hud.show_politics_of(args["politics_of"])     # test: başka ülkenin siyaseti (salt okunur)
 	if args.has("pause_menu"):
 		hud.pause_menu.toggle()
 	if args.has("gameover"):
@@ -286,6 +290,32 @@ func _handle_dev_args() -> void:
 		for i in 4:
 			Economy.queue_building(c, World.states[sids[i]], "civilian_factory" if i % 2 == 0 else "military_factory")
 		Economy.queue_building(c, World.states[c.capital_state], "infrastructure")
+	if args.has("army_demo"):
+		# test: örnek komuta zinciri (bir ordular grubu, iki ordu, boş bir ordu, bağlanmamış tümenler)
+		var me := World.player_tag
+		var mine := Military.country_divisions(me)
+		var cms := Military.commanders_of(me)
+		var g := Military.create_group(me)
+		for cm in cms:
+			if cm.is_marshal():
+				Military.assign_group_commander(g, cm.id)
+				break
+		var third := mine.size() / 3
+		var a1 := Military.create_army(me, mine.slice(0, third))
+		var a2 := Military.create_army(me, mine.slice(third, third * 2))
+		Military.set_army_group(a1, g.id)
+		Military.set_army_group(a2, g.id)
+		Military.assign_army_commander(a1, Military.free_commanders(me)[0].id)
+		Military.assign_army_commander(a2, Military.free_commanders(me)[0].id)
+		a1.enemy = args["army_demo"] if args["army_demo"] != "" else ""
+		Military.create_army(me, [])
+		if args.has("army_sel"):
+			hud.army._sel = args["army_sel"]
+		if args.has("sel_demo"):
+			var pick := mine.slice(third - 4, third + 4)
+			pick[5].manual = true
+			pick[6].manual = true
+			get_tree().create_timer(0.2).timeout.connect(func() -> void: units.select_divisions(pick, false))
 	if args.has("panel"):
 		match args["panel"]:
 			"construction": hud.toggle_construction()
@@ -324,7 +354,10 @@ func _handle_dev_args() -> void:
 		for i in int(args.get("army_days", "0")):
 			GameClock.advance_hours(24)
 		if args.has("army_select"):
-			units.select_divisions(Military.army_divisions(ar).slice(0, 6), false)
+			if args.has("army_cmd"):
+				Military.assign_army_commander(ar, Military.commanders_of(World.player_tag)[1].id)
+			var pick6 := Military.army_divisions(ar).slice(0, 6)
+			get_tree().create_timer(0.2).timeout.connect(func() -> void: units.select_divisions(pick6, false))
 	if args.has("fx_test"):
 		# efekt testi: kamera odağında muharebe efektleri (patlama, duman, namlu alevi)
 		var fx := Node3D.new()
@@ -562,6 +595,18 @@ func _handle_dev_args() -> void:
 				cursor_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 				hud.root.add_child(cursor_preview)
 			await get_tree().process_frame
+		if args.has("hover_at"):
+			# test: ekran konumundaki bölgenin kartı --hover_at=x,y
+			var hv3: PackedStringArray = args["hover_at"].split(",")
+			var hp3 := Vector2(float(hv3[0]), float(hv3[1]))
+			hud.tooltip.show_province(_pick(hp3), hp3)
+			await get_tree().process_frame
+		if args.has("ctrl_hover"):
+			# test: Ctrl basılıyken ülke kartı --ctrl_hover=x,y (ekran konumu)
+			var cv: PackedStringArray = args["ctrl_hover"].split(",")
+			var cp := Vector2(float(cv[0]), float(cv[1]))
+			_country_hover(_pick(cp), cp)
+			await get_tree().process_frame
 		if args.has("hover_route"):
 			var hv2: PackedStringArray = args["hover_route"].split(",")
 			var rp := Vector2(float(hv2[0]), float(hv2[1]))
@@ -604,6 +649,8 @@ func _process(delta: float) -> void:
 		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	if hud.is_mouse_over_ui():
 		hud.tooltip.visible = false
+	if _ctrl_country != "" and (hud.is_mouse_over_ui() or not Input.is_key_pressed(KEY_CTRL)):
+		_country_hover(0, Vector2.ZERO)        # Ctrl bırakıldı (pencere dışında da) ya da imleç arayüzde: vurgu kalkar
 		map_view.set_hovered(0)
 	# arayüzle uğraşırken harita kıpırdamaz: tam ekran panelde kamera kilitli, arayüz üstünde kenar kaydırması yok
 	var locked := hud.fullscreen_open()
@@ -625,7 +672,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		var button := mb.button_index
-		if button == MOUSE_BUTTON_LEFT and mb.ctrl_pressed:
+		if mb.ctrl_pressed and (button == MOUSE_BUTTON_LEFT or button == MOUSE_BUTTON_RIGHT):
+			# Ctrl + tık: birlik/filo seçiliyse hareket emri (Mac ve web'de sağ tık yerine), değilse o ülkenin siyaseti
+			if not _has_order_selection():
+				if mb.pressed:
+					_ctrl_click(mb.position)
+				return
 			button = MOUSE_BUTTON_RIGHT   # macOS masaüstünde sistem bunu zaten sağ tık yapar; web'de (tarayıcı) yapmaz
 		match button:
 			MOUSE_BUTTON_WHEEL_UP:
@@ -675,7 +727,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		map_view.set_hovered(pid)
 		var hf := fleets.pick(mm.position)
 		var hr := _route_at(mm.position)
-		if hf:
+		_country_hover(pid if mm.ctrl_pressed else 0, mm.position)
+		if _ctrl_country != "":
+			pass
+		elif hf:
 			hud.tooltip.show_fleet(hf, mm.position)
 		elif not hr.is_empty():
 			hud.tooltip.show_route(hr, mm.position)
@@ -687,6 +742,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventPanGesture:
 		var pg := event as InputEventPanGesture
 		camera.drag(pg.position, pg.position - pg.delta * 12.0)
+	elif event is InputEventKey and (event as InputEventKey).keycode == KEY_CTRL and not event.echo:
+		# Ctrl basılınca imlecin altındaki ülkenin genel durumu; bırakınca normal bölge kartı
+		var mp := get_viewport().get_mouse_position()
+		var pid := _pick(mp)
+		_country_hover(pid if event.pressed else 0, mp)
+		if not event.pressed:
+			hud.tooltip.show_province(pid, mp)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match (event as InputEventKey).keycode:
 			KEY_SPACE: GameClock.toggle_pause()
@@ -733,6 +795,34 @@ func _route_at(screen: Vector2) -> Dictionary:
 		return {}
 	var g = camera.ground_point(screen)
 	return routes.pick(Vector2(g.x, g.z)) if g != null else {}
+
+## Birlik, filo ya da hava/deniz bölgesi seçimi sürüyorsa Ctrl + tık emir verir
+func _has_order_selection() -> bool:
+	return not units.selected.is_empty() or (fleets.selected != null and fleets.selected.owner == World.player_tag) \
+		or _zone_pick != null or _wing_pick != null
+
+func _country_at(pid: int) -> String:
+	var p := World.province(pid)
+	if p == null or not p.is_land():
+		return ""
+	var st := World.state_of_province(pid)
+	return st.owner if st and World.countries.has(st.owner) else ""
+
+## Ctrl basılıyken ülke kartı ve ülke vurgusu (pid 0: kapat)
+func _country_hover(pid: int, pos: Vector2) -> void:
+	var tag := _country_at(pid) if pid > 0 else ""
+	if tag != _ctrl_country:
+		_ctrl_country = tag
+		map_view.set_highlight_country(tag)
+	if tag != "":
+		hud.tooltip.show_country(tag, pos, not _has_order_selection())
+
+func _ctrl_click(pos: Vector2) -> void:
+	var tag := _country_at(_pick(pos))
+	if tag != "":
+		_country_hover(0, pos)
+		hud.tooltip.visible = false
+		hud.show_politics_of(tag)
 
 func _left_click(pos: Vector2, shift: bool) -> void:
 	if routes.active and not _wing_pick and not _zone_pick:
@@ -787,6 +877,8 @@ func _order_move(pid: int) -> void:
 	for d in units.selected:
 		if Military.order_move(d, pid):
 			ok += 1
+			if d.army != 0 and d.owner == World.player_tag:
+				d.manual = true          # doğrudan emir: ordu planı bu tümeni geri çekmez (seçim panelinden plana döner)
 	if ok == 0:
 		World.notify(tr("NOTE_NO_PATH"), "bad")
 	else:

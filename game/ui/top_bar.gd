@@ -149,6 +149,9 @@ func _ready() -> void:
 	_xp_army = _stat(row2, ResourceIcon.Kind.XP_ARMY, "UI_XP_ARMY_TIP")
 	_xp_navy = _stat(row2, ResourceIcon.Kind.XP_NAVY, "UI_XP_NAVY_TIP")
 	_xp_air = _stat(row2, ResourceIcon.Kind.XP_AIR, "UI_XP_AIR_TIP")
+	# birikim henüz hiçbir şeye harcanmıyor (doktrinler gelecek): görünür, soluk, yasak imleci
+	for l: Label in [_xp_army, _xp_navy, _xp_air]:
+		UiTheme.mark_unavailable(_cell_of(l))
 
 	# uyarılar: göstergelerle aynı metal şeritte, aynı yükseklikte (uyarı yokken şerit gizli)
 	alert_strip = PanelContainer.new()
