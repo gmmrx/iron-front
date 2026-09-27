@@ -12,6 +12,7 @@ Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde v
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/iç cephe, tarihli olaylar, seçimler |
 | `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
+| `godot --headless --path . -s game/dev/country_check.gd -- --game_mode=_template --days=30` | Bir modu tüm oynanabilir ülkeleriyle denetler (`run_tests.sh` her WWII dışı mod için bunu koşar) |
 
 ### Test yazmak
 `tests/test_<konu>.gd` dosyası `extends "res://tests/test_case.gd"` ile başlar; `test_` ile başlayan her fonksiyon
@@ -37,6 +38,8 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |
 | `test_fleet_motion.gd` | Filo görsel konumu (köşe kavisleri, limandan çıkış, seyir) denizde; FleetLayer düzeni karaya taşmaz |
 | `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
+| `test_modes.gd` | Mod kaydı ve manifestler, yama birleştirme, mod değiştirme, kayıt sürümü 2, bozuk kaydın reddi, menüde mod seçimi |
+| `test_mode_template.gd` | Örnek mod (`_template`): senaryo, yamalı olay, kural etkisi, oyun sonu, kayıt; `test_data` testlerini de kendi verisiyle koşar |
 
 Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;
 katman testleri ağır dokuları yüklemeyen `ProbeMap` (MapView3D alt sınıfı) kullanır. Deniz yolları değişirse
@@ -46,8 +49,16 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 `World.start_game(tag)` yalnız yeni oyunda oyuncu varsayılanlarını kurar. Yeni bir ülke/tümen alanı eklerken kayda da ekle:
 `test_save_load.gd` kaydedilmeyen alanı adıyla yakalar (her gün yeniden hesaplanan alanlar `tests/snapshot.gd` DERIVED listesinde).
 
+## Oyun modları
+Oyun birden çok mod taşır; ilki `ww2` (bugünkü oyun). Mod = `data/modes/<id>/mode.json` + yalnız değişen veri dosyaları
+(tam dosya ya da `.patch.json`) + isteğe bağlı `game/modes/<id>/rules.gd` (`extends ModeRules`). Motor modu `GameModes`
+(`game/core/game_modes.gd`) üzerinden okur; `Game.switch_mode(id)` veriyi yeniden yükler ve yeni oyun kurar. Kayıt dosyası
+sürüm 2: `mode` ve `mode_state` alanları; kayıt başka moddaysa önce o moda geçilir, bilinmeyen mod reddedilir.
+Testte modu seçmek için dosyada `func mode() -> String: return "<id>"`. Ayrıntı ve adım adım rehber: [docs/modlar](../modlar/README.md);
+iskelet: `python3 tools/new_mode.py <id>`.
+
 ## Geliştirici argümanları (`godot --path . -- ...`)
-`--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
+`--game_mode=<id>` (açılış modu), `--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
 `--target=TAG` (diplomasi), `--event=id[,FROM]`, `--select=PID`, `--days=N`, `--dist=N` (kamera), `--demo_order`,
 `--demo_fleet`, `--weather=rain|snow`, `--war=A,B`, `--screenshot=dosya.png --wait=N`, `--click=x,y`.
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
