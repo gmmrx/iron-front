@@ -54,7 +54,7 @@ static func division(d: Division) -> Array:
 		if not lp.is_empty():
 			var wsp := SeaLanes.length(SeaLanes.lane(d.province, d.path[0])) / dist_km * kmh * GameClock.hours_per_second()
 			return [lp[0], lp[1], true, wsp]
-	var pts := route_points(d.province, d.path)
+	var pts := route_points(d.province, d.path.slice(0, 2))     # sample en çok 3 nokta kullanır
 	var s := sample(pts, t)
 	var wspeed := kmh / km * GameClock.hours_per_second() if d.attacking == 0 else 0.0
 	return [s[0], s[1], d.attacking == 0, wspeed]

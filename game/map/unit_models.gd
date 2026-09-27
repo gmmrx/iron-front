@@ -147,36 +147,54 @@ func _view_rect() -> Rect2:
 	return Rect2(Vector2(camera.target.x, camera.target.z) - Vector2(r, r * 0.8), Vector2(r * 2, r * 1.6))
 
 ## Tüm tümenlerin akıcı görsel konumları (saat içi ara değer + eğri); aynı bölgede duranlar yan yana
+## Kare başına: yürüyen tümenler görüş alanında her karede, dışarıdakiler son konumunda kalır; duran/saldıran tümenin
+## konumu önbellekli (bölge, saldırı, muharebe değişince yenilenir). Her karede 2000+ tümeni baştan hesaplamak 5× hızda
+## karenin büyük kısmını yiyordu.
+var _anchor_key := {}                ## div id -> önbellek anahtarı (duran tümen)
+
 func _update_anchors() -> void:
-	anchors.clear()
 	if not World.in_game:
+		anchors.clear()
+		_anchor_key.clear()
 		return
-	var stacks := {}
+	var view := Rect2()
+	var culled := camera != null
+	if culled:
+		view = _view_rect().grow(camera.distance * 0.4)
 	for d in Military.divisions:
-		var m := PathMotion.division(d)
-		if m[2] and d.attacking == 0:
-			anchors[d.id] = [m[0], m[1], 0.5, float(m[3])]
+		if not d.path.is_empty() and d.training == 0:
+			if culled and anchors.has(d.id) and not view.has_point(World.province(d.province).center):
+				continue
+			_anchor_key.erase(d.id)
+			var m := PathMotion.division(d)
+			if m[2] and d.attacking == 0:
+				anchors[d.id] = [m[0], m[1], 0.5, float(m[3])]
+				continue
+		var key := d.province * 8 + (2 if d.attacking > 0 else 0) + (1 if d.in_combat else 0) + d.attacking * 1000003
+		if int(_anchor_key.get(d.id, -1)) == key and anchors.has(d.id):
 			continue
-		var key := "%d:%s" % [d.province, d.owner]
-		if not stacks.has(key):
-			stacks[key] = []
-		stacks[key].append(d)
-	for key: String in stacks:
-		var divs: Array = stacks[key]
-		for i in divs.size():
-			var d: Division = divs[i]
-			var here := World.province(d.province).center
-			var facing := _facing(d)
-			var pos := cities.unit_spot(d.province, here) if cities else here
-			var state := 0.0
-			if d.attacking > 0:
-				var tgt := World.province(d.attacking).center
-				facing = (tgt - here).normalized()
-				pos = here.lerp(tgt, 0.2)
-				state = 1.0
-			elif d.in_combat:
-				state = 1.0
-			anchors[d.id] = [pos, facing, state, 0.0]
+		_anchor_key[d.id] = key
+		var here := World.province(d.province).center
+		var facing: Vector2 = _facing(d) if SHOW_MODELS else _face.get(d.id, Vector2(0, 1))
+		var pos := cities.unit_spot(d.province, here) if cities else here
+		var state := 0.0
+		if d.attacking > 0:
+			var tgt := World.province(d.attacking).center
+			facing = (tgt - here).normalized()
+			pos = here.lerp(tgt, 0.2)
+			state = 1.0
+		elif d.in_combat:
+			state = 1.0
+		anchors[d.id] = [pos, facing, state, 0.0]
+	# ölen tümenlerin kayıtları
+	if anchors.size() > Military.divisions.size():
+		var alive := {}
+		for d in Military.divisions:
+			alive[d.id] = true
+		for id: int in anchors.keys():
+			if not alive.has(id):
+				anchors.erase(id)
+				_anchor_key.erase(id)
 
 ## Duran tümenin bakışı: düşman komşuya; yoksa son hareket yönü
 func _facing(d: Division) -> Vector2:

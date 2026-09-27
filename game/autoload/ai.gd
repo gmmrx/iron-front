@@ -20,6 +20,7 @@ var _history_focus := {}            ## tag -> {odak: true}: çizelgenin odaklar�
 func _ready() -> void:
 	_load_history()
 	World.daily_update.connect(_on_day)
+	GameClock.hour_passed.connect(_on_hour)
 
 func _load_history() -> void:
 	var f := FileAccess.open("res://data/common/history.json", FileAccess.READ)
@@ -79,12 +80,17 @@ func reset() -> void:
 func _is_ai(c: Country) -> bool:
 	return enabled and c.exists() and not (World.in_game and c.tag == World.player_tag)
 
+## Tarih çizelgesi gün başında; ülkelerin günlük kararları günün saatlerine yayılır (her saat index % 24 == saat
+## olan ülkeler): her ülke yine günde bir kez karar verir, gün dönümü karesi donmaz
 func _on_day() -> void:
 	if enabled:
 		_run_history()
+
+func _on_hour() -> void:
 	var day := World.day_count
+	var h := GameClock.hour
 	for c: Country in World.countries.values():
-		if not _is_ai(c):
+		if c.index % 24 != h or not _is_ai(c):
 			continue
 		var t0 := Time.get_ticks_usec()
 		if (day + c.index) % 7 == 0:
@@ -613,6 +619,7 @@ func _components(tag: String) -> Dictionary:
 	return comp
 
 const NO_ROUTE_DAYS := 10
+const ASSIGN_PATH_BUDGET := 3000      ## çağrı başına en çok bu kadar A* adımı (fazlası ertesi gün; tek karede donma olmasın)
 var _no_route := {}                 ## tümen id -> bu güne kadar konuşlanma yolu aranmaz
 
 func _assign(c: Country, fronts: Dictionary) -> void:
@@ -645,8 +652,9 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 	var sea := Military.can_use_sea(c.tag)
 	# deniz yoluyla konuşlanma (sömürgeden cepheye) pahalı arama: ülke başına haftada bir tümen
 	var sea_tries := 0 if (World.day_count + c.index) % 7 < 2 else 1
+	var it0 := Military.path_iterations
 	for d in idle:
-		if orders >= MAX_ORDERS_PER_DAY or fails >= 3:
+		if orders >= MAX_ORDERS_PER_DAY or fails >= 3 or Military.path_iterations - it0 > ASSIGN_PATH_BUDGET:
 			break
 		if int(_no_route.get(d.id, -1)) > World.day_count:
 			continue                    # yakında yolu bulunamadı: birkaç gün yeniden aranmaz

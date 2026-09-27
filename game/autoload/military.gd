@@ -63,7 +63,7 @@ func _ready() -> void:
 	GameClock.hour_passed.connect(_on_hour)
 	Diplomacy.wars_changed.connect(invalidate_masks)
 	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void: invalidate_masks())
-	World.daily_update.connect(_on_day)
+	World.daily_update.connect(_on_day_sliced)
 	Research.tech_completed.connect(func(tag: String, _t: String) -> void: invalidate_stats(tag))
 
 var _division_equipment: Dictionary = {}
@@ -74,6 +74,7 @@ func reset() -> void:
 	groups.clear()
 	_next_group = 1
 	divisions.clear()
+	_div_version += 1
 	by_province.clear()
 	battles.clear()
 	_stats_cache.clear()
@@ -213,6 +214,7 @@ func _create(c: Country, ti: int, pid: int, strength: float, training: int) -> D
 			count += 1
 	d.name = "%d. %s" % [count + 1, template_name(c, ti)]
 	divisions.append(d)
+	_div_version += 1
 	_add_index(d)
 	_dirty = true
 	return d
@@ -775,6 +777,7 @@ func _army_attack(a: Army, divs: Array[Division], front: Array[int]) -> void:
 
 func _remove(d: Division) -> void:
 	divisions.erase(d)
+	_div_version += 1
 	_remove_index(d)
 	_dirty = true
 
@@ -806,6 +809,7 @@ func _border_or_capital_provinces(c: Country) -> Array[int]:
 
 # ------------------------------------------------------------------ indeks
 func _rebuild_index() -> void:
+	_div_version += 1
 	by_province.clear()
 	at_sea.clear()
 	for d in divisions:
@@ -842,12 +846,25 @@ func enemies_in(pid: int, tag: String) -> Array:
 			out.append(d)
 	return out
 
+## Ülkenin tümenleri. Sahibe göre önbellek (tümen sahibi değişmez; tümen eklenince/silinince yenilenir): her çağrıda
+## bütün tümen listesini taramak 5× hızda yapay zekânın günlük işini şişiriyordu. Çağıran değiştirebilir: kopya döner.
+var _owner_cache := {}
+var _owner_version := -1
+var _div_version := 0
+
 func country_divisions(tag: String) -> Array[Division]:
-	var out: Array[Division] = []
-	for d in divisions:
-		if d.owner == tag:
-			out.append(d)
-	return out
+	if _owner_version != _div_version or _owner_cache.size() == 0 and not divisions.is_empty():
+		_owner_cache.clear()
+		for d in divisions:
+			if not _owner_cache.has(d.owner):
+				var arr: Array[Division] = []
+				_owner_cache[d.owner] = arr
+			(_owner_cache[d.owner] as Array[Division]).append(d)
+		_owner_version = _div_version
+	if not _owner_cache.has(tag):
+		var none: Array[Division] = []
+		return none
+	return (_owner_cache[tag] as Array[Division]).duplicate()
 
 # ------------------------------------------------------------------ yol bulma (A*)
 func can_use_sea(tag: String) -> bool:
@@ -869,6 +886,7 @@ var _mask_day := -1
 
 func invalidate_masks() -> void:
 	_masks.clear()
+	_foe_day = -1                    # savaş değişti: düşman kümeleri yenilensin
 
 func pass_mask(tag: String) -> PackedByteArray:
 	if _mask_day != World.day_count:
@@ -942,17 +960,85 @@ func _neighbors(tag: String, pid: int, sea_ok: bool, safe_to: int = 0) -> Array:
 
 ## safe: yalnız dost topraktan geçen rota (hedef hariç) — AI konuşlanması, ikmal hattı
 var path_stats := {}                  ## hata ayıklama (PATHDBG): "tag:sonuç:tür" -> (çağrı, toplam adım)
+var path_iterations := 0              ## toplam A* adımı (yapay zekânın çağrı başına arama bütçesi için; deterministik)
 
 ## land_only: yalnız kara (aynı kara parçasında olduğu bilinen hedef — yapay zekâ konuşlanması); deniz kapalıyken
-## tahmin tam kuş uçuşu uzaklık olur (kara maliyeti ≥ uzaklık: arama hedefe doğru dar kalır, sonuç yine en kısa yol)
+## tahmin tam kuş uçuşu uzaklık olur (kara maliyeti ≥ uzaklık: arama hedefe doğru dar kalır, sonuç yine en kısa yol).
+## Durağan harita verisi (komşular, mesafeler, arazi katsayısı, birim küre vektörü) bir kez hazırlanır; kuş uçuşu tahmini
+## trigonometrisiz kiriş uzunluğudur (kiriş ≤ yay: tahmin yine alt sınır). Adım başına maliyet ~20 µs'den birkaç µs'ye.
+var _pf_ready := false
+var _pf_kind := PackedByteArray()       ## pid -> 0 yok, 1 kara, 2 deniz, 3 göl
+var _pf_coastal := PackedByteArray()
+var _pf_move := PackedFloat32Array()    ## kara bölgesinin arazi hareket katsayısı
+var _pf_unit := PackedVector3Array()    ## birim küre vektörü
+var _pf_adj: Array = []                 ## pid -> PackedInt32Array (göl hariç komşular)
+var _pf_adj_d: Array = []               ## pid -> PackedFloat32Array (km)
+var _pf_str: Array = []                 ## pid -> PackedInt32Array (boğaz komşuları)
+var _pf_str_d: Array = []
+
+func _pf_build() -> void:
+	var n := World.provinces.size()
+	_pf_kind.resize(n)
+	_pf_coastal.resize(n)
+	_pf_move.resize(n)
+	_pf_unit.resize(n)
+	_pf_adj.resize(n)
+	_pf_adj_d.resize(n)
+	_pf_str.resize(n)
+	_pf_str_d.resize(n)
+	for pid in n:
+		var p := World.province(pid)
+		_pf_adj[pid] = PackedInt32Array()
+		_pf_adj_d[pid] = PackedFloat32Array()
+		_pf_str[pid] = PackedInt32Array()
+		_pf_str_d[pid] = PackedFloat32Array()
+		if p == null:
+			_pf_kind[pid] = 0
+			continue
+		_pf_kind[pid] = 3 if p.type == Province.Type.LAKE else (1 if p.is_land() else 2)
+		_pf_coastal[pid] = 1 if p.coastal else 0
+		_pf_move[pid] = float(terrain.get(p.terrain, {"move": 1.0})["move"])
+		var lo := deg_to_rad(p.lonlat.x)
+		var la := deg_to_rad(p.lonlat.y)
+		_pf_unit[pid] = Vector3(cos(la) * cos(lo), cos(la) * sin(lo), sin(la))
+	for pid in n:
+		var p := World.province(pid)
+		if p == null:
+			continue
+		var adj := PackedInt32Array()
+		var adj_d := PackedFloat32Array()
+		for q in p.adjacent:
+			if q <= 0 or q >= n or _pf_kind[q] == 0 or _pf_kind[q] == 3:
+				continue
+			adj.append(q)
+			adj_d.append(World.distance_km(pid, q))
+		_pf_adj[pid] = adj
+		_pf_adj_d[pid] = adj_d
+		var st := PackedInt32Array()
+		var st_d := PackedFloat32Array()
+		for q in p.strait_adjacent:
+			if q <= 0 or q >= n or _pf_kind[q] != 1:
+				continue
+			st.append(q)
+			st_d.append(World.distance_km(pid, q))
+		_pf_str[pid] = st
+		_pf_str_d[pid] = st_d
+	_pf_ready = true
+
 func find_path(tag: String, from: int, to: int, safe := false, land_only := false) -> PackedInt32Array:
 	if from == to or World.province(to) == null or not _passable(tag, to):
 		return PackedInt32Array()
-	# oyuncu her zaman çıkarma deneyebilir (düşman hâkimiyetindeki denizlerden geçemez, _neighbors kontrol eder);
+	if not _pf_ready:
+		_pf_build()
+	# oyuncu her zaman çıkarma deneyebilir (düşman hâkimiyetindeki denizlerden geçemez);
 	# AI yalnız toplam deniz üstünlüğünde denizi kullanır (yoksa ordular gereksiz yere denize açılır)
 	var sea_ok := (can_use_sea(tag) or tag == World.player_tag) and not land_only
-	var hw := 0.95 if not sea_ok else 1.0 / 3.0     # deniz maliyeti uzaklık/3: denizde tahmin de /3
-	var goal := World.province(to).lonlat
+	var hw := (0.95 if not sea_ok else 1.0 / 3.0) * 6371.0     # deniz maliyeti uzaklık/3: denizde tahmin de /3
+	var gu: Vector3 = _pf_unit[to]
+	var ctl := World.controller
+	var pm := pass_mask(tag)
+	var fm := friendly_mask(tag) if safe else PackedByteArray()
+	var hostile := {}                   # deniz bölgesi -> düşman hâkimiyetinde mi (bu aramada)
 	var open_heap: Array = [[0.0, from]]
 	var came := {from: -1}
 	var g := {from: 0.0}
@@ -968,25 +1054,54 @@ func find_path(tag: String, from: int, to: int, safe := false, land_only := fals
 		if closed.has(cur):
 			continue
 		closed[cur] = true
-		var cp := World.province(cur)
-		for n: int in _neighbors(tag, cur, sea_ok, to if safe else 0):
-			var np := World.province(n)
-			var dist := World.distance_km(cur, n)
-			var cost := dist
-			if not np.is_land():
-				cost = dist / 3.0 + (EMBARK_COST if cp.is_land() else 0.0)
+		var cur_land := _pf_kind[cur] == 1
+		var gc: float = g[cur]
+		var adj: PackedInt32Array = _pf_adj[cur]
+		var adj_d: PackedFloat32Array = _pf_adj_d[cur]
+		for k in adj.size():
+			var nb := adj[k]
+			var cost := 0.0
+			if _pf_kind[nb] == 1:
+				var ci := ctl[nb]
+				if safe and nb != to and fm[ci] == 0:
+					continue
+				if pm[ci] != 1:
+					continue
+				cost = adj_d[k] / _pf_move[nb] + (0.0 if cur_land else EMBARK_COST)
 			else:
-				cost /= float(terrain.get(np.terrain, {"move": 1.0})["move"])
-				if not cp.is_land():
-					cost += EMBARK_COST
-			var ng: float = g[cur] + cost
-			if not g.has(n) or ng < g[n]:
-				g[n] = ng
-				came[n] = cur
-				_heap_push(open_heap, [ng + World.haversine(np.lonlat, goal) * hw, n])
+				if not sea_ok or (cur_land and _pf_coastal[cur] == 0):
+					continue
+				var hs: Variant = hostile.get(nb)
+				if hs == null:
+					hs = Navy.hostile_sea(nb, tag)
+					hostile[nb] = hs
+				if hs:
+					continue
+				cost = adj_d[k] / 3.0 + (EMBARK_COST if cur_land else 0.0)
+			var ng := gc + cost
+			if not g.has(nb) or ng < float(g[nb]):
+				g[nb] = ng
+				came[nb] = cur
+				_heap_push(open_heap, [ng + (_pf_unit[nb] - gu).length() * hw, nb])
+		if cur_land:
+			var st: PackedInt32Array = _pf_str[cur]
+			var st_d: PackedFloat32Array = _pf_str_d[cur]
+			for k in st.size():
+				var nb := st[k]
+				var ci := ctl[nb]
+				if safe and nb != to and fm[ci] == 0:
+					continue
+				if Navy.strait_blocked(cur, nb, tag) or pm[ci] != 1:
+					continue
+				var ng := gc + st_d[k] / _pf_move[nb]
+				if not g.has(nb) or ng < float(g[nb]):
+					g[nb] = ng
+					came[nb] = cur
+					_heap_push(open_heap, [ng + (_pf_unit[nb] - gu).length() * hw, nb])
+	path_iterations += iterations
 	if OS.has_environment("PATHDBG"):
-		var k := "%s:%s:%s" % [tag, "ok" if came.has(to) else "FAIL", "safe" if safe else "free"]
-		path_stats[k] = path_stats.get(k, Vector2i.ZERO) + Vector2i(1, iterations)
+		var kdbg := "%s:%s:%s" % [tag, "ok" if came.has(to) else "FAIL", "safe" if safe else "free"]
+		path_stats[kdbg] = path_stats.get(kdbg, Vector2i.ZERO) + Vector2i(1, iterations)
 	if not came.has(to):
 		return PackedInt32Array()
 	var path := PackedInt32Array()
@@ -1079,7 +1194,9 @@ func _on_hour() -> void:
 	_combat()
 	GameClock.timed("combat", t0); t0 = Time.get_ticks_usec()
 	_recover()
-	GameClock.timed("recover", t0)
+	GameClock.timed("recover", t0); t0 = Time.get_ticks_usec()
+	_hour_divs()
+	GameClock.timed("mil_divloop", t0)
 	if _dirty:
 		_dirty = false
 		divisions_changed.emit()
@@ -1373,47 +1490,87 @@ func _notify_loss(d: Division) -> void:
 	if d.owner == p or Diplomacy.are_enemies(d.owner, p):
 		World.notify(tr("NOTE_DIV_DESTROYED") % [d.name, World.countries[d.owner].display_name()], "bad")
 
+## Bütünlük toparlanması: iki saatte bir, iki saatlik oranla (hız aynı; her saat bütün tümenleri gezmek 5× hızda pahalı)
 func _recover() -> void:
+	if GameClock.hour % 2 != 0:
+		return
 	for d in divisions:
 		if d.in_combat:
 			continue
 		var s := div_stats(d)
 		if d.org >= s["org"] and d.supplied:
 			continue
-		var rate := 0.0 if not d.supplied else (0.02 if d.path.is_empty() else 0.008)
+		var rate := 0.0 if not d.supplied else (0.04 if d.path.is_empty() else 0.016)
 		d.org = minf(d.org + s["org"] * rate, s["org"] * (1.0 if d.supplied else 0.4))
 
 # ------------------------------------------------------------------ günlük: ikmal, takviye, eğitim, hava/deniz
+## Günlük askeriye. Oyunda: genel işler (ikmal, yakıt, ordular, takviye) gün başında, tümen başına günlük iş (eğitim,
+## ikmal durumu, hazırlık, yıpranma, yakıt tüketimi) günün saatlerine yayılır (id % 24 == saat); her tümen yine günde
+## bir kez. _on_day() her şeyi bir kerede yapar (testler, hızlı simülasyon).
+var _fuel_acc := {}                  ## gün içinde saat dilimlerinde biriken yakıt tüketimi (ülke -> miktar)
+
 func _on_day() -> void:
+	var __t := Time.get_ticks_usec()
+	_on_day_impl(true)
+	GameClock.timed("mil_day", __t)
+
+func _on_day_sliced() -> void:
+	var __t := Time.get_ticks_usec()
+	_on_day_impl(false)
+	GameClock.timed("mil_day", __t)
+
+func _hour_divs() -> void:
+	var h := GameClock.hour
+	for d in divisions:
+		if d.id % 24 == h:
+			_div_daily(d, _fuel_acc)
+
+func _div_daily(d: Division, fuel_use: Dictionary) -> void:
+	var fu: float = div_stats(d).get("fuel_use", 0.0)
+	if fu > 0.0:
+		fuel_use[d.owner] = float(fuel_use.get(d.owner, 0.0)) + fu * (24.0 if (d.is_moving() or d.in_combat) else 1.0)
+	if d.training > 0:
+		d.training -= 1
+	d.supplied = not _supplied.has(d.owner) or _supplied[d.owner].has(d.province) or not World.province(d.province).is_land()
+	if not d.supplied:
+		d.strength = maxf(d.strength - 0.01, 0.05)
+	# planlama: düşmana komşu, bekleyen tümen 15 günde tam plana ulaşır; cephe dışında dağılır
+	if d.training == 0 and d.path.is_empty() and not d.in_combat and _is_front(d):
+		d.planning = minf(d.planning + 1.0 / 15.0, 1.0)
+	elif not d.in_combat:
+		d.planning = maxf(d.planning - 0.1, 0.0)
+	# mevsim yıpranması: sert soğuk ve çöl sıcağı
+	var w := winter_level(d.province)
+	if w > 0.0:
+		d.strength = maxf(d.strength - 0.0025 * w, 0.2)
+	elif GameClock.month >= 6 and GameClock.month <= 8 and World.province(d.province).terrain == "desert":
+		d.strength = maxf(d.strength - 0.0015, 0.3)
+
+func _on_day_impl(full: bool = true) -> void:
 	var t0 := Time.get_ticks_usec()
 	_bonus_cache.clear()          # ordu büyüklükleri değişmiş olabilir
 	if World.day_count % 2 == 0:
 		_compute_supply()
 	GameClock.timed("supply", t0)
-	for d in divisions:
-		if d.training > 0:
-			d.training -= 1
-		d.supplied = not _supplied.has(d.owner) or _supplied[d.owner].has(d.province) or not World.province(d.province).is_land()
-		if not d.supplied:
-			d.strength = maxf(d.strength - 0.01, 0.05)
-		# planlama: düşmana komşu, bekleyen tümen 15 günde tam plana ulaşır; cephe dışında dağılır
-		if d.training == 0 and d.path.is_empty() and not d.in_combat and _is_front(d):
-			d.planning = minf(d.planning + 1.0 / 15.0, 1.0)
-		elif not d.in_combat:
-			d.planning = maxf(d.planning - 0.1, 0.0)
-		# mevsim yıpranması: sert soğuk ve çöl sıcağı
-		var w := winter_level(d.province)
-		if w > 0.0:
-			d.strength = maxf(d.strength - 0.0025 * w, 0.2)
-		elif GameClock.month >= 6 and GameClock.month <= 8 and World.province(d.province).terrain == "desert":
-			d.strength = maxf(d.strength - 0.0015, 0.3)
-	_fuel()
+	var tl := Time.get_ticks_usec()
+	var fuel_use := _fuel_acc
+	if full:
+		fuel_use = {}
+		for d in divisions:
+			_div_daily(d, fuel_use)
+	_fuel_acc = {}
+	GameClock.timed("mil_divloop", tl); tl = Time.get_ticks_usec()
+	_fuel(fuel_use)
+	GameClock.timed("mil_fuel", tl); tl = Time.get_ticks_usec()
 	_experience_tick()
+	GameClock.timed("mil_xp", tl)
 	var ta := Time.get_ticks_usec()
 	_armies_tick()
-	GameClock.timed("armies", ta)
+	GameClock.timed("armies", ta); tl = Time.get_ticks_usec()
 	_reinforce()
+	GameClock.timed("mil_reinforce", tl); tl = Time.get_ticks_usec()
 	_air_and_naval()
+	GameClock.timed("mil_airnaval", tl)
 	for d in divisions.duplicate():
 		if d.path.is_empty() and not World.province(d.province).is_land():
 			var port := _nearest_friendly_coast(d)
@@ -1421,21 +1578,35 @@ func _on_day() -> void:
 				loss_log[d.owner + ":stranded"] = int(loss_log.get(d.owner + ":stranded", 0)) + 1
 				_remove(d)
 
+## Düşmana komşu mu. Düşman ülke indeksleri ülke başına günde bir kez kümelenir (her komşu için savaş listesini
+## taramak günlük tümen döngüsünün çoğunu tutuyordu)
+var _foe_idx := {}
+var _foe_day := -1
+
 func _is_front(d: Division) -> bool:
+	if _foe_day != World.day_count:
+		_foe_idx.clear()
+		_foe_day = World.day_count
+	if not _foe_idx.has(d.owner):
+		var set := {}
+		for t: String in Diplomacy.enemies_of(d.owner):
+			var ec: Country = World.countries.get(t)
+			if ec:
+				set[ec.index] = true
+		_foe_idx[d.owner] = set
+	var foes: Dictionary = _foe_idx[d.owner]
+	if foes.is_empty():
+		return false
+	var ctl := World.controller
 	for n in World.land_neighbors(d.province):
-		if Diplomacy.are_enemies(World.controller_tag(n), d.owner):
+		if foes.has(ctl[n]):
 			return true
 	return false
 
 ## Yakıt ekonomisi (günlük): petrol (kendi üretim + ithalat) yakıta dönüşür; zırhlı/motorlu birlikler hareket ve
 ## muharebede, uçaklar görevde, gemiler denizde yakar. Depo sınırlı; boşsa fuel_malus devreye girer.
 const FUEL_PER_OIL := 12.0
-func _fuel() -> void:
-	var use := {}
-	for d in divisions:
-		var fu: float = div_stats(d).get("fuel_use", 0.0)
-		if fu > 0.0:
-			use[d.owner] = float(use.get(d.owner, 0.0)) + fu * (24.0 if (d.is_moving() or d.in_combat) else 1.0)
+func _fuel(use: Dictionary) -> void:
 	for w in Air.wings:
 		if w.on_mission():
 			use[w.owner] = float(use.get(w.owner, 0.0)) + w.planes * 0.02
