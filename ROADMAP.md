@@ -1,565 +1,629 @@
-# Yol Haritası — "Iron Front" (çalışma adı)
+**English** · [Türkçe](ROADMAP.tr.md)
 
-Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu.
-Başlangıç: **1 Ocak 1936**. Harita: Avrupa, Kuzey Afrika, Orta Doğu, Batı SSCB (sonra tüm dünya).
+# Roadmap — "Iron Front" (working title)
 
-İlke: **veri güdümlü mimari** — içerik `data/` altında JSON/CSV; motor kodu içerikten bağımsız.
-Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özgü oynanış.
+A World War II grand strategy game made with Godot 4.7.
+Start: **1 January 1936**. Map: the whole world (it began with Europe, North Africa, the Middle East and the western USSR).
 
-Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **26 Eylül 2026**
+Principle: **data-driven architecture** — content lives in JSON/CSV under `data/`; engine code is independent of content.
+Goal: **AAA visuals even at the closest zoom, 60 FPS**, deep gameplay with its own character.
+Language: the game and the documentation are in **English first**; Turkish is complete and chosen in Settings → Language.
 
-> ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
-> Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
-> düzeni büyük ölçüde oradan geliyordu. Dava riskini kaldırmak için **oynanış kalır, ifade bizim olur**. Kurallar ve plan:
-> [docs/OZGUNLUK.md](docs/OZGUNLUK.md) (BÖLÜM Ö). Özetle:
-> - Başka bir oyunun dosyası, wikisi, ekran görüntüsü ya da rehber videosu kaynak olarak kullanılmaz (temiz oda).
-> - Adlar tarihî gerçek adlardır ya da bizimdir; sayılar kendi formülümüzden ve tarihî veriden türetilir, gerekçesi yazılır.
-> - Kod, yorum, belge ve commit'te başka bir oyun ne adıyla ne "türün klasiği" gibi örtmeceyle anılır; "parite" hedefi yok.
-> - Oyun **açık kaynaklı, ücretsiz bir tarayıcı oyunu** (mağaza yok). Ücretsiz olmak telif riskini kaldırmaz: gerçekçi tehlike
->   GitHub'a telif bildirimi ve deponun kapatılması. Depodaki her varlığın lisansı yeniden dağıtıma izin vermeli.
-> - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Ad değişikliği önerilir
->   (acil değil); yeni ad marka araştırması yapılmadan kullanılmaz.
+Status: ✔ done · ◐ basic version exists, to be deepened · ☐ not done
+Last update: **27 September 2026**
 
-### Şu an nerede? (özet)
-- Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
-  denge testi 6 koşunun 6'sında 12 kontrolün hepsini geçiyor.
-- **Hükümet modeli**: lider, iktidar partisi, ideoloji popülerliği (istikrara +%15'e kadar), seçimler,
-  kriz endeksi ve savaş durumuna bağlı iç cephe, istikrarın fabrika/nüfuz/tüketim malı etkileri, iç cepheye bağlı teslim sınırı,
-  şartlı yasalar, tarihli ve süreli ulusal durumlar, 1936 değerleri tarihî başlangıca göre (`game/dev/gov_check.gd`).
-- **Arayüz yenilendi**: metal doku seti, üst çubuk + ayrı karargâh/birikim kutusu, kısayol harfli menü; tüm yan paneller aynı
-  çerçevede (Hükümet, Araştırma, Diplomasi, Ticaret, İnşaat, Üretim, Ordu, Donanma, Hava, Lojistik, Eyalet), devlet programı ağacı ve olay
-  penceresi (arayüz kimliği BÖLÜM Ö Katman 2 ile yeniden tasarlanacak).
-- **Karar oyuncuda**: oyuncunun ticareti elle (otomatik ticaret isteğe bağlı), hava kanatları elle, tümenler "son askere kadar"
-  (emir olmadan geri çekilmez), tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
-- Harita: daha koyu ve doygun; hareket okları yeşil/kırmızı, akan işaretli; uzak zoom'da sayı yerine ülke bayrakları, daha uzakta
-  birlik işareti yok.
-- **Komuta zinciri**: ordular grubu (mareşal) → ordu (general) → tümen; 80 ülkenin hepsine komutan kadrosu (57 ülkede
-  dönemin gerçek komutanları, kalanlarda yöresel isimler), beceri 1–5 muharebe katkısı, muharebede tecrübe ve beceri artışı,
-  komuta gücüyle mareşalliğe terfi ve yeni general; Ordu ekranı (U) ağaç + ayrıntı + kadro; seçim panelinde mikro yönetim
-  (bileşim, böl, orduya kat/çıkar, doğrudan emir). Oyuncunun ordusuna kendiliğinden komutan atanmaz.
-- **Ctrl ile ülke özeti** (haritada Ctrl basılı), Ctrl + tık o ülkenin siyaset ekranı (salt okunur); **Ayarlar** (ses, müzik
-  seçimi, dil, tam ekran) ana menüde ve oyun içinde.
-- Oyun wikisi: [docs/wiki](docs/wiki/README.md). Yeni ikon seti ve lider portreleri için prompt listesi:
-  [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (dosyalar konunca oyun otomatik kullanır).
+> ### ⚠ READ FIRST — ORIGINALITY AND INTELLECTUAL PROPERTY (for all agents)
+> The first versions of the game were modelled on the best-known commercial game of the genre; the names, number tables,
+> terms and screen layout largely came from there. To remove the legal risk, **the gameplay stays, the expression becomes
+> ours**. Rules and plan: [docs/ORIGINALITY.md](docs/ORIGINALITY.md) (PART O). In short:
+> - No file, wiki, screenshot or guide video of another game is used as a source (clean room).
+> - Names are real historical names or ours; numbers are derived from our own formula and historical data, with the
+>   reason written down.
+> - In code, comments, documents and commits no other game is mentioned, neither by name nor by euphemisms like "the
+>   genre classic"; there is no "parity" goal.
+> - The game is a **free, open-source browser game** (no store). Being free does not remove the copyright risk: the
+>   realistic danger is a copyright notice to GitHub and the repository being taken down. The licence of every asset in
+>   the repository must allow redistribution.
+> - **"Iron Front" is a working title**: a commercial World War II game with the same name is on the market. A name
+>   change is recommended; since the game will be moddable (WWII, alternative history, zombies…) the new name should be
+>   generic, not tied to WWII. A new name is not used before a trademark search.
 
-### Sıradaki işler (öncelik sırasıyla)
-0. ◐ **Özgünlük (BÖLÜM Ö)**: ✔ terimler, yasalar, danışmanlar, ulusal durumlar, teknoloji/program adları, inşaat/üretim/muharebe
-   sayıları kendi ifademizle, kopya izleri temizlendi; ☐ kalan sayılar (docs/OZGUNLUK.md), arayüz kimliği, yeni oyun adı ve
-   marka araştırması
-1. ✔ **Gemiler karaya çıkmıyor**: deniz yolları tam çözünürlükte doğrulanıp onarıldı (kara teması 236 → 0 rota, eksik liman–deniz
-   12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
-   `tests/test_fleet_motion.gd` bunu sayıyla denetler
-2. **Yeni ikon seti ve portreler** (kullanıcı üretiyor) → geldikçe görsel kontrol
-3. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
-4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
-   Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
-   Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
-5. **Eksik mekanikler** (BÖLÜM M): ◐ generaller (komuta zinciri ✔; özellikler, portreler, tarihî giriş/çıkış sırada), doktrinler,
-   savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
-6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
+### Where are we? (summary)
+- The whole world map, **80 playable countries**, the 1936 economy and the historical flow (Poland → France →
+  Barbarossa → Pacific) work; the balance test passes all 12 checks at least 5 times in 6 runs.
+- **Government model**: leader, ruling party, ideology popularity (up to +15% stability), elections, a home front tied to
+  the crisis index and the war situation, the effects of stability on factories/influence/consumer goods, a surrender
+  limit tied to the home front, laws with requirements, dated and timed national conditions, 1936 values from the
+  historical starting point (`game/dev/gov_check.gd`).
+- **Interface**: metal texture set, top bar + a separate command power/know-how box, a vertical menu down the left
+  edge with shortcut letters; all side panels in the same frame, large screens full-screen with drag scrolling (the map
+  does not move while they are open); research as a one-page timeline; colour-coded tooltips (good green, bad red).
+- **The player decides**: the player's trade is manual (automatic trade optional), air wings are manual, divisions
+  "hold to the last man" (no retreat without an order), no commander is ever assigned automatically, historical
+  pressures are events with choices (Turkey: the May 1936 Soviet pressure, the 1938 successor, the 1939 Moscow talks).
+- **Chain of command**: army group (field marshal) → army (general) → division; a commander roster for all 80 countries
+  (the real commanders of the era in 57 countries, local names elsewhere), skill 1–5 combat bonus, experience and rising
+  skill in battle, promotion to field marshal and new generals for command power; the Army screen (U) with tree + detail
+  + roster; micromanagement in the selection panel (composition, split, join/leave army, direct orders).
+- **Map cards**: a country card while Ctrl is held (portrait, relation, indicators, wars), Ctrl + click opens that
+  country's politics screen read-only; sea regions show naval control by country.
+- **Settings** in the main menu and in the game: volumes, music choice, language (English / Türkçe), fullscreen.
+- Features whose interface exists but which do not affect the game yet (land/naval/air know-how) are shown faded with a
+  "not allowed" cursor and say why.
+- Game wiki: [docs/wiki](docs/wiki/README.md). The new icon set is in the game; prompt list for icons and portraits:
+  [docs/art/ICON_PROMPTS.md](docs/art/ICON_PROMPTS.md) (the game picks up new files automatically).
 
----
-
-## BÖLÜM Ö — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET ◐ ← HER İŞTEN ÖNCE
-Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki inceleme listesinden geçer.
-- [◐] Katman 1 — İfade: ✔ terim sözlüğü, yasalar, danışmanlar, ulusal durumlar, teknoloji ve ortak program adları, inşaat
-      (fabrika-gün), üretim (fabrika-saat), muharebe değerleri; ☐ nüfuz ölçeği, ticaret/konvoy oranları, kriz endeksi eşikleri,
-      istikrar etkileri, tabur insan gücü/ekipman, 1936 başlangıç değerleri (liste: docs/OZGUNLUK.md)
-- [ ] Katman 2 — Arayüz kimliği: kendi yerleşim, kısayol ve renk dili; harita sayaçları için açık sembol standardı
-      (insan gözü gerekir)
-- [ ] Katman 3 — İmza mekanikler: seçenekli kriz pazarlıkları, tarafsız ülke denge diplomasisi, hava/mevsim ve cephe sistemi
-- [◐] Katman 4 — Süreç: ✔ "türün klasiği" ifadeleri ve parite/rehber videosu bölümleri temizlendi; ◐ üçüncü taraf atıfları
-      (bayrak lisansları tek tek doğrulanacak); ☐ isteğe bağlı: geçmişi olmayan yeni bir depodan yayın
-- [ ] **Oyun adı** (önerilir, acil değil; açık kaynak ücretsiz oyunda marka riski düşük): "Iron Front" çalışma adı. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar oyunu (2012) ve bir
-      mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adı. Aday adlar TÜRKPATENT, EUIPO, USPTO, WIPO
-      (Nice 9, 28, 41), mağazalar ve alan adlarında aranır; seçilen ad tek bir çeviri anahtarından okunur
+### Next up (by priority)
+0. ◐ **Originality (PART O)**: ✔ terms, laws, advisors, national conditions, technology/program names,
+   construction/production/combat numbers in our own expression, copy traces removed; ☐ remaining numbers
+   (docs/ORIGINALITY.md), interface identity, a new generic game name and trademark search
+1. ✔ **Ships no longer go ashore**: sea lanes verified and repaired at full resolution (land contact 236 → 0 routes,
+   missing port–sea 12 → 0), node corner curves with a radius that stays on water, a fleet group that falls on land is
+   moved to the nearest water; `tests/test_sea_lanes.gd`, `tests/test_fleet_motion.gd` check this with numbers
+2. ◐ **New icon set and portraits** (made by the user): ✔ icon set in the game; portraits arriving → visual check as they come
+3. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
+4. **Content**: ◐ 1936 events with choices added: Japan (26 February), Italy (League sanctions), Britain (the Defence White
+   Paper), France (the Popular Front), Germany (the Berlin Olympics), Poland (the Rambouillet loan), USSR (the 1936
+   Constitution), China (Xi'an). Remaining: middle and small countries, 1937–1945 event chains (the Spanish Civil War, the
+   Winter War, the Balkans)
+5. **Missing mechanics** (PART M): ◐ generals (chain of command ✔; traits, portraits, historical entry/exit next),
+   doctrines (the know-how cells light up with them), war plans, peace conference, puppets, intelligence, supply hubs
+6. ✔ Small countries can build too (public construction floor of 1 factory, import payments cannot eat it); ✔ pause menu,
+   game over, division panel in the new design
+7. ☐ **Mod support** (PART MOD): the game becomes a moddable platform; WWII is the first scenario
 
 ---
 
-## BÖLÜM A — TAMAMLANAN TEMEL (Faz 0–9)
+## PART O — ORIGINALITY AND INTELLECTUAL PROPERTY ◐ ← BEFORE ANY TASK
+Details and rules: [docs/ORIGINALITY.md](docs/ORIGINALITY.md). Every PR goes through the review list on that page.
+- [◐] Layer 1 — Expression: ✔ glossary, laws, advisors, national conditions, technology and shared program names,
+      construction (factory-days), production (factory-hours), combat values, commanders; ☐ influence scale,
+      trade/convoy ratios, crisis index thresholds, stability effects, battalion manpower/equipment, 1936 starting
+      values (list: docs/ORIGINALITY.md)
+- [ ] Layer 2 — Interface identity: our own layout, shortcut and colour language; an open symbol standard for map
+      counters (needs a human eye)
+- [ ] Layer 3 — Signature mechanics: crisis bargaining with choices, balancing diplomacy for neutral countries,
+      weather/seasons and the front system
+- [◐] Layer 4 — Process: ✔ "genre classic" phrasing and parity/guide-video sections removed; ◐ third-party attributions
+      (flag licences to be verified one by one); ☐ optional: release from a new repository without history
+- [ ] **Game name** (recommended, not urgent; low trademark risk for a free open-source game): "Iron Front" is a working
+      title. A commercial World War II computer game (2012) and a mobile game with the same name are on the market; the
+      name is also that of a real political organisation of the 1930s. Since the game will be moddable, the new name is
+      generic (not tied to WWII). Candidate names are searched in TÜRKPATENT, EUIPO, USPTO, WIPO (Nice 9, 28, 41), stores
+      and domain names; the chosen name is read from a single translation key
 
-| Faz | Konu | Durum |
+---
+
+## PART A — COMPLETED FOUNDATION (Phases 0–9)
+
+| Phase | Topic | Status |
 |---|---|---|
-| 0 | Proje, harita üretim hattı, kamera, saat, temel arayüz | ✔ |
-| 1 | 3D harita, kabartma, nehir/göl/boğaz, şehirler, ülke adları | ✔ (tüm dünya ✔, bkz. W) |
-| 2 | Ekonomi: fabrikalar, inşaat, kaynaklar, ticaret, üretim hatları, yasalar | ✔ |
-| 3 | Siyaset: devlet programı ağaçları, olaylar, ulusal durumlar, danışmanlar, kararlar | ◐ |
-| 4 | Araştırma: 33 teknoloji, slotlar, yıl cezası | ◐ |
-| 5 | Kara savaşı: tümenler, A*, muharebe, kuşatma, basit ikmal, ordular/cepheler (C1) | ◐ |
-| 6 | Hava (gerçek kanatlar, ★4) & deniz (gerçek filolar, deniz yolları, ★3) | ◐ |
-| 7 | Diplomasi: gerekçe, savaş, ittifak, garanti, teslim, barış | ◐ |
-| 8 | Yapay zekâ: ekonomi + cephe + tarihî akış | ◐ |
-| 9 | Kaydet/yükle (ordular dâhil), menüler, ayarlar, temel sesler | ◐ |
-| 10 | Çok oyunculu | ☐ |
+| 0 | Project, map generation pipeline, camera, clock, basic interface | ✔ |
+| 1 | 3D map, relief, rivers/lakes/straits, cities, country names | ✔ (whole world ✔, see W) |
+| 2 | Economy: factories, construction, resources, trade, production lines, laws | ✔ |
+| 3 | Politics: state program trees, events, national conditions, advisors, decisions | ◐ |
+| 4 | Research: 33 technologies, slots, year penalty | ◐ |
+| 5 | Land warfare: divisions, A*, combat, encirclement, basic supply, armies/fronts (C1), chain of command | ◐ |
+| 6 | Air (real wings, ★4) & navy (real fleets, sea lanes, ★3) | ◐ |
+| 7 | Diplomacy: casus belli, war, alliances, guarantees, surrender, peace | ◐ |
+| 8 | AI: economy + fronts + historical flow | ◐ |
+| 9 | Save/load (including armies and commanders), menus, settings (sound, music, language), basic sounds | ✔ |
+| 10 | Multiplayer | ☐ |
 
 ---
 
-## BÖLÜM W — TÜM DÜNYA ✔ (Faz 11c)
-- [x] Miller silindirik projeksiyon, 16384 px; dikiş Bering Boğazı'nda, komşuluk dikişten sarmalanır
-- [x] Değişken bölge yoğunluğu: Avrupa ayrıntılı; Doğu Asya/Hindistan 2–2,5x, Sibirya/Afrika/okyanus 5x
-      → 13.414 bölge (8.812 kara, 1.901 ada, 2.134 deniz, 567 göl), 1.652 eyalet, 1.847 şehir
-- [x] Dünya yükseltisi (Terrarium z5 + Avrupa z6), enleme göre kar çizgisi, güney yarıküre biyomları
-- [x] 1936 siyasi durumu: 80 ülke, bütün sömürge imparatorlukları, dominyonlar, Mançukuo, Çin savaş ağaları
-- [x] Dünya ekonomisi (ABD, Japonya, Çin, Hindistan...), gerçek yataklar (Malaya kauçuğu, Teksas petrolü...)
-- [x] Coğrafi mesafe (büyük daire) ile hareket, yol bulma, deniz bölgeleri, hava menzili
-- [x] Bellek bütçesi (~750 MB): 16 bit bölge dokusu, yarım çözünürlük SDF/arazi, 128 parçalı harita ağı
-- [x] Kamera: görüş alanı hiçbir zoom'da haritadan taşmaz (kenar boşluğu yok); en uzak zoom tüm dünya; bulut yok
-- [x] Asya odakları: Japonya (Marco Polo 1937, Üçlü Pakt, Güneye Saldırı 1941), ABD, Çin
-- [x] Sömürge nüfusu insan gücüne %15 katılır
-- [x] Almanya Balkan/Barbarossa ve İtalya Yunanistan odakları Fransa savaşı bitmeden açılmaz
-- [x] Dünya denge testi 12 kontrol ≥5/6: Polonya 1940-02, Fransa 1940 Tem–Eyl, Barbarossa 1941-09,
-      Japonya–Çin 1937-08, Pasifik Savaşı 1941-12, Çin/İngiltere/SSCB ayakta
-- [x] Doğu–batı kesintisiz kaydırma: dikişte harita kopyası, kamera sarmalanır, dikiş çizgisi/karartma yok
-- [x] Messina / Küçük Belt / Panama kanalları (harita yeniden üretimi; 11 boğaz, Manş karadan geçilmez)
-- [ ] Diğer büyük güçler için ayrıntılı devlet programı ağaçları (ABD, Japonya, Çin genişletilecek)
+## PART W — THE WHOLE WORLD ✔ (Phase 11c)
+- [x] Miller cylindrical projection, 16,384 px; the seam at the Bering Strait, neighbourhood wraps across the seam
+- [x] Variable region density: Europe detailed; East Asia/India 2–2.5x, Siberia/Africa/ocean 5x
+      → 13,414 regions (8,812 land, 1,901 islands, 2,134 sea, 567 lakes), 1,652 states, 1,847 cities
+- [x] World elevation (Terrarium z5 + Europe z6), snow line by latitude, southern hemisphere biomes
+- [x] 1936 political situation: 80 countries, all colonial empires, dominions, Manchukuo, the Chinese warlords
+- [x] World economy (USA, Japan, China, India…), real deposits (Malayan rubber, Texas oil…)
+- [x] Movement by geographic distance (great circle), pathfinding, sea regions, air range
+- [x] Memory budget (~750 MB): 16-bit region texture, half-resolution SDF/terrain, a map mesh in 128 pieces
+- [x] Camera: the view never leaves the map at any zoom (no margin); the farthest zoom shows the whole world; no clouds
+- [x] Asian programs: Japan (Marco Polo 1937, the Tripartite Pact, Strike South 1941), USA, China
+- [x] Colonial population adds 15% to manpower
+- [x] Germany's Balkan/Barbarossa and Italy's Greece programs do not open before the war with France ends
+- [x] World balance test, 12 checks ≥5/6: Poland 1940-02, France Jul–Sep 1940, Barbarossa 1941-09,
+      Japan–China 1937-08, Pacific War 1941-12, China/Britain/USSR standing
+- [x] Seamless east–west scrolling: a map copy at the seam, the camera wraps, no seam line/darkening
+- [x] Messina / Little Belt / Panama canals (map regenerated; 11 straits, the Channel cannot be walked across)
+- [ ] Detailed state program trees for the other great powers (USA, Japan, China to be expanded)
 
-## BÖLÜM ★ — GÖRÜNÜR SAVAŞ (Faz 11) ◐ ← EN ÖNCELİKLİ
-Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada gerçek, hareket eden 3D modeller.
+## PART ★ — VISIBLE WAR (Phase 11) ◐ ← TOP PRIORITY
+The player must **see** the war: soldiers, tanks, ships, submarines, aircraft as real, moving 3D models on the map.
 
-### ★1. 3D model kütüphanesi ✔
-- [x] Kara: Muster WWII (MIT) modelleri → sadeleştirilmiş + renk aktarılmış GLB (`tools/muster/`):
-      piyade ve makineli tüfekçi (GER/SOV/UK/USA), top (PaK 40, ZiS-3, 25-pdr, M2A1, Flak 36)
-- [x] Zırhlı: Panzer IV, T-34-85, Cromwell, Sherman, M13/40, Chi-Ha, Tiger, KV-1, Churchill; Opel Blitz, ZiS-5
-- [x] Hava: Bf 109, Spitfire, P-51, Il-2 (Muster); bombardıman uçağı (Blender)
-- [x] Deniz: muhrip, kruvazör, zırhlı, denizaltı, yük gemisi (Blender)
-- [x] Ülkeye özgü teçhizat; diğer ülkelerde dönem üniforma rengi
-- [ ] Uçak gemisi, nakliye uçağı, motosiklet, zırhlı araç
+### ★1. 3D model library ✔
+- [x] Land: Muster WWII (MIT) models → simplified + colour-baked GLB (`tools/muster/`):
+      infantry and machine gunners (GER/SOV/UK/USA), guns (PaK 40, ZiS-3, 25-pdr, M2A1, Flak 36)
+- [x] Armour: Panzer IV, T-34-85, Cromwell, Sherman, M13/40, Chi-Ha, Tiger, KV-1, Churchill; Opel Blitz, ZiS-5
+- [x] Air: Bf 109, Spitfire, P-51, Il-2 (Muster); bomber (Blender)
+- [x] Sea: destroyer, cruiser, battleship, submarine, cargo ship (Blender)
+- [x] Country-specific equipment; period uniform colours for other countries
+- [ ] Aircraft carrier, transport aircraft, motorcycle, armoured car
 
-### ★2. Kara birliklerinin görünümü ◐
-- [x] Yakın zoom: tümen başına 3–5 figür (şablona göre piyade/MG/top/kamyon/tank), kamera uzaklığına göre ölçek
-- [x] Yürüme animasyonu; tümen bölgeler arasında ilerleme oranına göre yürür
-- [x] **Akıcı hareket**: saat içi ara değer + Catmull-Rom rota (saatlik zıplama ve keskin köşe yok)
-- [x] **Figür başına yönlendirme**: her asker/araç kendi yuvasına döner, hızlanır; tümenin hızını taşır (geride kalmaz)
-- [x] Adım fazı gerçek yer hızına bağlı (kayma / "moonwalk" yok); yürüyüşte gövde sekmesi ve salınımı
-- [x] Yürüyüşte iki sıralı kol, beklerken savunma hattı, muharebede yayılmış hat; araçlar araziye göre eğilir
-- [x] Sayaçlar birliklerin akıcı konumunu izler ve figürlerin üstünde durur
-- [x] Muharebede figürler düşmana döner; namlu alevi, patlama, duman
-- [ ] Geri çekilme, kuşatılınca teslim olma/yok olma animasyonu
-- [ ] Eğitimdeki tümenler kışlada talim yapar
+### ★2. The look of land units ◐
+- [x] Close zoom: 3–5 figures per division (infantry/MG/gun/truck/tank by template), scaled by camera distance
+- [x] Walking animation; a division walks between regions in proportion to its progress
+- [x] **Smooth movement**: in-hour interpolation + Catmull-Rom route (no hourly jumps or sharp corners)
+- [x] **Per-figure steering**: each soldier/vehicle turns to its own slot and accelerates; carries the division's speed
+      (never lags behind)
+- [x] Step phase tied to real ground speed (no sliding / "moonwalk"); body bob and sway on the march
+- [x] Two-file column on the march, a defensive line while waiting, a spread line in combat; vehicles tilt with the terrain
+- [x] Counters follow the units' smooth position and sit above the figures
+- [x] In combat figures face the enemy; muzzle flash, explosions, smoke
+- [ ] Retreat, surrender/destruction animation when encircled
+- [ ] Divisions in training drill at the barracks
 
-### ★3. Donanma birimleri (sistem + görünüm) ◐
-- [x] Filo birimi (`Navy` + `Fleet`): gemiler stok yerine filolarda; liman ya da deniz bölgesinde; yedek filo
-- [x] Görevler: limanda, deniz üstünlüğü, konvoy baskını (denizaltı), konvoy koruma; görev bölgesi (≈420 km)
-- [x] Deniz muharebesi: saatlik ateş/hasar, denizaltı tespiti, bütünlük, geri çekilme, batan gemiler
-- [x] Deniz hâkimiyeti: nakliyedeki tümenler düşman hâkimiyetinde kayıp verir; rota düşman denizinden geçmez
-- [x] Konvoylar: baskınla batar, açık ithalatı düşürür; AI konvoy üretir
-- [x] Donanma paneli (N), haritada filo seçimi, sağ tıkla bölge/üs emri, filo ipucu
-- [x] Görünüm: limanda demirli gemiler, seyir + iz dalgası, dalıştaki denizaltı, top alevi + su sütunları,
-      batan gemi animasyonu
-- [x] **Düzgün seyir**: filo tek parça, derli toplu seyir düzeni (ortada ağır gemi + 4 eskort), sınırlı hızla
-      döner, dönüşte hafif yatış, yana kayma yok; hıza göre kısa iz dalgası; limanda kıyıya paralel sıralar
-- [x] Sakin filo hareketi: seyir hızları (zırhlı 24, muhrip 30 km/sa), bölgede mevzi tutma, birkaç günde bir
-      ağır devriye kayması, AI bölge seçiminde eşik salınımı yok
-- [ ] Çıkarma planı (oyuncu), liman baskını, mayınlar, uçak gemisi ve deniz hava gücü
-- [x] Deniz yolu ağı (tools/build_sea_lanes.py): her deniz bölgesinde açık deniz düğümü, komşular ve limanlar
-      arasında yalnız sudan geçen, kıyıdan uzak rotalar (Süveyş, boğazlar, dar kanallar tam çözünürlükte)
-- [x] Filolar ve nakliyeler bu yolları izler; düğümlerde Bézier kavis; zoom'la konum değişmez (sabit ölçek)
-- [x] Rota kıyıdan en az ~12 px uzak; yol bulma ve hız gerçek rota uzunluğuyla; seyir hızları 13–23 km/sa;
-      sıkı üçgen düzen, pruva rota teğetini izler, kıyıya yaklaşınca düzen yumuşakça sıkışır
-- [x] Kamera arazi yüksekliğini izlemez (sabit yükseklik, inip çıkma yok)
-- [x] Deniz yolu üreticisi son aşamada her rotayı tam çözünürlükte doğrular/onarır (kara teması 0), uzak denize açılan
-      limanlar şehrin rıhtımından çıkar, düğüm başına köşe yarıçapı (kavis suda kalır); FleetLayer düzeni (fit_formation)
-      ekransız test edilir, karaya düşen grup konumu en yakın suya alınır
-- [x] Aynı yerdeki filolar/tümenler tek temsilci grup (en çok 3 gemi / 1 tümen düzeni), sayı sayaçta
-- [x] Konvoy / ticaret rotalarının haritada görünmesi (Yollar modu)
+### ★3. Naval units (system + look) ◐
+- [x] Fleet unit (`Navy` + `Fleet`): ships in fleets instead of stock; in port or in a sea region; reserve fleet
+- [x] Missions: in port, naval superiority, convoy raiding (submarines), convoy escort; mission region (≈420 km)
+- [x] Naval combat: hourly fire/damage, submarine detection, cohesion, retreat, sinking ships
+- [x] Naval control: divisions in transit take losses under enemy control; routes avoid enemy seas
+- [x] Convoys: sunk by raids, open imports drop; the AI builds convoys
+- [x] Navy panel (N), fleet selection on the map, right click for region/base orders, fleet tooltip
+- [x] Look: ships anchored in port, sailing + wake, submerged submarines, gun flashes + water columns,
+      sinking ship animation
+- [x] **Proper sailing**: the fleet moves as one, in a tidy formation (heavy ship in the middle + 4 escorts), turns at a
+      limited rate, leans slightly in turns, no sideways sliding; short wake by speed; parallel rows along the quay in port
+- [x] Calm fleet movement: sailing speeds (battleship 24, destroyer 30 km/h), holding station in the region, a slow
+      patrol drift every few days, no threshold flip-flopping in AI region choice
+- [ ] Landing plan (player), port strike, mines, aircraft carriers and naval air power
+- [x] Sea lane network (tools/build_sea_lanes.py): an open-sea node in every sea region, routes between neighbours and
+      ports that only cross water and keep away from the coast (Suez, straits, narrow canals at full resolution)
+- [x] Fleets and transports follow these lanes; Bézier curves at the nodes; positions do not change with zoom (fixed scale)
+- [x] Routes at least ~12 px from the coast; pathfinding and speed use the real route length; sailing speeds
+      13–23 km/h; a tight triangle formation, the bow follows the route tangent, the formation squeezes gently near the coast
+- [x] The camera does not follow terrain height (fixed height, no bobbing)
+- [x] The sea lane generator verifies/repairs every route at full resolution in its last step (land contact 0), ports
+      facing the open sea leave from the city's quay, a corner radius per node (the curve stays on water); the FleetLayer
+      formation (fit_formation) is tested headless, a group position that falls on land is moved to the nearest water
+- [x] Fleets/divisions in the same place form one representative group (at most 3 ships / 1 division formation), the
+      number on the counter
+- [x] Convoy / trade routes visible on the map (Routes mode)
+- [x] Sea region card: naval control by country (share bar), our side's share, whether transports are safe, fleets there
 
-### ★4. Hava kuvvetleri (sistem + görünüm) ◐
-- [x] Hava kanadı birimi (`Air` + `AirWing`): avcı / yakın destek / bombardıman kanatları hava üslerinde (100 uçak)
-- [x] Görevler bölge başına (≈350 km, menzil kontrollü): hava üstünlüğü, yakın hava desteği, liman baskını
-- [x] Günlük it dalaşı + uçaksavar kayıpları; bölgesel hava üstünlüğü ve yakın destek kara muharebesine bonus
-- [x] AI: en sıcak cepheye üs değiştirir ve görev verir; oyuncu kanatları "Otomatik" ile AI'a bırakılabilir
-- [x] Hava paneli (H): kanat kur (stoktan, seçilen üsse), görev, bölge seçimi, otomatik mod, takviye, dağıt
-- [x] Karar oyuncuda: oyuncunun ürettiği uçaklar stokta bekler, elle kanat olarak konuşlandırılır
-- [x] Görünüm: üslerde park etmiş uçaklar, görev bölgesi üstünde V düzeninde tur atan filolar,
-      it dalaşı (iz mermisi), düşen uçak, yakın destek bombaları + yer patlamaları
-- [x] Deniz aşırı harekette tümen nakliye gemisi olarak görünür
-- [ ] Stratejik bombardıman (fabrika hasarı), üs kapasitesi cezası, şehir üstünde uçaksavar ateşi
+### ★4. Air forces (system + look) ◐
+- [x] Air wing unit (`Air` + `AirWing`): fighter / close support / bomber wings at air bases (100 aircraft)
+- [x] Missions per region (≈350 km, range-checked): air superiority, close air support, port strike
+- [x] Daily dogfights + anti-air losses; regional air superiority and close support bonus to land combat
+- [x] AI: moves bases to the hottest front and gives missions; the player's wings can be left to the AI with "Automatic"
+- [x] Air panel (H): form a wing (from stock, at the chosen base), mission, region choice, automatic mode, reinforce, disband
+- [x] The player decides: aircraft the player builds wait in stock and are deployed as wings by hand
+- [x] Look: aircraft parked at bases, flights circling in V formation over the mission region,
+      dogfights (tracers), falling aircraft, close support bombs + ground explosions
+- [x] A division moving overseas appears as a transport ship
+- [ ] Strategic bombing (factory damage), base capacity penalty, anti-air fire over cities
 
-### ★5. Muharebe efektleri ve sesleri ◐
-- [x] Parçacıklar: namlu alevi, patlama, duman; denizde su sütunları
-- [x] Prosedürel efekt gölgelendiricisi (vfx.gdshader): gürültülü ateş topu (beyaz çekirdek → turuncu → is),
-      kabaran düzensiz duman, fırlayan toprak, iki yana açılan namlu alevi; figür boyuna göre ölçek
-- [x] Ateş eden figürlerin namlu ucunda anlık alevler (piyade sık/küçük, top/tank seyrek/büyük)
-- [x] Uzak zoom'da muharebe plakası (çapraz kılıç + iki tarafın denge çubuğu; oyuncu saldırıda yeşil, savunmada kırmızı)
-- [x] Uçaklar sabit ölçek, gölgesiz; aynı bölge/üs+sahip+tür tek temsilci grup (en çok 3 uçak) + sayı sayacı
-- [x] Yakın destek gerçek saldırı turu: hedef düşman tümen, dalış, 2 bomba (bombardıman 4'lü dizi), isabet patlaması;
-      avcılar burundan kısa atış dizileri (ekranı kaplayan rastgele iz mermisi bulutu kaldırıldı)
-- [x] Piyade/makineli iz mermileri düşmana doğru; namlu alevleri
-- [x] Yön değiştiren tümen geri dönmez (gittiği bölgeden devam eder)
-- [x] Tek bilgi kartı (bozuk tooltip gecikme ayarı düzeltildi); alttaki düğmelerin (harita modları) kartı düğmenin üstünde açılır
-- [x] Üst görev çubuğu kare simge düğmeleri + kare uyarı şeridi (olay, boş araştırma, devlet programı, boş fabrika/tersane,
-      boş inşaat, ikmalsiz tümen, konvoy açığı, stokta uçak, insan gücü, teslim tehlikesi)
-- [x] Donanma: büyük güçler 6 filoya kadar, 12+ gemilik yedek filoya dönüşür; oyuncu her zaman çıkarma yapabilir
-      (düşman hâkimiyetindeki denizden geçemez)
-- [ ] Zoom'a göre muharebe sesleri (tüfek, makineli, top, tank, uçak motoru, deniz topları)
-- [ ] Performans: havuzlama (pooling)
-
----
-
-## BÖLÜM P — OYNANABİLİRLİK (Faz 11b) ◐ ← ★ ile birlikte en öncelikli
-Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akışı, anlaşılır geri bildirim, az mikro yönetim.
-
-### P1. Savaş dengesi (kritik)
-- [x] AI konuşlanma rotası düşman toprağından geçmez; her cephe bölgesine garnizon; Manş yürünemez
-- [x] Gemi ve uçak tipleri araştırma olmadan üretilemez (başlangıçta eldeki tiplerin teknolojisi verilir)
-- [x] Otomatik denge testi (paralel, ~3,5 dk): `tools/balance_parallel.sh 6`
-- [x] AI ana taarruz noktası (Schwerpunkt): cephe başına 2 bölgede yığınak → Fransa 1940 Mart–Nisan'da düşer
-- [x] AI performansı: dost toprak bileşenleriyle konuşlanma (ai_military 130 sn → 16 sn / 1700 gün)
-- [x] Doğu cephesi dengesi: ikmal menzili (işgal edilen toprakta kaynaktan en fazla 9 bölge) + yurt savunması
-      (+%15) → "kazanan her şeyi siler" dinamiği bitti; Almanya ve SSCB 1942 ortasına kadar ayakta (6/6)
-- [x] Denge testi 9 kontrolün tamamı 6/6: Polonya 1940-02, Fransa 1940 Nisan–Haziran, Barbarossa 1941-09
-- [x] Dünya haritasında denge testi (12 kontrol, 6 paralel koşu): hepsi ≥5/6 — Fransa 1940 Tem–Eyl,
-      Japonya–Çin 1937-08, Pasifik savaşı 1941-12, Çin/İngiltere/SSCB ayakta
-- [x] Yeni dünya haritasında (kanallar) denge bozuldu → teşhis: yok olan tümenlerin neredeyse hepsi
-      "çekilecek yer yok" (derine tek başına sızan birlikler); Almanya ordusu Fransa'dayken anavatan boşalıp
-      teslim oluyor. Düzeltmeler: AI cephe bütünlüğü (yalnız dost bölgeye de değen boş bölgeye ilerler),
-      deniz güçleri küçük ordu (İngiltere ×0,5, ABD ×0,6), demokrasilere ilk 270 gün saldırı cezası (−%25)
-      → Almanya ayakta 0/6 → 2/6, Fransa düşer 1/6 → 3/6
-- [x] 1939–41 akışı (25 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6 — Polonya Eyl–Ara 1939 düşer, Almanya/İngiltere/SSCB/İtalya
-      ayakta, Barbarossa 1941-07. Düzeltmeler: AI ordusu tek düşmanı hedefler (müttefik cephesine yayılmaz), ordu başına
-      tavan, her cephe bölgesine garnizon, büyük güçler arası ilk 240 gün taarruz yok, demokrasiler sağlam büyük güce
-      saldırmaz ("garip savaş"), tümenler dolmadan yenisi kurulmaz, doktrin durumları (Blitzkrieg +%25 saldırı, Maginot −%30,
-      Büyük Terör −%30, hazırlıksız ordu), Alman program tarihleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
-- [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
-- [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
-- [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
-
-### P2. Oyuncuya geri bildirim
-- [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
-- [ ] Tümen/filo seçilince yol önizlemesi ve varış süresi
-- [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
-      kaynak açığı satırları ✔; kalan: ikmal açığı, deniz hâkimiyeti
-- [ ] Hedefler / ipucu sistemi (ilk 30 dakika için rehber)
-
-### P3. Mikro yönetimi azaltma
-- [x] Ordu → cephe atama (C1) — temel hâli bitti; savaş planı okları (C2) sırada
-- [ ] Takviye/konuşlandırma kuyruğu (oyuncu açarsa), şablon kopyala
-
-### P4. Karar oyuncuda (otomatiklik denetimi) ✔
-- [x] Oyuncunun ticareti elle: satıcı seç, +8/−8, iptal; "Otomatik ticaret" yalnız oyuncu açarsa; ödenemeyecek ithalat engellenir (nedeni ipucunda)
-- [x] Oyuncunun hava kanatları "Otomatik" kapalı başlar (başlangıçtakiler ve yeni konuşlandırılanlar)
-- [x] Tümenler "Son askere kadar" açık başlar: kendiliğinden geri çekilmez; bütünlük bitince yarı güçle savaşır (tümen panelinden kapatılabilir)
-- [x] Tarihî baskılar seçenekli olay; seçeneklere şart (`require`), şartsız seçenek kilitli görünür, AI da seçmez
-- [x] Her ülke testi (`game/dev/country_check.gd`): oyuncu eylemleri oyunu etkiliyor, oyuncu adına otomatik iş yok
-- [x] Otomatik test paketi ve CI: `tests/` (veri bütünlüğü: olay/program/teknoloji/yasa/şablon başvuruları, etki sözlüğü,
-      çeviri tablosu), `tools/run_tests.sh`, GitHub Actions; dev betikleri sorun bulunca 1 ile çıkar
-- [x] Sistem senaryo testleri (73 test): ekonomi, ticaret, siyaset, diplomasi, kara savaşı, deniz/hava, kayıt/yükleme
-      (200 gün, alan alan), belirlenimcilik; bulunan hatalar düzeltildi (oyuncunun düşmanla ticareti, üyenin beyaz barışı,
-      yüklemede tercihlerin/bekleyen olayların/siperin kaybı, yüklemede 1936 ticareti, yeni oyunda eski önbellek)
-- [ ] Yapay zekânın otomatik ticareti savaştığı ülkeden de alıyor (1940 ortasında Almanya ~57, İtalya ~53 kaynak/gün,
-      çoğu İngiliz/Fransız sömürgelerinden). Kesmek (abluka) gerçekçi ama Almanya'yı kaynaksız bırakıp denge testinde
-      "Fransa 1940–41'de düşer" kontrolünü 4/6'ya indiriyor — abluka + telafi (ör. Sovyet/İsveç/Romanya ticareti) birlikte
-      ele alınmalı
-- [ ] Yapay zekânın "fırsat kollayıp sonra katılma" kuralı (`Diplomacy.ai_answers_call`) yazılmış ama bağlanmamış
-      (ittifak çağrısında İtalya'nın Haziran 1940'ı beklemesi); bağlamak dengeyi değiştirir — karar bekliyor
-- [ ] Oyuncu ordusu karadan ayrı cephe parçalarına (ör. Doğu Prusya) kendiliğinden deniz aşırı tümen göndermez
-- [x] Hareket ve animasyon mantığı testleri: deniz yolları, filo köşe/liman çıkışı/düzen, tümen yolu sürekliliği, hareket
-      okları, hava durumu (belirlenimci; önbellek hatası düzeltildi), zoom kiplerinde sayaç/bayrak/gizli
-
-## BÖLÜM V — OYUN DERİNLİĞİ ◐ ← P ile birlikte sıradaki ana iş
-Kendi tasarım hedeflerimiz; kaynak tarih ve kendi denge testimiz (BÖLÜM Ö kuralları). Her madde oyunda nasıl karşılık
-bulacağıyla yazıldı.
-
-### V1. Savaş hissi ve muharebe matematiği ◐
-- [x] Tümen tecrübesi: Acemi −%25 · Talimli · Pişkin +%25 · Sınanmış +%50 · Seçme +%75; muharebe ile artar,
-      kayıpla (yeni asker) düşer; sayaçta yıldız, panelde çubuk
-- [x] Hazırlık bonusu: düşmana komşu, bekleyen tümen 15 günde en çok +%20 hazırlık biriktirir; saldırdıkça erir
-      (plan çizip beklemek → ilk darbe güçlü; tek tük saldırı zayıf)
-- [x] Hava ve mevsim: kış (Ara–Şub, 45°K üstü) saldırı −%9…−%15, kış donanımı yoksa yıpranma; sonbahar çamuru (Eki–Kas,
-      Doğu Avrupa) hız −%45; çölde sıcak yıpranması; haritada kış örtüsü (her modda, yamalı)
-- [x] Yakıt: taban gelir (sanayi) + petrol → yakıt deposu; zırhlı/motorlu hareket ve muharebe, uçak görevleri, denizdeki
-      gemiler tüketir; yakıt yoksa zırhlı/motorlu güç −%35, hız −%50; üst barda yakıt, uyarı
-- [x] Araştırma birikimi: boş yuva 30 güne kadar araştırma biriktirir (fazlası kaybolur), yeni araştırmaya aktarılır
-- [ ] Kuşatma cezası: çembere alınan birim −%30 (ikmalsizliğe ek); general yakalama (ileride)
-- [ ] Muharebe ayrıntı penceresi (P2 ile): iki taraf, genişlik, arazi/nehir/hava/hazırlık/tecrübe/yakıt çarpanları
-
-### V2. Lojistik (B ile birleşir) ☐
-- [ ] Trenler ekipman olarak üretilir; demiryolu ağı tren ister (üst barda ihtiyaç/stok)
-- [ ] İkmal merkezleri ve demiryolu seviyeleri; kamyonlar merkezden cepheye; ikmal açığı → yıpranma, org düşüşü
-- [ ] Tümen ikmal tüketimi şablona göre (lojistik bölüğü −%); ağır tank en çok tüketir
-- [ ] Konvoy: deniz aşırı ticaret, ikmal ve asker taşıma konvoy tüketir; üst barda konvoy
-
-### V3. Ordu yapısı ve komuta ☐
-- [ ] Tümen şablonları: tabur + destek bölükleri (mühendis, keşif, askerî inzibat, bakım, hastane, lojistik, sinyal,
-      topçu, uçaksavar, tanksavar); muharebe genişliği hedefi (düzlük 70 → 35/70 bölen şablonlar)
-- [ ] Özel kuvvetler: deniz piyadesi (çıkarma/nehir), dağcı, paraşütçü, ormancı; arazi bonusları
-- [x] Generaller ve mareşaller (temel): ülke kadroları (dönemin komutanları + yöresel isimler), beceri 1–5, ordu/grup ataması,
-      muharebe katkısı (general beceri × %4, 24 tümene kadar tam; mareşal × %2 bütün gruba), muharebede tecrübe → beceri,
-      komuta gücüyle mareşalliğe terfi (30) ve yeni general (15); kayıt/yükleme; `tests/test_commanders.gd`
-- [ ] Generallerin **özellikleri**: hücum, savunma, lojistik, planlama değerleri ayrı; tecrübeyle özellik kazanma
-      (ör. kuşatma ustası, savunma uzmanı, zırhlı birlik komutanı, kış savaşçısı, dağ harbi); karargâh kapasitesiyle özellik alma
-- [ ] Komutan **portreleri** (kullanıcı üretir; prompt listesine eklenecek) ve komutan ayrıntı kartı
-- [ ] Tarihî giriş/çıkış: komutanların yıllara göre kadroya girmesi, 1937 Sovyet tasfiyesi (Tukhachevsky, Blyukher, Yegorov),
-      emeklilik, muharebede yaralanma/yakalanma/ölüm, kuşatılan ordunun generali esir düşer
-- [ ] Komutan başına tümen sınırı ve karargâh (ordu/ordular grubu karargâh sayacı haritada), ordu adı değiştirme
-- [ ] Doktrinler: kara, deniz, hava; yapı ve adlar bizim, dönemin gerçek kavramlarından (hareket savaşı, derin harekât,
-      metodik muharebe, sızma taktikleri); kara/deniz/hava birikimi ile açılır
-- [ ] Taarruz tavrı: temkinli / dengeli / "ne olursa olsun" (plan saldırganlığı)
-
-### V4. Ekonomi ve siyaset ayrıntıları ◐
-- [x] Sivil/askerî fabrika, inşaat, altyapının inşaat hızı bonusu, ticaret yasası (ihracat payı), üretim verimliliği
-- [ ] Altyapı eyaletin kaynak çıktısını artırır (seviye başına +%10), eyalet başına bina yuvası teknolojiyle artar
-- [ ] Tüketim malları (consumer goods): seferberlik yasası + istikrar → sivil fabrikaların bir kısmı halka gider
-- [ ] Kaynak açığında üretim hattı sırası: öndeki hat az, arkadakiler çok ceza
-- [ ] Nüfuz birikip boşa gitmesin uyarısı; ülkeye özgü tarihî danışmanlar ve tasarım büroları (tank/uçak/gemi)
-- [ ] İstikrar ve iç cephe etkileri: iç cephe zayıflayınca askere alım yavaşlar
-- [ ] Barış konferansı: ilhak / kukla / kaynak ve fabrika talebi; kukla haraç öder
-- [ ] İşgal yönetimi: direniş ve uyum; işgal yasası (sivil gözetim … askerî yönetim), garnizon ister
-
-### V5. Hava ve deniz derinliği ◐
-- [x] Hava üstünlüğü, yakın destek, liman baskını; görsel saldırı turu, bomba
-- [ ] Deniz bombardıman uçağı (denizdeki filoya), stratejik bombardıman (fabrika hasarı + onarım), lojistik baskını
-- [ ] Hava üssü kapasitesi (seviye başına 200 uçak); fazlası ceza; uçaksavar binası üsse gelen saldırıyı azaltır
-- [ ] Filo yapısı: perde gemileri (muhrip/hafif kruvazör) önde, ağır gemiler ve uçak gemileri arkada; perde yetersizse
-      ağır gemiler vurulur; hafif atak perdeye, ağır atak büyük gemilere; uçak gemisi sayısı filo başına en çok 4–6
-- [ ] Mayınlama; çıkarma teknolojisi (aynı anda çıkarma sayısı); deniz piyadesi bonusu
-
-### V6. Daha sonra
-- [ ] İstihbarat ve ajanlar, şifre çözme; atom bombası (teslim sınırını düşürür); füze saldırıları
-- [ ] Tank/uçak tasarımcısı (modüller, güvenilirlik, maliyet)
-
-## BÖLÜM B — ULAŞIM VE LOJİSTİK (Faz 12) ◐
-Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taşıma buna bağlı.
-
-### B0. Yollar harita modu (F4) ✔
-- [x] Soluk siyasi zemin üstünde: deniz yolu ağı, ticaret yolları (kaynak renginde, ithalatçıya akan dalga;
-      sınır komşuları karadan, diğerleri başkent → liman → deniz yolu → liman → başkent), oyuncunun filo
-      rotaları (kesikli, kalan km ve varış günü), hava görev hatları
-- [x] Üzerine gelince bilgi kartı (mal, mesafe, konvoy karşılaması, düşman deniz bölgesi riski), tıkla-seç vurgusu
-- [ ] Kara yolları ve demiryolları aynı moda eklenecek (B1–B2), tren/kamyon ikmal akışı (B3)
-
-### B1. Karayolu ağı
-- [ ] Şehir kapılarını (`City.gates`, hazır) birbirine bağlayan yol grafı
-- [ ] Yol sınıfları: toprak → şose → asfalt (altyapı seviyesiyle yükselir)
-- [ ] Araziye oturan yol çizimi (eğim, nehir, dağ geçidi; köprüler kafes modülüyle)
-- [ ] Etki: tümen hızı, kamyon ikmal verimi, inşaat hızı
-
-### B2. Demiryolu ağı
-- [ ] 1936 tarihî ana hatlar (Berlin–Varşova–Moskova, Bağdat Demiryolu, Paris–Marsilya…)
-- [ ] Demiryolu seviyeleri 1–5; oyuncu İnşaat ekranında çizerek yapar
-- [ ] Görsel: ray + travers, istasyonlar, yakın zoom'da **hareket eden trenler**
-- [ ] Kapasite → ikmal akışı; bombalama/işgalle hasar ve onarım; zırhlı tren
-
-### B3. İkmal sistemi (modern ikmal modeli: merkez + demiryolu + kamyon)
-- [ ] İkmal merkezleri (inşa edilebilir, demiryoluna bağlı)
-- [ ] Başkent/limanlar → demiryolu → ikmal merkezi → kamyonlarla cephe
-- [ ] Kamyon tüketimi, atlı ikmal
-- [ ] Bölge ikmal kapasitesi vs. tüketim → açık: bütünlük/saldırı/yıpranma cezası
-- [ ] İkmal harita modu (akış, darboğazlar)
-- [ ] Deniz ikmali: konvoylar; denizaltılar konvoy batırır
-
-### B4. Ekonomiye etkisi
-- [ ] Kaynaklar demiryoluyla taşınır; bağlantısız kaynak kullanılamaz
-- [ ] Fabrika çıktısı ve inşaat hızı ulaşım ağına bağlı
-- [ ] Ticaret rotaları (konvoy ihtiyacı), ambargo, abluka
+### ★5. Combat effects and sounds ◐
+- [x] Particles: muzzle flash, explosions, smoke; water columns at sea
+- [x] Procedural effect shader (vfx.gdshader): noisy fireball (white core → orange → soot),
+      billowing irregular smoke, flying earth, muzzle flash opening to both sides; scaled to figure size
+- [x] Momentary flashes at the muzzles of firing figures (infantry frequent/small, guns/tanks rare/big)
+- [x] Combat plate at far zoom (crossed swords + the balance bar of both sides; green when the player attacks, red when defending)
+- [x] Aircraft at fixed scale, without shadows; same region/base + owner + type form one representative group (at most
+      3 aircraft) + number counter
+- [x] Close support as a real attack run: target an enemy division, dive, 2 bombs (bombers a stick of 4), impact
+      explosion; fighters fire short bursts from the nose (the random tracer cloud covering the screen was removed)
+- [x] Infantry/machine-gun tracers towards the enemy; muzzle flashes
+- [x] A division that changes direction does not go back (it continues from the region it was heading to)
+- [x] A single info card (broken tooltip delay setting fixed); the card of buttons at the bottom (map modes) opens above them
+- [x] Square icon buttons + square alert strip (event, empty research, state program, idle factory/dockyard, idle
+      construction, unsupplied divisions, convoy shortfall, aircraft in stock, manpower, surrender danger)
+- [x] Navy: great powers up to 6 fleets, turning into a reserve fleet of 12+ ships; the player can always make landings
+      (cannot cross a sea under enemy control)
+- [ ] Combat sounds by zoom (rifles, machine guns, artillery, tanks, aircraft engines, naval guns)
+- [ ] Performance: pooling
 
 ---
 
-## BÖLÜM C — SAVAŞ EKRANI VE KOMUTA (Faz 13) ◐
+## PART P — PLAYABILITY (Phase 11b) ◐ ← top priority together with ★
+The game must go from "watchable" to **playable**: a balanced historical flow, clear feedback, little micromanagement.
 
-### C1. Cephe hatları ◐
-- [x] Ordular (oyuncu): seçili tümenlerden "Ordu kur", cephe = seçilen ülkeyle sınır (savaştan önce de), Savun / Taarruz,
-      orduyu seç, dağıt; tümen panelinde ordu satırı; kayıt/yükleme
-- [x] Orduya cephe atama: tümenler cephe boyunca düşman yoğunluğuna göre kendiliğinden dağılır (gereksiz yer değiştirme yok)
-- [x] Taarruz: cephedeki tümenler, hattı bozmadan (yan güvenliği), güçlü oldukları komşu düşman bölgelerine ilerler
-- [x] Temas hattının çizimi: sınırın tam üstünde, ordu renginde çizgi + düşmana bakan dişler (taarruzda uzun)
-- [x] AI büyük güçleri savaşta cephe orduları kullanır: düşman başına ordu, haftalık plan (cephe uzunluğu + düşman gücü
-      oranında tümen), başkent garnizonu, cephede %25 güçlüyse taarruz
-- [x] Uzak zoom'da sayaç birleştirme: aynı ülkenin yakın sayaçları haritada sabit ızgarayla tek sayaç (toplam tümen),
-      yalnız 3 zoom eşiğinde değişir, en büyük yığının yerinde durur (kayma/animasyon yok); tıklayınca grubun tamamı seçilir
-- [x] Aynı yerdeki filolar tek sayaç (toplam gemi), zoom'la kayan yan yana sayaç yok
-- [x] AI: çakışan cepheler (müttefik düşmanlar) tek orduda; taarruzda yığınak (en zayıf 2 noktaya 3 kat tümen);
-      ordu kodu performansı (hedef ülke tamsayı kümesi, karadan ulaşılabilir cephe, günlük emir sınırı): 285 sn → 41 sn
-- [x] General atama (V3): Ordu ekranında ve komutan kadrosunda; seçili tümen panelinde ordunun komutanı
-- [ ] Ordu sayacı / ordu kartı, harita üzerinde tıklayarak cephe seçme
-- [ ] Kuşatma cepleri görsel olarak işaretli
+### P1. War balance (critical)
+- [x] AI deployment routes do not cross enemy land; a garrison in every front region; the Channel cannot be walked
+- [x] Ship and aircraft types cannot be built without research (the technology of the types on hand is given at the start)
+- [x] Automatic balance test (parallel, ~15–20 min): `tools/balance_parallel.sh 6`
+- [x] AI main effort (Schwerpunkt): concentration in 2 regions per front → France falls in March–April 1940
+- [x] AI performance: deployment by friendly-land components (ai_military 130 s → 16 s / 1,700 days)
+- [x] Eastern front balance: supply range (at most 9 regions into occupied land from a source) + home defence
+      (+15%) → the "winner wipes out everything" dynamic ended; Germany and the USSR standing until mid-1942 (6/6)
+- [x] All 9 balance checks 6/6: Poland 1940-02, France April–June 1940, Barbarossa 1941-09
+- [x] Balance test on the world map (12 checks, 6 parallel runs): all ≥5/6 — France Jul–Sep 1940,
+      Japan–China 1937-08, Pacific war 1941-12, China/Britain/USSR standing
+- [x] Balance broke on the new world map (canals) → diagnosis: almost all destroyed divisions were "nowhere to retreat"
+      (units infiltrating deep on their own); with the German army in France the homeland emptied and surrendered.
+      Fixes: AI front integrity (only advance into an empty region that also touches a friendly one), small armies for
+      naval powers (Britain ×0.5, USA ×0.6), an attack penalty for democracies in the first 270 days (−25%)
+      → Germany standing 0/6 → 2/6, France falls 1/6 → 3/6
+- [x] The 1939–41 flow (25 Sep 2026, 6 runs): all 12 checks ≥5/6 — Poland falls Sep–Dec 1939, Germany/Britain/USSR/Italy
+      standing, Barbarossa 1941-07. Fixes: an AI army targets a single enemy (does not spread onto an ally's front), a cap
+      per army, a garrison in every front region, no offensive between great powers in the first 240 days, democracies
+      do not attack a solid great power ("phoney war"), no new divisions before the old ones are full, doctrine
+      conditions (Blitzkrieg +25% attack, Maginot −30%, Great Terror −30%, unprepared army), historical German program
+      dates (Danzig 1 Sep 1939, West May 1940)
+- [x] With commanders (27 Sep 2026, 6 runs): all 12 checks ≥5/6; Germany/Italy fell early in one run and France late in
+      another — to be watched
+- [ ] The fall of France in Feb–Jun 1941 (historical: Jun 1940): concentration and encirclement through Belgium/the
+      Netherlands to be sped up
+- [ ] The wars and lands of a surrendering country should pass on consistently (a surrendered country cannot declare war)
+- [ ] Peace conference (simple): the winning side shares the states
 
-### C2. Savaş planları (oklar) ◐
-- [ ] Taarruz oku çizme (sürükleyerek, kıvrımlı), mızrak ucu birlikleri
-- [ ] Hazırlık bonusu, planı yürüt/durdur
-- [ ] Savunma hattı, tahkimat hattı, deniz çıkarma planı, hava indirme
-- [x] Hareket oku: birimin bulunduğu yerden başlar, kesintisiz eğri gövde, kuyrukta incelir,
-      çentikli geniş uç, gölge, degrade + kontur + akan parlaklık, kalınlık zoom'a göre; aynı hedefte tek uç
-- [ ] İlerleme göstergesi
+### P2. Feedback to the player
+- [ ] Combat detail window (both sides, strength, losses, terrain/river penalties)
+- [ ] Path preview and arrival time when a division/fleet is selected
+- [◐] "Why?" tooltips: breakdown of stability and home front, surrender limit, law requirements, the reason a
+      diplomacy action is closed, resource shortfall rows, naval control by sea region ✔; remaining: supply shortfall
+- [x] Country card with Ctrl (leader, relation, indicators coloured against ours), other countries' politics read-only
+- [ ] Goals / hint system (a guide for the first 30 minutes)
 
-### C3. Komuta yapısı
-- [x] Ordular → Ordu Grupları → Mareşal; generaller (beceri, deneyim); özellikler V3'te
-- [x] Ordu paneli: komuta zinciri ağacı, ordu/grup ayrıntısı (komutan, cephe, duruş, grup), tümen listesi (bütünlük, güç,
-      durum, konum), tümen aktarma, bağlanmamış tümenler, komutan kadrosu; ☐ ekipman doluluğu
-- [x] Mikro yönetim (seçim paneli): sayı ve şablon bileşimi (tıkla: yalnız o tür), yarıya böl, seçilenlerle yeni ordu,
-      orduya kat / ordudan çık, **doğrudan emir** (haritadan emir verilen ordu tümeni ordu planının dışında kalır,
-      "Ordu planına döndür" ile geri verilir), tümen satırına tıkla = yalnız onu seç
-- [x] Tümen deneyimi / veteranlık (V1'de yapıldı)
+### P3. Less micromanagement — and better micromanagement
+- [x] Army → front assignment (C1) — basic version done; war plan arrows (C2) next
+- [x] Chain of command and the selection panel: split, form an army, join/leave, direct orders (C3)
+- [ ] Reinforcement/deployment queue (if the player switches it on), copy template
 
-### C4. Muharebe derinleştirme
-- [ ] Muharebe ekranı (iki taraf, genişlik, zarlar, taktikler)
-- [ ] Muharebe taktikleri
-- [x] Hava durumu ve mevsimler (kış, çamur, çöl sıcağı — V1)
-- [ ] Tahkimatlar (Maginot, Metaxas, kıyı tahkimatları)
+### P4. The player decides (automation check) ✔
+- [x] The player's trade is manual: pick a seller, +8/−8, cancel; "Automatic trade" only if the player switches it on;
+      imports that cannot be paid for are blocked (reason in the tooltip)
+- [x] The player's air wings start with "Automatic" off (both the starting ones and newly deployed ones)
+- [x] Divisions start with "Hold to the last man" on: they never retreat by themselves; when cohesion runs out they fight
+      at half strength (can be switched off in the division panel)
+- [x] Historical pressures are events with choices; options can have conditions (`require`), an option without its
+      condition shows as locked and the AI does not pick it either
+- [x] Per-country test (`game/dev/country_check.gd`): player actions affect the game, nothing is done automatically for the player
+- [x] Automatic test suite and CI: `tests/` (data integrity: event/program/technology/law/template references, effect
+      dictionary, translation table), `tools/run_tests.sh`, GitHub Actions; dev scripts exit with 1 when they find a problem
+- [x] System scenario tests (95 tests): economy, trade, politics, diplomacy, land war, navy/air, commanders, save/load
+      (200 days, field by field), determinism; bugs found were fixed (the player trading with an enemy, a member's white
+      peace, preferences/pending events/entrenchment lost on load, 1936 trade on load, stale cache in a new game)
+- [x] No commander is assigned automatically to the player's armies; an empty player army is not deleted; a division the
+      player orders on the map is not pulled back by the army plan
+- [x] Features with an interface but no effect yet are locked visibly (faded, "not allowed" cursor, reason in the
+      tooltip): land/naval/air know-how
+- [ ] The AI's automatic trade also buys from countries it is at war with (mid-1940 Germany ~57, Italy ~53 resources a
+      day, mostly from British/French colonies). Cutting it (blockade) is realistic but leaves Germany without resources
+      and drops the "France falls in 1940–41" check to 4/6 — blockade + compensation (e.g. Soviet/Swedish/Romanian trade)
+      must be handled together
+- [ ] The AI rule "wait for the moment and join later" (`Diplomacy.ai_answers_call`) is written but not connected (Italy
+      waiting until June 1940 on an alliance call); connecting it changes the balance — waiting for a decision
+- [ ] The player's army does not send divisions overseas by itself to separate front pieces (e.g. East Prussia)
+- [x] Movement and animation logic tests: sea lanes, fleet corners/leaving port/formation, division path continuity,
+      movement arrows, weather (deterministic; cache bug fixed), counter/flag/hidden by zoom
+
+## PART V — GAME DEPTH ◐ ← the next main work together with P
+Our own design goals; the source is history and our own balance test (PART O rules). Every item is written with how it
+shows in the game.
+
+### V1. The feel of war and combat maths ◐
+- [x] Division experience: Raw −25% · Drilled · Seasoned +25% · Hardened +50% · Crack +75%; grows with combat, falls
+      with losses (new recruits); a star on the counter, a bar in the panel
+- [x] Preparation bonus: a division waiting next to the enemy builds up to +20% preparation over 15 days; attacking wears
+      it down (draw the plan and wait → a strong first blow; scattered attacks are weak)
+- [x] Weather and seasons: winter (Dec–Feb, above 45°N) attack −9…−15%, wear without winter kit; autumn mud (Oct–Nov,
+      Eastern Europe) speed −45%; heat wear in the desert; a winter cover on the map (in every mode, patchy)
+- [x] Fuel: base income (industry) + oil → a fuel store; armoured/motorised movement and combat, air missions and ships
+      at sea consume it; without fuel armoured/motorised strength −35%, speed −50%; fuel on the top bar, alert
+- [x] Research carry-over: an empty slot banks up to 30 days of research (the rest is lost), passed to the next research
+- [ ] Encirclement penalty: an encircled unit −30% (on top of being unsupplied); capturing generals (later)
+- [ ] Combat detail window (with P2): both sides, frontage, terrain/river/air/preparation/experience/fuel multipliers
+
+### V2. Logistics (merges with B) ☐
+- [ ] Trains are produced as equipment; the railway network needs trains (need/stock on the top bar)
+- [ ] Supply hubs and railway levels; trucks from the hub to the front; supply shortfall → wear, cohesion drop
+- [ ] Division supply use by template (logistics company −%); heavy tanks use the most
+- [ ] Convoys: overseas trade, supply and troop transport use convoys; convoys on the top bar
+
+### V3. Army structure and command ◐
+- [ ] Division templates: battalions + support companies (engineers, recon, military police, maintenance, field hospital,
+      logistics, signals, artillery, anti-air, anti-tank); a frontage target (plains 70 → templates dividing 35/70)
+- [ ] Special forces: marines (landings/rivers), mountaineers, paratroopers, rangers; terrain bonuses
+- [x] Generals and field marshals (basic): country rosters (commanders of the era + local names), skill 1–5, army/group
+      assignment, combat bonus (general skill × 4%, full up to 24 divisions; field marshal × 2% to the whole group),
+      experience in battle → skill, promotion to field marshal (30) and new generals (15) for command power; save/load;
+      `tests/test_commanders.gd`
+- [ ] Generals' **traits**: separate attack, defense, logistics, planning values; traits earned with experience
+      (e.g. encirclement expert, defensive specialist, armoured commander, winter fighter, mountain warfare)
+- [ ] Commander **portraits** (made by the user; to be added to the prompt list) and a commander detail card
+- [ ] Historical entry/exit: commanders joining the roster by year, the 1937 Soviet purge (Tukhachevsky, Blyukher,
+      Yegorov), retirement, wounds/capture/death in battle, the general of an encircled army taken prisoner
+- [ ] Division cap per commander and headquarters (army/army group HQ counter on the map), renaming armies
+- [ ] Doctrines: land, naval, air; structure and names are ours, from real concepts of the era (manoeuvre warfare, deep
+      operations, methodical battle, infiltration tactics); bought with land/naval/air know-how (the know-how cells on
+      the top bar are unlocked then)
+- [ ] Offensive stance: cautious / balanced / "at any cost" (plan aggressiveness)
+
+### V4. Economy and politics details ◐
+- [x] Civilian/military factories, construction, the infrastructure construction speed bonus, trade law (export share),
+      production efficiency
+- [ ] Infrastructure raises a state's resource output (+10% per level), building slots per state grow with technology
+- [ ] Consumer goods: mobilization law + stability → part of the civilian factories go to the people
+- [ ] Order of production lines on a resource shortfall: the lines in front get a small penalty, those behind a big one
+- [ ] A warning so influence is not wasted; country-specific historical advisors and design bureaus (tank/aircraft/ship)
+- [ ] Stability and home front effects: recruitment slows as the home front weakens
+- [ ] Peace conference: annexation / puppet / demands for resources and factories; puppets pay tribute
+- [ ] Occupation: resistance and compliance; occupation law (civilian oversight … military administration), needs garrisons
+
+### V5. Air and naval depth ◐
+- [x] Air superiority, close support, port strike; visible attack run, bombs
+- [ ] Naval bombers (against fleets at sea), strategic bombing (factory damage + repair), logistics strikes
+- [ ] Air base capacity (200 aircraft per level); a penalty above it; anti-air buildings reduce attacks on the base
+- [ ] Fleet structure: screening ships (destroyers/light cruisers) in front, heavy ships and carriers behind; without
+      enough screens the heavy ships get hit; light attack on the screen, heavy attack on the big ships; at most 4–6
+      carriers per fleet
+- [ ] Mining; landing technology (number of simultaneous landings); marine bonus
+
+### V6. Later
+- [ ] Intelligence and agents, code-breaking; the atomic bomb (lowers the surrender limit); rocket attacks
+- [ ] Tank/aircraft designer (modules, reliability, cost)
+
+## PART B — TRANSPORT AND LOGISTICS (Phase 12) ◐
+The backbone of the economy and of war: supply, movement speed, industry and resource transport depend on it.
+
+### B0. Routes map mode (F4) ✔
+- [x] On a faded political base: the sea lane network, trade routes (in the resource's colour, a wave flowing to the
+      importer; land neighbours overland, others capital → port → sea lane → port → capital), the player's fleet routes
+      (dashed, remaining km and arrival day), air mission lines
+- [x] Info card on hover (goods, distance, convoy coverage, risk in enemy sea regions), click-to-select highlight
+- [ ] Roads and railways will be added to the same mode (B1–B2), train/truck supply flow (B3)
+
+### B1. Road network
+- [ ] A road graph linking the city gates (`City.gates`, ready)
+- [ ] Road classes: dirt → gravel → asphalt (rising with infrastructure level)
+- [ ] Roads drawn onto the terrain (slopes, rivers, mountain passes; bridges with the truss module)
+- [ ] Effect: division speed, truck supply efficiency, construction speed
+
+### B2. Railway network
+- [ ] The historical main lines of 1936 (Berlin–Warsaw–Moscow, the Baghdad Railway, Paris–Marseille…)
+- [ ] Railway levels 1–5; the player builds them by drawing on the Construction screen
+- [ ] Visual: rails + sleepers, stations, **moving trains** at close zoom
+- [ ] Capacity → supply flow; damage and repair from bombing/occupation; armoured trains
+
+### B3. Supply system (a modern supply model: hub + railway + trucks)
+- [ ] Supply hubs (buildable, connected to the railway)
+- [ ] Capital/ports → railway → supply hub → trucks to the front
+- [ ] Truck use, horse-drawn supply
+- [ ] Regional supply capacity vs. use → shortfall: cohesion/attack/wear penalties
+- [ ] Supply map mode (flow, bottlenecks)
+- [ ] Sea supply: convoys; submarines sink convoys
+
+### B4. Effect on the economy
+- [ ] Resources travel by rail; a resource without a connection cannot be used
+- [ ] Factory output and construction speed depend on the transport network
+- [ ] Trade routes (convoy need), embargo, blockade
 
 ---
 
-## BÖLÜM D — ATMOSFER VE ARAYÜZ ANİMASYONLARI (Faz 14) ◐
+## PART C — THE WAR SCREEN AND COMMAND (Phase 13) ◐
 
-### D1. Savaş izleri
-- [ ] Kuşatılan şehirlerde yangın, yıkık bina varyantları, cephe hattında siperler ve krater izleri
+### C1. Front lines ◐
+- [x] Armies (player): "Create army" from the selected divisions, front = the border with the chosen country (even
+      before the war), Hold / Attack, select army, disband; an army row in the division panel; save/load
+- [x] Front assignment: divisions spread along the front by themselves according to enemy density (no pointless shuffling)
+- [x] Offensive: divisions at the front advance into neighbouring enemy regions where they are stronger, without breaking
+      the line (flank safety)
+- [x] Drawing the contact line: right on the border, a line in the army's colour + teeth facing the enemy (longer when attacking)
+- [x] AI great powers use front armies in war: an army per enemy, a weekly plan (divisions in proportion to front length
+      + enemy strength), a capital garrison, attack when 25% stronger at the front
+- [x] Counter merging at far zoom: nearby counters of the same country merge into one (total divisions) on a fixed map
+      grid, changing only at 3 zoom thresholds, staying where the biggest stack is (no sliding/animation); a click selects
+      the whole group
+- [x] Fleets in the same place form one counter (total ships), no side-by-side counters sliding with zoom
+- [x] AI: overlapping fronts (allied enemies) in one army; concentration when attacking (3× divisions at the 2 weakest
+      points); army code performance (integer set of target countries, fronts reachable overland, daily order cap):
+      285 s → 41 s
+- [x] Assigning generals (V3): in the Army screen and the commander roster; the army's commander in the selected divisions panel
+- [ ] Army counter / army card, choosing a front by clicking on the map
+- [ ] Encirclement pockets marked visually
 
-### D4. Harita atmosferi
-- [x] Kış kar örtüsü (mevsime ve enleme göre, yamalı)
-- [ ] Gün/gece döngüsü (şehir ışıkları), mevsim renkleri
-- [x] Yağmur/kar parçacıkları (bölgesel, mevsime bağlı, yakın zoom'da; FPS dostu)
-- [ ] Sis; liman/fabrika dumanı; trenler
+### C2. War plans (arrows) ◐
+- [ ] Drawing offensive arrows (by dragging, curved), spearhead units
+- [ ] Preparation bonus, run/stop the plan
+- [ ] Defensive line, fortification line, naval landing plan, airborne landing
+- [x] Movement arrow: starts where the unit is, an unbroken curved body, thinning at the tail, a wide notched head,
+      shadow, gradient + outline + flowing highlight, thickness by zoom; one head per shared target
+- [ ] Progress indicator
 
-### D5. Arayüz animasyonları
-- [x] Yan panel kayma, haber animasyonu
-- [ ] Düğme hover/basma animasyonları
-- [ ] Olay pencerelerinde dönem illüstrasyonları
-- [ ] Savaş ilanı / teslim için sinematik manşet
+### C3. Command structure
+- [x] Armies → Army Groups → Field Marshal; generals (skill, experience); traits in V3
+- [x] Army panel: chain of command tree, army/group detail (commander, front, stance, group), division list (cohesion,
+      strength, status, location), moving divisions, unassigned divisions, commander roster; ☐ equipment fill
+- [x] Micromanagement (selection panel): army header (commander, front, stance, manage), summary cells, composition by
+      template (click: only that type), division cards (click: select only that one), split in half, new army from the
+      selection, join/leave army, **direct orders** (a division of an army ordered on the map is left out of the army
+      plan, handed back with "Back to army plan")
+- [x] Division experience / veterancy (done in V1)
+
+### C4. Deeper combat
+- [ ] Combat screen (both sides, frontage, dice, tactics)
+- [ ] Combat tactics
+- [x] Weather and seasons (winter, mud, desert heat — V1)
+- [ ] Fortifications (Maginot, Metaxas, coastal forts)
 
 ---
 
-## BÖLÜM E — SES (Faz 14) ✔
-- [x] Prosedürel sentez motoru (`tools/audio_synth.py`): dalga tablolu yaylı/bakır/üflemeli, piyano, vurmalılar, salon yankısı, mastering
-- [x] Dinamik müzik (`tools/make_music.py`, 7 parça ~16 dk, OGG): menü teması, barış (2), gerginlik, uzak savaş, oyuncunun savaşı (2);
-      çapraz kararma, tekrarsız sıra; web yükleme ekranında ana tema (açma/kapama düğmeli)
-- [x] Olay müzikleri: oyuncunun savaşı (siren + tutti) ile dünyada savaş farklı; zafer, yenilgi, barış; çalarken müzik kısılır
-- [x] Her eylem için ses (`tools/make_audio.py`, 51 efekt, çeşitlemeli): tık/panel/sekme/anahtar/onay damgası, hız ve duraklatma,
-      inşaat, üretim hattı, araştırma, odak, ticaret, diplomasi, konuşlandırma, telsizli birlik emirleri
-- [x] Bildirim ve bitiş sesleri yumuşak ve kendine özgü; üst üste binmez, sırayla çalar (kuyruk)
-- [x] Muharebe ambiyansı (3D, yakın zoom: tüfek, makineli, top, tank, uçak, gemi topu)
-- [x] Müzik / efekt ses düzeyi ayarı
-- [ ] İttifak ve barış konferansı sesleri; ses kanalları (bus) ve sıkıştırma
+## PART D — ATMOSPHERE AND INTERFACE ANIMATION (Phase 14) ◐
+
+### D1. Traces of war
+- [ ] Fires in besieged cities, ruined building variants, trenches and crater marks along the front
+
+### D4. Map atmosphere
+- [x] Winter snow cover (by season and latitude, patchy)
+- [ ] Day/night cycle (city lights), seasonal colours
+- [x] Rain/snow particles (regional, by season, at close zoom; FPS-friendly)
+- [ ] Fog; port/factory smoke; trains
+
+### D5. Interface animation
+- [x] Side panels slide in, news animation
+- [ ] Button hover/press animations
+- [ ] Period illustrations in event windows
+- [ ] Cinematic headlines for declarations of war / surrender
 
 ---
 
-## BÖLÜM F — TASARIM DİLİ VE ARAYÜZ (Faz 15) ◐
-- [x] Tek tasarım sistemi: metal doku seti (`tools/make_ui_skin.py`), tema varyasyonları, panel şablonu (`PanelLayout`)
-- [ ] Yeni ikon seti: prompt listesi hazır (`docs/art/ICON_PROMPTS.md`, 347 öğe); dosyalar `assets/ui/icons_new/` altına gelince otomatik
-- [x] Yan panel şablonu (kapatma düğmesi, tek panel), ortada haberler
-- [x] Sekmeli içerik (Araştırma), tam boy kaydırmalı paneller
-- [◐] Lider portreleri: yükleyici hazır (üst çubuk, Hükümet, Diplomasi; yoksa bayrak), dosyalar `assets/portraits/<TAG>.png` bekleniyor
-- [ ] Eksik 12 ülkenin gerçek bayrağı
-- [ ] İç içe ipuçları (terimin üstüne gelince açıklaması)
-- [ ] Mini harita; harita modları (ikmal, altyapı, kaynak, ideoloji, ittifak)
-- [ ] Bildirim ayarları; arayüz ölçeği
+## PART E — SOUND (Phase 14) ✔
+- [x] Procedural synthesis engine (`tools/audio_synth.py`): wavetable strings/brass/winds, piano, percussion, hall
+      reverb, mastering
+- [x] Dynamic music (`tools/make_music.py`, 7 tracks ~16 min, OGG): menu theme, peace (2), tension, distant war, the
+      player's war (2); crossfades, no-repeat order; the main theme on the web loading screen (with an on/off button)
+- [x] Event music: the player's war (siren + tutti) differs from war in the world; victory, defeat, peace; the music ducks
+      while they play
+- [x] A sound for every action (`tools/make_audio.py`, 51 effects, with variants): click/panel/tab/toggle/confirm stamp,
+      speed and pause, construction, production lines, research, programs, trade, diplomacy, deployment, radio unit orders
+- [x] Notification and completion sounds soft and distinct; they never overlap, they play in turn (queue)
+- [x] Combat ambience (3D, close zoom: rifles, machine guns, artillery, tanks, aircraft, naval guns)
+- [x] Settings: master, music, effects and interface volume; music choice (automatic or any track on repeat)
+- [ ] Alliance and peace conference sounds; audio buses and compression
 
 ---
 
-## BÖLÜM UI — ARAYÜZ DURUMU (Faz 16) ◐
-Bugünkü arayüz ilk sürümlerden kalma bir düzeni izliyor; kendi arayüz kimliğimiz BÖLÜM Ö Katman 2'de tasarlanacak
-(yerleşim, kısayollar, ikon ve renk dili). Aşağıdakiler bugün çalışan işlevlerdir.
-- [x] Üst çubuk: nüfuz, istikrar, iç cephe, insan gücü, fabrikalar, yakıt, kriz endeksi, tarih/hız
-- [x] Üst çubuk (25 Eyl): ikmal doluluğu (ikmalli tümen oranı), konvoylar (stok / ithalat ihtiyacı), karargâh kapasitesi
-      (+0,3/gün, savaşta +0,5; tavan 200), kara/deniz/hava birikimi (muharebelerden; tavan 500) — kayıt/yüklemeye eklendi
-- [x] HUD (25 Eyl): bayrak · kompakt gösterge hücreleri (yakıt/ikmal çubuklu) · karargâh+birikim grubu; altında kısayol
-      harfli menü düğmeleri (Q F I O R T Y U N H L) ve uyarı kutuları; yan paneller ikinci satırın altında
-- [x] Lojistik ekranı (L): ekipman stok / kullanımda / günlük üretim / ihtiyaç / denge, kaynak üretim-kullanım, fabrika kullanımı
-- [x] Ekranlar: Hükümet (lider, parti, pasta, dökümlü göstergeler, yasalar, danışmanlar, ulusal durumlar, kararlar), Devlet
-      Programı ağacı, Araştırma (yuvalar + sekmeler + yıllara göre), Diplomasi, Ticaret (elle anlaşma), İnşaat, Üretim,
-      Lojistik, Ordu (tabur ızgarası), Donanma, Hava, Eyalet (yuvalar + doğrudan inşa), Olay penceresi, duraklatma, oyun sonu
-- [ ] Karargâh kapasitesi ve birikimin harcanacağı yer: **Genelkurmay** ekranı (generaller, doktrinler) — V3/C3
-- [ ] Tümen tasarımı ve eğitim: şablon düzenleyici (tabur/destek bölüğü, kara birikimi harcar), takviye/yükseltme önceliği
-- [ ] Ayrı Kararlar ekranı, İstihbarat (ajanlar), dünya kaynak pazarı
-- [ ] İkmal harita modu (demiryolu/ikmal merkezi) — B3 ile; radar ve tahkimat binaları (kara/kıyı tahkimatı)
-- [ ] Savaş sonu: barış konferansı, sürgün hükümetleri, kukla yönetimi
-- [ ] İç içe ipuçları
+## PART F — DESIGN LANGUAGE AND INTERFACE (Phase 15) ◐
+- [x] One design system: metal texture set (`tools/make_ui_skin.py`), theme variations, panel template (`PanelLayout`)
+- [x] New icon set: made by the user from the prompt list (`docs/art/ICON_PROMPTS.md`) in `assets/ui/icons_new/`, used
+      automatically (a web size diet for them is open, see WEB)
+- [x] Side panel template (close button, one panel at a time), news in the middle
+- [x] Tabs (Army), full-screen screens with drag scrolling, research on one timeline page
+- [◐] Leader portraits: the loader is ready (top bar, Politics, Diplomacy, Ctrl card; the flag otherwise); files keep
+      arriving in `assets/portraits/<TAG>.png`
+- [ ] Real flags for the 12 missing countries
+- [ ] Nested tooltips (hover a term for its explanation)
+- [ ] Minimap; map modes (supply, infrastructure, resources, ideology, alliances, naval control)
+- [ ] Notification settings; interface scale
 
-## BÖLÜM M — MEKANİK KAPSAMI ◐
-✔ var · ◐ sade hâli var · ☐ yok
-| Sistem | Durum | Eksik |
+---
+
+## PART UI — INTERFACE STATUS (Phase 16) ◐
+Today's interface still follows a layout from the first versions; our own interface identity is designed in PART O
+Layer 2 (layout, shortcuts, icon and colour language). Below is what works today.
+- [x] Top bar: influence, stability, home front, manpower, factories, fuel, crisis index, date/speed
+- [x] Top bar (25 Sep): supply fill (share of supplied divisions), convoys (stock / import need), command power
+      (+0.3/day, +0.5 at war; cap 200; spent on the chain of command), land/naval/air know-how (from battles; cap 500;
+      **not spent yet → locked**) — added to save/load
+- [x] HUD: flag · compact indicator cells (fuel/supply with bars) · command power + know-how group; the menu down the
+      left edge with shortcut letters (Q F I O R T Y U N H L) and alert tiles; side panels open to the right of the menu
+- [x] Logistics screen (L): equipment stock / in use / daily output / need / balance, resource production-use, factory use
+- [x] Screens: Politics (leader, party, pie, broken-down indicators, laws, advisors, national conditions, decisions; other
+      countries read-only), State Program tree, Research (slots + one-page timeline), Diplomacy, Trade (manual deals),
+      Construction, Production, Logistics, Army (chain of command + templates), Navy, Air, State (slots + build here),
+      Event window, pause, game over, Settings
+- [ ] Where know-how is spent: a **General staff** screen (doctrines, general traits) — V3/C3
+- [ ] Division design and training: template editor (battalions/support companies, spends land know-how),
+      reinforcement/upgrade priority
+- [ ] A separate Decisions screen, Intelligence (agents), a world resource market
+- [ ] Supply map mode (railway/supply hubs) — with B3; radar and fortification buildings (land/coastal forts)
+- [ ] End of war: peace conference, governments in exile, puppet administration
+- [ ] Nested tooltips
+
+## PART M — MECHANICS COVERAGE ◐
+✔ exists · ◐ basic version exists · ☐ none
+| System | Status | Missing |
 |---|---|---|
-| Hükümet: ideoloji, parti, seçim, istikrar, iç cephe | ✔ | darbe, iç savaş, parti ayrılıkları |
-| Yasalar (askerlik, ekonomi, ticaret) | ✔ | eğitim / basın / hükümet yasaları |
-| Danışmanlar | ◐ | ülkeye özgü tarihî danışmanlar, tasarım büroları (tank/uçak/gemi) |
-| Devlet programı | ◐ | 9 ağaç (Türkiye 33 program); diğer ülkeler ortak ağaç; büyük güçlere geniş ağaçlar |
-| Olaylar | ◐ | seçenek şartları ✔; tarihî zincirler (İspanya İç Savaşı, Kış Savaşı, Balkanlar, Kuzey Afrika) |
-| Kararlar | ◐ | ayrı Kararlar ekranı, kategoriler, süreli görevler |
-| İnşaat, üretim, verimlilik | ✔ | ekipman varyantları, lisanslı üretim |
-| Ticaret | ✔ | ilişkilerin etkisi, ambargo, dünya kaynak pazarı |
-| Araştırma | ✔ | doktrin ağaçları (kara/deniz/hava), bilim insanları |
-| Tümen şablonu | ◐ | destek bölükleri, şablon değişimi birikim harcar, takviye önceliği |
-| Muharebe | ◐ | taktikler, cephe genişliği ayrıntısı, gece/gündüz, hava durumunun muharebeye etkisi |
-| Ordular, cepheler | ◐ | taarruz planı okları; ✔ ordu grupları, generaller (beceri/tecrübe); ☐ general özellikleri |
-| Genelkurmay (karargâh kapasitesi, birikim harcama) | ☐ | generaller, doktrinler |
-| Lojistik | ◐ | ikmal merkezleri, demiryolu, kamyon, liman kapasitesi, yakıt ayrıntısı |
-| Deniz | ◐ | görev bölgeleri, deniz çıkarması planı, üslerin menzili |
-| Hava | ◐ | stratejik bombardıman, paraşütçü, hava bölgesi başına üstünlük |
-| Diplomasi | ◐ | saldırmazlık paktı, gönüllüler, ödünç verme ve kiralama, ilişkiler, ittifak yönetimi |
-| Barış | ◐ | barış konferansı, sürgün hükümetleri, kukla/özerklik |
-| İşgal | ☐ | direniş, uyum, garnizon |
-| İstihbarat | ☐ | ajanlar, operasyonlar, şifre çözme |
-| Kriz endeksi | ✔ | eşikler ideolojiye göre ✔ |
+| Government: ideology, party, elections, stability, home front | ✔ | coups, civil wars, party splits |
+| Laws (conscription, economy, trade) | ✔ | education / press / government laws |
+| Advisors | ◐ | country-specific historical advisors, design bureaus (tank/aircraft/ship) |
+| State programs | ◐ | 9 trees (Turkey 33 programs); other countries a shared tree; wide trees for the great powers |
+| Events | ◐ | option conditions ✔; historical chains (Spanish Civil War, Winter War, Balkans, North Africa) |
+| Decisions | ◐ | a separate Decisions screen, categories, timed missions |
+| Construction, production, efficiency | ✔ | equipment variants, licensed production |
+| Trade | ✔ | effect of relations, embargo, a world resource market |
+| Research | ✔ | doctrine trees (land/naval/air), scientists |
+| Division templates | ◐ | support companies, template changes spend know-how, reinforcement priority |
+| Combat | ◐ | tactics, frontage detail, day/night, weather effect on combat |
+| Armies, fronts | ◐ | offensive plan arrows; ✔ army groups, generals (skill/experience); ☐ general traits |
+| General staff (command power, know-how spending) | ◐ | ✔ command power spent on generals; ☐ doctrines (know-how) |
+| Logistics | ◐ | supply hubs, railways, trucks, port capacity, fuel detail |
+| Navy | ◐ | mission regions, naval landing plans, base range |
+| Air | ◐ | strategic bombing, paratroopers, superiority per air region |
+| Diplomacy | ◐ | non-aggression pacts, volunteers, lend-lease, relations, alliance management |
+| Peace | ◐ | peace conference, governments in exile, puppets/autonomy |
+| Occupation | ☐ | resistance, compliance, garrisons |
+| Intelligence | ☐ | agents, operations, code-breaking |
+| Crisis index | ✔ | thresholds by ideology ✔ |
+| Mods | ☐ | scenario packages, see PART MOD |
 
-## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
-- [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,
-      iş parçacığı desteği kapalı, pck 90 MB parçalara bölünüp `tools/web/shell.html` ile birleştirilir)
-- [x] Compatibility renderer farkları çözüldü: sahne sRGB uzayında çizildiği için shader'lar `srgb_out` ile çıkışı çevirir;
-      custom_data'lı MultiMesh'lerde renk yuvası sıfır kaldığından instance renkleri beyaz yapılır (yalnız web'de)
-- [x] Renkler masaüstüyle aynı: Compatibility'de güneş gölgesi + glow/SSAO/renk ayarı kapalı (GLES3 bunlarla ton eşlemeyi
-      LDR son işlemde yapıp aşırı parlatıyor); efekt shader'larında sRGB çıkışı; ölçülen fark 9/255 (SSAO ayrıntısı)
-- [x] Web'de bölge ipucu/tıklama (RGBA8 kimlik çözümü düzeltildi)
-- [x] 25 Eyl (akşam) değişiklikleri Compatibility renderer'ında denendi: kara rengi aynı (98/137/114 ↔ 96/139/114), oklar,
-      bayraklar ve paneller aynı; deniz web'de biraz açık (önceden de böyleydi)
-- [ ] Web'de birim gölgeleri yok (GLES3 gölge geçişi parlaklığı bozduğu için kapalı)
-- [ ] Web için varlık diyeti: yükseklik haritası yarım çözünürlük, doku boyutları, ilk yükleme süresi
-- [ ] Mobil tarayıcı desteği (bellek), kayıt dosyalarının tarayıcıda kalıcılığı
+## PART MOD — MOD SUPPORT ☐
+The game will be a platform: the engine (map, economy, politics, war, AI, interface) plus scenario packages. WWII 1936 is
+the first scenario; others can come from us or from players (e.g. an alternative-history fantasy with Atatürk, a zombie
+outbreak).
+- [ ] Scenario package format: `mods/<name>/` with `data/common/*.json` (countries, laws, events, programs, technologies,
+      units, commanders…), text (`strings.csv`), optional map, icons, portraits, music; a manifest (name, version,
+      description, start date, base scenario)
+- [ ] Loading order and overriding (a mod replaces or extends base files), a mod list in the main menu
+- [ ] Engine texts free of WWII assumptions (dates, "1936–1945", end date from the scenario)
+- [ ] A generic game name (not tied to WWII) — see PART O, Game name
+- [ ] Modder documentation (English + Turkish) and a validation tool (the data tests from `tests/test_data.gd`)
 
-## BÖLÜM G — PERFORMANS (sürekli) ◐
-Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
-- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü)
-- [x] AI/ikmal/istatistik önbellekleri; ağaç gölgeleri kapalı; MSAA yerine FXAA; yarım çözünürlük SSAO
-- [ ] Sayaç ve etiketleri tek çizim çağrısında toplu çizim (şu an ~2.600 çizim çağrısı)
-- [ ] LOD: uzak zoom'da şehir modeli → ikon
-- [ ] Simülasyonu ayrı iş parçacığına alma
-- [ ] Grafik kalite ayarları menüde
+## PART WEB — BROWSER VERSION ◐
+- [x] GitHub Pages release: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer on
+      the web only, thread support off, the pck split into 90 MB parts and joined by `tools/web/shell.html`)
+- [x] Compatibility renderer differences solved: the scene is drawn in sRGB space, so shaders convert their output with
+      `srgb_out`; in MultiMeshes with custom_data the colour slot stays zero, so instance colours are made white (web only)
+- [x] Colours match the desktop: in Compatibility the sun shadow + glow/SSAO/colour adjustment are off (GLES3 does tone
+      mapping in the LDR post-process with them and over-brightens); sRGB output in effect shaders; measured difference
+      9/255 (SSAO detail)
+- [x] Region tooltip/click on the web (RGBA8 ID decoding fixed)
+- [x] The loading page is in English
+- [ ] No unit shadows on the web (off because the GLES3 shadow pass breaks brightness)
+- [ ] Asset diet for the web: half-resolution height map, texture sizes (the new icons and portraits add ~57 MB; they
+      could be imported at 128 px), first load time
+- [ ] Mobile browser support (memory), save files kept in the browser
 
----
-
-## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
-- [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar
-- [ ] Tarihî olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar, Kuzey Afrika)
-- [ ] Seçimler, darbe, iç savaş
-- [ ] Kukla devletler, barış konferansı ekranı, lend-lease, gönüllüler
-- [ ] Ekipman tasarımcıları (tank, uçak, gemi)
-- [ ] Tüm dünya haritası
-
----
-
-## BÖLÜM I — ÇOK OYUNCULU (Faz 10) ☐
-- [ ] Deterministik simülasyon, lockstep ağ modeli, lobi, senkron kontrolü
-
----
-
-## Önerilen sıra
-1. **★ Görünür savaş**: modeller ✔ → kara birlikleri ✔ → donanma ✔ → hava ✔ → efektler ✔ (kalan: sesler,
-   geri çekilme/teslim animasyonu, çıkarma planı, stratejik bombardıman, havuzlama)
-2. **P** Oynanabilirlik: savaş dengesi (P1, 1939–41 akışı) → savaş planları (C2) → geri bildirim (P2)
-3. **B** Ulaşım & lojistik (yollar, demiryolları, trenler, ikmal)
-4. **C** Cephe hatlarının kalanı, komuta, muharebe derinliği
-5. **D** Atmosfer, **E** ses, **F** tasarım dili (paralel)
-6. **H** İçerik, **I** çok oyunculu
+## PART G — PERFORMANCE (ongoing) ◐
+Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
+- [x] Simulation profiling tools (`game/dev/sim.gd`, `--fps` measurement)
+- [x] AI/supply/statistics caches; tree shadows off; FXAA instead of MSAA; half-resolution SSAO
+- [ ] Batched drawing of counters and labels in one draw call (currently ~2,600 draw calls)
+- [ ] LOD: city model → icon at far zoom
+- [ ] Moving the simulation to its own thread
+- [ ] Graphics quality settings in the menu
 
 ---
 
-## Mimari
+## PART H — CONTENT DEPTH (ongoing) ◐
+- [ ] A wide state program tree for every great power, country trees for the middle powers
+- [ ] Historical event chains (Spanish Civil War, Winter War, the Balkans, North Africa)
+- [ ] Elections, coups, civil wars
+- [ ] Puppet states, a peace conference screen, lend-lease, volunteers
+- [ ] Equipment designers (tank, aircraft, ship)
+- [x] The whole world map
+
+---
+
+## PART I — MULTIPLAYER (Phase 10) ☐
+- [ ] Deterministic simulation, lockstep network model, lobby, sync check
+
+---
+
+## Suggested order
+1. **★ Visible war**: models ✔ → land units ✔ → navy ✔ → air ✔ → effects ✔ (remaining: sounds, retreat/surrender
+   animation, landing plans, strategic bombing, pooling)
+2. **P** Playability: war balance (P1, the 1939–41 flow) → war plans (C2) → feedback (P2)
+3. **B** Transport & logistics (roads, railways, trains, supply)
+4. **C** The rest of the front lines, command, combat depth
+5. **D** Atmosphere, **E** sound, **F** design language (in parallel)
+6. **H** Content, **MOD** mod support, **I** multiplayer
+
+---
+
+## Architecture
 ```
-data/            → içerik (JSON/CSV), üretilmiş harita dosyaları
-tools/           → harita, doku, model (Blender), ses üretim betikleri
-game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, AI, Game, Audio
-game/core/       → saf simülasyon sınıfları (Country, StateRegion, Province, Division, Fleet...)
-game/map/        → 3D harita, kamera, şehir/ağaç/birim katmanları
-game/ui/         → arayüz
-game/dev/        → headless test ve simülasyon
-tests/           → ekransız test paketi (tests/run.gd koşucu, test_*.gd testler)
-assets/          → shader, model, doku, ikon, yazı tipi, ses
+data/            → content (JSON/CSV), generated map files
+tools/           → map, texture, model (Blender), sound generation scripts
+game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
+game/core/       → pure simulation classes (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet…)
+game/map/        → 3D map, camera, city/tree/unit layers
+game/ui/         → interface
+game/dev/        → headless tests and simulation
+tests/           → headless test suite (tests/run.gd runner, test_*.gd tests)
+assets/          → shaders, models, textures, icons, fonts, sounds
+docs/            → wiki (docs/wiki, Turkish in docs/wiki/tr), originality, cloud tasks, art prompts
 ```
 
-## Geliştirici araçları
-- Test paketi: `tools/run_tests.sh` (içe aktarma + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
-  (PR ve main push'ta; denge testi elle tetiklenen ayrı iş)
-- Denge testi: `tools/balance_parallel.sh 6` (6 paralel koşu, ~3,5 dk); tek koşu `game/dev/balance.gd`
-- Performans: `godot --path . -- --play=GER --run --fps=10`
-- Görsel QA (kare dizisi): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`
+## Developer tools
+- Test suite: `tools/run_tests.sh` (import + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
+  (on PRs and pushes to main; the balance test is a separate job triggered by hand)
+- Balance test: `tools/balance_parallel.sh 6` (6 parallel runs, ~15–20 min); a single run `game/dev/balance.gd`
+- Performance: `godot --path . -- --play=GER --run --fps=10`
+- Visual QA (frame series): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`
 - Video: `godot --path . --write-movie out.avi --fixed-fps 30 -- --play=DEN --war=GER,DEN --focus_battle=200 --speed=2
-  --film=5 --dolly=320,120` (`--pan=dx,dz`, `--track`, `--hide_ui`); klipler ffmpeg ile birleştirilir → `docs/media/`
+  --film=5 --dolly=320,120` (`--pan=dx,dz`, `--track`, `--hide_ui`); clips are joined with ffmpeg → `docs/media/`

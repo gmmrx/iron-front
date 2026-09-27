@@ -1,3 +1,5 @@
+[English](../04_economy.md) · **Türkçe**
+
 # Ekonomi
 
 ## Fabrikalar ve tüketim malı

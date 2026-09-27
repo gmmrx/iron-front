@@ -1,3 +1,5 @@
+[English](../07_countries.md) · **Türkçe**
+
 # Ülkeler
 
 Oyunda 80 ülke oynanabilir. Her biri 1936 başındaki lideri, ideolojisi ve iktidar partisiyle başlar. Tüm ülkeler için

@@ -1,3 +1,5 @@
+[English](../08_developer.md) · **Türkçe**
+
 # Geliştirici notları
 
 ## Testler
@@ -30,6 +32,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_politics.gd` | İstikrar/iç cephe formülleri, yasa şartları, danışman, karar, süreli ulusal durum, seçim, tarihli olay, kilitli seçenek |
 | `test_diplomacy.gd` | Gerekçe, kriz endeksi eşikleri, savaşa katılım, teslim ilerlemesi ve sınırı, eyalet devri, beyaz barış |
 | `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
+| `test_commanders.gd` | Komutan kadroları, atama/terfi/yeni general bedelleri, muharebe katkısı, tecrübe, oyuncuya kendiliğinden atama yok, doğrudan emir |
 | `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
 | `test_military.gd` | Eğitim süresi (askerlik yasası) |
 | `test_save_load.gd` | 200 gün → kaydet → yükle: tüm alanlar aynı (fark eden alan adıyla yazılır) |
@@ -49,7 +52,11 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 ## Geliştirici argümanları (`godot --path . -- ...`)
 `--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
 `--target=TAG` (diplomasi), `--event=id[,FROM]`, `--select=PID`, `--days=N`, `--dist=N` (kamera), `--demo_order`,
-`--demo_fleet`, `--weather=rain|snow`, `--war=A,B`, `--screenshot=dosya.png --wait=N`, `--click=x,y`.
+`--demo_fleet`, `--weather=rain|snow`, `--war=A,B`, `--screenshot=dosya.png --wait=N`, `--click=x,y`,
+`--pause_menu`, `--settings` (oyun içi ayarlar), `--menu_settings` (ana menü ayarları), `--lang_test=en|tr`,
+`--gameover=win|lose`, `--politics_of=TAG` (başka ülkenin siyaseti), `--ctrl_hover=x,y` (ülke kartı),
+`--hover_at=x,y` (ekran konumundaki bölge kartı), `--army=TAG [--army_select --army_cmd]` (bütün tümenler TAG'e karşı tek
+ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim).
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## Yeni ikon seti ve lider portreleri
@@ -59,5 +66,10 @@ Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-meth
   ör. `ismet_inonu.png`) → üst çubukta bayrak yerine, Hükümet ve Diplomasi ekranlarında görünür; yoksa bayrak.
 
 ## Veri
-İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman).
+İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman, komutanlar `commanders.json`).
 Olay seçeneğine `"require": [koşullar]` eklenirse şart sağlanmadıkça seçenek kilitli görünür; yapay zekâ da seçmez.
+
+## Dil
+Oyunun ana dili İngilizcedir; bütün metinler `game/localization/strings.csv` içinde İngilizce ve Türkçe. Kayıtlı ayar yoksa
+oyun İngilizce açılır (`GameSettings.DEFAULT_LANG`); Ayarlar → Dil değiştirir ve hatırlar. Belgeler de aynı kuralla:
+asıl dosya İngilizce, Türkçesi yanında (`*.tr.md`, `docs/wiki/tr/`).

@@ -1,8 +1,11 @@
+[English](../01_how_to_play.md) · **Türkçe**
+
 # Nasıl oynanır
 
 ## Başlangıç
 1. Ana menüde **Yeni oyun** → haritadan ya da listeden bir ülke seç → **Oyna**.
 2. Oyun **duraklatılmış** başlar (1 Ocak 1936). Boşluk ile başlat/durdur, 1–5 ile hız seç.
+3. Oyun İngilizce açılır; Türkçe için **Ayarlar → Dil** (ana menü ya da Esc menüsü).
 
 ## İlk 30 gün (her ülke için)
 1. **Devlet programı seç (F)**: parlak programlar seçilebilir. Program 4–12 haftada biter, bitince etkisi uygulanır.
@@ -11,7 +14,8 @@
    tıklayıp "Burada inşa et".
 4. **Üretim (Y)**: boştaki askeri fabrikaları hatlara ata. Boş fabrika hiçbir şey üretmez.
 5. **Ticaret (R)**: kaynak açığı kırmızı satırdır. **Satın al** → satıcı ülkeyi seç. Otomatik ticaret yalnız sen açarsan çalışır.
-6. **Hükümet (Q)**: 150 nüfuz biriktiğinde bir yasa değiştir ya da danışman ata.
+6. **Siyaset (Q)**: 150 nüfuz biriktiğinde bir yasa değiştir ya da danışman ata.
+7. **Ordu (U)**: tümenlerini ordularda topla, her birine general ve cephe ver (bkz. [Savaş](05_savas.md)).
 
 ## Kontroller
 | Eylem | Kısayol |

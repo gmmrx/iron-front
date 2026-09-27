@@ -33,7 +33,7 @@ func _ready() -> void:
 	col.add_theme_constant_override("separation", 6)
 	add_child(col)
 
-	var title := UiTheme.make_label(tr("GAME_TITLE"), 104, UiTheme.ACCENT)       # çalışma adı: docs/OZGUNLUK.md
+	var title := UiTheme.make_label(tr("GAME_TITLE"), 104, UiTheme.ACCENT)       # çalışma adı: docs/ORIGINALITY.md
 	var tf := FontVariation.new()
 	tf.base_font = load("res://assets/fonts/CinzelVariable.ttf")
 	tf.variation_opentype = {"wght": 900}

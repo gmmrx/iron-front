@@ -4,13 +4,14 @@ extends RefCounted
 ## Açılışta Audio autoload'u yükler ve uygular; Ayarlar ekranı her değişiklikte kaydeder.
 
 const PATH := "user://settings.cfg"
+const DEFAULT_LANG := "en"          ## oyunun ana dili; Türkçe Ayarlar → Dil'den seçilir
 
 static var master := 1.0
 static var music := 1.0
 static var sfx := 1.0
 static var ui := 1.0
 static var music_track := ""        ## "" = oyun durumuna göre (otomatik)
-static var lang := ""               ## "" = sistem dili
+static var lang := ""               ## "" = varsayılan dil (İngilizce); Ayarlar'dan değiştirilir
 static var fullscreen := false
 static var edge_pan := true
 
@@ -33,8 +34,7 @@ static func apply() -> void:
 	Audio.set_sfx_linear(sfx)
 	Audio.set_ui_linear(ui)
 	Audio.set_forced_track(music_track)
-	if lang != "":
-		TranslationServer.set_locale(lang)
+	TranslationServer.set_locale(lang if lang != "" else DEFAULT_LANG)
 	if not OS.has_feature("web") and DisplayServer.get_name() != "headless":
 		var want := DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 		if DisplayServer.window_get_mode() != want and (fullscreen or DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN):

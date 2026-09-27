@@ -307,8 +307,8 @@ func _update_country() -> void:
 		_flag.stretch_mode = TextureRect.STRETCH_SCALE
 		_mini_flag.visible = false
 	_name.text = c.display_name()
-	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
-	_leader.text = "%s — %s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
+	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader_name(), tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
+	_leader.text = "%s — %s" % [c.leader_name(), tr("IDEOLOGY_" + c.ideology)]
 	_pp.text = "%d" % int(c.political_power)
 	_cell_of(_pp).tooltip_text = tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()]
 	var stab := Politics.stability(c)

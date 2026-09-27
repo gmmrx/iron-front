@@ -376,7 +376,7 @@ func show_country(tag: String, screen_pos: Vector2, can_open := true) -> void:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(info)
-	var ln := UiTheme.make_label(c.leader, 18, UiTheme.TEXT)
+	var ln := UiTheme.make_label(c.leader_name(), 18, UiTheme.TEXT)
 	ln.add_theme_font_override("font", UiTheme.bold_font())
 	ln.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(ln)

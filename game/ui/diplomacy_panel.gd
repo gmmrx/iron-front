@@ -81,7 +81,7 @@ func refresh() -> void:
 	n.add_theme_font_override("font", UiTheme.title_font())
 	n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	nb.add_child(n)
-	nb.add_child(UiTheme.make_label(t.leader + (("  ·  " + t.party_name()) if t.party_name() != "" else ""), 15, UiTheme.TEXT))
+	nb.add_child(UiTheme.make_label(t.leader_name() + (("  ·  " + t.party_name()) if t.party_name() != "" else ""), 15, UiTheme.TEXT))
 	var il := UiTheme.make_label(tr("IDEOLOGY_" + t.ideology), 15, IDEO_COLORS[t.ideology].lightened(0.35))
 	il.add_theme_font_override("font", UiTheme.bold_font())
 	nb.add_child(il)
@@ -174,7 +174,7 @@ func _country_list(me: Country) -> void:
 			rel = "  ✦"
 			b.add_theme_color_override("font_color", UiTheme.GOOD)
 		b.text = c.display_name() + rel
-		b.tooltip_text = "%s\n%s · %s" % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology)]
+		b.tooltip_text = "%s\n%s · %s" % [c.display_name(), c.leader_name(), tr("IDEOLOGY_" + c.ideology)]
 		var ideo := ColorRect.new()
 		ideo.color = IDEO_COLORS[c.ideology]
 		ideo.mouse_filter = Control.MOUSE_FILTER_IGNORE

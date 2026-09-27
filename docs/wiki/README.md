@@ -1,20 +1,22 @@
-# Iron Front — Oyun Wikisi
+**English** · [Türkçe](tr/README.md)
 
-1936–1945 arasında geçen, 80 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Tarayıcıda:
-<https://gmmrx.github.io/iron-front/>. Sayılar bu oyunun kodundan alınmıştır.
+# Game Wiki
 
-**Temel ilke:** her kararı oyuncu verir. Oyun oyuncu adına ticaret yapmaz, uçak kanadı yönetmez, geri çekilme emri vermez;
-tarihî baskılar seçenekli olay olarak gelir.
+A World War II grand strategy game set in 1936–1945, playable as any of 80 countries. In the browser:
+<https://gmmrx.github.io/iron-front/>. The numbers on these pages are taken from the game's code.
 
-| Sayfa | İçerik |
+**Core principle:** the player makes every decision. The game never trades, runs air wings or orders a retreat on the
+player's behalf; historical pressures arrive as events with real choices.
+
+| Page | Contents |
 |---|---|
-| [Nasıl oynanır](01_nasil_oynanir.md) | İlk 30 gün, kontroller, kısayollar, kazanma/kaybetme |
-| [Arayüz](02_arayuz.md) | Üst çubuk, menü düğmeleri, her ekranın ne yaptığı |
-| [Hükümet](03_hukumet.md) | İdeoloji, istikrar, iç cephe, yasalar, danışmanlar, ulusal durumlar, seçimler, olaylar |
-| [Ekonomi](04_ekonomi.md) | İnşaat, üretim, ticaret, kaynaklar, tüketim malı |
-| [Savaş](05_savas.md) | Tümenler, şablonlar, emirler, muharebe, ordular, ikmal, hava, deniz |
-| [Diplomasi](06_diplomasi.md) | Savaş gerekçesi, kriz endeksi eşikleri, garantiler, ittifaklar, teslim |
-| [Ülkeler](07_ulkeler.md) | 80 ülke, 1936 liderleri, başlangıç durumu |
-| [Geliştirici](08_gelistirici.md) | Testler, geliştirici argümanları, ikon/portre ekleme |
+| [How to play](01_how_to_play.md) | The first 30 days, controls, shortcuts, winning and losing |
+| [Interface](02_interface.md) | Top bar, menu buttons, what every screen does |
+| [Government](03_government.md) | Ideology, stability, home front, laws, advisors, national conditions, elections, events |
+| [Economy](04_economy.md) | Construction, production, trade, resources, consumer goods |
+| [Warfare](05_warfare.md) | Divisions, templates, orders, combat, chain of command, supply, air, navy |
+| [Diplomacy](06_diplomacy.md) | Casus belli, crisis index thresholds, guarantees, alliances, surrender |
+| [Countries](07_countries.md) | 80 countries, 1936 leaders, starting situation |
+| [Developer](08_developer.md) | Tests, developer arguments, adding icons and portraits |
 
-Yol haritası ve eksikler: [ROADMAP.md](../../ROADMAP.md).
+Roadmap and open items: [ROADMAP.md](../../ROADMAP.md).

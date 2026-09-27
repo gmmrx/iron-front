@@ -1,3 +1,5 @@
+[English](../03_government.md) · **Türkçe**
+
 # Hükümet
 
 ## İdeoloji ve iktidar partisi
@@ -109,3 +111,8 @@ Tarihî olaylar belli bir tarihte ya da bir devlet programıyla gelir, oyun dura
 | Tahttan feragat krizi | İngiltere | 10 Aralık 1936 |
 | Büyük Temizliğin sonu | SSCB | 17 Kasım 1938 |
 | Seçim | seçimli ülkeler | seçim günü |
+
+## Başka ülkelerin siyaseti
+Haritada bir ülkenin üstünde **Ctrl** basılı tutunca genel durumu görünür; **Ctrl + tık** o ülkenin Siyaset ekranını salt
+okunur açar (lider, partiler, yasalar, danışmanlar, yürürlükteki kararlar, sürdürdüğü devlet programı). "Kendi hükümetimize
+dön" kendi ekranına döndürür.

@@ -1,3 +1,5 @@
+[English](../06_diplomacy.md) · **Türkçe**
+
 # Diplomasi
 
 ## Kriz endeksi

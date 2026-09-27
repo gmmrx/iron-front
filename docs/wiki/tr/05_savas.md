@@ -1,6 +1,8 @@
+[English](../05_warfare.md) · **Türkçe**
+
 # Savaş
 
-## Tümenler ve şablonlar (U)
+## Tümenler ve şablonlar (U → Tümen şablonları)
 - Tabur türleri: piyade, topçu, tanksavar, motorize piyade, hafif tank, orta tank (araştırma ister).
 - Şablon tasarımcısı: tabur başına +/− (şablonda en çok 25 tabur). Değerler: personel/tanksavar ateşi, savunma, şok,
   bütünlük, hız, cephe genişliği, insan gücü. Piyade taburu: 30 personel ateşi, 110 savunma, 15 şok, 100 bütünlük, 50 dayanıklılık.
@@ -13,15 +15,18 @@
 - **Son askere kadar**: oyuncunun tümenlerinde açık başlar. Tümen kendiliğinden geri çekilmez; bütünlüğü %12'nin altına
   inince yarı güçle savaşır, gücü bitince yok olur. Kapatırsan bütünlük bitince en yakın güvenli bölgeye çekilir.
 
-## Seçim paneli (mikro yönetim)
+## Seçili tümenler paneli (mikro yönetim)
 Seçili tümenler alttaki panelde:
-- **Sayı ve bileşim**: kaç tümen, hangi şablondan kaç tane; bir şablona tıkla → seçimde yalnız onlar kalır.
-- Ortalama bütünlük ve güç, kaçı muharebede, kaçı ikmalsiz, kaçı doğrudan emirde.
-- **Böl**: ilk yarı seçili kalır, öbür yarı bırakılır; iki yarıyı ayrı yerlere gönder.
-- **Seçilenlerle yeni ordu**, **Orduya kat…**, **Ordudan çıkar**.
+- **Başlık**: hepsi aynı ordudaysa ordunun rengi, adı, komutanı (rütbe, beceri, komuta katkısı), cephesi, Savun / Taarruz,
+  **Yönet** (orduyu Ordu ekranında açar) ve **Orduyu seç**. Değilse seçili sayı ve birden çok ordudan mı, ordusuz mu oldukları.
+- **Özet hücreleri**: tümen sayısı, ortalama bütünlük ve güç, kaçı muharebede, ikmal, kaçı doğrudan emirde.
+- **Bileşim**: hangi şablondan kaç tane; bir şablona tıkla → seçimde yalnız onlar kalır.
+- **Tümen kartları**: simge, ad, bütünlük ve güç çubukları, durum ve ordu. Muharebede ya da ikmalsiz kart kırmızı,
+  doğrudan emirdeki altın çerçevelidir. Karta tıkla → yalnız o tümen seçilir; × → seçimden çıkar.
+- **Araç çubuğu**: Durdur · **Böl** (ilk yarı seçili kalır, öbür yarı bırakılır: iki yarıyı ayrı yerlere gönder) ·
+  **Ordu planına döndür** · **Seçilenlerle yeni ordu** · **Orduya kat…** · **Ordudan çıkar** · Son askere kadar · Dağıt.
 - **Doğrudan emir**: ordudaki bir tümene haritadan emir verirsen tümen orduda kalır (komuta katkısı sürer) ama ordu onu artık
   cepheye geri çekmez. **Ordu planına döndür** ile yeniden orduya bırakılır.
-- Listede bir tümen satırına tıkla → yalnız o tümen seçilir; × → seçimden çıkar.
 
 ## Komuta zinciri (U → Komuta zinciri)
 - **Ordular grubu** (mareşal) → **ordu** (general) → **tümen**.
@@ -53,4 +58,5 @@ yakın hava desteği, liman baskını. Görev bölgesini haritadan seç. "Otomat
 
 ## Deniz (N)
 Filolar: limanda, deniz üstünlüğü, konvoy baskını, konvoy koruma. Görev bölgesi haritadan. Bütünlük düşünce filo limana döner.
-Gemiler yalnız deniz yollarından gider.
+Gemiler yalnız deniz yollarından gider. Bir deniz bölgesinin üstüne gelince ülkelere göre **deniz hâkimiyeti** ve
+nakliyenin orada güvenli olup olmadığı görünür.

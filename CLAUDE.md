@@ -1,58 +1,74 @@
-# Iron Front — Claude Code çalışma kuralları
+**English** · [Türkçe](CLAUDE.tr.md)
 
-1936–1948 arası geçen, 80 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Godot 4.7.2, GDScript,
-veri güdümlü (`data/common/*.json`). Web sürümü: https://gmmrx.github.io/iron-front/ (main'e her push'ta yeniden yayınlanır).
-Oyun wikisi: `docs/wiki/`, yol haritası: `ROADMAP.md`. Kullanıcıyla Türkçe konuş.
+# Iron Front — Claude Code working rules
 
-## Kurulum (Linux, ekransız)
+A World War II grand strategy game set in 1936–1948, playable as any of 80 countries. Godot 4.7.2, GDScript,
+data-driven (`data/common/*.json`). Web version: https://gmmrx.github.io/iron-front/ (republished on every push to main).
+Game wiki: `docs/wiki/` (Turkish in `docs/wiki/tr/`), roadmap: `ROADMAP.md` (Turkish in `ROADMAP.tr.md`).
+**Talk to the user in Turkish.** The main language of the game and of the documentation is English.
+
+## Setup (Linux, headless)
 ```
 GODOT_VERSION=4.7.2
 BASE=https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable
 curl -sSL -o godot.zip $BASE/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
 unzip -q godot.zip -d ~/godot && mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
 export GODOT=~/godot/godot
-$GODOT --headless --path . --import      # bir kez; yeni class_name / çeviri sonrası tekrar
+$GODOT --headless --path . --import      # once; again after a new class_name / translation change
 ```
-Python araçları için: `pip install pillow numpy scipy`.
+For the Python tools: `pip install pillow numpy scipy`.
 
-## Testler (hepsi ekransız)
-| Komut | Ne ölçer |
+## Tests (all headless)
+| Command | What it measures |
 |---|---|
-| `GODOT=$GODOT tools/run_tests.sh` | içe aktarma + `tests/run.gd` + country_check (60 gün); CI'daki iş budur |
-| `$GODOT --headless --path . -s tests/run.gd [-- --file=test_data]` | test paketi (`tests/test_*.gd`, her test temiz oyunla; yazım: `docs/wiki/08_gelistirici.md`) |
-| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyuncu eylemleri oyunu etkiliyor mu, oyuncu adına otomatik iş var mı (çıkış kodu 1 = sorun) |
-| `GODOT=$GODOT tools/balance_parallel.sh 6` | 1936–1942 tarihî akış, 12 kontrol. Her kontrol en az 5/6 geçmeli |
-| `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 istikrar/savaş desteği, tarihli olaylar, seçimler |
-| `$GODOT --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
-| `$GODOT --headless --path . -s game/dev/sim.gd` | simülasyon hızı (profil) |
+| `GODOT=$GODOT tools/run_tests.sh` | import + `tests/run.gd` + country_check (60 days); this is the CI job |
+| `$GODOT --headless --path . -s tests/run.gd [-- --file=test_data]` | test suite (`tests/test_*.gd`, each test on a fresh game; how to write one: `docs/wiki/08_developer.md`) |
+| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | with each of the 80 countries: do player actions affect the game, is anything done automatically for the player (exit code 1 = problem) |
+| `GODOT=$GODOT tools/balance_parallel.sh 6` | 1936–1942 historical flow, 12 checks. Each check must pass at least 5/6 |
+| `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 stability/home front, dated events, elections |
+| `$GODOT --headless --path . -s game/dev/playtest.gd` | Turkey → Iraq war, orders, surrender, save/load |
+| `$GODOT --headless --path . -s game/dev/sim.gd` | simulation speed (profile) |
 
-Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değiştiren her işten sonra koş.
+The balance test takes long (~15–20 min, 6 parallel processes); run it after any change to game logic.
 
-## Değişmez kurallar
-1. **Oyuncu her şeye karar verir.** Oyuncu adına hiçbir şey kendiliğinden yapılmaz (ticaret, üretim, atama, geri çekilme,
-   hava kanadı...). Otomatik bir kolaylık gerekiyorsa kapalı başlayan, oyuncunun açtığı bir seçenek olur. Yapay zekâ
-   ülkeleri otomatik olabilir. Tarihî baskılar ve krizler 2–3 gerçek seçenekli olay olarak gelir.
-2. **Veri güdümlü**: içerik `data/common/*.json` içinde; motor kodu içerikten bağımsız. Olay/odak etkileri için var olan
-   etki sözlüğünü kullan (`game/autoload/politics.gd` → `apply_effects` ve `describe_effects`). Yeni etki ekliyorsan ikisine de ekle.
-3. **Tüm metinler** `game/localization/strings.csv` içinde **İngilizce ve Türkçe**. CSV değişince `--import` gerekir.
-4. **Özgünlük (dava riski): önce `docs/OZGUNLUK.md`'yi oku.** Başka ticari oyunların adını ya da wiki adreslerini hiçbir
-   dosyada anma (kod, yorum, belge, commit mesajı); "türün klasiği gibi", "parite" gibi örtmecelerle de anma. Başka bir
-   oyundan ad, metin, sayı tablosu ya da ekran düzeni alma; adlar tarihî ya da bizim, sayılar kendi formülümüzden ve
-   gerekçesi yazılı. "Iron Front" çalışma adıdır; oyunun adını metinlere sabit yazma.
-5. **Görseli göremezsin**: render, shader, ışık, renk, kamera ve model değişikliği yapma; masaüstü (Forward+) ve web
-   (gl_compatibility) görüntüsü bozulmamalı. Arayüz eklemen gerekirse yalnız var olan yardımcıları kullan
-   (`game/ui/panel_layout.gd`: `frame`, `fixed`, `info_cells`, `section`, `row`, `row_action`, `table`, `table_row`,
-   `small_button`, `progress`, `tile`, `empty`; `UiTheme.skin()`), yeni görsel stil icat etme.
-6. **Sanat dosyası indirme ya da üretme** (ikon, portre, resim, ses). İkon/portre adları `tools/make_icon_prompts.py`
-   ile listelenir; dosyaları kullanıcı üretir.
-7. Dokunma: `docs/reference/`, `topbar.png`, `art/prototypes/`, `tools/blender/dress_survivor.py`, `tools/blender/inspect_survivor.py`.
-8. GDScript: tipi belirsiz bir ifadeden `:=` ile değişken çıkarma ("Cannot infer the type" ayrıştırma hatası);
-   açık tip yaz (`var x: bool = ...`). Autoload'lar: World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI,
-   Game, GameClock, Audio.
-9. Oyuncunun ülkesi `World.player_tag`; `World.start_game(tag)` oyuncuya özgü varsayılanları (elle ticaret, elle kanat,
-   "son askere kadar") ayarlar; kayıttan devamda `World.resume_game(tag)` (tercihler korunur). Kayıt/yükleme: `game/autoload/game.gd` — yeni ülke/tümen alanını kayda ekle.
+## Fixed rules
+1. **The player decides everything.** Nothing is done automatically on the player's behalf (trade, production,
+   assignments, retreats, air wings, commanders…). If an automatic convenience is needed, it is an option that starts off
+   and the player switches on. AI countries may be automatic. Historical pressures and crises arrive as events with 2–3
+   real options.
+2. **Data-driven**: content lives in `data/common/*.json`; engine code is independent of content. For event/program
+   effects use the existing effect dictionary (`game/autoload/politics.gd` → `apply_effects` and `describe_effects`). If
+   you add a new effect, add it to both.
+3. **All texts** are in `game/localization/strings.csv` in **English and Turkish**. A CSV change needs `--import`.
+   Without a saved setting the game starts in English (`GameSettings.DEFAULT_LANG`); Turkish is chosen in
+   Settings → Language.
+4. **Originality (legal risk): read `docs/ORIGINALITY.md` first** (Turkish: `docs/OZGUNLUK.md`). Never mention other
+   commercial games' names or wiki addresses in any file (code, comments, documents, commit messages); not through
+   euphemisms like "like the genre classic" or "parity" either. Take no name, text, number table or screen layout from
+   another game; names are historical or ours, numbers come from our own formula with the reason written down.
+   "Iron Front" is a working title; never hard-code the game's name in texts.
+5. **You cannot see the visuals**: make no render, shader, lighting, colour, camera or model changes; the desktop
+   (Forward+) and web (gl_compatibility) picture must not break. If you need to add interface, use only the existing
+   helpers (`game/ui/panel_layout.gd`: `frame`, `fixed`, `info_cells`, `section`, `row`, `row_action`, `table`,
+   `table_row`, `small_button`, `progress`, `tile`, `empty`; `UiTheme.skin()`, `UiTheme.mark_unavailable()` for a feature
+   whose interface exists but has no effect yet), invent no new visual style.
+6. **Do not download or generate art files** (icons, portraits, pictures, sounds). Icon/portrait names are listed with
+   `tools/make_icon_prompts.py`; the user makes the files.
+7. Do not touch: `docs/reference/`, `topbar.png`, `art/prototypes/`, `tools/blender/dress_survivor.py`,
+   `tools/blender/inspect_survivor.py`.
+8. GDScript: do not infer a variable with `:=` from an expression of unknown type ("Cannot infer the type" parse error);
+   write the type explicitly (`var x: bool = ...`). Autoloads: World, Economy, Politics, Research, Diplomacy, Military,
+   Navy, Air, AI, Game, GameClock, Audio.
+9. The player's country is `World.player_tag`; `World.start_game(tag)` sets the player-specific defaults (manual trade,
+   manual wings, "hold to the last man"); a game continued from a save uses `World.resume_game(tag)` (preferences are
+   kept). Save/load: `game/autoload/game.gd` — add every new country/division field to the save.
 
-## İş akışı
-- Her görev **ayrı branch + pull request**. **main'e doğrudan push yok** (main'e push web sürümünü yeniden yayınlar).
-- PR açıklamasında: ne değişti, hangi testler koştu ve sonuçları (sayılarla), bilinen sınırlar.
-- Commit mesajları Türkçe. Yeni mekanik eklediysen `docs/wiki/` ilgili sayfasını ve `ROADMAP.md` durumunu güncelle.
+## Workflow
+- Every task is **its own branch + pull request**. **No direct push to main** (a push to main republishes the web version).
+- In the PR description: what changed, which tests ran and their results (with numbers), known limits.
+- Commit messages in Turkish. If you added a new mechanic, update the relevant pages in `docs/wiki/` and `docs/wiki/tr/`,
+  and the status in `ROADMAP.md` and `ROADMAP.tr.md`.
+- **Documentation is bilingual**: the main file is English (`README.md`, `ROADMAP.md`, `docs/wiki/*.md`,
+  `docs/ORIGINALITY.md`, `docs/cloud/TASKS.md`), the Turkish one sits next to it (`*.tr.md`, `docs/wiki/tr/`,
+  `docs/OZGUNLUK.md`, `docs/cloud/GOREVLER.md`). If you change one, update the other in the same task; every file links
+  to its other language at the top.

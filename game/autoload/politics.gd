@@ -274,7 +274,7 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"news": _news(v, [c.display_name()])
 			"set_leader":
 				c.leader = v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v)
-				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader], "info")
+				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader_name()], "info")
 
 func _news(key: String, args: Array) -> void:
 	var text := tr(key)

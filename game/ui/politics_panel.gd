@@ -161,7 +161,7 @@ func _leader_block(c: Country) -> void:
 	info.add_theme_constant_override("separation", 0)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(info)
-	var name := UiTheme.make_label(c.leader, 24, UiTheme.ACCENT)
+	var name := UiTheme.make_label(c.leader_name(), 24, UiTheme.ACCENT)
 	name.add_theme_font_override("font", UiTheme.title_font())
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name)

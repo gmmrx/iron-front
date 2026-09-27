@@ -1,3 +1,5 @@
+[English](ORIGINALITY.md) · **Türkçe**
+
 # Özgünlük ve fikrî mülkiyet politikası
 
 Bu sayfa bu depoda çalışan herkes (insan ya da yapay zekâ ajanı) içindir. Her işten önce okunur.
@@ -58,7 +60,7 @@ türün ortak fikirleridir; bunlar serbest. Başka bir oyunun kendine özgü ad�
 Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
 
 ### Katman 1 — İfade (veri ve metin; bulutta test edilebilir)
-- ✔ Kendi terim sözlüğümüz (EN + TR): nüfuz, iç cephe, kriz endeksi, devlet programı, ulusal durum, karargâh kapasitesi,
+- ✔ Kendi terim sözlüğümüz (EN + TR): nüfuz, iç cephe, kriz endeksi, devlet programı, ulusal durum, komuta gücü,
   kara/deniz/hava birikimi; personel/tanksavar ateşi, şok, bütünlük, cephe genişliği, hazırlık; savaş gerekçesi (casus belli);
   tümen tecrübesi: Acemi → Talimli → Pişkin → Sınanmış → Seçme
 - ✔ Yasalar: 6 askerlik (antlaşmayla sınırlı ordu → kitlesel celp), 4 ekonomi (barış ekonomisi → topyekûn savaş), 4 dış ticaret
@@ -69,6 +71,7 @@ Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
 - ✔ Teknoloji adları tarihî kavramlarla; ortak devlet programları kendi adlarımız ve 6–12 haftalık sürelerle
 - ✔ Sayılar kendi ölçeğimizde: inşaat fabrika-gün, üretim fabrika-saat, proje/hat başına 12 fabrika, muharebe değerleri
   (piyade taburu 30 / 110 / 100 bütünlük), zırh ve delme mm
+- ✔ Komutanlar: her ülkenin dönemdeki gerçek komutanları, kendi beceri ölçeğimiz (1–5) ve katkı formülümüz
 - ☐ Kalanlar (denge testiyle birlikte yapılmalı):
   - Nüfuz ölçeği (günde 2, yasa ve danışman 150, gerekçe 30) ve kararların bedelleri
   - Ticarette "8 kaynak = 1 fabrika", ithalatta "2 kaynak = 1 konvoy"

@@ -157,7 +157,7 @@ func select(tag: String) -> void:
 		_cards[t].set_pressed_no_signal(t == tag)
 	_flag.texture = FlagFactory.get_flag(c)
 	_name.text = c.display_name()
-	_leader.text = "%s\n%s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
+	_leader.text = "%s\n%s" % [c.leader_name(), tr("IDEOLOGY_" + c.ideology)]
 	var vp := 0
 	for sid in c.states:
 		vp += World.states[sid].victory_points()
