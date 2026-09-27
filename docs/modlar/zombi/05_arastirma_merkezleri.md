@@ -24,7 +24,8 @@
 ### 1.1 Bu belgenin kapsamı
 Bu belge şunları kesinleştirir: bina türleri ve maliyetleri, personel, numune toplama, araştırma projeleri ve süreleri,
 serum/aşı yolu, kaza ve etik olayları, uluslararası bilgi paylaşımı, arayüz ve harita görünümü, JSON şeması, test hedefleri.
-Salgın denklemleri 02'de, tür ve suş tabloları 04_zombi_turleri.md'dedir; buradaki her sayı onlarla tutarlıdır.
+Salgın denklemleri 02_oynanis_dongusu.md ve 03_salgin_modeli.md'de, tür ve suş tabloları 04_zombi_turleri.md'dedir;
+buradaki her sayı onlarla tutarlıdır (serum etkinliği için 03'ün bıraktığı boşluk §8.4'te doldurulur).
 04'ün "araştırma belgesinde kesinleşir" dediği kimlikler burada kesinleşti: `zm_strain_typing`, `zm_gauze_masks`,
 Serum II = `zm_type_specific_serum`, laboratuvar kazası olasılığı §7.2.
 
@@ -201,7 +202,7 @@ Kadro = çalışması için gereken bilim insanı (§5). Yük = sağlık yükü 
 
 | Bina (`kimlik`) | EN / TR | Maliyet | Slot | Max/eyalet | Şart | BKP | Kadro | Yük | Ne yapar |
 |---|---|---|---|---|---|---|---|---|---|
-| `zm_field_lab` | Field Laboratory / Saha Laboratuvarı | 240 | serbest | 2 | — | 1 | 2 | 1 | Eyalette tespit oranı +0,10, bildirim gecikmesi −1; G1 numune işler; suş payını görünür kılar (pay ≥ 0,25) |
+| `zm_field_lab` | Field Laboratory / Saha Laboratuvarı | 240 | serbest | 2 | — | 1 | 2 | 1 | Eyalette tespit oranı +0,10, bildirim gecikmesi −1 (03_salgin_modeli.md §8'deki tespit ve tarama modeline girer); G1 numune işler; suş payını görünür kılar (pay ≥ 0,25) |
 | `zm_specimen_store` | Specimen Store / Numune Deposu | 300 | serbest | 1 | saha lab. ya da enstitü | 1 | 1 | 1 | Numune ömrü 10 → 60 gün; aynı anda 3 numune; kaza çarpanı ×0,7 (dağınık saklama yok) |
 | `zm_quarantine_hospital` | Quarantine Hospital / Karantina Hastanesi | 520 | serbest | 2 | `zm_notifiable_disease` | 1 | 3 | 2 | Eyalette β −%10; serum dağıtım kapasitesi +; Kızgın tetiği (hastane taşması) −%40; G1 numune |
 | `zm_serum_stables` | Serum Stables / Serum Ahırı | 640 | serbest | 1 | `zm_serotherapy` | 1 | 2 | 2 | Ülke serum serbest bırakma kapasitesi +15.000 doz/gün |
@@ -478,8 +479,14 @@ kapalı başlar (02 §7.3). Öldürülmüş aşı iki doz ister → o yolda etki
 | Ürün | Etki | Etkinlik | Notlar |
 |---|---|---|---|
 | Serum | E ve F → R (bağışık) | 0,60 → 0,75 (`zm_serum_standardisation`) → 0,85 (`zm_type_specific_serum`) | Dirençli suşta ×0,5; Serum II bunu geri alır (04 T12). `zm_isolation_wards` ile uygulanan doz başına verim +%20 |
-| Aşı | S → V | Canlı 0,90 (+0,05 `zm_vaccine_potency`) · öldürülmüş 0,75 | 02'deki `V_c = clamp((1 − 1/R_etkin)/etkinlik; 0,40; 0,90)` formülünde "0,9" yerine **seçilen aşının etkinliği** kullanılır |
+| Aşı | S → Vb → V (10 gün gecikmeli) | Canlı 0,90 (+0,05 `zm_vaccine_potency`) · öldürülmüş 0,75 | 02'deki `V_c = clamp((1 − 1/R_etkin)/etkinlik; 0,40; 0,90)` formülünde "0,9" yerine **seçilen aşının etkinliği** kullanılır |
 | Soluk suşla gönüllü aşılama | S → R (%80), ölüm %3, zayıf Boş %17 | — | 04 §9.2'deki olay; yalnız etken tanımlandıktan sonra |
+
+**03_salgin_modeli.md ile uyum.** Salgın modeli belgesi serum etkinliğini geçici olarak `e_Z = 0,8` alıp "araştırma
+belgesinde kesinleşir" demiştir; burada kesinleşen üç basamaklı merdiven (0,60 / 0,75 / 0,85) o değeri ortadan kuşatır.
+Uygulamada `e_Z` sabit değil, ülkenin araştırma durumundan okunan bir değerdir; 03 §3.2'deki `serum` terimi bu değeri
+kullanır. Aşı tarafında 03'ün `S → Vb → V` (10 günlük bağışıklık gecikmesi) ve "E'ye giden doz boşa gider" kuralları
+aynen geçerlidir: bu yüzden **dağıtılan doz ile kapsam birbirine eşit değildir** ve panelde "boşa giden doz" ayrı görünür.
 
 **Öldürülmüş aşıyı seçmenin bedeli sayıyla:** R_etkin = 2,0'da V_c canlı aşıyla %56, öldürülmüş aşıyla %67; üstüne iki doz
 ve ×0,6 dağıtım → aynı kapsama ulaşmak yaklaşık **2 kat** uzun sürer. Karşılığı: Soluk suş riski yok, kaza çarpanı düşük,
@@ -901,7 +908,7 @@ Sesler (`tools/make_audio.py` yaklaşımı, mono 44,1 kHz, telifli örnek yok):
 ## 16. Kaynaklar
 
 Biyogüvenlik ve laboratuvar kaynaklı enfeksiyonlar
-- CDC/NIH. *Biosafety in Microbiological and Biomedical Laboratories* (BMBL), ilk baskı 1984, 6. baskı 2020; BSL-1…4 tanımları. — https://www.cdc.gov/labs/BMBL.html
+- CDC/NIH. *Biosafety in Microbiological and Biomedical Laboratories* (BMBL), ilk baskı 1984, 6. baskı 2020; BSL-1…4 tanımları. — https://www.cdc.gov/labs/bmbl/index.html
 - Biyogüvenlik düzeyleri ve muhafaza tarihçesi (sınıf III kabin 1943, sınıf I kabin 1950'ler). — https://en.wikipedia.org/wiki/Biosafety_level
 - Biyolojik güvenlik kabinlerinin gelişimi (Wedum, Camp Detrick). *Lab Manager.* — https://www.labmanager.com/evolution-of-biological-safety-cabinets-18557
 - Amerikan Biyogüvenlik Derneği, ilk biyogüvenlik konferansları (1955–1965). — https://absa.org/about/hist01/
