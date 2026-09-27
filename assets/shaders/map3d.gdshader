@@ -102,6 +102,11 @@ int owner_of(int id) {
 	return int(round(pdata(id).r * 255.0));
 }
 
+int state_of(int id) {
+	vec4 d = pdata(id);
+	return int(round(d.b * 255.0)) + int(round(d.a * 255.0)) * 256;
+}
+
 vec3 hash3(int n) {
 	uint x = uint(n) * 747796405u + 2891336453u;
 	x = ((x >> ((x >> 28u) + 4u)) ^ x) * 277803737u;
@@ -227,9 +232,37 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	float rv = (1.0 - smoothstep(-0.15, 0.55, river_tx / tpp)) * (1.0 - smoothstep(1.6, 3.2, tpp));
 	col = mix(col, vec3(0.27, 0.45, 0.58), rv * 0.85);
 
-	// province ve eyalet sınırları
-	col = mix(col, col * 0.35, line(prov_px, 0.6) * (1.0 - smoothstep(1.2, 2.2, tpp)) * 0.42);
-	col = mix(col, col * 0.3, line(state_px, 0.75) * (1.0 - smoothstep(3.5, 5.5, tpp)) * 0.55);
+	// province ve eyalet sınırları: çevredeki pikseller başka bölgedeyse çizgi — her zoom'da kesintisiz, ekran pikseli
+	// genişliğinde (mesafe alanı ince çizgide kesik kesik kalıyordu). Province (fare vurgusunun birimi): ince, açık ton;
+	// eyalet: kalın, koyu. Komşu sorgusu yalnız sınırların yakınında (mesafe alanı kaba ama eleme için yeter).
+	float sfade = 1.0 - smoothstep(6.0, 10.0, tpp);
+	float pfade = 1.0 - smoothstep(3.0, 5.0, tpp);
+	bool near_s = sfade > 0.0 && (bd.g < 5.0 || state_px < 8.0);
+	bool near_p = pfade > 0.0 && (bd.r < 5.0 || prov_px < 8.0);
+	if (near_s || near_p) {
+		// yarı genişlik (ekran pikseli): yakında kalın, uzakta ince; iç halka kalın çizgiyi dolu tutar
+		vec2 upx = vec2(length(dFdx(uv)), length(dFdy(uv))) * mix(2.4, 1.25, smoothstep(0.25, 3.0, tpp));
+		float sedge = 0.0;
+		float pedge = 0.0;
+		for (int i = 0; i < 8; i++) {
+			float a = float(i) * 0.785398;
+			vec2 dir = vec2(cos(a), sin(a));
+			int p2 = province_at(uv + dir * upx);
+			int s2 = state_of(p2);
+			if (s2 != sid && s2 != 0) { sedge += 0.09; }
+			// iç halka: eyalet çizgisini doldurur; aynı eyaletin başka bölgesiyse province sınırı (eyaletinkinin yarı
+			// kalınlığında)
+			int p3 = province_at(uv + dir * upx * 0.6);
+			int s3 = state_of(p3);
+			if (s3 != sid && s3 != 0) {
+				if (i % 2 == 0) { sedge += 0.07; }
+			} else if (p3 != pid && s3 != 0) {
+				pedge += 0.125;
+			}
+		}
+		col = mix(col, col * 0.36, clamp(pedge * 2.0, 0.0, 1.0) * 0.72 * pfade);
+		col = mix(col, col * 0.16, clamp(sedge * 2.4, 0.0, 1.0) * 0.82 * sfade);
+	}
 
 	// ülke sınırı: eyalet sınırına yakınken karşı tarafın sahibine bak
 	if (state_px < 4.0) {

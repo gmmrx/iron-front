@@ -165,7 +165,7 @@ func _country_list(me: Country) -> void:
 		b.expand_icon = true
 		b.add_theme_constant_override("icon_max_width", 42)
 		b.custom_minimum_size = Vector2(0, 40)
-		b.add_theme_font_size_override("font_size", 15)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(15))
 		var rel := ""
 		if Diplomacy.are_enemies(me.tag, c.tag):
 			rel = "  ⚔"

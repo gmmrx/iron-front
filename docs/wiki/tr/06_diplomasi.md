@@ -2,6 +2,23 @@
 
 # Diplomasi
 
+## Tarih (diğer ülkeler ne yapar)
+Oyuncunun ülkesi dışındaki her ülke tarihi izler: gerçek gününde yapay zekâ tarihî adımı atar — Rheinland (7 Mart 1936),
+Marco Polo Köprüsü (7 Temmuz 1937), Anschluss (12 Mart 1938), Münih (30 Eylül 1938), Prag (15 Mart 1939), Arnavutluk
+(7 Nisan 1939), Çelik Paktı, Molotov–Ribbentrop Paktı, Polonya (1 Eylül 1939), Sovyetlerin Polonya'ya girişi (17 Eylül),
+Kış Savaşı (30 Kasım) ve Moskova Barışı, Danimarka ve Norveç (9 Nisan 1940), Batı (10 Mayıs 1940), İtalya'nın savaşa
+girişi (10 Haziran 1940), Baltık ülkeleri ve Besarabya, Üçlü Pakt, Yunanistan (28 Ekim 1940), 1940–41'in Mihver üyeleri,
+Balkanlar (6 Nisan 1941), Romanya, İtalya, Finlandiya ve Macaristan'la Barbarossa (22 Haziran 1941), Pearl Harbor
+(7 Aralık 1941) ve ardından gelen savaş ilanları, Sovyetlerin Japonya'ya savaşına (8 Ağustos 1945) kadar. Mayıs 1940'ta Hollanda, Belçika ve Fransa (yapay zekâ oynuyorsa) 1 Ekim'e kadar "Cephenin
+Çöküşü" durumunu alır (savunma −%40, bütünlük −%35, saldırı −%20, daha düşük teslim sınırı): 1940 seferi tarihteki gibi
+haftalar içinde biter. Çizelge veridir (`data/common/history.json`).
+- **Oyuncunun ülkesi hiçbir adımı kendiliğinden atmaz**: tarihî anları seçenekli olay olarak gelir. Tarih oyuncuya
+  yöneliyorsa (ör. Polonya'yla oynuyorsan) yine gelir.
+- **Oyuncu tarihi değiştirir**: her adımın koşulu vardır; artık tutmuyorsa (Almanya Polonya ile savaşta değil, Viborg
+  artık Finlandiya'nın değil...) adım atlanır ve dünya oradan kendi yoluna gider.
+- **2 Eylül 1945'e kadar** yapay zekâ kendi başına savaş açmaz ve müttefikinin saldırı savaşına çağrıyla katılmaz
+  (müttefiki ya da garanti ettiği ülkeyi savunmak hemen olur). Bu tarihten sonra yapay zekâ serbestçe davranır.
+
 ## Kriz endeksi
 Dünyanın genel savaşa ne kadar yaklaştığı. Saldırganlıkla artar (gerekçe hazırlama, ilhak, savaş). Herkesin iç cephesini güçlendirir (%1 başına +%0,4, en çok +%40).
 

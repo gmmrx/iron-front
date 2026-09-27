@@ -34,7 +34,7 @@ var world_tension := 0.0                ## 0..100
 var day_count := 0                      ## oyun başından beri geçen gün
 
 func _ready() -> void:
-	TranslationServer.set_locale("tr")
+	TranslationServer.set_locale(GameSettings.saved_locale())
 	reset()
 	GameClock.day_passed.connect(_on_day_passed)
 
@@ -314,8 +314,13 @@ func annex(target: String, by: String) -> void:
 		transfer_state(sid, by)
 	flush_ownership()
 
+## Son eyaletini kaybeden ülke yok olur; tümenleri, filoları ve hava kanatları da kalkar (ilhakta da: ele geçirilen
+## ülkenin ordusu haritada kalmasın — teslimde Diplomacy.capitulate zaten kaldırıyor)
 func _remove_country(c: Country) -> void:
 	c.capitulated = true
+	Military.remove_all(c.tag)
+	Navy.remove_all(c.tag)
+	Air.remove_all(c.tag)
 	country_removed.emit(c.tag)
 	notify(tr("NOTE_COUNTRY_GONE") % c.display_name(), "war")
 

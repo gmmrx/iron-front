@@ -47,6 +47,18 @@ Seçili tümenler alttaki panelde:
 - Savunma/şok ile karşılanan saldırıların %10'u, aşan kısmın %40'ı isabet eder. İsabetler bütünlüğü ve gücü düşürür.
 - Siper: bekleyen tümen 10 günde en çok +%15 savunma kazanır.
 - Tecrübe: Acemi → Talimli → Pişkin → Sınanmış → Seçme.
+- **Cephe bütünlüğü**: tümen yalnız kendisinin (ya da müttefikinin) başka bir bölgesine de değen bölgeye saldırır; tek
+  başına derine sızıp kesilen "parmak" oluşmaz (başkentler istisna). Dar yarımada ve koridorda (Jutland, Danzig koridoru)
+  bu hiç sağlanmaz; orada açıkça üstünse (yerel güçte 2,5 kat) ve hedefin düşmandaki diğer komşuları en çok 3 ise saldırır.
+- **Ordunun cephesi** (U → cephe: bir ülke) o ülkeyle sınırdır; ayrıca o ülkeyle savaşan ve anavatana karadan bağlı
+  müttefiklerin toprağı. Müttefikin deniz aşırı sınırı tümenleri oraya çekmez.
+- **Bütün eyaletlerini kaybeden ülke ordusuyla birlikte yok olur**: ilhak edilen ülkenin (ör. Bohemya-Moravya) tümenleri,
+  filoları ve hava kanatları da haritadan kalkar.
+
+## Haritada
+Her tümen sayacı türünü gösterir: piyade ✕, motorlu tekerlekli ✕, zırhlı oval (palet). Ordularınız aynı bölgede de ayrı
+iğnelerde durur, sayacın altında ordunun adı yazar; tek başına duran tümeninizin kendi adı yazar. Adlar yalnız yakında
+görünür.
 
 ## İkmal ve yakıt
 Dost topraktaki kaynaktan işgal edilen topraklarda en çok 9 bölge içeri ikmal ulaşır; ötesindeki ya da kuşatılmış tümenler ikmalsiz kalır: saldırı −%35, yavaş toparlanma.

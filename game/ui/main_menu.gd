@@ -105,7 +105,7 @@ func _menu_button(text: String, enabled: bool, action: Callable) -> Button:
 	f.base_font = load("res://assets/fonts/BarlowCondensed-SemiBold.ttf")
 	f.spacing_glyph = 3
 	b.add_theme_font_override("font", f)
-	b.add_theme_font_size_override("font_size", 28)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(28))
 	var normal := StyleBoxFlat.new()
 	normal.bg_color = Color(0, 0, 0, 0)
 	normal.content_margin_left = 18

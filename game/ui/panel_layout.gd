@@ -6,7 +6,7 @@ extends RefCounted
 const SIDE_TOP := 96.0        ## yan panellerin üst kenarı (üst satırın altı)
 const SIDE_LEFT := 84.0       ## yan panellerin sol kenarı (sol menü tepsisinin sağı)
 const SIDE_RIGHT := 12.0
-const WIDTH_SCALE := 1.25     ## paneller tasarım genişliğinden bu kadar geniş açılır
+const WIDTH_SCALE := 1.4      ## paneller tasarım genişliğinden bu kadar geniş açılır (okunur yazı boyu için)
 const SIDE_BOTTOM := 14.0
 
 ## Paneli çerçevele: başlık + kaydırmalı gövde. Gövde VBox'ı döner. Panelde meta "scroll" ve "body" saklanır.
@@ -110,7 +110,7 @@ static func stat(parent: Container, label: String, value: String, tip: String = 
 	return v
 
 ## Gömük ikon yuvası (variant: Slot / SlotGold / SlotGood / SlotBad)
-static func slot(tex: Texture2D, side: int = 48, tip: String = "", variant: String = "Slot") -> PanelContainer:
+static func slot(tex: Texture2D, side: int = 54, tip: String = "", variant: String = "Slot") -> PanelContainer:
 	var pc := PanelContainer.new()
 	pc.theme_type_variation = variant
 	pc.custom_minimum_size = Vector2(side, side)
@@ -123,7 +123,7 @@ static func slot(tex: Texture2D, side: int = 48, tip: String = "", variant: Stri
 ## Sekme şeridi: seçilince on_select(index) çağrılır
 static func tabs(parent: Container, names: Array, on_select: Callable, selected: int = 0) -> HBoxContainer:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 2)
+	row.add_theme_constant_override("separation", 6)
 	var group := ButtonGroup.new()
 	for i in names.size():
 		var b := Button.new()
@@ -133,7 +133,10 @@ static func tabs(parent: Container, names: Array, on_select: Callable, selected:
 		b.text = str(names[i])
 		b.focus_mode = Control.FOCUS_NONE
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", 16)
+		# oyun menüsü sekmesi: yüksek, kalın yazı
+		b.custom_minimum_size.y = 50
+		b.add_theme_font_size_override("font_size", UiTheme.fs(19))
+		b.add_theme_font_override("font", UiTheme.title_font())
 		b.button_pressed = i == selected
 		b.pressed.connect(func() -> void: on_select.call(i))
 		row.add_child(b)
@@ -155,7 +158,7 @@ static func card(button: Button, width: int = 200, height: int = 60) -> void:
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_font_size_override("font_size", 16)
+	button.add_theme_font_size_override("font_size", UiTheme.fs(16))
 	button.add_theme_constant_override("h_separation", 10)
 
 ## Başlığın altında, kaydırılmayan sabit alan (özet hücreleri, sekmeler, bina seçimi gibi)
@@ -171,37 +174,47 @@ static func fixed(panel: PanelContainer) -> VBoxContainer:
 	return box
 
 ## Özet hücreleri: [[ikon, başlık, ipucu], ...] -> değer etiketleri (sonradan .text ile güncellenir)
+## Hücreler eşit genişlikte bölünür (yazı uzunluğu genişliği değiştirmez), yüksek ve büyük ikonlu.
 static func info_cells(parent: Container, items: Array) -> Array[Label]:
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
+	row.add_theme_constant_override("separation", 6)
 	parent.add_child(row)
 	var out: Array[Label] = []
 	for it: Array in items:
 		var cell := PanelContainer.new()
 		cell.theme_type_variation = "Slot"
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cell.size_flags_stretch_ratio = 1.0
+		cell.custom_minimum_size = Vector2(0, 70)
 		cell.tooltip_text = str(it[2]) if it.size() > 2 else ""
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP
 		row.add_child(cell)
 		var hb := HBoxContainer.new()
-		hb.add_theme_constant_override("separation", 5)
+		hb.add_theme_constant_override("separation", 8)
 		hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		cell.add_child(hb)
 		var tex: Texture2D = it[0] if it[0] is Texture2D else UiTheme.icon(str(it[0]))
 		if tex:
-			var ic := UiTheme.icon_texture(tex, 28)
+			var ic := UiTheme.icon_texture(tex, 38)
 			ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			hb.add_child(ic)
 		var col := VBoxContainer.new()
-		col.add_theme_constant_override("separation", -3)
+		col.add_theme_constant_override("separation", -2)
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		hb.add_child(col)
-		var t := UiTheme.make_label(str(it[1]), 12, UiTheme.TEXT_DIM)
+		var t := UiTheme.make_label(str(it[1]), 14, UiTheme.TEXT_DIM)
 		t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		t.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		t.custom_minimum_size.x = 1
 		col.add_child(t)
-		var v := UiTheme.make_label("", 17, UiTheme.TEXT)
+		var v := UiTheme.make_label("", 21, UiTheme.TEXT)
 		v.add_theme_font_override("font", UiTheme.bold_font())
 		v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		v.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		v.custom_minimum_size.x = 1
 		col.add_child(v)
 		out.append(v)
 	return out
@@ -212,13 +225,22 @@ static func row(parent: Container, tex: Texture2D, title: String, sub: String = 
 	pc.theme_type_variation = variant
 	pc.tooltip_text = tip
 	pc.mouse_filter = Control.MOUSE_FILTER_STOP if tip != "" else Control.MOUSE_FILTER_PASS
+	# satır iç boşluğu (yuva dokusu kullanan satırlarda da): içerik kenara yapışmasın
+	var base := UiTheme.get_theme().get_stylebox("panel", variant)
+	if base:
+		var sbp: StyleBox = base.duplicate()
+		sbp.content_margin_left = 12
+		sbp.content_margin_right = 12
+		sbp.content_margin_top = 8
+		sbp.content_margin_bottom = 8
+		pc.add_theme_stylebox_override("panel", sbp)
 	parent.add_child(pc)
 	var hb := HBoxContainer.new()
 	hb.name = "H"
-	hb.add_theme_constant_override("separation", 8)
+	hb.add_theme_constant_override("separation", 10)
 	pc.add_child(hb)
 	if tex:
-		var s := slot(tex, 44)
+		var s := slot(tex, 54)
 		s.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		hb.add_child(s)
@@ -253,7 +275,7 @@ static func small_button(text: String, cb: Callable, enabled: bool = true, tip: 
 	b.disabled = not enabled
 	b.tooltip_text = tip
 	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_font_size_override("font_size", 15)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(15))
 	b.pressed.connect(cb)
 	return b
 
@@ -275,20 +297,20 @@ static func progress(value: float, color: Color = UiTheme.ACCENT, height: float 
 	return pb
 
 ## Kare seçim karosu: ikon üstte, ad ve alt metin altta (bina, ekipman, tümen şablonu seçimi)
-static func tile(tex: Texture2D, title: String, sub: String = "", tip: String = "", w: int = 110, h: int = 104) -> Button:
+static func tile(tex: Texture2D, title: String, sub: String = "", tip: String = "", w: int = 110, h: int = 140) -> Button:
 	var b := Button.new()
 	b.theme_type_variation = "Card"
 	b.focus_mode = Control.FOCUS_NONE
 	b.custom_minimum_size = Vector2(w, h)
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.icon = tex
+	b.icon = UiTheme.trimmed(tex)
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	b.add_theme_constant_override("icon_max_width", 52)
+	b.add_theme_constant_override("icon_max_width", 76)
 	b.text = title + ("\n" + sub if sub != "" else "")
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.add_theme_font_size_override("font_size", 13)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(13))
 	b.tooltip_text = tip
 	return b
 
@@ -347,7 +369,7 @@ static func table_row(t: VBoxContainer, cells: Array, tip: String = "") -> Panel
 	return pc
 
 ## İkon + metin (tablo ilk sütunu için)
-static func icon_label(tex: Texture2D, text: String, side: int = 24, size: int = 15) -> HBoxContainer:
+static func icon_label(tex: Texture2D, text: String, side: int = 30, size: int = 15) -> HBoxContainer:
 	var hb := HBoxContainer.new()
 	hb.add_theme_constant_override("separation", 6)
 	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -394,7 +416,7 @@ static func detail(parent: Container, text: String, size: int = 15) -> RichTextL
 	r.scroll_active = false
 	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_font_size_override("normal_font_size", UiTheme.fs(size))
 	r.add_theme_color_override("default_color", UiTheme.TEXT)
 	r.text = UiTheme.colorize(text)
 	parent.add_child(r)

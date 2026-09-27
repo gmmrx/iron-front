@@ -31,7 +31,7 @@ func _ready() -> void:
 	_body.scroll_active = false
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_body.add_theme_font_size_override("normal_font_size", 16)
+	_body.add_theme_font_size_override("normal_font_size", UiTheme.fs(16))
 	_body.add_theme_font_override("normal_font", UiTheme.get_theme().default_font)
 	_body.add_theme_color_override("default_color", UiTheme.TEXT)
 	_body.add_theme_constant_override("line_separation", 3)

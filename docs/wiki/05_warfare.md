@@ -55,6 +55,19 @@ The selected divisions appear in the panel at the bottom:
 - Of the attacks met by defense/shock 10% hit, of the rest 40%. Hits reduce cohesion and strength.
 - Entrenchment: a waiting division gains up to +15% defense over 10 days.
 - Experience: Raw → Drilled → Seasoned → Hardened → Crack.
+- **Front integrity**: a division only attacks a region that also touches another of its own (or allied) regions, so no
+  lone "finger" is pushed deep and cut off (capitals are the exception). In a narrow peninsula or corridor (Jutland, the
+  Danzig corridor) that never holds, so there it attacks when it is clearly superior (2.5× local power) and the target has
+  at most 3 other hostile neighbours.
+- **An army's front** (U → front: a country) is the border with that country, plus the land of allies that are also at war
+  with it and are connected by land to your homeland; an ally's overseas border does not pull your divisions away.
+- **A country that loses all its states disappears with its army**: when a country is annexed (e.g. Bohemia and Moravia)
+  its divisions, fleets and air wings are removed from the map too.
+
+## On the map
+Each division counter shows its type: infantry ✕, motorised ✕ with wheels, armoured an oval (track). Your armies stand
+on separate pins even in the same region, with the army's name under the counter; a single division of yours shows its
+own name. Names only appear close up.
 
 ## Supply and fuel
 Supply reaches at most 9 regions into occupied land from a source on friendly soil; divisions beyond that or encircled

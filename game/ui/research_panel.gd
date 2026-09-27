@@ -132,13 +132,13 @@ func _tech_button(c: Country, id: String) -> Button:
 	var t: Dictionary = Research.techs[id]
 	var b := Button.new()
 	b.focus_mode = Control.FOCUS_NONE
-	b.icon = UiTheme.technology_icon(id)
+	b.icon = UiTheme.trimmed(UiTheme.technology_icon(id))
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.add_theme_constant_override("icon_max_width", 50)
 	b.add_theme_constant_override("h_separation", 8)
-	b.add_theme_font_size_override("font_size", 14)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(14))
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	b.clip_text = true
 	var done := id in c.research_done
@@ -231,12 +231,15 @@ func _draw_timeline(ctrl: Control) -> void:
 			else:
 				var mid := (a.x + b.x) * 0.5
 				ctrl.draw_polyline(PackedVector2Array([a, Vector2(mid, a.y), Vector2(mid, b.y), b]), col, 2.0, true)
-	# bugünün çizgisi
+	# bugün: geçmiş hafifçe gölgeli, ince kesik çizgi; üstte yıl başlığının altında küçük etiket
 	var frac := ((GameClock.month - 1) * 30.44 + GameClock.day) / 365.25
 	var tx := LABEL_W + (GameClock.year - _y0 + frac) * _col_w
 	if tx >= LABEL_W and tx <= w:
-		ctrl.draw_line(Vector2(tx, HEAD_H - 4), Vector2(tx, ctrl.size.y), Color(0.95, 0.78, 0.35, 0.85), 2.0)
-		ctrl.draw_string(font, Vector2(tx + 4, HEAD_H + 2), tr("RES_TODAY"), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.95, 0.78, 0.35))
+		ctrl.draw_rect(Rect2(LABEL_W, HEAD_H, tx - LABEL_W, ctrl.size.y - HEAD_H), Color(0, 0, 0, 0.16))
+		ctrl.draw_dashed_line(Vector2(tx, HEAD_H), Vector2(tx, ctrl.size.y), Color(0.95, 0.78, 0.35, 0.45), 1.5, 6.0)
+		# başlık çizgisinde aşağı bakan küçük altın üçgen (yazı yok: yıl başlığıyla çakışmasın)
+		var tri := PackedVector2Array([Vector2(tx - 7.0, HEAD_H - 9.0), Vector2(tx + 7.0, HEAD_H - 9.0), Vector2(tx, HEAD_H - 1.0)])
+		ctrl.draw_colored_polygon(tri, Color(0.95, 0.78, 0.35))
 
 func _refresh_slots() -> void:
 	var c := World.player()
@@ -245,11 +248,15 @@ func _refresh_slots() -> void:
 	_speed.text = tr("RES_SPEED") % roundi((Research.speed(c) - 1.0) * 100)
 	for ch in _slots.get_children():
 		ch.queue_free()
+	# yuvalar tam genişliği eşit böler (kaç yuva varsa o kadar sütun), yüksek hücreler
+	_slots.columns = maxi(c.research_slots, 1)
 	for i in c.research_slots:
 		var slot := PanelContainer.new()
 		slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slot.custom_minimum_size = Vector2(0, 84)
 		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
+		row.add_theme_constant_override("separation", 12)
+		row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		slot.add_child(row)
 		if i < c.research_current.size():
 			slot.theme_type_variation = "SlotGold"
@@ -258,25 +265,25 @@ func _refresh_slots() -> void:
 			var t: Dictionary = Research.techs[id]
 			var ahead := maxi(int(t["year"]) - GameClock.year, 0)
 			var cost := float(t["cost"]) * (1.0 + Research.AHEAD_PENALTY * ahead)
-			row.add_child(UiTheme.icon_texture(UiTheme.technology_icon(id), 44))
+			row.add_child(UiTheme.icon_texture(UiTheme.technology_icon(id), 60))
 			var col := VBoxContainer.new()
 			col.add_theme_constant_override("separation", 2)
 			col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			row.add_child(col)
-			var l := UiTheme.make_label(Research.tech_name(id), 16, UiTheme.ACCENT)
+			var l := UiTheme.make_label(Research.tech_name(id), 18, UiTheme.ACCENT)
 			l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			l.custom_minimum_size.x = 120
 			col.add_child(l)
-			col.add_child(PanelLayout.progress(float(r["progress"]) / maxf(cost, 0.001), Color("7fb0d9"), 7.0))
+			col.add_child(PanelLayout.progress(float(r["progress"]) / maxf(cost, 0.001), Color("7fb0d9"), 9.0))
 			var left := (cost - float(r["progress"])) / (Research.speed(c) * (1.0 + float(r.get("bonus", 0.0))))
 			col.add_child(UiTheme.make_label("%d %s" % [ceili(left), tr("UI_DAYS")], 13, UiTheme.TEXT_DIM))
-			var x := UiTheme.icon_button("close", tr("TIP_RESEARCH_CANCEL"), func() -> void: Research.cancel(c, id), 24)
+			var x := UiTheme.icon_button("close", tr("TIP_RESEARCH_CANCEL"), func() -> void: Research.cancel(c, id), 30)
 			x.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			row.add_child(x)
 		else:
 			slot.theme_type_variation = "SlotBad"
-			row.add_child(UiTheme.icon_texture(UiTheme.icon("research"), 38))
-			var empty := UiTheme.make_label(tr("RESEARCH_EMPTY_SLOT") % (i + 1), 14, UiTheme.ACCENT)
+			row.add_child(UiTheme.icon_texture(UiTheme.icon("research"), 52))
+			var empty := UiTheme.make_label(tr("RESEARCH_EMPTY_SLOT") % (i + 1), 16, UiTheme.ACCENT)
 			empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			empty.size_flags_vertical = Control.SIZE_SHRINK_CENTER

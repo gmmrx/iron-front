@@ -55,6 +55,19 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
   programı. **Ctrl + tık** o ülkenin siyaset ekranını salt okunur açar.
 - Sayılar renklidir: iyi yeşil, kötü kırmızı.
 
+## Harita: iğneler
+Harita bir kurmay masasıdır: 3D arazi kalır, üstündeki her şey model yerine haritaya saplanmış bir iğnedir. Uzakta
+her zamanki harita ikonları (şehir, liman, hava üssü) görünür; yaklaştıkça her ikon yerden yükselen bir iğneye dönüşür.
+- **Şehir**: şehri elinde tutan ülkenin renginde başlı iğne; şehir büyüdükçe iğne büyür. Adı başın üstündedir.
+- **Tümen, filo, hava kanadı**: sayaç iğnenin bayrağıdır. Her ordunun kendi iğnesi vardır (aynı bölgedeki ordular yan
+  yana durur, ordunun adı sayacının altında yazar).
+- **Yapılar**: eyalet başına bir iğne; ucunda eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane,
+  rafineri, uçaksavar, deniz üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi
+  iğnesi vardır.
+- **Uçaklar** tek modeldir: ülke renginde küçük bir uçak, üste park etmiş ya da görevinde uçarken.
+- **Eyalet sınırları** her zoom'da belirgin koyu çizgidir, yakında daha kalın.
+İğneler her zoom'da ekranda aynı boydadır.
+
 ## Ayarlar
 Ana menü → **Ayarlar** ya da oyunda Esc → **Ayarlar**: ana ses, müzik, ses efektleri ve arayüz sesleri; müzik (oyun
 durumuna göre otomatik ya da istenen parça sürekli); dil (English / Türkçe, anında değişir, süren oyun kaldığı yerden

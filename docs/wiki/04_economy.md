@@ -27,6 +27,12 @@
 - Speed bonuses: laws, advisor (Planning Commissioner +9%), decision (Emergency Industrial Drive +15%), technology;
   a penalty when stability is below 50%.
 
+### On the map
+Close up, each state's buildings stand on one pin next to its main city: pictures of civilian and military factories,
+dockyards, refineries, anti-air and the naval base side by side, each with its level in the corner. A construction in
+progress shows as an orange-framed picture with "+n" (projects queued). The air base has its own pin. Far away the usual
+map icons are shown (see [Interface](02_interface.md#the-map-pins)).
+
 ## Production (Y)
 - At most **12** factories per line. Costs are in **factory-hours**: each military factory and dockyard works **24** hours
   a day (e.g. rifles 2.7, artillery 19, light tank 43, fighter 117, destroyer 580, battleship 4,800 factory-hours).

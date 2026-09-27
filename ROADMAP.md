@@ -41,12 +41,21 @@ Last update: **27 September 2026**
 - **The player decides**: the player's trade is manual (automatic trade optional), air wings are manual, divisions
   "hold to the last man" (no retreat without an order), no commander is ever assigned automatically, historical
   pressures are events with choices (Turkey: the May 1936 Soviet pressure, the 1938 successor, the 1939 Moscow talks).
+- **History**: every country except the player's follows the real timeline on the exact dates (`data/common/history.json`:
+  Rhineland, Anschluss, Munich, Poland, the Winter War, the West, Barbarossa, Pearl Harbor…); the player's country
+  never acts by itself; a step whose conditions no longer hold is skipped (the player has changed history); until
+  2 Sep 1945 the AI starts no war of its own and joins no war of aggression when called.
 - **Chain of command**: army group (field marshal) → army (general) → division; a commander roster for all 80 countries
   (the real commanders of the era in 57 countries, local names elsewhere), skill 1–5 combat bonus, experience and rising
   skill in battle, promotion to field marshal and new generals for command power; the Army screen (U) with tree + detail
   + roster; micromanagement in the selection panel (composition, split, join/leave army, direct orders).
 - **Map cards**: a country card while Ctrl is held (portrait, relation, indicators, wars), Ctrl + click opens that
   country's politics screen read-only; sea regions show naval control by country.
+- **The map is a general staff table (pin design)**: the 3D terrain stays; cities, divisions, fleets and air wings are
+  pins stuck into the map (a city pin's head is the colour of the country holding it; a counter is the pin's flag); far
+  away the usual map icons, up close the pins. Each state's buildings stand on one pin as pictures with their level,
+  a construction in progress as an orange "+n". Aircraft are the only model (one small plane). State borders and the
+  smaller province borders (the unit the mouse highlights) are drawn as clear lines at every zoom.
 - **Settings** in the main menu and in the game: volumes, music choice, language (English / Türkçe), fullscreen.
 - Features whose interface exists but which do not affect the game yet (land/naval/air know-how) are shown faded with a
   "not allowed" cursor and say why.
@@ -61,7 +70,10 @@ Last update: **27 September 2026**
    missing port–sea 12 → 0), node corner curves with a radius that stays on water, a fleet group that falls on land is
    moved to the nearest water; `tests/test_sea_lanes.gd`, `tests/test_fleet_motion.gd` check this with numbers
 2. ◐ **New icon set and portraits** (made by the user): ✔ icon set in the game; portraits arriving → visual check as they come
-3. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
+3. **An open-ended game (PART OPEN)**: no end date — the game goes on until the player takes the whole world or is
+   destroyed; research without an end (repeatable levels); a world events menu on the left to follow and answer what
+   happens in the world (PART EV)
+3b. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
 4. **Content**: ◐ 1936 events with choices added: Japan (26 February), Italy (League sanctions), Britain (the Defence White
    Paper), France (the Popular Front), Germany (the Berlin Olympics), Poland (the Rambouillet loan), USSR (the 1936
    Constitution), China (Xi'an). Remaining: middle and small countries, 1937–1945 event chains (the Spanish Civil War, the
@@ -195,6 +207,25 @@ The player must **see** the war: soldiers, tanks, ships, submarines, aircraft as
       dogfights (tracers), falling aircraft, close support bombs + ground explosions
 - [x] A division moving overseas appears as a transport ship
 - [ ] Strategic bombing (factory damage), base capacity penalty, anti-air fire over cities
+
+### ★6. Cities and buildings on the map ◐
+- [x] **Pin design** (`game/map/pin_layer.gd`, 27 Sep 2026): the map is a general staff table — 3D terrain, and on it
+      pins instead of models. City: a pin with a head in the controlling country's colour (bigger for bigger cities), the
+      name on the head. Division, fleet, air wing: the counter is the pin's flag. Pins keep the same size on screen at
+      every zoom; far away the usual map icons, and each icon rises into a pin when you zoom in
+- [x] Buildings as pins: one pin per state with its buildings side by side as pictures (civilian/military factory,
+      dockyard, refinery, anti-air, naval base) and their level; a construction in progress is an orange-framed picture
+      with "+n"; the air base has its own pin
+- [x] Aircraft: one small plane model in the country's colour, parked at the air base or flying its mission
+- [x] State borders as clear lines at every zoom (thicker up close) and province borders (the unit the mouse highlights)
+      as thinner, lighter lines inside the states
+- [x] Nothing overlaps: divisions stand beside cities, buildings and air bases; the air base is not placed next to another
+      city
+- [ ] Pins for more things: supply hubs, forts, radar, strategic resources (oil, steel…) at their states
+- [ ] Occupied city: the pin head in the occupier's colour with a thin ring of the owner's colour; ruined city after bombing
+- [ ] The 3D model library is kept switched off (`SHOW_MODELS` in `city_layer_3d.gd`, `industry_layer.gd`,
+      `unit_models.gd`); the model pipeline (`tools/blender/build_cities.py`, `build_industry.py`) stays for later use.
+      Detailed city dioramas, rigged industry (cranes, AA guns, refinery flare) and the model-based land units are in it
 
 ### ★5. Combat effects and sounds ◐
 - [x] Particles: muzzle flash, explosions, smoke; water columns at sea
@@ -578,6 +609,34 @@ Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
 - [ ] Graphics quality settings in the menu
 
 ---
+
+## PART OPEN — AN OPEN-ENDED GAME ☐ ← needed before the end-to-end game
+Today the game ends on 1 January 1948 (`Game.END_DATE`) and the research tree stops around 1942. A strategy game does not
+end on a date: it goes on until **the player has taken the whole world** or **the player's country is completely
+destroyed**. How many years that takes cannot be known in advance, so nothing may assume an end year.
+- [ ] No end date: victory = the player controls every state (or every other country has surrendered to the player's
+      side); defeat = the player's country no longer exists (last state lost or annexed). Remove `END_DATE`; the game-over
+      screen shows the reason and the date
+- [ ] Research without an end: after the last historical technology, research goes on — repeatable levels per branch
+      (e.g. "Infantry weapons IV, V, …") with rising cost and a smaller gain each level, so no branch runs out
+- [ ] Production and units after the war years: later equipment generations follow the repeatable research levels
+- [ ] Events and AI after the historical flow: when the dated historical events run out, the world keeps moving —
+      rules-based events (crises, border incidents, uprisings, coups, economic shocks) and AI that plans new wars
+- [ ] Laws, programs and decisions that stay useful in a long game (post-war reconstruction, occupation policy, the
+      economy of a large empire)
+- [ ] Performance and save size stay stable over decades of game time (long-run test: 30+ game years)
+- [ ] Engine texts without fixed years (also part of PART MOD: the scenario gives the start date, not an end date)
+
+## PART EV — WORLD EVENTS MENU ☐
+Things happen in the world all the time (wars declared, alliances, coups, disasters, other countries' decisions). They
+should come to the player as a feed, and some of them can be answered.
+- [ ] A world events menu on the left: a list of what is happening in the world (newest on top), with the country's flag,
+      date and a short text; filters (my neighbours, my alliance, the whole world); click → the map goes there
+- [ ] Reacting to events: some entries carry 2–3 real options (condemn / support / stay out, send volunteers, offer a
+      guarantee, sanctions…) with costs and effects from the existing effect dictionary; the AI reacts to the player's
+      events the same way
+- [ ] Every AI country's important decisions and wars become entries (not only the player's own events)
+- [ ] The alert bar and the notification feed stay for the player's own matters; the world menu is the rest of the world
 
 ## PART H — CONTENT DEPTH (ongoing) ◐
 - [ ] A wide state program tree for every great power, country trees for the middle powers

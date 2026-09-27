@@ -67,7 +67,7 @@ func _next() -> void:
 		b.theme_type_variation = "Card"
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override("font_size", 17)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(17))
 		b.custom_minimum_size = Vector2(560, 46)
 		b.focus_mode = Control.FOCUS_NONE
 		b.tooltip_text = eff if eff != "" else tr("EVENT_NO_EFFECT")

@@ -26,6 +26,12 @@
 - Fabrika, tersane ve rafineri eyaletin **bina yuvalarını** paylaşır (eyalet panelinde görünür).
 - Hız katkıları: yasalar, danışman (Planlama Komiseri +%9), karar (Acil Sanayi +%15), teknoloji; istikrar %50'nin altındaysa ceza.
 
+### Haritada
+Yakında her eyaletin yapıları ana şehrinin yanında tek bir iğnede durur: sivil ve askerî fabrika, tersane, rafineri,
+uçaksavar ve deniz üssü resimleri yan yana, her birinin köşesinde seviyesi. Süren inşaat turuncu çerçeveli resim ve "+n"
+(kuyruktaki proje sayısı) olarak görünür. Hava üssünün kendi iğnesi vardır. Uzakta her zamanki harita ikonları görünür
+(bkz. [Arayüz](02_arayuz.md#harita-iğneler)).
+
 ## Üretim (Y)
 - Her hatta en çok **12** fabrika. Maliyet **fabrika-saat** cinsindendir: her askerî fabrika ve tersane günde **24** saat çalışır
   (ör. tüfek 2,7, top 19, hafif tank 43, avcı uçağı 117, muhrip 580, zırhlı 4 800 fabrika-saat).

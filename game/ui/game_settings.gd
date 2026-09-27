@@ -15,6 +15,15 @@ static var lang := ""               ## "" = varsayılan dil (İngilizce); Ayarla
 static var fullscreen := false
 static var edge_pan := true
 
+## Kayıtlı dil (yoksa varsayılan): veri yüklenmeden önce (World._ready) — tümen/şablon adları doğru dilde kurulsun
+static func saved_locale() -> String:
+	var cfg := ConfigFile.new()
+	if cfg.load(PATH) == OK:
+		var l := str(cfg.get_value("game", "lang", ""))
+		if l != "":
+			return l
+	return DEFAULT_LANG
+
 static func load_and_apply() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) == OK:

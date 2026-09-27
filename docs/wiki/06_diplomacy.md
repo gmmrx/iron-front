@@ -2,6 +2,24 @@
 
 # Diplomacy
 
+## History (what the other countries do)
+Every country except the player's follows history: on the real date, the AI takes the historical step — the
+Rhineland (7 Mar 1936), the Marco Polo Bridge (7 Jul 1937), the Anschluss (12 Mar 1938), Munich (30 Sep 1938), Prague
+(15 Mar 1939), Albania (7 Apr 1939), the Pact of Steel, the Molotov–Ribbentrop Pact, Poland (1 Sep 1939), the Soviet
+invasion of Poland (17 Sep), the Winter War (30 Nov) and the Moscow Peace, Denmark and Norway (9 Apr 1940), the West
+(10 May 1940), Italy entering the war (10 Jun 1940), the Baltic states and Bessarabia, the Tripartite Pact, Greece
+(28 Oct 1940), the Axis members of 1940–41, the Balkans (6 Apr 1941), Barbarossa (22 Jun 1941) with Romania, Italy,
+Finland and Hungary, Pearl Harbor (7 Dec 1941) and the declarations that followed, up to the Soviet war on Japan
+(8 Aug 1945). In May 1940 the Netherlands, Belgium and France (if the AI plays them) get "Collapse of the Front" until
+1 October (−40% defense, −35% cohesion, −20% attack, a lower surrender limit): the 1940 campaign ends in weeks, as it did.
+The timeline is data (`data/common/history.json`).
+- **The player's country never acts by itself**: its historical moments come as events with choices. If history is
+  aimed at the player (say you play Poland), it still comes.
+- **The player changes history**: every step has conditions; when they no longer hold (Germany is not at war with
+  Poland, Vyborg is no longer Finnish…) the step is skipped and the world goes its own way from there.
+- **Until 2 September 1945** the AI starts no war on its own and does not join an ally's war of aggression when called
+  (defending an ally or a guaranteed country still happens at once). After that date the AI acts freely.
+
 ## Crisis index
 How close the world is to general war. It rises with aggression (preparing a casus belli, annexations, war). It strengthens
 everyone's home front (+0.4% per 1%, at most +40%).

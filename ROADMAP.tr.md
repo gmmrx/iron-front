@@ -38,12 +38,21 @@ Son güncelleme: **27 Eylül 2026**
   (emir olmadan geri çekilmez), kendiliğinden komutan atanmaz, tarihî baskılar seçenekli olay (Türkiye: Mayıs 1936 Sovyet baskısı, 1938 halef, 1939 Moskova).
 - Harita: daha koyu ve doygun; hareket okları yeşil/kırmızı, akan işaretli; uzak zoom'da sayı yerine ülke bayrakları, daha uzakta
   birlik işareti yok.
+- **Tarih**: oyuncunun ülkesi dışındaki her ülke gerçek zaman çizelgesini tam gününde izler (`data/common/history.json`:
+  Rheinland, Anschluss, Münih, Polonya, Kış Savaşı, Batı, Barbarossa, Pearl Harbor...); oyuncunun ülkesi hiçbir adımı
+  kendiliğinden atmaz; koşulu artık tutmayan adım atlanır (oyuncu tarihi değiştirmiştir); 2 Eylül 1945'e kadar yapay zekâ
+  kendi başına savaş açmaz ve saldırı savaşına çağrıyla katılmaz.
 - **Komuta zinciri**: ordular grubu (mareşal) → ordu (general) → tümen; 80 ülkenin hepsine komutan kadrosu (57 ülkede
   dönemin gerçek komutanları, kalanlarda yöresel isimler), beceri 1–5 muharebe katkısı, muharebede tecrübe ve beceri artışı,
   komuta gücüyle mareşalliğe terfi ve yeni general; Ordu ekranı (U) ağaç + ayrıntı + kadro; seçim panelinde mikro yönetim
   (bileşim, böl, orduya kat/çıkar, doğrudan emir). Oyuncunun ordusuna kendiliğinden komutan atanmaz.
 - **Harita kartları**: Ctrl basılıyken ülke kartı (portre, ilişki, göstergeler, savaşlar), Ctrl + tık o ülkenin siyaset
   ekranı (salt okunur); deniz bölgelerinde ülkelere göre deniz hâkimiyeti.
+- **Harita bir kurmay masası (iğne tasarımı)**: 3D arazi kalır; şehirler, tümenler, filolar ve hava kanatları haritaya
+  saplanmış iğnelerdir (şehir iğnesinin başı şehri elinde tutan ülkenin renginde; sayaç iğnenin bayrağı); uzakta her
+  zamanki harita ikonları, yaklaşınca iğneler. Her eyaletin yapıları tek iğnede resim ve seviye olarak, süren inşaat
+  turuncu "+n". Tek model uçaklardır (küçük tek uçak). Eyalet sınırları ve daha küçük province sınırları (farenin
+  vurguladığı birim) her zoom'da net çizgidir.
 - **Ayarlar** ana menüde ve oyun içinde: ses düzeyleri, müzik seçimi, dil (English / Türkçe), tam ekran.
 - Arayüzü olup oyuna henüz etkisi olmayan özellikler (kara/deniz/hava birikimi) soluk ve yasak imleçli görünür, nedenini söyler.
 - Oyun wikisi: [docs/wiki/tr](docs/wiki/tr/README.md) (İngilizcesi [docs/wiki](docs/wiki/README.md)). Yeni ikon seti oyunda;
@@ -57,7 +66,10 @@ Son güncelleme: **27 Eylül 2026**
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. ◐ **Yeni ikon seti ve portreler** (kullanıcı üretiyor): ✔ ikon seti oyunda; portreler geliyor → geldikçe görsel kontrol
-3. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
+3. **Açık uçlu oyun (BÖLÜM AÇIK)**: bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana kadar
+   sürer; bitmeyen araştırma (tekrarlanabilir seviyeler); dünyada olanları izlemek ve cevap vermek için solda bir dünya
+   olayları menüsü (BÖLÜM OL)
+3b. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
    Çin (Xi'an). Kalan: orta ve küçük ülkeler, 1937–1945 olay zincirleri (İspanya İç Savaşı, Kış Savaşı, Balkanlar)
@@ -184,6 +196,25 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       it dalaşı (iz mermisi), düşen uçak, yakın destek bombaları + yer patlamaları
 - [x] Deniz aşırı harekette tümen nakliye gemisi olarak görünür
 - [ ] Stratejik bombardıman (fabrika hasarı), üs kapasitesi cezası, şehir üstünde uçaksavar ateşi
+
+### ★6. Haritada şehirler ve binalar ◐
+- [x] **İğne tasarımı** (`game/map/pin_layer.gd`, 27 Eyl 2026): harita bir kurmay masası — 3D arazi, üstünde modeller
+      yerine iğneler. Şehir: kontrol eden ülkenin renginde başlı iğne (büyük şehirde büyük), adı başın üstünde. Tümen,
+      filo, hava kanadı: sayaç iğnenin bayrağı. İğneler her zoom'da ekranda aynı boyda; uzakta her zamanki harita ikonları,
+      yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
+- [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
+      rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
+- [x] Uçaklar: ülke renginde tek küçük uçak modeli, üste park etmiş ya da görevinde uçarken
+- [x] Eyalet sınırları her zoom'da net çizgi (yakında daha kalın), province sınırları (farenin vurguladığı birim) eyaletlerin
+      içinde daha ince ve açık çizgi
+- [x] Hiçbir şey üst üste binmez: tümenler şehrin, yapıların ve hava üssünün yanında durur; hava üssü başka bir şehrin
+      dibine kurulmaz
+- [ ] Başka şeyler için de iğne: ikmal merkezleri, tahkimat, radar, stratejik kaynaklar (petrol, çelik...) eyaletinde
+- [ ] İşgal edilen şehir: iğne başı işgalcinin renginde, ince bir halka sahibinin renginde; bombardımanla yıkılmış şehir
+- [ ] 3D model kütüphanesi kapalı olarak duruyor (`city_layer_3d.gd`, `industry_layer.gd`, `unit_models.gd` içinde
+      `SHOW_MODELS`); model hattı (`tools/blender/build_cities.py`, `build_industry.py`) ileride kullanılmak üzere kalır.
+      Ayrıntılı şehir dioramaları, rig'li sanayi (vinçler, uçaksavar topları, rafineri meşalesi) ve modelli kara birlikleri
+      bunun içinde
 
 ### ★5. Muharebe efektleri ve sesleri ◐
 - [x] Parçacıklar: namlu alevi, patlama, duman; denizde su sütunları
@@ -550,6 +581,34 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 - [ ] Grafik kalite ayarları menüde
 
 ---
+
+## BÖLÜM AÇIK — AÇIK UÇLU OYUN ☐ ← uçtan uca oyundan önce gerekli
+Bugün oyun 1 Ocak 1948'de bitiyor (`Game.END_DATE`) ve araştırma ağacı 1942 civarında tükeniyor. Bir strateji oyunu bir
+tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok olana** kadar sürer. Bunun
+kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
+- [ ] Bitiş tarihi yok: zafer = oyuncu bütün eyaletleri kontrol eder (ya da diğer bütün ülkeler oyuncunun tarafına teslim
+      olmuştur); yenilgi = oyuncunun ülkesi artık yoktur (son eyaleti kaybedildi ya da ilhak edildi). `END_DATE` kalkar;
+      oyun sonu ekranı nedeni ve tarihi gösterir
+- [ ] Bitmeyen araştırma: son tarihî teknolojiden sonra araştırma sürer — her dalda tekrarlanabilir seviyeler (ör. "Piyade
+      silahları IV, V, ..."), her seviyede artan maliyet ve azalan kazanç; hiçbir dal tükenmez
+- [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
+- [ ] Tarihî akıştan sonra olaylar ve yapay zekâ: tarihli olaylar bitince dünya durmaz — kurala dayalı olaylar (krizler,
+      sınır olayları, ayaklanmalar, darbeler, ekonomik şoklar) ve yeni savaşlar planlayan yapay zekâ
+- [ ] Uzun oyunda da işe yarayan yasalar, programlar ve kararlar (savaş sonrası yeniden inşa, işgal politikası, büyük bir
+      imparatorluğun ekonomisi)
+- [ ] Performans ve kayıt boyutu onlarca oyun yılı boyunca kararlı (uzun koşu testi: 30+ oyun yılı)
+- [ ] Sabit yıl içermeyen motor metinleri (BÖLÜM MOD'un da parçası: senaryo başlangıç tarihini verir, bitiş tarihini değil)
+
+## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ☐
+Dünyada sürekli bir şeyler olur (savaş ilanları, ittifaklar, darbeler, felaketler, başka ülkelerin kararları). Bunlar
+oyuncuya bir akış olarak gelmeli; bir kısmına cevap verilebilmeli.
+- [ ] Solda bir dünya olayları menüsü: dünyada olanların listesi (en yenisi üstte), ülke bayrağı, tarih ve kısa metin;
+      süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider
+- [ ] Olaylara tepki: bazı kayıtlar 2–3 gerçek seçenek taşır (kınamak / desteklemek / uzak durmak, gönüllü göndermek,
+      garanti vermek, yaptırım...); bedel ve etkiler var olan etki sözlüğünden; yapay zekâ da oyuncunun olaylarına aynı
+      şekilde tepki verir
+- [ ] Her yapay zekâ ülkesinin önemli kararları ve savaşları kayıt olur (yalnız oyuncunun kendi olayları değil)
+- [ ] Uyarı çubuğu ve bildirim akışı oyuncunun kendi işleri için kalır; dünya menüsü dünyanın geri kalanıdır
 
 ## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
 - [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar

@@ -726,11 +726,7 @@ def plane(x, y, rot):
 
 STYLES = ["west", "east", "orient", "nordic"]
 ASSETS = {}
-for _st in STYLES:
-    ASSETS[f"city_{_st}_town"] = (lambda st: lambda: build_town(st))(_st)
-    ASSETS[f"city_{_st}_medium"] = (lambda st: lambda: build_medium(st))(_st)
-    ASSETS[f"city_{_st}_large"] = (lambda st: lambda: build_large(st))(_st)
-    ASSETS[f"city_{_st}_capital"] = (lambda st: lambda: build_capital(st))(_st)
+# Şehir dioramaları artık tools/blender/build_cities.py ile (ayrıntılı bina kiti) üretilir.
 ASSETS["port"] = build_port
 ASSETS["airbase"] = build_airbase
 

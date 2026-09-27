@@ -285,6 +285,22 @@
     "war_support": -0.05
    }
   },
+  "front_collapse_1940": {
+   "name": {
+    "en": "Collapse of the Front",
+    "tr": "Cephenin Çöküşü"
+   },
+   "desc": {
+    "en": "May 1940: airborne landings and the breakthrough in the Ardennes have cut the armies apart; command and morale are breaking down.",
+    "tr": "Mayıs 1940: paraşüt indirmeleri ve Ardenlerdeki yarma orduları ikiye böldü; komuta ve moral çöküyor."
+   },
+   "mods": {
+    "defense": -0.4,
+    "org": -0.35,
+    "attack": -0.2,
+    "surrender_limit": -0.2
+   }
+  },
   "laval_deflation": {
    "name": {
     "en": "Laval's Deflation Decrees",

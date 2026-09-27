@@ -54,6 +54,20 @@ Large screens open full-screen and the map does not move while they are open.
   conditions and the current state program. **Ctrl + click** opens that country's politics screen, read-only.
 - Numbers are coloured: good green, bad red.
 
+## The map: pins
+The map is a general staff table: the 3D terrain stays, and everything on it is a pin stuck into it instead of a model.
+Far away you see the usual map icons (cities, ports, air bases); zoom in and each icon rises into a pin.
+- **City**: a pin with a head in the colour of the country holding it; the bigger the city, the bigger the pin. The name
+  sits on the head.
+- **Division, fleet, air wing**: the counter is the pin's flag. Each army has its own pin (armies in the same region stand
+  side by side, the name of your army written under its counter).
+- **Buildings**: one pin per state carrying the state's buildings side by side as pictures (civilian and military
+  factories, dockyards, refineries, anti-air, naval base) with their level in the corner; a construction in progress is
+  an orange-framed picture with "+n". The air base has its own pin.
+- **Aircraft** are the only models: one small plane in the country's colour, parked by the air base or flying its mission.
+- **State borders** are drawn as clear dark lines at every zoom, thicker up close.
+Pins keep the same size on screen at every zoom.
+
 ## Settings
 Main menu → **Settings**, or Esc → **Settings** in the game: master volume, music, sound effects and interface sounds;
 music (automatic by game situation, or any track on repeat); language (English / Türkçe, switches at once and a game in

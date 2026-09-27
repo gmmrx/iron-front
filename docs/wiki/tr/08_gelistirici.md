@@ -12,6 +12,7 @@ Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde v
 | `godot --headless --path . -s tests/run.gd [-- --file=test_data] [--filter=hatay]` | Test paketi: `tests/test_*.gd` içindeki her `test_*` fonksiyonu temiz bir oyunla koşar |
 | `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyunu başlatır; oyuncu eylemlerinin oyunu etkilediğini ve oyuncu adına otomatik iş yapılmadığını ölçer |
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/iç cephe, tarihli olaylar, seçimler |
+| `godot --headless --path . -s game/dev/war_check.gd -- --player=GER --target=DEN --army [--start=19390828 --save=x \| --load=x] [--observe] [--prof]` | Oyuncu savaşı: savaş ilanı, bütün tümenler tek orduda hedefin cephesinde (ya da hepsi `--goal=Şehir`'e), 5 günde bir rapor (alınan bölge, boşta/saldıran tümen, teslim, ms/gün); `--observe` yalnız yapay zekâyı izler; `--prof` sistem başına süreyi yazar |
 | `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
 
@@ -31,6 +32,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_trade.gd` | Elle anlaşma, ödeme sınırı, düşmanla ticaret yok (oyuncu ve AI), otomatik ticaret, konvoy |
 | `test_politics.gd` | İstikrar/iç cephe formülleri, yasa şartları, danışman, karar, süreli ulusal durum, seçim, tarihli olay, kilitli seçenek |
 | `test_diplomacy.gd` | Gerekçe, kriz endeksi eşikleri, savaşa katılım, teslim ilerlemesi ve sınırı, eyalet devri, beyaz barış |
+| `test_history.gd` | Tarih çizelgesi: yapay zekâ tarihî adımları atar, oyuncunun ülkesi atmaz, koşulu tutmayan adım atlanır, serbest tarihten önce kendi savaşı ve saldırı çağrısına katılım yok |
 | `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
 | `test_commanders.gd` | Komutan kadroları, atama/terfi/yeni general bedelleri, muharebe katkısı, tecrübe, oyuncuya kendiliğinden atama yok, doğrudan emir |
 | `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
@@ -59,14 +61,39 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim).
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
 
+## 3B varlıklar (Blender, ekransız)
+Harita iğne tasarımını kullanır (`game/map/pin_layer.gd`); şehir, sanayi ve tümen modelleri kapalıdır
+(`city_layer_3d.gd`, `industry_layer.gd`, `unit_models.gd` içinde `SHOW_MODELS`), yalnız tek küçük uçak modeli çizilir
+(`AirLayer.SINGLE_MODEL`). Aşağıdaki model hattı ileride kullanılmak üzere duruyor.
+```
+python3 tools/blender/make_textures.py && python3 tools/blender/make_industry_textures.py   # döşenebilir dokular
+Blender --background --factory-startup --python tools/blender/build_cities.py   -- [--render KLASÖR] [--only city_west_capital]
+Blender --background --factory-startup --python tools/blender/build_industry.py -- [--render KLASÖR] [--only ind_dockyard]
+```
+- **Şehirler** (`city_<stil>_<boyut>.gltf`): `build_buildings.py`'nin ayrıntılı bina kitinden (denizlikler, kornişler,
+  balkonlar, dükkân vitrinleri) kurulur: ortada meydan ve simge yapı, avlulu bloklar, dışta bahçeli evler. Zemin
+  malzemeleri oyunda kenardan dağılır (`conform.gdshader`, `fade_edge`); şehir araziye kaynaşır.
+- **Sanayi** (`industry.gltf`): her inşaat türü için bir model ve şantiye. Hareketli parçalar (vinç kolları, uçaksavar
+  topları, rafineri meşalesi) orijini pivotta ayrı mesh'lerdir; `building_part.gdshader` onları GPU'da oynatır (osc / spin
+  / flicker), binlerce tesis ucuz kalır. Rig'li sürüm (kemikler + döngülü eylemler) `tools/blender/scenes/industry_rigged.glb`
+  ve `industry_library.blend` içinde.
+- Şehirler ve sanayi glTF + `.bin` olarak dışa aktarılır ve `assets/models/textures/` klasörünü paylaşır: bir doku modele
+  göre çoğalmaz, bir kez paketlenir. Haritada: `game/map/industry_layer.gd` (parseller, seviye başına sayı, şantiyeler),
+  `game/map/city_layer_3d.gd` (şehirler).
+
 ## Yeni ikon seti ve lider portreleri
 - Prompt listesi: `docs/art/ICON_PROMPTS.md` (`python3 tools/make_icon_prompts.py` ile yeniden üretilir).
-- İkonlar `assets/ui/icons_new/<ad>.png` → oyun eski ikonun yerine otomatik kullanır.
+- İkonlar `assets/ui/icons_new/<ad>.png` → oyun eski ikonun yerine otomatik kullanır. İkon ekledikten sonra
+  `python3 tools/make_icon_trims.py` çalıştırın: her ikonun içerik kutusunu `assets/ui/icon_trims.json`'a yazar; arayüz
+  saydam kenar boşluğunu kırpar ve ikon yuvasını doldurur (`UiTheme.trimmed`).
+- Arayüz yazı boyları `UiTheme.fs()` üzerinden geçer (küçük boylar en az 16 olur): 1920×1080 tasarım pencereye ya da
+  tarayıcıya küçülünce de yazılar okunur kalır.
 - Portreler `assets/portraits/<TAG>.png` (1936 lideri) ve `assets/portraits/<ad_soyad>.png` (olaylarla gelen lider,
   ör. `ismet_inonu.png`) → üst çubukta bayrak yerine, Hükümet ve Diplomasi ekranlarında görünür; yoksa bayrak.
 
 ## Veri
-İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman, komutanlar `commanders.json`).
+İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman, komutanlar `commanders.json`, yapay zekânın izlediği tarih çizelgesi `history.json`: tarih,
+adımı atan ülke, tamamlanacak odak ya da etkiler, koşullar).
 Olay seçeneğine `"require": [koşullar]` eklenirse şart sağlanmadıkça seçenek kilitli görünür; yapay zekâ da seçmez.
 
 ## Dil

@@ -112,23 +112,23 @@ An army supply truck with canvas cover loaded with crates, menu button for logis
 ```
 **`battle.png`** — assets/ui/icons_new/
 ```
-Two crossed sabres with an explosion burst behind them, battle marker. Small UI glyph for a WWII strategy game top bar, embossed brass/bronze metal emblem, simple bold silhouette readable at 24 px, soft bevel and gold rim light, transparent background, no text, no letters, no numbers, square 1:1, 256x256
+Two crossed ivory cavalry sabres with restrained brass hilts, no explosion, battle symbol. Small UI glyph for a WWII strategy game top bar, embossed brass/bronze metal emblem, simple bold silhouette readable at 24 px, soft bevel and gold rim light, transparent background, no text, no letters, no numbers, square 1:1, 256x256
 ```
 **`map_capital.png`** — assets/ui/icons_new/
 ```
-A golden star inside a laurel ring, capital city marker. Hand-painted icon for a WWII grand strategy game, 1930s-1940s era, oil-painting look with visible brush strokes, muted bronze, olive, khaki and steel-grey palette with warm gold highlights, dramatic side lighting, strong readable silhouette centered, slight 3/4 view, subtle dark vignette, transparent background, no text, no letters, no numbers, no border, no frame, square 1:1, 512x512
+Capital location blip: one oversized ivory five-point star on an oxblood-red enamel roundel. 1936-era military map location blip, a large opaque solid-color enamel roundel with a stout downward coordinate point, thick dark outline and aged brass rim, bold ivory stencil symbol, gently worn 1930s staff-map finish, transparent only outside the filled marker silhouette, unmistakable over terrain when zoomed out, no text, no labels, no scenery, square 1:1, 512x512
 ```
 **`map_city.png`** — assets/ui/icons_new/
 ```
-A small cluster of European town houses with a church spire, city marker. Hand-painted icon for a WWII grand strategy game, 1930s-1940s era, oil-painting look with visible brush strokes, muted bronze, olive, khaki and steel-grey palette with warm gold highlights, dramatic side lighting, strong readable silhouette centered, slight 3/4 view, subtle dark vignette, transparent background, no text, no letters, no numbers, no border, no frame, square 1:1, 512x512
+City location blip: three ivory 1930s European town buildings on a dark olive-green enamel roundel. 1936-era military map location blip, a large opaque solid-color enamel roundel with a stout downward coordinate point, thick dark outline and aged brass rim, bold ivory stencil symbol, gently worn 1930s staff-map finish, transparent only outside the filled marker silhouette, unmistakable over terrain when zoomed out, no text, no labels, no scenery, square 1:1, 512x512
 ```
 **`map_port.png`** — assets/ui/icons_new/
 ```
-A ship anchor with a rope, naval port marker. Hand-painted icon for a WWII grand strategy game, 1930s-1940s era, oil-painting look with visible brush strokes, muted bronze, olive, khaki and steel-grey palette with warm gold highlights, dramatic side lighting, strong readable silhouette centered, slight 3/4 view, subtle dark vignette, transparent background, no text, no letters, no numbers, no border, no frame, square 1:1, 512x512
+Port location blip: one large ivory anchor on a deep petrol-blue enamel roundel. 1936-era military map location blip, a large opaque solid-color enamel roundel with a stout downward coordinate point, thick dark outline and aged brass rim, bold ivory stencil symbol, gently worn 1930s staff-map finish, transparent only outside the filled marker silhouette, unmistakable over terrain when zoomed out, no text, no labels, no scenery, square 1:1, 512x512
 ```
 **`map_airbase.png`** — assets/ui/icons_new/
 ```
-A propeller plane silhouette over a runway, airbase marker. Hand-painted icon for a WWII grand strategy game, 1930s-1940s era, oil-painting look with visible brush strokes, muted bronze, olive, khaki and steel-grey palette with warm gold highlights, dramatic side lighting, strong readable silhouette centered, slight 3/4 view, subtle dark vignette, transparent background, no text, no letters, no numbers, no border, no frame, square 1:1, 512x512
+Airfield location blip: an ivory three-blade propeller above a short runway bar on a slate-blue enamel roundel. 1936-era military map location blip, a large opaque solid-color enamel roundel with a stout downward coordinate point, thick dark outline and aged brass rim, bold ivory stencil symbol, gently worn 1930s staff-map finish, transparent only outside the filled marker silhouette, unmistakable over terrain when zoomed out, no text, no labels, no scenery, square 1:1, 512x512
 ```
 
 ## 2. Binalar

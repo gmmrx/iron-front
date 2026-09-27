@@ -99,3 +99,13 @@ Source: https://commons.wikimedia.org/wiki/File:Adolf_Hitler_Berghof-1936.jpg
 Licence: [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en).
 Cropped and scaled to 400×500 pixels for the game portrait; the source photo was left black and white.
 The modified image is distributed under CC BY-SA 3.0 DE; the source and licence notice for this asset must be kept here.
+
+## Historical commander portraits (`assets/portraits/commanders/`)
+
+Per-image source page, credited author, and licence are recorded in
+[`assets/portraits/commanders/SOURCES.csv`](assets/portraits/commanders/SOURCES.csv).
+The portraits are archival images from Wikimedia Commons and remain under the
+licences stated in that manifest. Keep the manifest with the assets; apply any
+share-alike terms to modified portraits. Entries marked “AI-generated” are
+illustrative reconstructions, not authentic historical photographs; the source
+atlas for each set is kept beside the cropped portraits.
