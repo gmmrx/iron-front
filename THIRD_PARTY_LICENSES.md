@@ -89,3 +89,10 @@ Lisans metni: `assets/fonts/OFL.txt`.
   (https://github.com/jpt/barlow)
 - **Cinzel** (`assets/fonts/CinzelVariable.ttf`) — Copyright 2020 The Cinzel Project Authors
   (https://github.com/NDISCOVER/Cinzel)
+
+## Almanya 1936 lider portresi (`assets/portraits/GER.png`)
+Fotoğraf: Heinrich Hoffmann, Adolf Hitler at the Berghof, 1936; Bundesarchiv, Bild 146-1990-048-29A.
+Kaynak: https://commons.wikimedia.org/wiki/File:Adolf_Hitler_Berghof-1936.jpg
+Lisans: [CC BY-SA 3.0 DE](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en).
+Oyun portresi için kırpıldı ve 400×500 piksele ölçeklendi; kaynak fotoğraf siyah-beyaz bırakıldı.
+Değiştirilmiş görsel CC BY-SA 3.0 DE altında dağıtılır; bu varlık için kaynak ve lisans bildirimi burada korunmalıdır.
