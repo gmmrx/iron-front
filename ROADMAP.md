@@ -16,8 +16,10 @@ Son güncelleme: **26 Eylül 2026**
 > - Başka bir oyunun dosyası, wikisi, ekran görüntüsü ya da rehber videosu kaynak olarak kullanılmaz (temiz oda).
 > - Adlar tarihî gerçek adlardır ya da bizimdir; sayılar kendi formülümüzden ve tarihî veriden türetilir, gerekçesi yazılır.
 > - Kod, yorum, belge ve commit'te başka bir oyun ne adıyla ne "türün klasiği" gibi örtmeceyle anılır; "parite" hedefi yok.
-> - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Yayından önce ad
->   değişecek; yeni ad marka araştırması yapılmadan kullanılmaz.
+> - Oyun **açık kaynaklı, ücretsiz bir tarayıcı oyunu** (mağaza yok). Ücretsiz olmak telif riskini kaldırmaz: gerçekçi tehlike
+>   GitHub'a telif bildirimi ve deponun kapatılması. Depodaki her varlığın lisansı yeniden dağıtıma izin vermeli.
+> - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Ad değişikliği önerilir
+>   (acil değil); yeni ad marka araştırması yapılmadan kullanılmaz.
 
 ### Şu an nerede? (özet)
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
@@ -61,8 +63,8 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
       (insan gözü gerekir)
 - [ ] Katman 3 — İmza mekanikler: seçenekli kriz pazarlıkları, tarafsız ülke denge diplomasisi, hava/mevsim ve cephe sistemi
 - [◐] Katman 4 — Süreç: ✔ "türün klasiği" ifadeleri ve parite/rehber videosu bölümleri temizlendi; ◐ üçüncü taraf atıfları
-      (bayrak lisansları tek tek doğrulanacak); ☐ ticari yayın geçmişi olmayan temiz bir depodan yapılır
-- [ ] **Oyun adı**: "Iron Front" çalışma adı. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar oyunu (2012) ve bir
+      (bayrak lisansları tek tek doğrulanacak); ☐ isteğe bağlı: geçmişi olmayan yeni bir depodan yayın
+- [ ] **Oyun adı** (önerilir, acil değil; açık kaynak ücretsiz oyunda marka riski düşük): "Iron Front" çalışma adı. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar oyunu (2012) ve bir
       mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adı. Aday adlar TÜRKPATENT, EUIPO, USPTO, WIPO
       (Nice 9, 28, 41), mağazalar ve alan adlarında aranır; seçilen ad tek bir çeviri anahtarından okunur
 

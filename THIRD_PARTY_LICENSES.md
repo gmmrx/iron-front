@@ -81,3 +81,11 @@ yazar ve lisans buraya yazılır (ör. CC BY-SA: yazar adı + lisans + değişik
 | ICE | File:Flag_of_Iceland.svg | ☐ |
 | IRQ | File:Flag_of_Iraq_(1924-1959).svg | ☐ |
 | SAU | File:Flag_of_Saudi_Arabia_(1934-1938).svg | ☐ |
+
+## Yazı tipleri (SIL Open Font License 1.1)
+Lisans metni: `assets/fonts/OFL.txt`.
+
+- **Barlow Condensed** (`assets/fonts/BarlowCondensed-*.ttf`) — Copyright 2017 The Barlow Project Authors
+  (https://github.com/jpt/barlow)
+- **Cinzel** (`assets/fonts/CinzelVariable.ttf`) — Copyright 2020 The Cinzel Project Authors
+  (https://github.com/NDISCOVER/Cinzel)

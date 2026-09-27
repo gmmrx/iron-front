@@ -1,7 +1,20 @@
 # Özgünlük ve fikrî mülkiyet politikası
 
 Bu sayfa bu depoda çalışan herkes (insan ya da yapay zekâ ajanı) içindir. Her işten önce okunur.
-Hukuki tavsiye değildir; ticari yayından önce bir fikrî mülkiyet avukatına gösterilir.
+Hukuki tavsiye değildir; yayın modeli değişirse (satış, mağaza) bir fikrî mülkiyet avukatına gösterilir.
+
+## Yayın modeli
+Oyun **açık kaynaklı (MIT), ücretsiz bir tarayıcı oyunudur**; GitHub Pages'te yayınlanır, mağazaya (Steam vb.) çıkmaz.
+Bunun sonuçları:
+
+- **Ücretsiz olmak telif ve haksız rekabet riskini kaldırmaz.** Gerçekçi tehlike dava değil, hak sahibinin GitHub'a telif
+  bildirimi (DMCA) göndermesi ve deponun ve web sürümünün kapatılmasıdır. Bu yüzden aşağıdaki kurallar aynen geçerlidir.
+- **Marka riski daha düşüktür** (ticari faaliyet yok), ama sıfır değildir: aynı adı taşıyan bir oyun varken karışıklık
+  şikâyeti GitHub'ın marka politikası üzerinden de gelebilir. Ad değişikliği önerilir, acil değildir (kural 8).
+- **Açık kaynakta her dosya yeniden dağıtılır.** Depodaki her varlığın (bayrak, yazı tipi, model, ikon, ses) lisansı
+  yeniden dağıtıma izin vermeli ve gereken atıf `THIRD_PARTY_LICENSES.md`'de olmalı. Yapay zekâyla üretilen görsellerde
+  üreticinin kullanım koşulları kontrol edilir.
+- Git geçmişi herkese açıktır; eski ifadeler geçmişte durur (Katman 4).
 
 ## Neden var?
 Oyunun ilk sürümleri, türün en bilinen ticari oyunu örnek alınarak yapıldı. Sistemlerin yanı sıra adlar, sayı tabloları,
@@ -36,8 +49,8 @@ türün ortak fikirleridir; bunlar serbest. Başka bir oyunun kendine özgü ad�
 7. **Varlıklar** (harita verisi, bayrak, model, ses, yazı tipi) yalnız lisansı belli kaynaklardan gelir. Her yeni kaynak
    `THIRD_PARTY_LICENSES.md`'ye eklenir.
 8. **Oyunun adı:** "Iron Front" bir **çalışma adıdır**. Aynı adı taşıyan, 2. Dünya Savaşı konulu ticari bir bilgisayar
-   oyunu ve bir mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adıdır. Yayın ya da satıştan önce ad
-   değişecek. Yeni ad; TÜRKPATENT, EUIPO, USPTO ve WIPO marka veri tabanlarında (Nice sınıfları 9, 28, 41), mağazalarda ve
+   oyunu ve bir mobil oyun yayında; ad ayrıca 1930'ların gerçek bir siyasi örgütünün adıdır. Ücretsiz açık kaynak oyunda
+   risk düşüktür ama ad değişikliği önerilir; karar proje sahibinindir. Yeni ad; TÜRKPATENT, EUIPO, USPTO ve WIPO marka veri tabanlarında (Nice sınıfları 9, 28, 41), mağazalarda ve
    alan adlarında aranmadan kullanılmaz. Oyun içinde ad yalnız `GAME_TITLE` çeviri anahtarından okunur; ad değişince
    ayrıca `project.godot` (`config/name`) ve `tools/web/shell.html` güncellenir.
 
@@ -79,9 +92,11 @@ Durum: ✔ bitti · ◐ başladı · ☐ yapılmadı
 ### Katman 4 — Süreç ve geçmiş
 - ✔ "Türün klasiği" ifadeleri, parite bölümleri ve rehber videosu kaynakları temizlendi; ikon prompt aracında "klasik strateji
   oyunu tarzı" ifadeleri çıkarıldı
-- ◐ `THIRD_PARTY_LICENSES.md`: harita, yükseklik ve bayrak kaynakları yazıldı; her bayrağın lisansı tek tek doğrulanacak
+- ◐ `THIRD_PARTY_LICENSES.md`: harita, yükseklik, bayrak ve yazı tipi kaynakları yazıldı; her bayrağın lisansı tek tek
+  doğrulanacak; yeni ikon ve portreler geldikçe üreticinin koşulları eklenecek
 - ☐ Herkese açık git geçmişinde eski ifadeler duruyor (ilk commit'teki bir shader yorumu başka oyunun adını anıyor).
-  Ticari yayın, geçmişi olmayan temiz bir depodan yapılır.
+  Tamamen temiz bir başlangıç istenirse oyun, geçmişi olmayan yeni bir depodan yayınlanır (isteğe bağlı; karar proje
+  sahibinin).
 - ☐ Tasarım günlüğü: önemli sayıların ve adların gerekçesi yazılı tutulur (JSON `_comment`, wiki)
 
 ## İnceleme listesi (her PR'da)
