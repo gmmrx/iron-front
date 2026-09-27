@@ -24,22 +24,26 @@ var law_groups: Dictionary = {}
 var law_change_cost := 150.0
 
 func _ready() -> void:
-	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BUILDINGS_PATH))
-	defs = data["buildings"]
-	params = data["economy"]
-	resource_names = data["resources"]
-	var eq: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(EQUIPMENT_PATH))
-	equipment = eq["equipment"]
-	prod = eq["production"]
-	_fleets = eq.get("start_fleets", {})
-	var lw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(LAWS_PATH))
-	law_groups = lw["groups"]
-	law_change_cost = float(lw["change_cost"])
-	_law_start = lw["start"]
+	load_data()
 	World.daily_update.connect(_on_day)
 	building_completed.connect(func(_t: String, _s: int, _b: String) -> void: invalidate_counts())
 	World.ownership_changed.connect(invalidate_counts)
 	reset()
+
+## Tanımları etkin oyun modundan (yeniden) yükle
+func load_data() -> void:
+	var data: Dictionary = GameModes.load_json(BUILDINGS_PATH)
+	defs = data["buildings"]
+	params = data["economy"]
+	resource_names = data["resources"]
+	var eq: Dictionary = GameModes.load_json(EQUIPMENT_PATH)
+	equipment = eq["equipment"]
+	prod = eq["production"]
+	_fleets = eq.get("start_fleets", {})
+	var lw: Dictionary = GameModes.load_json(LAWS_PATH)
+	law_groups = lw["groups"]
+	law_change_cost = float(lw["change_cost"])
+	_law_start = lw["start"]
 
 var _law_start: Dictionary = {}
 var _fleets: Dictionary = {}
@@ -60,7 +64,7 @@ func reset() -> void:
 
 ## World haritayı yükledikten sonra çağrılır: 1936 binaları ve kaynakları
 func load_history() -> void:
-	var hist: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(HISTORY_PATH))["states"]
+	var hist: Dictionary = GameModes.load_json(HISTORY_PATH)["states"]
 	for key: String in hist:
 		var st: StateRegion = World.states.get(int(key))
 		if st == null:

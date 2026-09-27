@@ -10,6 +10,10 @@ var _warnings: Array[String] = []
 func player_tag() -> String:
 	return "TUR"
 
+## Testlerin oyun modu (dosya bazında değiştirmek için ez, ör. tests/test_mode_<id>.gd); koşucu testten önce bu moda geçer
+func mode() -> String:
+	return GameModes.BASE_MODE
+
 ## Koşucu çağırır: yeni test başlıyor
 func _begin() -> void:
 	_failures.clear()
@@ -66,5 +70,6 @@ func player() -> Country:
 func country(tag: String) -> Country:
 	return World.countries.get(tag)
 
+## Veri dosyası: etkin oyun modunun birleşik hâli (WWII'de dosyanın kendisi)
 func read_json(path: String) -> Variant:
-	return JSON.parse_string(FileAccess.get_file_as_string(path))
+	return GameModes.load_json(path)

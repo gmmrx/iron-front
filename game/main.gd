@@ -113,6 +113,9 @@ func _ready() -> void:
 	if Game.loaded:
 		Game.loaded = false
 		_enter_playing(World.player_tag, true)
+	elif Game.goto_setup:
+		Game.goto_setup = false           # mod seçildi ve sahne yeniden yüklendi: doğrudan ülke seçimi
+		_enter_setup()
 	elif phase == Phase.MENU:
 		_enter_menu()
 
@@ -134,7 +137,17 @@ func _enter_menu() -> void:
 	_menu.new_game_pressed.connect(_enter_setup)
 	_menu.quit_pressed.connect(func() -> void: get_tree().quit())
 	_menu.load_pressed.connect(_load_slot)
+	_menu.mode_chosen.connect(_choose_mode)
 	_menu_layer.add_child(_menu)
+
+## Menüden oyun modu seçildi: aynı modsa ülke seçimi; değilse modu kur ve sahneyi yeniden yükle
+func _choose_mode(mode_id: String) -> void:
+	if mode_id == GameModes.id:
+		_enter_setup()
+		return
+	if Game.switch_mode(mode_id):
+		Game.goto_setup = true
+		get_tree().reload_current_scene()
 
 func _enter_setup() -> void:
 	phase = Phase.SETUP
@@ -154,7 +167,7 @@ func _start_game(tag: String) -> void:
 	if tag == "":
 		return
 	_enter_playing(tag)
-	World.notify(tr("NOTE_WELCOME") % World.player().display_name(), "good")
+	World.notify(GameModes.text("welcome") % World.player().display_name(), "good")
 
 ## resumed: kayıttan devam — oyuncunun kayıttaki tercihleri korunur (yeni oyun varsayılanları kurulmaz)
 func _enter_playing(tag: String, resumed := false) -> void:
@@ -561,7 +574,7 @@ func _process(delta: float) -> void:
 	if phase == Phase.MENU:
 		# menü arkasında Avrupa üzerinde yavaş süzülme
 		_drift_t += delta * 0.035
-		var eu := World.capital_position("GER")
+		var eu := World.capital_position(str(GameModes.get_value("menu_focus")))
 		camera.focus_on(eu + Vector2(cos(_drift_t) * 700, sin(_drift_t * 1.3) * 380), 1250.0)
 	var hovered_control := get_viewport().gui_get_hovered_control()
 	if hovered_control is BaseButton:
@@ -691,7 +704,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_I: hud.toggle_research()
 			KEY_O: hud.toggle_diplomacy()
 			KEY_F: hud.toggle_focus()
-			KEY_F5: Game.save_game("hizli_kayit")
+			KEY_F5: Game.save_game(GameModes.save_prefix() + "hizli_kayit")
 
 ## Yollar modunda imlecin altındaki rota
 func _route_at(screen: Vector2) -> Dictionary:

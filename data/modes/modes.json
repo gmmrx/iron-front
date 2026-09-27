@@ -1,0 +1,8 @@
+{
+ "_comment": "Kayıtlı oyun modları (sıra = menü sırası). Yeni mod: python3 tools/new_mode.py <id>. Rehber: docs/modlar/README.md",
+ "default": "ww2",
+ "modes": [
+  "ww2",
+  "_template"
+ ]
+}

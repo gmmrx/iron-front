@@ -36,6 +36,11 @@ func _ready() -> void:
 	World.daily_update.connect(_on_day)
 
 # ------------------------------------------------------------------ kurulum
+## Mod değişiminde (Game.switch_mode): saat anahtarlı deniz kontrolü önbelleği
+func clear_caches() -> void:
+	_control_cache.clear()
+	_control_hour = -1
+
 func reset() -> void:
 	fleets.clear()
 	battles.clear()

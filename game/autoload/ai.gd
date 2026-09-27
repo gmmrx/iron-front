@@ -12,10 +12,29 @@ const MAX_ORDERS_PER_DAY := 16
 var enabled := true
 
 func _ready() -> void:
+	apply_mode()
 	World.daily_update.connect(_on_day)
+
+## Oyun modunun yapay zekâ eşikleri (mode.json "ai"; 0 ya da "" = kapalı). Sıcak döngüde manifest okunmaz.
+var _rearm_year := 1939
+var _cautious_until := 19420101
+var _phoney_days := PHONEY_WAR_DAYS
+var _hold_fire_days := 240
+func apply_mode() -> void:
+	_rearm_year = int(GameModes.sub("ai", "rearm_year"))
+	_cautious_until = GameModes.date_int(str(GameModes.sub("ai", "cautious_until")))
+	_phoney_days = int(GameModes.sub("ai", "phoney_war_days"))
+	_hold_fire_days = int(GameModes.sub("ai", "major_hold_fire_days"))
 
 func reset() -> void:
 	pass
+
+## Mod değişiminde (Game.switch_mode): gün anahtarlı önbellekler başka haritanın/verinin kalıntısını tutmasın
+func clear_caches() -> void:
+	_owned.clear()
+	_owned_day = -1
+	_comp_cache.clear()
+	_comp_day = -1
 
 func _is_ai(c: Country) -> bool:
 	return enabled and c.exists() and not (World.in_game and c.tag == World.player_tag)
@@ -44,7 +63,7 @@ func _strategic(c: Country) -> void:
 func _construction(c: Country) -> void:
 	if c.construction_queue.size() >= 3 or Economy.available_civilian(c) <= 0:
 		return
-	var war_soon := Diplomacy.at_war(c.tag) or World.world_tension > 50.0 or GameClock.year >= 1939
+	var war_soon := Diplomacy.at_war(c.tag) or World.world_tension > 50.0 or (_rearm_year > 0 and GameClock.year >= _rearm_year)
 	var want := "military_factory" if war_soon and randf() < 0.6 else "civilian_factory"
 	if randf() < 0.15:
 		want = "infrastructure"
@@ -339,7 +358,7 @@ func _ai_armies(c: Country) -> void:
 		# duruş: cephedeki düşmandan belirgin güçlüysek taarruz; "garip savaş": demokrasiler savaşın ilk 9 ayında
 		# taarruza kalkmaz (1939'da Fransa boş Ruhr'a yürüyüp Almanya'yı Ekim'de teslim ettiriyordu)
 		var power := _local_power(arr)
-		var phoney := c.ideology == "democratic" and Diplomacy.days_at_war(c.tag) < PHONEY_ARMY_DAYS
+		var phoney := c.ideology == "democratic" and Diplomacy.days_at_war(c.tag) < _phoney_days
 		# demokrasiler temkinli: ancak belirgin üstünlükte (1,5×) taarruz eder (Fransa 1940'ta Almanya'ya saldırmasın)
 		var ratio := ARMY_ATTACK_RATIO * (1.5 if c.ideology == "democratic" else 1.0)
 		a.mode = Army.Mode.ATTACK if power >= float(plans[e]["foe"]) * ratio and not phoney else Army.Mode.HOLD
@@ -609,7 +628,7 @@ const PHONEY_WAR_DAYS := 270          ## demokrasiler ilk 9 ay yalnız kendi/mü
 ## Demokrasiler sağlam bir büyük gücün anavatanına taarruz etmez (tarihte Müttefikler ancak Almanya çökerken
 ## saldırdı); düşman teslim ilerlemesi ≥ 0,4 olunca ya da 1942'den sonra serbest
 func _cautious_vs_major(c: Country, enemy_tag: String) -> bool:
-	if c.ideology != "democratic" or World.date_value() >= 19420101:
+	if c.ideology != "democratic" or _cautious_until == 0 or World.date_value() >= _cautious_until:
 		return false
 	var e: Country = World.countries.get(enemy_tag)
 	return e != null and e.is_major() and e.surrender_progress < 0.4
@@ -622,7 +641,7 @@ func _holds_fire(c: Country, enemy_tag: String) -> bool:
 	var e: Country = World.countries.get(enemy_tag)
 	if e == null or not e.is_major():
 		return false
-	if Diplomacy.days_at_war(c.tag) >= 240:
+	if Diplomacy.days_at_war(c.tag) >= _hold_fire_days:
 		return false
 	for sid in c.states:
 		if World.controller_tag(World.states[sid].provinces[0]) == enemy_tag:
@@ -644,7 +663,7 @@ func _flank_safe(tag: String, target: int, from: int) -> bool:
 func _attack(c: Country) -> void:
 	var orders := 0
 	var seen := {}
-	var phoney := c.ideology == "democratic" and Diplomacy.days_at_war(c.tag) < PHONEY_WAR_DAYS
+	var phoney := c.ideology == "democratic" and Diplomacy.days_at_war(c.tag) < _phoney_days
 	for d in Military.country_divisions(c.tag):
 		if orders >= MAX_ORDERS_PER_DAY:
 			return

@@ -32,6 +32,10 @@ func _before(e: Dictionary, key: String, date: int) -> bool:
 
 func _init() -> void:
 	await process_frame
+	if GameModes.id != GameModes.BASE_MODE:
+		print("Bu betik yalnız WWII modunun tarihî akışını denetler (etkin mod: %s). Modlar için: country_check.gd -- --game_mode=<id>" % GameModes.id)
+		quit(2)
+		return
 	var runs := 6
 	var until := 19420601
 	var player := "TUR"

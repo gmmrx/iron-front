@@ -196,6 +196,7 @@ EFF_PP,%+d influence,%+d nüfuz
 EFF_STABILITY,%+d%% stability,%%%+d istikrar
 EFF_WAR_SUPPORT,%+d%% home front,%%%+d iç cephe
 EFF_TENSION,%+d crisis index,%+d kriz endeksi
+EFF_TEMPLATE_BONUS,%+d influence (template mode),%+d nüfuz (şablon mod)
 EFF_SPIRIT,Gain national condition: %s,Ulusal durum: %s
 EFF_REMOVE_SPIRIT,Remove national condition: %s,Ulusal durum kalkar: %s
 EFF_RESEARCH_SLOT,+%d research slot,+%d araştırma slotu

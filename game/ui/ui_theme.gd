@@ -388,6 +388,10 @@ static func icon(name: String) -> Texture2D:
 ## Lider portresi (docs/art/ICON_PROMPTS.md bölüm 12): 1936 lideri assets/portraits/<TAG>.png, sonradan gelen lider
 ## assets/portraits/<ad_soyad>.png (ör. ismet_inonu). Yoksa null (çağıran bayrağı gösterir).
 static var _portrait_cache := {}
+
+## Mod değişiminde: lider adları değişmiş olabilir
+static func clear_portrait_cache() -> void:
+	_portrait_cache.clear()
 static func portrait(c: Country) -> Texture2D:
 	if c == null:
 		return null

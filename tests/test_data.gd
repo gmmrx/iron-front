@@ -468,6 +468,9 @@ func _check_effects(effects: Array, ctx: String, allow_from: bool, p: Array) -> 
 			var v: Variant = e[k]
 			if k in params:
 				continue
+			if Game.rules and k in Game.rules.effect_keys():
+				main += 1                        # oyun modunun etkisi (rules.gd)
+				continue
 			if not k in known:
 				p.append("%s: bilinmeyen etki '%s'" % [ctx, k])
 				continue
@@ -540,6 +543,8 @@ func _check_condition(cond: Dictionary, ctx: String, p: Array) -> void:
 	var known := _match_keys(POLITICS_SRC, "check")
 	for k: String in cond:
 		var v: Variant = cond[k]
+		if Game.rules and k in Game.rules.condition_keys():
+			continue                             # oyun modunun şartı (rules.gd)
 		if not k in known:
 			p.append("%s: bilinmeyen koşul '%s'" % [ctx, k])
 			continue
@@ -642,7 +647,18 @@ func _data_text() -> String:
 	for f in DirAccess.get_files_at("res://data/common/"):
 		if f.ends_with(".json"):
 			parts.append(FileAccess.get_file_as_string("res://data/common/" + f))
+	for mid: String in GameModes.ids(true):          # oyun modlarının veri dosyaları da
+		parts.append_array(_json_texts(GameModes.MODES_DIR + mid + "/"))
 	return "\n".join(parts)
+
+func _json_texts(dir: String) -> PackedStringArray:
+	var out: PackedStringArray = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".json"):
+			out.append(FileAccess.get_file_as_string(dir + f))
+	for sub in DirAccess.get_directories_at(dir):
+		out.append_array(_json_texts(dir + sub + "/"))
+	return out
 
 ## Oyun kodunda (game/**/*.gd) desenin ilk grubunun farklı değerleri
 func _regex_set(pattern: String) -> Array[String]:

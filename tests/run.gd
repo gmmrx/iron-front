@@ -51,7 +51,11 @@ func _init() -> void:
 			var full := "%s::%s" % [file, m]
 			_catcher.take()
 			var s0 := Time.get_ticks_msec()
-			game.new_game()
+			var want: String = inst.call("mode")
+			if want != GameModes.id:
+				game.switch_mode(want)          # yeni oyunu da kurar
+			else:
+				game.new_game()
 			world.start_game(inst.call("player_tag"))
 			inst.call("_begin")
 			inst.call(m)

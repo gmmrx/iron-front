@@ -5,6 +5,10 @@ extends Control
 signal new_game_pressed
 signal quit_pressed
 signal load_pressed(slot: String)
+signal mode_chosen(mode_id: String)     ## birden çok oyun modu varken "Yeni Oyun" → mod seçildi
+
+var _col: VBoxContainer
+var _buttons_from := 0                  ## menü düğmelerinin _col içindeki başlangıç sırası
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -43,7 +47,7 @@ func _ready() -> void:
 	title.add_theme_constant_override("shadow_offset_y", 4)
 	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
 	col.add_child(title)
-	var sub := UiTheme.make_label(tr("MENU_SUBTITLE"), 24, UiTheme.TEXT)
+	var sub := UiTheme.make_label(GameModes.text("subtitle"), 24, UiTheme.TEXT)
 	var sf := FontVariation.new()
 	sf.base_font = UiTheme.bold_font()
 	sf.spacing_glyph = 5
@@ -61,11 +65,9 @@ func _ready() -> void:
 	spacer2.custom_minimum_size.y = 18
 	col.add_child(spacer2)
 
-	col.add_child(_menu_button(tr("MENU_NEW_GAME"), true, func() -> void: new_game_pressed.emit()))
-	var saves := Game.list_saves()
-	col.add_child(_menu_button(tr("MENU_CONTINUE"), not saves.is_empty(), func() -> void: load_pressed.emit(saves[0])))
-	col.add_child(_menu_button(tr("MENU_SETTINGS"), false, Callable()))
-	col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
+	_col = col
+	_buttons_from = col.get_child_count()
+	_main_buttons()
 
 	var ver := UiTheme.make_label("v0.3 — Faz 1-9", 15, UiTheme.TEXT_DIM)
 	ver.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
@@ -75,6 +77,39 @@ func _ready() -> void:
 
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.9)
+
+## Ana düğmeler. Birden çok görünür oyun modu varsa "Yeni Oyun" önce mod listesini açar (tek modda bugünkü akış).
+func _main_buttons() -> void:
+	_clear_buttons()
+	_col.add_child(_menu_button(tr("MENU_NEW_GAME"), true, func() -> void:
+		if GameModes.ids().size() > 1:
+			_mode_buttons()
+		else:
+			new_game_pressed.emit()))
+	var saves := Game.list_saves()
+	var can_continue := not saves.is_empty() and GameModes.exists(GameModes.slot_mode(saves[0]))
+	_col.add_child(_menu_button(tr("MENU_CONTINUE"), can_continue, func() -> void: load_pressed.emit(saves[0])))
+	_col.add_child(_menu_button(tr("MENU_SETTINGS"), false, Callable()))
+	_col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
+
+## Mod listesi: her mod için ad düğmesi ve kısa açıklama; en altta geri
+func _mode_buttons() -> void:
+	_clear_buttons()
+	for mid: String in GameModes.ids():
+		_col.add_child(_menu_button(GameModes.text_of(mid, "name"), true, func() -> void: mode_chosen.emit(mid)))
+		var desc := GameModes.text_of(mid, "description")
+		if desc != "":
+			var d := UiTheme.make_label(desc, 15, UiTheme.TEXT_DIM)
+			d.custom_minimum_size.x = 420
+			d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_col.add_child(d)
+	_col.add_child(_menu_button(tr("SELECT_BACK"), true, _main_buttons))
+
+func _clear_buttons() -> void:
+	while _col.get_child_count() > _buttons_from:
+		var ch := _col.get_child(_col.get_child_count() - 1)
+		_col.remove_child(ch)
+		ch.queue_free()
 
 static func _vignette() -> TextureRect:
 	var v := TextureRect.new()

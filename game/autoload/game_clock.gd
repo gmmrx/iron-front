@@ -24,10 +24,12 @@ var prof := {}        ## sistem -> mikrosaniye (profil)
 func timed(key: String, t0: int) -> void:
 	prof[key] = int(prof.get(key, 0)) + Time.get_ticks_usec() - t0
 
+## Başlangıç tarihi etkin oyun modundan (mode.json "start_date"; WWII: 1936-01-01)
 func reset() -> void:
-	year = 1936
-	month = 1
-	day = 1
+	var d := GameModes.start_date()
+	year = d[0]
+	month = d[1]
+	day = d[2]
 	hour = 0
 	speed = 1
 	paused = true

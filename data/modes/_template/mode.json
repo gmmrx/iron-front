@@ -1,0 +1,18 @@
+{
+ "_comment": "ŞABLON MOD — gizli ama çalışan örnek. Yeni mod: python3 tools/new_mode.py <kimlik> (bu klasörü kopyalar). Her alanın anlamı: docs/modlar/README.md. Yazmadığın alan WWII değerini alır.",
+ "id": "_template",
+ "hidden": true,
+ "name": {"en": "Template Mode", "tr": "Şablon Mod"},
+ "description": {"en": "A tiny working example: one extra event, one changed border, one rule script.", "tr": "Küçük, çalışan bir örnek: bir ek olay, bir değişen sınır, bir kural betiği."},
+ "subtitle": {"en": "1936 — 1937  ·  TEMPLATE MODE", "tr": "1936 — 1937  ·  ŞABLON MOD"},
+ "welcome": {"en": "Welcome, leader of %s. This is the template mode.", "tr": "Hoş geldiniz, %s lideri. Bu şablon mod."},
+ "end_text": {"en": "The template year is over.", "tr": "Şablon yılı bitti."},
+ "start_date": "1936-01-01",
+ "end_date": "1937-01-01",
+ "default_player": "TUR",
+ "featured": ["TUR", "GER", "FRA", "ENG"],
+ "playable": "all",
+ "menu_focus": "TUR",
+ "scenario": "scenario.json",
+ "rules": "res://game/modes/_template/rules.gd"
+}
