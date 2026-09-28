@@ -74,8 +74,8 @@ Far away you see the usual map icons (cities, ports, air bases); zoom in and eac
   army whose commander has no picture shows his initials.
 - **Buildings**: each state's buildings side by side as pictures (civilian and military factories, dockyards,
   refineries, anti-air, naval base) with their level in the corner; a construction in progress is an orange-framed
-  picture with "+n". The air base has its own badge. From middle distance the badges lie on the map as small icons;
-  zoom in and they grow to full size while the pin rises under them. Move the mouse over a badge: it grows, you hear that building, and the card
+  picture with "+n". The air base has its own badge. Buildings show only up close: zoom in and the badges appear on the
+  map as small icons; closer still they grow to full size while the pin rises under them. Move the mouse over a badge: it grows, you hear that building, and the card
   shows the building (level / maximum, construction in progress, the country's total, air wings based at an air base).
   Clicking a badge opens its state (with Construction open: builds there).
 - **Battles**: small arrows appear beside a battle and fade away: a green ▲ on the side whose position has just

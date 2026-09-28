@@ -216,8 +216,8 @@ The player must **see** the war: soldiers, tanks, ships, submarines, aircraft as
 - [x] Buildings as pins: one pin per state with its buildings side by side as pictures (civilian/military factory,
       dockyard, refinery, anti-air, naval base) and their level; a construction in progress is an orange-framed picture
       with "+n"; the air base has its own pin
-- [x] Building badges (28 Sep 2026): from middle distance (camera 900) small icons on the map (72% size), full size with
-      the pin rising under them from 420 in. Hovering a badge makes it grow, plays that building's sound (`map_<building>.wav`, a nearby action sound
+- [x] Building badges come only up close (28 Sep 2026): from camera distance ~320 small icons on the map (72% size),
+      full size with the pin rising under them from ~190 in; further out the map shows no buildings. Hovering a badge makes it grow, plays that building's sound (`map_<building>.wav`, a nearby action sound
       until the file exists) and the card describes it (level / maximum, construction, country total, air wings based);
       clicking opens its state
 - [x] The player's army shows its commander's portrait above its main counter up close (initials if there is no picture)

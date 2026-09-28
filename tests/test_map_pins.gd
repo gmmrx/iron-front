@@ -54,13 +54,13 @@ func test_building_pins_icon_then_needle() -> void:
 	var cam := _camera()
 	var pl := _pins(pm, cam)
 	var at: Vector2 = World.states[World.countries[World.player_tag].capital_state].center
-	cam.focus_on(at, 400.0)
+	cam.focus_on(at, 250.0)
 	pl._process(0.1)
 	gt(pl._bpins.size(), 20, "yapı iğnesi sayısı")
 	eq(pl._build_needles.multimesh.instance_count, pl._bpins.size(), "her yapı iğnesinin gövdesi")
 	lt(PinLayer.BUILD_PIN_RANGE, PinLayer.BUILD_RANGE * 0.6, "iğne rozetlerden çok sonra (yakında) çıkar")
 	# [uzaklık, görünür mü, yerden yükseklik katı]: orta uzaklıkta ikon (yere yakın), çok yakında iğnenin ucunda
-	var cases := [[650.0, true, 0.004], [150.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
+	var cases := [[250.0, true, 0.004], [100.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
 	for cs: Array in cases:
 		var d: float = cs[0]
 		cam.focus_on(at, d)

@@ -49,8 +49,8 @@ var _last_label_d := -1.0
 var _recheck := 0.0
 
 const BUILD_LIFT := 0.045                                             ## yapı iğnesinin boyu
-const BUILD_RANGE := 900.0                                            ## yapı rozetleri bu uzaklığın içinde (önce ikon)
-const BUILD_PIN_RANGE := 420.0                                        ## iğne bu kadar yakında yerden yükselir
+const BUILD_RANGE := 350.0                                            ## yapı rozetleri bu uzaklığın içinde (önce ikon)
+const BUILD_PIN_RANGE := 200.0                                        ## iğne bu kadar yakında yerden yükselir
 const HOVER_SCALE := 1.3                                              ## fare altındaki rozet büyür
 const FAR_BADGE := 0.72                                               ## rozetin en uzaktaki boyu (iğne çıkınca tam boy)
 ## iğnesi olan yapılar (altyapı her eyalette olduğundan iğnesi yok: haritayı doldururdu; bölge panelinde görünür)
