@@ -489,9 +489,11 @@ func _commander_texture(cm: Commander) -> Texture2D:
 	var image_path := str(_portrait_map.get("%s|%s" % [cm.owner, cm.name], ""))
 	var src: Texture2D = load(image_path) as Texture2D if image_path != "" and ResourceLoader.exists(image_path) else null
 	var img: Image = src.get_image() if src else null
-	if img:
+	if img and img.is_compressed():
+		img.decompress()
 		if img.is_compressed():
-			img.decompress()
+			img = null                  # açılamayan sıkıştırma (web): baş harfler gösterilir
+	if img:
 		# yüz üst tarafta: dikey resmin üstünden kare kırpılır, harita boyuna küçültülür (büyük resim küçük çizilince kumlanır)
 		var side := mini(img.get_width(), img.get_height())
 		var sq := img.get_region(Rect2i((img.get_width() - side) / 2, int((img.get_height() - side) * 0.2), side, side))
