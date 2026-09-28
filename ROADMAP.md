@@ -290,9 +290,10 @@ The game must go from "watchable" to **playable**: a balanced historical flow, c
 
 ### P2. Feedback to the player
 - [ ] Combat detail window (both sides, strength, losses, terrain/river penalties)
-- [x] Arrival time: with divisions selected the region card shows the estimated arrival (the slowest of the first three,
-      without battles; `Military.eta_hours`, the same speed as the march)
-- [ ] Path preview (a faint arrow before the order) and arrival time for fleets
+- [x] Path preview and arrival time: with divisions selected, the region under the mouse gets a faint arrow of the same
+      style (the first three divisions' routes) and its card shows the estimated arrival (the slowest, without battles;
+      `Military.eta`, the same speed as the march)
+- [ ] The same for fleets
 - [◐] "Why?" tooltips: breakdown of stability and home front, surrender limit, law requirements, the reason a
       diplomacy action is closed, resource shortfall rows, naval control by sea region ✔; remaining: supply shortfall
 - [x] Country card with Ctrl (leader, relation, indicators coloured against ours), other countries' politics read-only

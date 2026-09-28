@@ -22,6 +22,8 @@ static var _flag_tex := {}         ## "tag:seçili" -> çerçeveli küçük bayr
 var _battle_nodes := {}            ## pid -> Node3D
 var _arrows: MeshInstance3D
 var _arrow_mat: ShaderMaterial
+var _preview: MeshInstance3D          ## yol önizlemesi: seçili tümenlerin imleçteki bölgeye yolu, aynı ok, soluk
+var preview_paths: Array = []         ## [[tümen, PackedInt32Array yol], ...] (main._order_eta kurar)
 var _white: Texture2D
 var _dirty := true
 var _timer := 0.0
@@ -48,6 +50,13 @@ func _ready() -> void:
 	_arrows.material_override = _arrow_mat
 	_arrows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_arrows)
+	_preview = MeshInstance3D.new()
+	var pm: ShaderMaterial = _arrow_mat.duplicate()
+	pm.set_shader_parameter("opacity", 0.38)           # emirden önce: aynı ok, soluk
+	pm.render_priority = 7
+	_preview.material_override = pm
+	_preview.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_preview)
 	Military.divisions_changed.connect(func() -> void: _dirty = true)
 	Military.armies_changed.connect(func() -> void: _dirty = true)       # ordu kuruldu / katıldı / ayrıldı
 	Military.battles_changed.connect(_update_battles)
@@ -69,6 +78,7 @@ func _process(delta: float) -> void:
 		_follow_anchors()
 		GameClock.timed("units_follow", __f)
 	_draw_arrows()
+	_draw_preview()
 	_pulse += delta
 	var k := 1.0 + 0.07 * sin(_pulse * 5.0)
 	for d in selected.slice(0, 1):
@@ -718,6 +728,42 @@ func _draw_arrows() -> void:
 		_ribbon(im, a[0], a[1], width, head_of[a[2]][0] == a)
 	im.surface_end()
 	_arrows.mesh = im
+
+## Yol önizlemesi: seçili tümenlerin imleçteki bölgeye gideceği yol, emir verilmeden önce soluk ok
+func _draw_preview() -> void:
+	if preview_paths.is_empty() or selected.is_empty():
+		if _preview.mesh != null:
+			_preview.mesh = null
+		return
+	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
+	var width := clampf(cam_d * 0.015, 1.6, 44.0)
+	var im := ImmediateMesh.new()
+	im.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	var drawn := {}
+	var any := false
+	for pp: Array in preview_paths:
+		var d: Division = pp[0]
+		var path: PackedInt32Array = pp[1]
+		if path.is_empty() or drawn.has(d.province):
+			continue
+		drawn[d.province] = true
+		var start: Vector2 = World.province(d.province).center
+		if models and models.anchors.has(d.id):
+			start = models.anchors[d.id][0]
+		var pts: Array[Vector2] = [start]
+		var hostile := false
+		for pid in path:
+			pts.append(World.province(pid).center)
+			if Diplomacy.are_enemies(World.controller_tag(pid), d.owner):
+				hostile = true
+		_ribbon(im, _curve(pts), ARROW_ATTACK if hostile else ARROW_MOVE, width * 0.8, true)
+		any = true
+	if not any:
+		im.surface_add_vertex(Vector3.ZERO)          # boş yüzey kurulamaz
+		im.surface_add_vertex(Vector3.ZERO)
+		im.surface_add_vertex(Vector3.ZERO)
+	im.surface_end()
+	_preview.mesh = im if any else null
 
 ## Catmull-Rom ile yumuşatılmış rota (kesim başına 8 örnek)
 func _curve(pts: Array[Vector2]) -> Array[Vector2]:

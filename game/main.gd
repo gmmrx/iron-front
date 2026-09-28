@@ -731,6 +731,9 @@ func _process(delta: float) -> void:
 		hud.tooltip.visible = false
 		if pins:
 			pins.set_hovered_building({})
+		if not units.preview_paths.is_empty():
+			units.preview_paths = []
+			_eta_pid = -1
 	if _ctrl_country != "" and (hud.is_mouse_over_ui() or not Input.is_key_pressed(KEY_CTRL)):
 		_country_hover(0, Vector2.ZERO)        # Ctrl bırakıldı (pencere dışında da) ya da imleç arayüzde: vurgu kalkar
 		map_view.set_hovered(0)
@@ -886,19 +889,24 @@ func _order_eta(pid: int) -> String:
 	var p := World.province(pid)
 	if units.selected.is_empty() or p == null or not p.is_land():
 		_eta_pid = -1
+		units.preview_paths = []
 		return ""
 	if pid == _eta_pid:
 		return _eta_text
 	_eta_pid = pid
 	var worst := -1.0
 	var n := 0
+	var previews: Array = []
 	for d: Division in units.selected:
 		if d.owner != World.player_tag:
 			continue
 		n += 1
 		if n > 3:
 			break
-		worst = maxf(worst, Military.eta_hours(d, pid))
+		var e := Military.eta(d, pid)
+		worst = maxf(worst, float(e["hours"]))
+		previews.append([d, e["path"]])
+	units.preview_paths = previews             # yol önizlemesi (soluk ok)
 	if n == 0:
 		_eta_text = ""
 	elif worst < 0.0:
@@ -995,6 +1003,8 @@ func _order_move(pid: int) -> void:
 	if p == null or p.type == Province.Type.LAKE:
 		return
 	var ok := 0
+	_eta_pid = -1
+	units.preview_paths = []                   # emir verildi: önizleme yerine gerçek ok
 	for d in units.selected:
 		if Military.order_move(d, pid):
 			ok += 1

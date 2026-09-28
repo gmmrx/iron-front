@@ -237,3 +237,41 @@ func test_battle_ticker_arrows() -> void:
 	check(not bt._last.has(pid), "biten muharebe unutulur")
 	GameClock.paused = was_paused
 	_free_all([bt, cam, pm])
+
+# ------------------------------------------------------------------ yol önizlemesi
+func test_path_preview_arrow() -> void:
+	var ul := UnitLayer.new()
+	var pm := ProbeMap.new()
+	var cam := MapCamera3D.new()
+	ul.map = pm
+	ul.camera = cam
+	_tree().root.add_child(ul)
+	cam.distance = 300.0
+	ul._process(0.5)
+	var d: Division = null
+	var target := 0
+	for cand: Division in Military.country_divisions(World.player_tag):
+		if cand.training > 0:
+			continue
+		for n: int in World.land_neighbors(cand.province):
+			if World.controller_tag(n) == World.player_tag:
+				d = cand
+				target = n
+				break
+		if d:
+			break
+	if not check(d != null, "komşu bölgeye yürüyebilecek tümen"):
+		_free_all([ul, pm, cam])
+		return
+	var e := Military.eta(d, target)
+	eq((e["path"] as PackedInt32Array).size(), 1, "komşu bölgeye tek adımlık yol")
+	near(float(e["hours"]), Military.eta_hours(d, target), 0.001, "eta ve eta_hours aynı")
+	ul.selected = [d]
+	ul.preview_paths = [[d, e["path"]]]
+	ul._draw_preview()
+	check(ul._preview.mesh != null, "seçili tümenin yolu soluk okla önizlenir")
+	check(d.path.is_empty(), "önizleme emir vermez")
+	ul.preview_paths = []
+	ul._draw_preview()
+	check(ul._preview.mesh == null, "önizleme kalkınca ok yok")
+	_free_all([ul, pm, cam])

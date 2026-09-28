@@ -1172,13 +1172,17 @@ func order_move(d: Division, to: int, safe := false, land_only := false) -> bool
 ## Tümenin bölgeye tahmini varış süresi (saat; yol yoksa -1): yol boyunca her adımın uzaklığı / o adımdaki hız
 ## (arazi, altyapı, mevsim, yakıt, ikmal, organizasyon — hareketle aynı _speed). Muharebe süresi sayılmaz.
 func eta_hours(d: Division, to: int) -> float:
+	return float(eta(d, to)["hours"])
+
+## Tahmini varış ve yol: {"hours": saat (yol yoksa -1), "path": PackedInt32Array}
+func eta(d: Division, to: int) -> Dictionary:
 	if d.training > 0:
-		return -1.0
+		return {"hours": -1.0, "path": PackedInt32Array()}
 	if to == d.province:
-		return 0.0
+		return {"hours": 0.0, "path": PackedInt32Array()}
 	var path := find_path(d.owner, d.province, to)
 	if path.is_empty():
-		return -1.0
+		return {"hours": -1.0, "path": path}
 	var h := 0.0
 	var at := d.province
 	for i in path.size():
@@ -1188,7 +1192,7 @@ func eta_hours(d: Division, to: int) -> float:
 			km = maxf(km - d.progress, 0.0)          # yoldaki tümen ilerlemesini korur
 		h += km / maxf(_speed(d, nxt), 0.01)
 		at = nxt
-	return h
+	return {"hours": h, "path": path}
 
 func stop(d: Division) -> void:
 	d.path = PackedInt32Array()

@@ -44,7 +44,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
 | `test_open_game.gd` | Bitiş tarihi yok; oyuncunun tarafı dışında ülke kalmayınca zafer, ülke yok olunca yenilgi, teslim olup toprağı kalan oyuncu sürer; iyileştirme seviyeleri (dal bitince açılır, maliyet artar, kazanç azalır, kayıtta kalır, yapay zekâ da araştırır, yeni oyunda sıfırlanır) |
 | `test_world_events.gd` | Dünya olayları kaydı (savaş, program, seçim), haber akışında yalnız oyuncunun işleri ve büyük güçlerin savaşları, yabancı savaş ve ilhaklara cevap (bedel, şart, etki, tek cevap, süre), demokrasilerin oyuncunun saldırısını kınaması, menü süzgeçleri |
-| `test_map_pins.gd` | Yapı rozetleri (orta uzaklıkta ikon, yakında iğne), fare altındaki rozetin seçimi, büyümesi, yapı kartı, yapı seslerinin tanımı, ordu sayacında komutan portresi, muharebe durum okları |
+| `test_map_pins.gd` | Yapı rozetleri (orta uzaklıkta ikon, yakında iğne), fare altındaki rozetin seçimi, büyümesi, yapı kartı, yapı seslerinin tanımı, ordu sayacında komutan portresi, muharebe durum okları, soluk yol önizlemesi |
 
 Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;
 katman testleri ağır dokuları yüklemeyen `ProbeMap` (MapView3D alt sınıfı) kullanır. Deniz yolları değişirse

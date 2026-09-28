@@ -45,7 +45,7 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
 | `test_open_game.gd` | No end date; victory when no country is left outside the player's side, defeat when the country is gone, a surrendered player with land plays on; refinement levels (open after the branch, rising cost, falling gain, saved, AI researches them, reset in a new game) |
 | `test_world_events.gd` | World events log (wars, programs, elections), the news feed only for the player's matters and great powers' wars, answers to foreign wars and annexations (cost, requirement, effect, one answer, expiry), democracies condemning the player's aggression, menu filters |
-| `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows |
+| `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows, the faint path preview |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer
 tests use `ProbeMap` (a MapView3D subclass that skips the heavy textures). If the sea lanes change,

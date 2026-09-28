@@ -13,7 +13,8 @@
 ## Orders
 - Select with left click / box, **right click** (on the web and on Mac: Ctrl + left click while divisions are selected) to
   move to or attack the target region.
-- With divisions selected, the region card under the mouse shows the **estimated arrival** ("about N days", the slowest
+- With divisions selected, the region under the mouse gets a **faint arrow** of the route (before any order) and its
+  card shows the **estimated arrival** ("about N days", the slowest
   of the first three divisions; terrain, infrastructure, season, fuel, supply and cohesion count, battles do not) or says
   there is no route.
 - Arrow colour: **green** move, **red** attack into enemy land. Arrows are drawn with marks flowing towards the tip.
