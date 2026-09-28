@@ -37,6 +37,7 @@ func _ready() -> void:
 	law_change_cost = float(lw["change_cost"])
 	_law_start = lw["start"]
 	World.daily_update.connect(_on_day)
+	GameClock.hour_passed.connect(_on_hour)
 	building_completed.connect(func(_t: String, _s: int, _b: String) -> void: invalidate_counts())
 	World.ownership_changed.connect(invalidate_counts)
 	reset()
@@ -197,37 +198,54 @@ func _assign(c: Country) -> void:
 		p.assigned_factories = mini(free, cap)
 		free -= p.assigned_factories
 
+## Günlük ticaret gün başında; ülke başına günlük iş (üretim, inşaat) günün saatlerine yayılır: her saat
+## index % 24 == saat olan ülkeler (her ülke yine günde bir kez; gün dönümü karesi donmasın).
 func _on_day() -> void:
 	var __t := Time.get_ticks_usec()
-	_on_day_impl()
+	_trade_day()
 	GameClock.timed("economy", __t)
 
-func _on_day_impl() -> void:
+func _on_hour() -> void:
+	var __t := Time.get_ticks_usec()
+	var h := GameClock.hour
+	for c: Country in World.countries.values():
+		if c.index % 24 == h:
+			_country_day(c)
+	GameClock.timed("economy", __t)
+
+func _trade_day() -> void:
 	if GameClock.day == 1 or (_trade_dirty and World.day_count % 7 == 0):
 		_run_trade()
+
+## Bütün günlük ekonomi bir kerede (testler ve hızlı simülasyon)
+func _on_day_impl() -> void:
+	_trade_day()
 	for c: Country in World.countries.values():
-		_produce(c)
-		if c.construction_queue.is_empty():
-			continue
+		_country_day(c)
+
+func _country_day(c: Country) -> void:
+	_produce(c)
+	if c.construction_queue.is_empty():
+		return
+	_assign(c)
+	var done: Array[ConstructionProject] = []
+	for p in c.construction_queue:
+		var st: StateRegion = World.states[p.state_id]
+		var infra_bonus := 1.0 + st.building_level("infrastructure") * float(params["infrastructure_speed_bonus"])
+		var mil_b := p.building in ["military_factory", "dockyard"]
+		var speed := maxf(1.0 + c.mod("construction_speed") + (c.mod("mil_construction_speed") if mil_b else 0.0) + Politics.stability_output_penalty(c), 0.1)
+		p.last_daily = p.assigned_factories * float(params["civ_factory_output"]) * infra_bonus * speed
+		p.progress += p.last_daily
+		if p.progress >= p.cost:
+			done.append(p)
+	for p in done:
+		c.construction_queue.erase(p)
+		var st: StateRegion = World.states[p.state_id]
+		st.buildings[p.building] = st.building_level(p.building) + 1
+		building_completed.emit(c.tag, p.state_id, p.building)
+	if not done.is_empty():
 		_assign(c)
-		var done: Array[ConstructionProject] = []
-		for p in c.construction_queue:
-			var st: StateRegion = World.states[p.state_id]
-			var infra_bonus := 1.0 + st.building_level("infrastructure") * float(params["infrastructure_speed_bonus"])
-			var mil_b := p.building in ["military_factory", "dockyard"]
-			var speed := maxf(1.0 + c.mod("construction_speed") + (c.mod("mil_construction_speed") if mil_b else 0.0) + Politics.stability_output_penalty(c), 0.1)
-			p.last_daily = p.assigned_factories * float(params["civ_factory_output"]) * infra_bonus * speed
-			p.progress += p.last_daily
-			if p.progress >= p.cost:
-				done.append(p)
-		for p in done:
-			c.construction_queue.erase(p)
-			var st: StateRegion = World.states[p.state_id]
-			st.buildings[p.building] = st.building_level(p.building) + 1
-			building_completed.emit(c.tag, p.state_id, p.building)
-		if not done.is_empty():
-			_assign(c)
-		construction_changed.emit(c.tag)
+	construction_changed.emit(c.tag)
 
 # ------------------------------------------------------------------ yasalar
 func law_def(group: String, law: String) -> Dictionary:

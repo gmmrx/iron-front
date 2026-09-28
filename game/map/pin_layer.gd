@@ -35,6 +35,8 @@ var _counter_needles: MultiMeshInstance3D
 var _build_needles: MultiMeshInstance3D
 var _bpins: Array = []               ## yapı iğneleri: [kök Node3D, konum Vector2, zemin yüksekliği]
 var _build_sig := -1
+var _bstate := {}                    ## anahtar ("sid" / "air:sid") -> [imza, iğne kaydı] — yalnız değişen eyalet yenilenir
+var _build_timer := 0.0
 var _plates := {}
 var _needle_mat: ShaderMaterial
 var _head_mat: ShaderMaterial
@@ -49,8 +51,8 @@ const BUILD_RANGE := 560.0                                            ## yapı i
 ## iğnesi olan yapılar (altyapı her eyalette olduğundan iğnesi yok: haritayı doldururdu; bölge panelinde görünür)
 const BUILDINGS := ["civilian_factory", "military_factory", "synthetic_refinery", "anti_air", "dockyard", "naval_base",
 	"air_base"]
-const PLATE_GOLD := Color(0.78, 0.64, 0.36)
-const PLATE_BUILD := Color(0.98, 0.56, 0.16)
+const PLATE_GOLD := Color("a98743")
+const PLATE_BUILD := Color("bd5429")
 
 ## İğneler: [konum (Vector2), boy katı, baş katı, görünme uzaklığı, şehir (ya da null), sabit renk]
 var _pins: Array = []
@@ -176,10 +178,14 @@ func _process(delta: float) -> void:
 	if _colors_dirty:
 		_colors_dirty = false
 		_update_colors()
+	# yapı iğneleri: en çok saniyede bir, yalnız görünürken (uzakta gizliler; yakına gelince güncellenir).
+	# Yapay zekâ ülkeleri durmadan inşaat başlattığından her karede yenilemek 5× hızda kareyi yiyordu.
 	var ind := cities.industry() if cities else null
+	_build_timer -= delta
 	var sig := (ind.version if ind else 0) * 4096 + map.airbase_sites.size()
-	if sig != _build_sig:
+	if sig != _build_sig and (_build_timer <= 0.0 or _build_sig < 0) and (d < BUILD_RANGE * 1.1 or _build_sig < 0):
 		_build_sig = sig
+		_build_timer = 1.0
 		_rebuild_buildings(ind)
 		_last_label_d = -1.0
 	if _last_label_d < 0.0 or absf(d - _last_label_d) > _last_label_d * 0.02:
@@ -267,29 +273,26 @@ func _update_counter_needles(d: float) -> void:
 ## Eyalet başına bir sanayi iğnesi (şehrin güneyindeki sanayi parselinde: şerit ekranda şehir adının altında kalır):
 ## ucunda eyaletin yapıları yan yana — her biri resmi ve köşesinde seviyesi; kuyruktaki inşaat turuncu çerçeve ve "+n".
 ## Hava üssü kendi yerinde ayrı iğne (hava kanadı sayacının altında kalmasın diye biraz yana).
-const BADGE_PX := 46.0               ## rozet (plaka) ekran boyu
-const BADGE_GAP := 50.0              ## rozetler arası
+const BADGE_PX := 54.0               ## rozet (plaka) ekran boyu
+const BADGE_GAP := 58.0              ## rozetler arası
 const PX := 1766.0                   ## sabit boy sprite: doku pikseli * pixel_size * PX = ekran pikseli (34° görüş açısı, 1080p)
 
 func _rebuild_buildings(ind: IndustryLayer) -> void:
-	for b: Array in _bpins:
-		(b[0] as Node3D).queue_free()
-	_bpins.clear()
 	var queued := {}
 	for c: Country in World.countries.values():
 		for pr: ConstructionProject in c.construction_queue:
 			var key := "%d:%s" % [pr.state_id, pr.building]
 			queued[key] = int(queued.get(key, 0)) + 1
+	var want := {}                  # anahtar -> [konum, rozetler]
 	for sid: int in World.states:
 		var st: StateRegion = World.states[sid]
 		var items: Array = []           # [tür, yazı, inşaat mı]
-		var pos := Vector2.INF
 		for t: String in BUILDINGS:
 			var lv := st.building_level(t)
 			var q := int(queued.get("%d:%s" % [sid, t], 0))
 			if t == "air_base":
 				if lv > 0 and map.airbase_sites.has(sid):
-					_add_pin(map.airbase_sites[sid][0] + Vector2(7.0, 5.0), [[t, str(lv), false]])
+					want["air:%d" % sid] = [map.airbase_sites[sid][0] + Vector2(7.0, 5.0), [[t, str(lv), false]]]
 				if q > 0:
 					items.append([t, "+%d" % q, true])
 				continue
@@ -297,15 +300,33 @@ func _rebuild_buildings(ind: IndustryLayer) -> void:
 				items.append([t, str(lv), false])
 			if q > 0:
 				items.append([t, "+%d" % q, true])
-		if not items.is_empty() and ind:
+		if items.is_empty():
+			continue
+		var pos := Vector2.INF
+		if ind:
 			for sp: Vector2 in ind.state_slots(sid):
 				if pos == Vector2.INF or sp.y > pos.y:
 					pos = sp
-		if not items.is_empty():
-			if pos == Vector2.INF:
-				var city := st.largest_city()
-				pos = (city.position if city else st.center) + Vector2(6.0, 6.0)
-			_add_pin(pos, items)
+		if pos == Vector2.INF:
+			var city := st.largest_city()
+			pos = (city.position if city else st.center) + Vector2(6.0, 6.0)
+		want[str(sid)] = [pos, items]
+	# değişmeyenler kalır; değişen ya da kalkanlar yenilenir
+	for key: String in _bstate.keys():
+		if not want.has(key):
+			(_bstate[key][1][0] as Node3D).queue_free()
+			_bstate.erase(key)
+	for key: String in want:
+		var w: Array = want[key]
+		var sig := "%s|%s" % [str(w[0]), str(w[1])]
+		if _bstate.has(key):
+			if _bstate[key][0] == sig:
+				continue
+			(_bstate[key][1][0] as Node3D).queue_free()
+		_bstate[key] = [sig, _add_pin(w[0], w[1])]
+	_bpins.clear()
+	for key: String in _bstate:
+		_bpins.append(_bstate[key][1])
 	var mm := _build_needles.multimesh
 	mm.instance_count = _bpins.size()
 	for i in _bpins.size():
@@ -315,7 +336,7 @@ func _rebuild_buildings(ind: IndustryLayer) -> void:
 		mm.set_instance_color(i, Color.WHITE)
 
 ## Bir iğne ve ucunda yan yana rozetler: [tür, yazı, inşaat mı]
-func _add_pin(p: Vector2, items: Array) -> void:
+func _add_pin(p: Vector2, items: Array) -> Array:
 	var root := Node3D.new()
 	add_child(root)
 	var n := items.size()
@@ -328,7 +349,7 @@ func _add_pin(p: Vector2, items: Array) -> void:
 		root.add_child(plate)
 		var tex := UiTheme.trimmed(UiTheme.building_icon(it[0]))
 		if tex:
-			var icon := _sprite(tex, BADGE_PX - 8.0, 10)
+			var icon := _sprite(tex, BADGE_PX - 4.0, 10)
 			icon.offset = Vector2(x, BADGE_PX * 0.5) / (icon.pixel_size * PX)
 			root.add_child(icon)
 		var l := Label3D.new()
@@ -337,7 +358,7 @@ func _add_pin(p: Vector2, items: Array) -> void:
 		l.font_size = 30
 		l.outline_size = 10
 		l.outline_modulate = Color(0, 0, 0, 1)
-		l.modulate = PLATE_BUILD.lightened(0.25) if building else Color(1, 0.96, 0.85)
+		l.modulate = Color("28302e") if building else Color("a74632")
 		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		l.fixed_size = true
 		l.pixel_size = 0.00034
@@ -349,7 +370,7 @@ func _add_pin(p: Vector2, items: Array) -> void:
 		l.render_priority = 12
 		l.outline_render_priority = 11
 		root.add_child(l)
-	_bpins.append([root, p, maxf(map.height_at(p), 0.0)])
+	return [root, p, maxf(map.height_at(p), 0.0)]
 
 func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
 	var sp := Sprite3D.new()
@@ -379,7 +400,11 @@ func _plate(building: bool) -> Texture2D:
 			var sd := Vector2(maxf(qx, 0.0), maxf(qy, 0.0)).length() + minf(maxf(qx, qy), 0.0) - r
 			if sd > 0.5:
 				continue
-			var col: Color = Color(0.07, 0.08, 0.075, 0.93) if sd < -4.0 else border
+			var col: Color = Color("eee3c3")
+			if sd > -1.0:
+				col = Color("28302e")
+			elif sd > -4.5:
+				col = border
 			col.a *= clampf(0.5 - sd, 0.0, 1.0)
 			img.set_pixel(x, y, col)
 	var tex := ImageTexture.create_from_image(img)

@@ -466,15 +466,42 @@ func _handle_dev_args() -> void:
 		var t0 := Time.get_ticks_msec()
 		var proc := 0.0
 		var n := 0
+		var ft: Array[float] = []            # kare süreleri (ms)
+		var prof_prev := {}
+		var day0 := World.day_count
+		GameClock.prof.clear()
+		var tprev := Time.get_ticks_usec()
 		while Time.get_ticks_msec() - t0 < secs * 1000.0:
 			await get_tree().process_frame
+			if args.has("run") and GameClock.paused:
+				GameClock.set_paused(false)      # ölçüm: pencereye yanlışlıkla basılan Space/olay penceresi süreyi durdurmasın
+			var tn := Time.get_ticks_usec()
+			ft.append((tn - tprev) / 1000.0)
+			if (tn - tprev) > 150000:
+				var parts: Array = []
+				for k in GameClock.prof:
+					var dv := int(GameClock.prof[k]) - int(prof_prev.get(k, 0))
+					if dv > 8000:
+						parts.append("%s=%d" % [k, dv / 1000])
+				print("SPIKE %.0fms %s %s" % [(tn - tprev) / 1000.0, GameClock.date_string(), " ".join(parts)])
+			prof_prev = GameClock.prof.duplicate()
+			tprev = tn
 			proc += Performance.get_monitor(Performance.TIME_PROCESS)
 			n += 1
 		var fps := (Engine.get_frames_drawn() - frames) / ((Time.get_ticks_msec() - t0) / 1000.0)
+		ft.sort()
+		if not ft.is_empty():
+			print("FRAMES n=%d p50=%.1fms p95=%.1fms p99=%.1fms max=%.1fms gün/sn=%.1f" % [ft.size(), ft[ft.size() / 2], ft[ft.size() * 95 / 100],
+				ft[mini(ft.size() * 99 / 100, ft.size() - 1)], ft[ft.size() - 1], float(World.day_count - day0) / ((Time.get_ticks_msec() - t0) / 1000.0)])
 		print("FPS=%.1f process_ms=%.1f draw_calls=%d objects=%d nodes=%d date=%s" % [fps, proc / maxi(n, 1) * 1000.0,
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
 			Performance.get_monitor(Performance.OBJECT_NODE_COUNT), GameClock.date_string()])
 		for k in GameClock.prof: print("  %s %.2f s" % [k, GameClock.prof[k] / 1e6])
+		if OS.has_environment("PATHDBG"):
+			var ks: Array = Military.path_stats.keys()
+			ks.sort_custom(func(a, b) -> bool: return Military.path_stats[a].y > Military.path_stats[b].y)
+			for k in ks.slice(0, 12):
+				print("  PATH %-22s çağrı %5d adım %8d" % [k, Military.path_stats[k].x, Military.path_stats[k].y])
 		get_tree().quit()
 	if args.has("demo_fleet"):
 		# oyuncunun ilk su üstü filosunu uzak bir deniz bölgesine gönder (hareket testi)

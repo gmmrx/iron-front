@@ -49,14 +49,19 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_timer += delta
-	if _dirty and _timer > 0.35:
+	# yeniden kurulum aralığı oyun hızıyla uzar (5×'te ~1 sn): savaşta her 0,35 sn'de bütün sayaçları kurmak pahalı
+	if _dirty and _timer > 0.35 * maxf(1.0, float(GameClock.speed) - 2.0):
 		_timer = 0.0
 		_dirty = false
+		var __r := Time.get_ticks_usec()
 		_rebuild()
+		GameClock.timed("units_rebuild", __r)
 		_vis_dirty = true
 	var hide_all: bool = camera != null and camera.distance > HIDE_ALL
 	if not hide_all:
+		var __f := Time.get_ticks_usec()
 		_follow_anchors()
+		GameClock.timed("units_follow", __f)
 	_draw_arrows()
 	_pulse += delta
 	var k := 1.0 + 0.07 * sin(_pulse * 5.0)
@@ -88,14 +93,29 @@ func _process(delta: float) -> void:
 	_cluster_timer -= delta
 	if _cluster_timer <= 0.0 and not hide_all:
 		_cluster_timer = 0.25
+		var __c := Time.get_ticks_usec()
 		_cluster()
+		GameClock.timed("units_cluster", __c)
 
 ## Sayaçlar tümenlerin akıcı görsel konumunu izler (bölgede zıplamaz)
+## Yalnız görüş alanındaki sayaçlar güncellenir (dışarıdakiler ekranda değil); yeri ve zoom'u değişmeyen sayaca
+## dokunulmaz. Bütün sayaçları her karede yerleştirmek 5× hızda kare başına ~3 ms tutuyordu.
 func _follow_anchors() -> void:
 	if models == null:
 		return
+	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
+	var view := Rect2()
+	var culled := camera is MapCamera3D
+	if culled:
+		var r := cam_d * 1.6
+		var t: Vector3 = (camera as MapCamera3D).target
+		view = Rect2(Vector2(t.x, t.z) - Vector2(r, r), Vector2(r * 2.0, r * 1.8))
+	var pins := PinLayer.active()
 	for key: String in _counters:
 		var c: Dictionary = _counters[key]
+		var root: Node3D = c["root"]
+		if culled and root.position != Vector3.ZERO and not view.has_point(Vector2(root.position.x, root.position.z)):
+			continue
 		var divs: Array = c["divs"]
 		var sum := Vector2.ZERO
 		var n := 0
@@ -106,12 +126,14 @@ func _follow_anchors() -> void:
 				n += 1
 		if n == 0:
 			continue
-		var root: Node3D = c["root"]
-		var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
 		# aynı bölgedeki sayaçlar yan yana: ~56 px aralık, her zoom'da (sabit boy sayaçlar üst üste binmesin)
 		var p := sum / n + Vector2(float(c.get("off", 0.0)) * cam_d * 0.032, 0.0)
+		if c.get("lp", Vector2.INF) == p and is_equal_approx(float(c.get("ld", -1.0)), cam_d):
+			continue
+		c["lp"] = p
+		c["ld"] = cam_d
 		var h := maxf(map.height_at(p), 0.0) + LIFT + clampf(cam_d * 0.09, 0.0, 14.0)
-		if PinLayer.active():
+		if pins:
 			h = maxf(map.height_at(p), 0.0) + PinLayer.lift(cam_d)     # iğne haritası: sayaç iğnenin bayrağı
 		root.position = Vector3(p.x, h, p.y)   # doğrudan: sayaç kaymaz
 
@@ -290,7 +312,6 @@ func _rebuild() -> void:
 				strn += d.strength
 				if d in selected:
 					sel = true
-			c["label"].text = str(divs.size())
 			var kinds := [0, 0, 0]
 			for d: Division in divs:
 				kinds[division_kind(d)] += 1
@@ -298,8 +319,15 @@ func _rebuild() -> void:
 			for k in 3:
 				if kinds[k] > kinds[kind]:
 					kind = k
-			c["bg"].texture = _tex_for(tag, clampi(roundi(org / divs.size() * 10.0), 0, 10), clampi(roundi(strn / divs.size() * 10.0), 0, 10), sel, kind)
-			c["flag"].texture = flag_marker(tag, sel)
+			var ob := clampi(roundi(org / divs.size() * 10.0), 0, 10)
+			var sb := clampi(roundi(strn / divs.size() * 10.0), 0, 10)
+			# görünüşü değişmeyen sayaca dokunma (doku/yazı atamaları pahalı)
+			var look := Vector4i(divs.size(), ob * 16 + sb, kind, 1 if sel else 0)
+			if c.get("look", Vector4i(-1, -1, -1, -1)) != look:
+				c["look"] = look
+				c["label"].text = str(divs.size())
+				c["bg"].texture = _tex_for(tag, ob, sb, sel, kind)
+				c["flag"].texture = flag_marker(tag, sel)
 			c["selected"] = sel
 			if sel:
 				_sel_keys.append(key)

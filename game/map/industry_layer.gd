@@ -60,6 +60,7 @@ var _dirty := false
 var _flat := {}                     ## düzleştirilmiş parseller ("sid:tür:i")
 var active_plots: Array[Vector2] = []  ## şu an bina ya da şantiye olan parseller (birimler bunlara oturmaz)
 var version := 0                    ## her yenilemede artar (birim yerleri önbelleği için)
+var _refresh_timer := 0.0
 const FLAT_RADIUS := SCALE * 0.68   ## avlunun köşelerine kadar düz
 ## İğne tasarımı: tesis modelleri ve parsel düzleştirmesi yok; parseller, dolu parseller ve sürüm (iğneler, birim yerleri)
 ## hesaplanmaya devam eder. Modelleri geri açmak için true.
@@ -75,8 +76,10 @@ func _ready() -> void:
 	World.ownership_changed.connect(func() -> void: _dirty = true)
 
 func _process(_delta: float) -> void:
-	if _dirty:
+	_refresh_timer -= _delta
+	if _dirty and _refresh_timer <= 0.0:
 		_dirty = false
+		_refresh_timer = 1.0            # en çok saniyede bir (yapay zekâ inşaatları 5× hızda her karede değiştiriyordu)
 		refresh()
 
 # ------------------------------------------------------------------ kütüphane
