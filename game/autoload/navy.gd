@@ -37,6 +37,8 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ kurulum
 func reset() -> void:
+	_rehome_wait.clear()
+	_control_hour = -1
 	fleets.clear()
 	battles.clear()
 	convoy_losses.clear()
@@ -360,6 +362,7 @@ func speed(f: Fleet) -> float:
 
 # ------------------------------------------------------------------ emirler (oyuncu + AI)
 func set_mission(f: Fleet, m: Fleet.Mission, center: int = -1) -> void:
+	_control_hour = -1                 # deniz hâkimiyeti yeni görevle yeniden kurulsun
 	f.mission = m
 	if center >= 0:
 		f.zone_center = center
@@ -378,9 +381,34 @@ func rebase(f: Fleet, port: int) -> bool:
 		return false
 	f.home = port
 	f.mission = Fleet.Mission.PORT
+	_control_hour = -1
 	_go(f, port)
 	_dirty = true
 	return true
+
+## Filonun sağ tık hedefine tahmini varışı (saat; gidemezse -1): order() ile aynı hedef (kendi limanı ya da görev
+## bölgesi), deniz yollarının gerçek uzunluğu / filonun hızı (en yavaş gemi). Muharebe sayılmaz.
+func eta_hours(f: Fleet, pid: int) -> float:
+	var to := pid if is_friendly_port(f.owner, pid) else sea_for(pid)
+	if to == 0:
+		return -1.0
+	if to == f.location:
+		return 0.0
+	var path := find_path(f.location, to)
+	if path.is_empty():
+		return -1.0
+	var km := 0.0
+	var at := f.location
+	for nxt: int in path:
+		km += leg_km(at, nxt)
+		at = nxt
+	if not f.path.is_empty() and f.path[0] == path[0]:
+		km -= f.progress                              # yoldaki filo ilerlemesini korur
+	var s := 99.0
+	for t: String in f.ships:
+		if int(f.ships[t]) > 0:
+			s = minf(s, float(SHIPS[t]["speed"]))
+	return maxf(km, 0.0) / (s if s < 90.0 else 13.0)   # görev seyri tam hızda (devriye yavaşlığı sayılmaz)
 
 ## Oyuncunun sağ tık emri: kendi limanı -> üs değiştir; deniz/kıyı -> görev bölgesi
 func order(f: Fleet, pid: int) -> bool:
@@ -408,8 +436,9 @@ func _on_hour() -> void:
 	_combat()
 	GameClock.timed("navy_combat", t0); t0 = Time.get_ticks_usec()
 	_transports()
+	GameClock.timed("navy_transports", t0); t0 = Time.get_ticks_usec()
 	_repair()
-	GameClock.timed("navy_rest", t0)
+	GameClock.timed("navy_repair", t0)
 	if _dirty:
 		_dirty = false
 		_power_cache.clear()
@@ -444,12 +473,11 @@ func _missions() -> void:
 				if f.mission != Fleet.Mission.PORT and f.zone_center > 0:
 					_go(f, f.zone_center)
 			elif f.path.is_empty() and f.location != f.home:
-				if not _go(f, f.home):
-					_rehome(f)
+				_return_home(f)
 			continue
 		if f.mission == Fleet.Mission.PORT or f.zone_center == 0:
-			if f.path.is_empty() and f.location != f.home and not _go(f, f.home):
-				_rehome(f)
+			if f.path.is_empty() and f.location != f.home:
+				_return_home(f)
 			continue
 		var z := zone(f.zone_center)
 		var inside := in_zone(f.zone_center, f.location)
@@ -478,51 +506,82 @@ func _missions() -> void:
 			if not opts.is_empty() and _go(f, opts[randi() % opts.size()]):
 				f.patrol = true
 
-## Üssü düşmana geçtiyse en yakın dost limana
+## Üssü düşmana geçtiyse en yakın, gidilebilen dost limana. Dost limanlar uzaklığa göre sıralanır, ilk ulaşılabilen
+## alınır (en çok REHOME_TRIES yol araması). Hiçbirine gidemeyen (mahsur) filo bir gün sonra yeniden dener: her saat
+## bütün limanlar için yol aramak savaş uzadıkça (mahsur filolar çoğaldıkça) simülasyonu yavaşlatıyordu.
+const REHOME_TRIES := 8
+var _rehome_wait := {}               ## filo id -> yeniden deneme saati (geçici; kayda girmez)
+
+## Üsse dönüş: yol yoksa en yakın gidilebilen dost limana. Mahsur filo bekleme süresince hiç yol aramaz (başarısız
+## arama bütün denizi taradığından en pahalısıdır).
+func _return_home(f: Fleet) -> void:
+	if World.day_count * 24 + GameClock.hour < int(_rehome_wait.get(f.id, -1)):
+		return
+	if not _go(f, f.home):
+		_rehome(f)
+
 func _rehome(f: Fleet) -> void:
-	var best := 0
-	var bd := INF
+	var now := World.day_count * 24 + GameClock.hour
 	var here := World.province(f.location).center
+	var ports: Array = []
 	for city in World.cities:
 		if city.is_port and is_friendly_port(f.owner, city.province_id):
-			var d := city.position.distance_squared_to(here)
-			if d < bd and not find_path(f.location, city.province_id).is_empty():
-				bd = d
-				best = city.province_id
-	if best > 0:
-		f.home = best
-		_go(f, best)
+			ports.append([city.position.distance_squared_to(here), city.province_id])
+	ports.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for i in mini(ports.size(), REHOME_TRIES):
+		var pid: int = ports[i][1]
+		if pid == f.location or not find_path(f.location, pid).is_empty():
+			_rehome_wait.erase(f.id)
+			f.home = pid
+			_go(f, pid)
+			return
+	_rehome_wait[f.id] = now + 24
 
-## Bölgedeki en yakın düşman filo. Saatlik önbellek: görünür filolar sahibine göre, düşman listesi ülkeye göre
-## (her filo bütün filoları taramasın: 1939'da saatte ~4 ms'ydi)
+## Bölgedeki en yakın düşman filo. Saatlik dizin: su üstündeki filoların sahipleri konuma göre; her filo yalnız kendi
+## görev bölgesindeki deniz bölgelerine bakar ve aynı ülkenin aynı bölgedeki filoları sonucu paylaşır. Her filo bütün
+## düşman filolarını tarıyordu: savaş uzayıp filolar çoğaldıkça karesel büyüyordu (1944'te yılda ~50 sn).
 var _vis_hour := -1
-var _vis_by_owner := {}             ## sahip -> [su üstündeki filolar]
-var _foes := {}                     ## ülke -> düşmanları (bu saat)
+var _vis_at := {}                    ## konum -> [su üstündeki filoların sahipleri]
+var _foes := {}                      ## ülke -> {düşman: true} (bu saat)
+var _enemy_locs := {}                ## "ülke:bölge merkezi" -> [düşman filo konumları] (bu saat)
 
 func _enemy_in_zone(f: Fleet) -> int:
 	var h := World.day_count * 24 + GameClock.hour
 	if h != _vis_hour:
 		_vis_hour = h
-		_vis_by_owner.clear()
+		_vis_at.clear()
 		_foes.clear()
+		_enemy_locs.clear()
 		for o in fleets:
 			if o.submerged:
 				continue
-			if not _vis_by_owner.has(o.owner):
-				_vis_by_owner[o.owner] = []
-			_vis_by_owner[o.owner].append(o)
-	if not _foes.has(f.owner):
-		_foes[f.owner] = Diplomacy.enemies_of(f.owner)
+			if not _vis_at.has(o.location):
+				_vis_at[o.location] = []
+			_vis_at[o.location].append(o.owner)
+	var key := "%s:%d" % [f.owner, f.zone_center]
+	var locs: Array = _enemy_locs.get(key, [])
+	if not _enemy_locs.has(key):
+		if not _foes.has(f.owner):
+			var foes := {}
+			for e: String in Diplomacy.enemies_of(f.owner):
+				foes[e] = true
+			_foes[f.owner] = foes
+		var fo: Dictionary = _foes[f.owner]
+		if not fo.is_empty():
+			for pid: int in zone(f.zone_center):
+				for t: String in _vis_at.get(pid, []):
+					if fo.has(t):
+						locs.append(pid)
+						break
+		_enemy_locs[key] = locs
 	var here := World.province(f.location).center
 	var best := 0
 	var bd := INF
-	for e: String in _foes[f.owner]:
-		for o: Fleet in _vis_by_owner.get(e, []):
-			if in_zone(f.zone_center, o.location):
-				var d := World.province(o.location).center.distance_squared_to(here)
-				if d < bd:
-					bd = d
-					best = o.location
+	for pid: int in locs:
+		var d := World.province(pid).center.distance_squared_to(here)
+		if d < bd:
+			bd = d
+			best = pid
 	return best
 
 # ------------------------------------------------------------------ deniz muharebesi
@@ -665,13 +724,16 @@ func _cleanup() -> void:
 			if f.owner == World.player_tag or Diplomacy.are_enemies(f.owner, World.player_tag):
 				World.notify(tr("NOTE_FLEET_DESTROYED") % [f.name, World.countries[f.owner].display_name()], "bad" if f.owner == World.player_tag else "good")
 
-## Deniz hâkimiyeti: bölgeyi görev alanı olarak tutan (üstünlük / koruma) filoların gücü, taraf başına
+## Deniz hâkimiyeti: bölgeyi görev alanı olarak tutan (üstünlük / koruma) filoların gücü, taraf başına.
+## CONTROL_HOURS saatte bir yeniden kurulur (görev ya da üs değişince hemen): filolar yavaş, görevler haftalarca sürer.
+## Her saat kurmak (filo × görev bölgesi) savaş uzayıp filolar çoğaldıkça nakliye hesabını en pahalı iş yapıyordu.
+const CONTROL_HOURS := 6
 var _control_cache := {}
 var _control_hour := -1
 
 func _control_map() -> Dictionary:
 	var h := World.day_count * 24 + GameClock.hour
-	if _control_hour == h:
+	if _control_hour >= 0 and h >= _control_hour and h - _control_hour < CONTROL_HOURS:
 		return _control_cache
 	_control_hour = h
 	_control_cache.clear()
@@ -811,6 +873,13 @@ func _absorb_new_ships() -> void:
 			target.ships[t] = int(target.ships.get(t, 0)) + n
 			_dirty = true
 
+## Yapay zekâ ülkesinin en çok filosu, tarihî akıştan sonra: su üstü tersane sayısının üçte biri (6–24), denizaltı sekizde
+## biri (2–8) — filoları onaran tersaneler kadar. Uzun oyunda filo sayısı sınırsız artıyordu (fazla gemiler artık
+## filoları büyütür). 1942 ortasında en kalabalığı İngiltere'ydi (29, yedekler dahil).
+static func fleet_cap(c: Country, sub: bool) -> int:
+	var yards := Economy.count(c, "dockyard")
+	return clampi(yards / 8, 2, 8) if sub else clampi(yards / 3, 6, 24)
+
 ## Yedek filo yeterince büyüyünce: filo sayısı azsa yeni filo olur, yoksa en zayıf filoya katılır
 func _promote_reserves(c: Country) -> void:
 	for r in fleets_of(c.tag):
@@ -820,9 +889,14 @@ func _promote_reserves(c: Country) -> void:
 		for f in fleets_of(c.tag):
 			if not f.reserve and f.is_sub_fleet() == r.is_sub_fleet():
 				same.append(f)
-		# büyük güçler 6 filoya kadar; 12+ gemilik yedek beklemeden filo olur (limanda çürümesin)
+		# büyük güçler 6 filoya kadar; 12+ gemilik yedek beklemeden filo olur (limanda çürümesin) — ama en çok
+		# fleet_cap kadar: sonra gemiler en zayıf filoya katılır (filo sayısı onlarca yılda sınırsız artıyordu)
 		var cap := (6 if c.is_major() else 3) + (1 if r.is_sub_fleet() else 0)
-		if same.size() < cap or r.total() >= 12:
+		var hard := fleet_cap(c, r.is_sub_fleet())
+		if AI.follows_history():
+			hard = 1 << 30                 # tarihî akış ayarlandığı gibi kalır (tavanla 1940–41'de İngiliz filoları
+			                               # birleşiyor, Fransa'nın düşüşü gecikebiliyordu)
+		if same.size() < cap or (r.total() >= 12 and same.size() < hard):
 			r.reserve = false
 			r.name = tr("SUB_FLEET_NAME" if r.is_sub_fleet() else "FLEET_NAME") % (same.size() + 1)
 			_dirty = true
@@ -835,6 +909,7 @@ func _promote_reserves(c: Country) -> void:
 			for t: String in r.ships:
 				weakest.ships[t] = int(weakest.ships.get(t, 0)) + int(r.ships[t])
 			r.ships.clear()
+			fleets.erase(r)                  # katıldı: yok edilmedi (temizlikte "filo yok edildi" bildirimi çıkmasın)
 			_dirty = true
 		elif r.mission != Fleet.Mission.PORT or r.home != weakest.home:
 			rebase(r, weakest.home)

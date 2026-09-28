@@ -54,7 +54,7 @@ UI_CITY,City,Şehir
 TERRAIN_marsh,Marsh,Bataklık
 UI_PORT,port,liman
 GAME_TITLE,IRON FRONT,IRON FRONT
-MENU_SUBTITLE,1936 — 1945  ·  GRAND STRATEGY,1936 — 1945  ·  BÜYÜK STRATEJİ
+MENU_SUBTITLE,FROM 1936  ·  GRAND STRATEGY,1936'DAN İTİBAREN  ·  BÜYÜK STRATEJİ
 MENU_NEW_GAME,New Game,Yeni Oyun
 MENU_CONTINUE,Continue,Devam Et
 MENU_SETTINGS,Settings,Ayarlar
@@ -180,6 +180,32 @@ NEWS_BALTIC,%s absorbs the Baltic states.,%s Baltık devletlerini ilhak etti.
 NOTE_CAPITULATED,%s has capitulated!,%s teslim oldu!
 NOTE_WAR_ENDED,A war has ended.,Bir savaş sona erdi.
 "NOTE_WHITE_PEACE","%s and %s have signed a white peace.","Beyaz barış: %s — %s"
+"NOTE_WAR_ENDED_OF","%s: the war is over.","%s: savaş bitti."
+"NEWS_PROGRAM_DONE","%s completes a state program: %s","%s devlet programını tamamladı: %s"
+"REACT_NEWS_CONDEMN","%s condemns the attack: %s → %s","%s saldırıyı kınadı: %s → %s"
+"REACT_NEWS_ARMS","%s sends rifles against the attack: %s → %s","%s saldırıya karşı tüfek gönderdi: %s → %s"
+"REACT_NEWS_PROTEST","%s refuses to recognise the annexation: %s → %s","%s ilhakı tanımıyor: %s → %s"
+"REACT_NEWS_RECOGNISE","%s recognises the annexation: %s → %s","%s ilhakı tanıdı: %s → %s"
+"REACT_NEED_EQUIPMENT","Needs %d %s in stock.","Stokta %d %s gerekir."
+"REACT_TARGET_GONE","That country no longer exists.","O ülke artık yok."
+"REACT_TO","To %s:","%s için:"
+"TASK_WORLD_KEY","World (E)","Dünya (E)"
+"TIP_TASK_WORLD","What happens in the world: wars, alliances, annexations, elections, programs. Some can be answered.","Dünyada olanlar: savaşlar, ittifaklar, ilhaklar, seçimler, programlar. Bir kısmına cevap verilebilir."
+"WORLD_TITLE","World Events","Dünya Olayları"
+"WORLD_FILTER_NEAR","Neighbours","Komşularım"
+"WORLD_FILTER_ALLY","My alliance","İttifakım"
+"WORLD_FILTER_ALL","Whole world","Bütün dünya"
+"WORLD_EMPTY","Nothing has happened here yet.","Burada henüz bir şey olmadı."
+"WORLD_REACT","Your answer (%d days left)","Cevabınız (%d gün kaldı)"
+"WORLD_CHOSEN","Your answer: %s","Cevabınız: %s"
+"WORLD_GOTO","Click: show on the map","Tıkla: haritada göster"
+"WORLD_KIND_war","War","Savaş"
+"WORLD_KIND_peace","Peace","Barış"
+"WORLD_KIND_alliance","Alliance","İttifak"
+"WORLD_KIND_diplomacy","Diplomacy","Diplomasi"
+"WORLD_KIND_politics","Politics","Siyaset"
+"WORLD_KIND_annex","Annexation","İlhak"
+"WORLD_KIND_program","State program","Devlet programı"
 NOTE_GOAL_READY,Casus belli against %s is ready.,Savaş gerekçesi hazır: %s
 DIPLO_ERR_INVALID,Not possible.,Mümkün değil.
 DIPLO_ERR_ALREADY,Already at war or preparing a casus belli.,Zaten savaşta ya da gerekçe hazırlanıyor.
@@ -187,11 +213,12 @@ DIPLO_ERR_ALLY,They are our ally.,Müttefikimiz.
 DIPLO_ERR_PP,Not enough influence.,Yeterli nüfuz yok.
 DIPLO_ERR_TENSION,The crisis index is too low for our ideology.,İdeolojimiz için kriz endeksi çok düşük.
 DIPLO_ERR_NO_GOAL,We need a casus belli first.,Önce bir savaş gerekçesi gerekli.
+"DIPLO_ERR_TRUCE","We surrendered: no declarations of war for two years.","Teslim olduk: iki yıl savaş ilan edemeyiz."
 "NOTE_DIV_DESTROYED","%s of %s was encircled and destroyed.","%s (%s) kuşatıldı ve yok edildi."
 NOTE_SAVED,Game saved: %s,Oyun kaydedildi: %s
 GAMEOVER_DEFEAT,Your nation has been destroyed.,Ülkeniz yok edildi.
-GAMEOVER_CAPITULATED,Your nation has capitulated.,Ülkeniz teslim oldu.
-GAMEOVER_TIME,The war is over: 1 January 1948.,Savaş sona erdi: 1 Ocak 1948.
+GAMEOVER_WORLD,No nation is left outside your side: the world is yours.,Tarafınızın dışında ayakta ülke kalmadı: dünya sizin.
+GAMEOVER_DATE,Date: %s,Tarih: %s
 EFF_PP,%+d influence,%+d nüfuz
 EFF_STABILITY,%+d%% stability,%%%+d istikrar
 EFF_WAR_SUPPORT,%+d%% home front,%%%+d iç cephe
@@ -283,6 +310,8 @@ TASK_RESEARCH_KEY,Research (I),Araştırma (I)
 UI_DAYS,days,gün
 RESEARCH_UNLOCK,Unlocks: %s,Açar: %s
 RESEARCH_REQ,Requires: %s,Gerekli: %s
+"RES_REPEAT_TIP","Refinement: the branch goes on after its last technology; each level takes longer and gives less. Levels done: %d","İyileştirme: dal son teknolojisinden sonra sürer; her seviye daha uzun sürer, daha az kazandırır. Biten seviye: %d"
+"RES_REPEAT_REQ","Requires every %s technology.","%s dalının bütün teknolojilerini ister."
 "RESEARCH_AHEAD","%d years ahead of time: +%d%% research time","%d yıl erken: %%+%d araştırma süresi"
 TIP_RESEARCH_CANCEL,Cancel research (progress is lost),Araştırmayı iptal et (ilerleme kaybolur)
 RESEARCH_EMPTY_SLOT,Slot %d is empty — pick a technology!,%d. slot boş — bir teknoloji seçin!
@@ -352,7 +381,7 @@ SET_ENGLISH,English interface,İngilizce arayüz
 SET_LANG_NOTE,Language changes fully apply after returning to the main menu.,Dil değişikliği ana menüye dönünce tamamen uygulanır.
 SET_EDGE_PAN,Scroll at screen edges,Ekran kenarında kaydır
 SET_AI,AI countries act,Yapay zekâ ülkeleri hareket etsin
-GAMEOVER_VICTORY,The War Is Over,Savaş Bitti
+GAMEOVER_VICTORY,Victory,Zafer
 GAMEOVER_LOST,Defeat,Yenilgi
 GAMEOVER_RANKING,VICTORY POINTS,ZAFER PUANLARI
 GAMEOVER_CONTINUE,Keep playing,Oynamaya devam et
@@ -436,6 +465,16 @@ NAVY_CONVOY_FACTOR,"Convoys carry %d%% of imports","Konvoylar ithalatın %%%d'in
 TIPMAP_FLEET_TITLE,%s,%s
 "TIPMAP_FLEET_HINT","Left click: select · Right click (fleet selected): send to sea zone or rebase to own port","Sol tık: seç · Sağ tık (filo seçiliyken): deniz bölgesine gönder ya da kendi limanına üs değiştir"
 TIPMAP_FLEET_MISSION,Mission: %s · Zone: %s,Görev: %s · Bölge: %s
+TIPMAP_BUILD_LEVEL,Level %d / %d,Seviye %d / %d
+TIPMAP_BUILD_QUEUE,Under construction: %d level(s) · first %d%%,İnşaatta: %d seviye · ilki %%%d
+TIPMAP_BUILD_DAYS," · about %d days"," · yaklaşık %d gün"
+TIPMAP_BUILD_TOTAL,%s in total: %d,%s toplamı: %d
+TIPMAP_BUILD_WINGS,Air wings based here: %d,Burada konuşlu hava kanadı: %d
+"TIPMAP_BUILD_HINT","Left click: open the state · with Construction open: build here","Sol tık: eyaleti aç · İnşaat açıkken: buraya inşa et"
+"ORDER_ETA","Selected divisions: arrival in about %d days (without battles)","Seçili tümenler: yaklaşık %d günde varır (muharebesiz)"
+"ORDER_ETA_NONE","Selected divisions: no route there","Seçili tümenler: oraya yol yok"
+"ORDER_ETA_FLEET","Selected fleet: arrival in about %d days (without battles)","Seçili filo: yaklaşık %d günde varır (muharebesiz)"
+"ORDER_ETA_FLEET_NONE","Selected fleet: cannot sail there","Seçili filo: oraya gidemez"
 NAVY_ORDER_OK,%s: new orders — %s,%s: yeni emir — %s
 TIPMAP_FLEETS,Fleets,Filolar
 TIPMAP_SEA_CONTROL,Our naval control here: %d%%,Buradaki deniz hâkimiyetimiz: %%%d

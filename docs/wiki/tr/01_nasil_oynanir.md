@@ -28,7 +28,7 @@
 | Menü / panelleri kapat | Esc |
 | Hükümet, Program, Araştırma, Diplomasi | Q, F, I, O |
 | Ticaret, İnşaat, Üretim, Ordu | R, T, Y, U |
-| Donanma, Hava, Lojistik | N, H, L |
+| Donanma, Hava, Lojistik, Dünya olayları | N, H, L, E |
 | Tümen seç / kutu seçimi / seçime ekle | Sol tık / sürükle / Shift |
 | Hareket veya saldırı emri | Sağ tık (web'de ve Mac'te tümen seçiliyken Ctrl + sol tık) |
 | Ülkenin genel durumu | Haritada Ctrl basılı tut |
@@ -39,10 +39,15 @@ Hareket okları **yeşil** (hareket) ya da **kırmızı** (düşman toprağına 
 yerine küçük ülke bayrakları görünür; daha uzakta harita sade kalsın diye birlik işaretleri gizlenir.
 
 ## Kazanma ve kaybetme
-- **Kaybetme**: ülken teslim olursa. Teslim ilerlemesi, şehirlerinin zafer puanlarından düşman elindeki paydır (sömürgeler ¼ sayılır, başkent düşerse +%10); sınır %80'dir,
-  iç cephe %50'nin altındaysa %50'ye kadar düşer (bkz. [Diplomasi](06_diplomasi.md)).
-- **Kazanma**: 1 Ocak 1948'e kadar teslim olmadan ayakta kalmak. Oyun sonu ekranı bu tarihte gelir. Dünyayı fethetmek
-  için gerekçe → savaş → teslim zincirini tekrarla. Teslim olan ülkenin işgal edilen eyaletleri işgalciye geçer.
+Oyunun **bitiş tarihi yoktur**: şunlardan biri olana kadar sürer.
+- **Kaybetme**: ülken artık yok (son eyaletini kaybetti ya da ilhak edildi). Teslim olmak tek başına oyunu bitirmez:
+  ülken teslim olunca işgal edilen eyaletler işgalcilere geçer ve savaştan çıkarsın; elinde toprak kaldıysa oynamayı
+  sürdürür, yeniden toparlanabilirsin. Teslim ilerlemesi, şehirlerinin zafer puanlarından düşman elindeki paydır
+  (sömürgeler ¼ sayılır, başkent düşerse +%10); sınır %80'dir, iç cephe %50'nin altındaysa %50'ye kadar düşer (bkz.
+  [Diplomasi](06_diplomasi.md)).
+- **Kazanma**: senin tarafının (sen ve ittifakın) dışında ayakta ülke kalmaması. Dünyayı gerekçe → savaş → teslim
+  zinciriyle fethet (teslim olan ülkenin işgal edilen eyaletleri işgalciye geçer) ya da ülkeleri ittifakına al. Oyun
+  sonu ekranı nedeni ve tarihi gösterir; zaferden sonra oynamayı sürdürebilirsin.
 
 ## Türkiye ile ipuçları
 - Mayıs 1936'da **Sovyet Boğazlar baskısı** gelir: Atatürk'ün dostluğunu hatırlatan nazik ret (yalnız Atatürk liderken),

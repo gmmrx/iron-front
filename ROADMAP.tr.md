@@ -66,9 +66,9 @@ Son güncelleme: **27 Eylül 2026**
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. ◐ **Yeni ikon seti ve portreler** (kullanıcı üretiyor): ✔ ikon seti oyunda; portreler geliyor → geldikçe görsel kontrol
-3. **Açık uçlu oyun (BÖLÜM AÇIK)**: bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana kadar
-   sürer; bitmeyen araştırma (tekrarlanabilir seviyeler); dünyada olanları izlemek ve cevap vermek için solda bir dünya
-   olayları menüsü (BÖLÜM OL)
+3. ◐ **Açık uçlu oyun (BÖLÜM AÇIK)**: ✔ bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana
+   kadar sürer; ✔ bitmeyen araştırma (iyileştirme seviyeleri); ✔ dünyada olanları izlemek ve cevap vermek için solda
+   bir dünya olayları menüsü (BÖLÜM OL)
 3b. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
@@ -204,6 +204,13 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
 - [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
       rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
+- [x] Yapı rozetleri yalnız yakında (28 Eyl 2026): kamera ~320'den itibaren haritanın üstünde küçük ikon (%72 boy),
+      ~190'dan içeride tam boy ve altlarından yükselen iğne; daha uzakta haritada bina görünmez. Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
+      gelene kadar yakın bir eylem sesi) ve kart yapıyı anlatır (seviye / en çok, inşaat, ülke toplamı, konuşlu kanatlar);
+      tıklamak eyaletini açar
+- [x] Oyuncunun ordusu yakında ana sayacının üstünde komutanının portresini taşır (resim yoksa baş harfleri)
+- [x] Muharebe durum okları: durumu az önce düzelen tarafta küçük yeşil ▲, zemin kaybedende kırmızı ▼; yükselip söner
+      (`game/map/battle_ticker.gd`)
 - [x] Uçaklar: ülke renginde tek küçük uçak modeli, üste park etmiş ya da görevinde uçarken
 - [x] Eyalet sınırları her zoom'da net çizgi (yakında daha kalın), province sınırları (farenin vurguladığı birim) eyaletlerin
       içinde daha ince ve açık çizgi
@@ -263,13 +270,18 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
       Büyük Terör −%30, hazırlıksız ordu), Alman program tarihleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
 - [x] Komutanlarla (27 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6; bir koşuda Almanya/İtalya erken, bir koşuda Fransa geç
       düştü — izlenecek
-- [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
-- [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
+- [x] Fransa Haziran–Temmuz 1940'ta düşer (6/6 koşu, 28 Eyl 2026): tarih çizelgesi (Sarı Plan, 10 Mayıs 1940) ve
+      Mayıs–Ekim 1940 "Cephenin Çöküşü" durumu
+- [x] Teslim olan ülke tutarlı devredilir: işgal edilen eyaletleri işgalcilere geçer, bütün savaşlardan ve (lideri
+      değilse) ittifakından çıkar, verdiği garantiler düşer, iki yıl savaş ilan edemez (`Diplomacy.TRUCE_DAYS`); eski
+      müttefiklerinin savaşlarına yeniden çekilmez
 - [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
 
 ### P2. Oyuncuya geri bildirim
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
-- [ ] Tümen/filo seçilince yol önizlemesi ve varış süresi
+- [x] Yol önizlemesi ve varış süresi: tümen seçiliyken farenin altındaki bölgeye aynı stilde soluk bir ok çizilir (ilk
+      üç tümenin yolu) ve kartı tahmini varışı gösterir (en yavaşı, muharebesiz; `Military.eta`, yürüyüşle aynı hız)
+- [x] Filolar için varış süresi (filo seçiliyken fare altındaki kart; `Navy.eta_hours`); filo yol önizlemesi henüz yok
 - [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
       kaynak açığı satırları, deniz bölgesine göre deniz hâkimiyeti ✔; kalan: ikmal açığı
 - [x] Ctrl ile ülke kartı (lider, ilişki, bizimkine göre renkli göstergeler), başka ülkelerin siyaseti salt okunur
@@ -573,7 +585,17 @@ zombi salgını).
 
 ## BÖLÜM G — PERFORMANS (sürekli) ◐
 Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
-- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü)
+- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü; `--prof_every=365` her yıl en pahalı sistemleri yazar)
+- [x] Uzun savaşta donanma maliyeti (28 Eyl 2026): görevdeki her filo her saat bütün düşman filolarını tarıyordu (filolar
+      çoğaldıkça karesel: donanma görevleri 1941–44'te oyun yılı başına 12 → 22 → 37 → 51 sn) → saatlik konum dizini ve
+      görev bölgesi taraması (1944: 7 sn); deniz hâkimiyeti 6 saatte bir kurulur (nakliye 1942'ye kadar 22 → 8 sn);
+      mahsur filo günde bir liman arar. 1936–44 ekransız: 560 → 436 sn
+- [x] Hava çatışması görevdeki her kanadı her gün diğer bütün kanatlarla karşılaştırıyordu (karesel): kanatlar görev
+      bölgesine göre toplanır, yakın bölge çiftleri bir kez ölçülür, sonuç aynı. Tarihî akıştan sonra yapay zekânın filo
+      ve hava kanadı sayısına sanayiye bağlı tavan (su üstü filo = tersane / 3, 6–24 arası; denizaltı filosu tersane / 8,
+      2–8; kanat = askerî fabrika / 3, 12–40; fazla gemi filoları büyütür, fazla uçak stokta kalır) — yılda ~60 filo ve
+      ~55 kanat sınırsız artıyordu. 2 Eylül 1945'ten önce uygulanmaz: 1940–41'de tavan İngiliz filolarını birleştirip
+      Fransa'nın düşüşünü geciktiriyordu
 - [x] AI/ikmal/istatistik önbellekleri; ağaç gölgeleri kapalı; MSAA yerine FXAA; yarım çözünürlük SSAO
 - [ ] Sayaç ve etiketleri tek çizim çağrısında toplu çizim (şu an ~2.600 çizim çağrısı)
 - [ ] LOD: uzak zoom'da şehir modeli → ikon
@@ -582,33 +604,47 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 
 ---
 
-## BÖLÜM AÇIK — AÇIK UÇLU OYUN ☐ ← uçtan uca oyundan önce gerekli
-Bugün oyun 1 Ocak 1948'de bitiyor (`Game.END_DATE`) ve araştırma ağacı 1942 civarında tükeniyor. Bir strateji oyunu bir
-tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok olana** kadar sürer. Bunun
-kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
-- [ ] Bitiş tarihi yok: zafer = oyuncu bütün eyaletleri kontrol eder (ya da diğer bütün ülkeler oyuncunun tarafına teslim
-      olmuştur); yenilgi = oyuncunun ülkesi artık yoktur (son eyaleti kaybedildi ya da ilhak edildi). `END_DATE` kalkar;
-      oyun sonu ekranı nedeni ve tarihi gösterir
-- [ ] Bitmeyen araştırma: son tarihî teknolojiden sonra araştırma sürer — her dalda tekrarlanabilir seviyeler (ör. "Piyade
-      silahları IV, V, ..."), her seviyede artan maliyet ve azalan kazanç; hiçbir dal tükenmez
+## BÖLÜM AÇIK — AÇIK UÇLU OYUN ◐ ← uçtan uca oyundan önce gerekli
+Bir strateji oyunu bir tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok
+olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
+- [x] Bitiş tarihi yok (`END_DATE` kalktı): zafer = oyuncunun tarafının (oyuncu ve ittifakı) dışında ayakta ülke
+      kalmaması; yenilgi = oyuncunun ülkesinin artık olmaması (son eyaleti kaybedildi ya da ilhak edildi). Teslim olup
+      elinde toprak kalan oyuncu oynamayı sürdürür. Oyun sonu ekranı nedeni ve tarihi gösterir; zaferden sonra oyuncu
+      oynamayı sürdürebilir (zafer kayda geçer, yeniden gelmez). `tests/test_open_game.gd`
+- [x] Bitmeyen araştırma: bir dalın tarihî teknolojileri bitince dal iyileştirme seviyeleriyle sürer ("Piyade
+      İyileştirmesi I, II, ...", `rep_<dal>_<n>`): maliyet 180 gün, seviye başına +%15; kazanç seviye başına −%15
+      (toplamı sınırlı); her seviyenin yılı bir öncekinden bir yıl sonra (1943'ten), yıl cezası iyileştirmeleri tarihî
+      ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır, yalnız seviyenin yılı gelince
+      (yıllar önce alınan seviye bir yuvayı yıllarca kilitlerdi) (formül ve gerekçeler
+      `data/common/technologies.json` → `repeatable`)
 - [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
-- [ ] Tarihî akıştan sonra olaylar ve yapay zekâ: tarihli olaylar bitince dünya durmaz — kurala dayalı olaylar (krizler,
-      sınır olayları, ayaklanmalar, darbeler, ekonomik şoklar) ve yeni savaşlar planlayan yapay zekâ
+- [x] Tarihî akıştan sonra olaylar ve yapay zekâ: 2 Eylül 1945'ten sonra her ülkeye kurala dayalı, yinelenen olaylar
+      gelir (`events.json` içinde `"recur"`: başlangıç, ortalama süre, bekleme, şartlar, karşı taraf olarak komşu) —
+      Sınırda Çatışma (savaş gerekçesi: yapay zekâ yeni savaşları böyle bulur), Bankalara Hücum, Subay Komplosu (düşük
+      istikrar), Askerler Evine Dönüyor (barıştaki büyük güçler); bu tarihten önce rastgele sayı çekilmez, tarihî akış
+      değişmez
+- [ ] Daha çok kurala dayalı olay: işgal altındaki topraklarda ayaklanma, gerçek darbe (rejim değişikliği), felaketler,
+      sömürge krizleri
 - [ ] Uzun oyunda da işe yarayan yasalar, programlar ve kararlar (savaş sonrası yeniden inşa, işgal politikası, büyük bir
       imparatorluğun ekonomisi)
 - [ ] Performans ve kayıt boyutu onlarca oyun yılı boyunca kararlı (uzun koşu testi: 30+ oyun yılı)
 - [ ] Sabit yıl içermeyen motor metinleri (BÖLÜM MOD'un da parçası: senaryo başlangıç tarihini verir, bitiş tarihini değil)
 
-## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ☐
+## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ◐
 Dünyada sürekli bir şeyler olur (savaş ilanları, ittifaklar, darbeler, felaketler, başka ülkelerin kararları). Bunlar
 oyuncuya bir akış olarak gelmeli; bir kısmına cevap verilebilmeli.
-- [ ] Solda bir dünya olayları menüsü: dünyada olanların listesi (en yenisi üstte), ülke bayrağı, tarih ve kısa metin;
-      süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider
-- [ ] Olaylara tepki: bazı kayıtlar 2–3 gerçek seçenek taşır (kınamak / desteklemek / uzak durmak, gönüllü göndermek,
-      garanti vermek, yaptırım...); bedel ve etkiler var olan etki sözlüğünden; yapay zekâ da oyuncunun olaylarına aynı
-      şekilde tepki verir
-- [ ] Her yapay zekâ ülkesinin önemli kararları ve savaşları kayıt olur (yalnız oyuncunun kendi olayları değil)
-- [ ] Uyarı çubuğu ve bildirim akışı oyuncunun kendi işleri için kalır; dünya menüsü dünyanın geri kalanıdır
+- [x] Solda dünya olayları menüsü (E, `game/ui/world_panel.gd`): dünyada olanlar, en yenisi üstte; ülke bayrağı, tarih,
+      tür ve kısa metin; süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider. Kayıt
+      (`World.world_log`, son 400) kayda geçer; metinler şimdiki dilde yeniden kurulur
+- [x] Olaylara tepki: oyuncunun taraf olmadığı bir savaş ilanı (30 gün) ya da ilhak (60 gün) seçenek taşır — kınamak /
+      tüfek göndermek / uzak durmak, tanımamak (savaş gerekçesi) / tanımak — bedel, şart ve etkiler var olan etki
+      sözlüğünden (`data/common/world_reactions.json`, `game/core/world_react.gd`); demokratik büyük güçler oyuncunun
+      saldırısını aynı şekilde kınar
+- [x] Yapay zekâ ülkelerinin savaşları, ittifakları, garantileri, teslimleri, ilhakları, barışları, seçimleri, yeni
+      liderleri ve büyük güçlerin devlet programları kayıt olur
+- [x] Bildirim akışı oyuncunun işlerine (ve büyük güçlerin savaş ve ilhaklarına) ayrılır; dünya menüsü dünyanın geri
+      kalanıdır. `tests/test_world_events.gd`
+- [ ] Daha çok cevap: gönüllüler, yaptırımlar, kayıttan garanti; darbeler, ayaklanmalar, felaketler kayıt olarak
 
 ## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
 - [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar

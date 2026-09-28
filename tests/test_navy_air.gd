@@ -186,3 +186,122 @@ func test_air_superiority_affects_land_combat() -> void:
 	var pw: AirWing = Air.deploy(pol, "fighter", Air._home_base("POL"))
 	if check(pw != null and Air.set_mission(pw, AirWing.Mission.SUPERIORITY, dst), "Polonya avcıları da bölgede"):
 		near(Air.bonus(dst, "GER"), 0.0, 0.0001, "eşit hava gücünde bonus yok")
+
+## Seçili filonun tahmini varışı (bölge kartında): gerçek seyirle uyuşur
+func test_fleet_eta_matches_voyage() -> void:
+	var f := _surface_fleet("GER")
+	if not check(f != null, "Alman su üstü filosu"):
+		return
+	var target := 0
+	var near := Navy.sea_for(f.home)
+	for n: int in World.province(near).adjacent:
+		var q := World.province(n)
+		if q and q.type == Province.Type.SEA and n != near:
+			target = n
+			break
+	if not check(target > 0, "limanın denizine komşu ikinci deniz bölgesi"):
+		return
+	var eta := Navy.eta_hours(f, target)
+	gt(eta, 0.0, "tahmini varış")
+	check(Navy.order(f, target), "görev emri")
+	var hours := 0
+	while f.location != target and hours < 24 * 30:
+		GameClock.advance_hours(1)
+		hours += 1
+	eq(f.location, target, "filo hedef bölgeye vardı")
+	check(float(hours) >= eta - 1.0 and float(hours) <= eta * 1.25 + 3.0, "gerçek seyir %d saat, tahmin %.1f saat" % [hours, eta])
+	eq(Navy.eta_hours(f, 0), -1.0, "geçersiz hedef: -1")
+
+## Üssü düşen filo en yakın gidilebilen dost limana döner; mahsur filo bekleme süresinde yeniden yol aramaz
+func test_fleet_rehome_and_wait() -> void:
+	var f := _surface_fleet("GER")
+	if not check(f != null, "Alman su üstü filosu"):
+		return
+	var sea := Navy.sea_for(f.home)
+	f.location = sea
+	f.path = PackedInt32Array()
+	# eski üs artık gidilemez (deniz ağında olmayan bir kara bölgesi)
+	var inland := World.capital_province("GER")
+	f.home = inland
+	var now := World.day_count * 24 + GameClock.hour
+	Navy._rehome_wait[f.id] = now + 24
+	Navy._return_home(f)
+	eq(f.home, inland, "bekleme süresinde yol aranmaz")
+	check(f.path.is_empty(), "bekleme süresinde yola çıkmaz")
+	Navy._rehome_wait.erase(f.id)
+	Navy._return_home(f)
+	check(Navy.is_friendly_port("GER", f.home), "yeni üs dost liman")
+	check(not f.path.is_empty() or f.location == f.home, "yeni üsse yola çıkar")
+	check(not Navy._rehome_wait.has(f.id), "gidilebilen liman bulununca bekleme yok")
+
+## Hava çatışması: görev bölgeleri örtüşen düşman kanatları uçak kaybeder; uzaktaki, düşmansız kanat kaybetmez
+func test_air_combat_overlapping_zones() -> void:
+	_war("GER", "POL")
+	var ger := country("GER")
+	var pol := country("POL")
+	for c: Country in [ger, pol]:
+		c.stockpile[Air.TYPES["fighter"]["eq"]] = 1000.0
+	var gb := Air.bases_of("GER")
+	var pb := Air.bases_of("POL")
+	if not check(not gb.is_empty() and not pb.is_empty(), "iki tarafın hava üssü"):
+		return
+	var front := World.capital_province("POL")
+	var wg: AirWing = Air.deploy(ger, "fighter", gb[0])
+	var wp: AirWing = Air.deploy(pol, "fighter", pb[0])
+	# Almanya'nın en uzak üssünden kendi batısına: düşman yok
+	var far_base := gb[gb.size() - 1]
+	var wf: AirWing = Air.deploy(ger, "fighter", far_base)
+	var ok := Air.set_mission(wg, AirWing.Mission.SUPERIORITY, front) and Air.set_mission(wp, AirWing.Mission.SUPERIORITY, front)
+	if not check(ok, "iki kanat da cepheye görev alır"):
+		return
+	Air.set_mission(wf, AirWing.Mission.SUPERIORITY, World.province(World.capital_province("GER")).id)
+	var far_from_front := Air.distance_km(World.province(wf.zone).center, World.province(front).center) > Air.ZONE_KM * 1.6
+	var g0 := wg.planes
+	var p0 := wp.planes
+	var f0 := wf.planes
+	for i in 10:
+		Air._air_combat()
+	lt(float(wg.planes), float(g0), "Alman kanadı uçak kaybeder")
+	lt(float(wp.planes), float(p0), "Polonya kanadı uçak kaybeder")
+	if far_from_front:
+		eq(wf.planes, f0, "uzaktaki düşmansız kanat kaybetmez")
+	check(Air.fights.has(front), "cephede hava çatışması işareti")
+
+## Uzun oyunda yapay zekânın filo ve kanat sayısı sınırlı: tavandan sonra gemiler en zayıf filoya katılır, uçaklar
+## stokta kalır
+func test_ai_fleet_and_wing_caps() -> void:
+	GameClock.year = 1946                     # tavanlar tarihî akıştan sonra geçerli
+	var eng := country("ENG")
+	var port: int = Navy._main_port("ENG")
+	if not check(port > 0, "İngiltere'nin ana limanı"):
+		return
+	var surface := 0
+	for f in Navy.fleets_of("ENG"):
+		if not f.reserve and not f.is_sub_fleet():
+			surface += 1
+	while surface < Navy.fleet_cap(eng, false):
+		Navy._create("ENG", {"destroyer": 4}, port, "t%d" % surface)
+		surface += 1
+	var r: Fleet = Navy._create("ENG", {"destroyer": 14}, port, "yedek")
+	r.reserve = true
+	var before := Navy.fleets.size()
+	var ships_before := 0
+	for f in Navy.fleets_of("ENG"):
+		ships_before += f.total()
+	Navy._promote_reserves(eng)
+	eq(Navy.fleets.size(), before - 1, "tavanda yedek yeni filo olmaz, en zayıf filoya katılır")
+	var ships_after := 0
+	for f in Navy.fleets_of("ENG"):
+		ships_after += f.total()
+	eq(ships_after, ships_before, "gemiler kaybolmaz")
+	# kanatlar
+	var eq_name: String = Air.TYPES["fighter"]["eq"]
+	var have := Air.wings_of("ENG").size()
+	var cap := Air.wing_cap(eng)
+	eng.stockpile[eq_name] = float((cap - have + 3) * Air.WING_SIZE)
+	Air._absorb(eng)
+	eq(Air.wings_of("ENG").size(), maxi(cap, have), "kanat sayısı tavanda durur")
+	# tavan sanayiye bağlı: sanayisi büyük ülkenin tavanı küçük ülkeninkinden yüksek (ya da eşit)
+	check(Navy.fleet_cap(country("USA"), false) >= Navy.fleet_cap(country("LUX"), false), "ABD'nin filo tavanı Lüksemburg'unkinden düşük değil")
+	check(Air.wing_cap(country("USA")) >= Air.MIN_WINGS and Air.wing_cap(country("USA")) <= Air.MAX_WINGS, "kanat tavanı 12–40")
+	gt(float(eng.stockpile.get(eq_name, 0.0)), float(Air.WING_SIZE * 2), "fazla uçak stokta kalır")

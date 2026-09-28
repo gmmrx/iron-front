@@ -479,6 +479,12 @@ static func _painted_icon(name: String) -> Texture2D:
 static func building_icon(building: String) -> Texture2D:
 	return icon("building_" + building)
 
+## Harita pinleri için uzaktan seçilen, menü resminden bağımsız yapı piktogramı.
+static func building_pin_icon(building: String) -> Texture2D:
+	var path := "res://assets/ui/icons/map_building_%s.svg" % building
+	var pin: Texture2D = load(path) if ResourceLoader.exists(path) else icon("map_building_" + building)
+	return pin if pin else building_icon(building)
+
 static func resource_icon(resource: String) -> Texture2D:
 	return icon("resource_" + resource)
 

@@ -20,6 +20,7 @@ var diplomacy: DiplomacyPanel
 var navy: NavyPanel
 var air: AirPanel
 var logistics: LogisticsPanel
+var world: WorldPanel
 var focus: FocusPanel
 var divisions: DivisionPanel
 var events: EventPopup
@@ -54,7 +55,8 @@ func _ready() -> void:
 	navy = NavyPanel.new()
 	air = AirPanel.new()
 	logistics = LogisticsPanel.new()
-	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]:
+	world = WorldPanel.new()
+	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics, world]:
 		root.add_child(p)
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
@@ -75,6 +77,7 @@ func _ready() -> void:
 	var tasks := [
 		["TASK_POLITICS", "politics", toggle_politics, "menu_politics"], ["TASK_FOCUS", "focus_g_unity", toggle_focus, "menu_focus"],
 		["TASK_RESEARCH_KEY", "research", toggle_research, "menu_research"], ["TASK_DIPLOMACY_KEY", "diplomacy", toggle_diplomacy, "menu_diplomacy"],
+		["TASK_WORLD_KEY", "diplomacy", toggle_world, "menu_world"],
 		["TASK_TRADE", "trade", toggle_trade, "menu_trade"], ["CONSTRUCTION_BUTTON", "construction", toggle_construction, "menu_construction"],
 		["TASK_PRODUCTION", "production", toggle_production, "menu_production"], ["TASK_ARMY", "army", toggle_army, "menu_army"],
 		["TASK_NAVY", "navy", toggle_navy, "menu_navy"], ["TASK_AIR", "air", toggle_air, "menu_air"],
@@ -192,7 +195,7 @@ func fullscreen_open() -> bool:
 	return false
 
 func _left_panels() -> Array:
-	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]
+	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics, world]
 
 func _close_all() -> void:
 	for p in _left_panels():
@@ -233,6 +236,7 @@ func toggle_army() -> void: _open_only(army)
 func toggle_navy() -> void: _open_only(navy)
 func toggle_air() -> void: _open_only(air)
 func toggle_logistics() -> void: _open_only(logistics)
+func toggle_world() -> void: _open_only(world)
 ## Donanma panelini açık tut (filo seçilince)
 func show_navy() -> void:
 	if not navy.visible:

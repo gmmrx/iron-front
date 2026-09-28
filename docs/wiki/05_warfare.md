@@ -13,6 +13,10 @@
 ## Orders
 - Select with left click / box, **right click** (on the web and on Mac: Ctrl + left click while divisions are selected) to
   move to or attack the target region.
+- With divisions selected, the region under the mouse gets a **faint arrow** of the route (before any order) and its
+  card shows the **estimated arrival** ("about N days", the slowest
+  of the first three divisions; terrain, infrastructure, season, fuel, supply and cohesion count, battles do not) or says
+  there is no route.
 - Arrow colour: **green** move, **red** attack into enemy land. Arrows are drawn with marks flowing towards the tip.
 - **Stop**, **Disband** (manpower returns; equipment does **not**).
 - **Hold to the last man**: on by default for the player's divisions. The division never retreats by itself; below 12%
@@ -80,4 +84,5 @@ superiority, close air support, port strike. Pick the mission region on the map.
 ## Navy (N)
 Fleets: in port, naval superiority, convoy raiding, convoy escort. Mission region on the map. When cohesion drops the fleet
 returns to port. Ships only travel along sea lanes. Hover a sea region to see **naval control** by country and whether
-your transports are safe there.
+your transports are safe there. With a fleet selected, the card under the mouse shows the estimated arrival at the order's
+target (your port: rebase; elsewhere: the mission region) — the real length of the sea lanes at the slowest ship's speed.

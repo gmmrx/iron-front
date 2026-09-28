@@ -58,6 +58,7 @@ var justify_progress: Dictionary = {}      ## hedef tag -> kalan gün
 var guarantees: Array[String] = []         ## garanti verilen ülkeler
 var access: Array[String] = []             ## askeri geçiş hakkı olan ülkeler (bize geçiş verenler)
 var capitulated := false
+var truce_until := 0                       ## teslimden sonra bu güne (gün sayacı) kadar savaş ilan edemez
 var surrender_progress := 0.0
 var air_losses := 0.0
 var command_power := 0.0                    ## komuta gücü (0..200): general/doktrin/özel emirler için

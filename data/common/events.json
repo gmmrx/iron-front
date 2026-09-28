@@ -1150,6 +1150,250 @@
     "date": "1936-03-02",
     "require": []
    }
+  },
+  "border_incident": {
+   "title": {
+    "tr": "Sınırda Çatışma",
+    "en": "Clash on the Border"
+   },
+   "desc": {
+    "tr": "Sınırdaki bir devriye çatışmasında iki taraftan da ölenler var. Hükümetler birbirini suçluyor; basın cevap istiyor, generaller haritalarını açıyor.",
+    "en": "A patrol clash on the border has left dead on both sides. Each government blames the other, the press demands an answer and the generals are unrolling their maps."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Tazminat iste: bu bir savaş gerekçesidir",
+      "en": "Demand reparations: this is a casus belli"
+     },
+     "effects": [
+      {
+       "pp": -20
+      },
+      {
+       "war_goal": "FROM"
+      },
+      {
+       "tension": 2
+      }
+     ],
+     "ai": 0.35
+    },
+    {
+     "name": {
+      "tr": "Büyükelçilikler yoluyla çöz",
+      "en": "Settle it through the embassies"
+     },
+     "effects": [
+      {
+       "stability": 0.02
+      },
+      {
+       "war_support": -0.02
+      }
+     ],
+     "ai": 0.65
+    }
+   ],
+   "trigger": null,
+   "recur": {
+    "after": "1945-09-02",
+    "mtth_days": 1800,
+    "cooldown_days": 720,
+    "from": "neighbour",
+    "require": [
+     {
+      "at_war": false
+     }
+    ]
+   }
+  },
+  "bank_run": {
+   "title": {
+    "tr": "Bankalara Hücum",
+    "en": "Run on the Banks"
+   },
+   "desc": {
+    "tr": "Büyük bir banka battı; mudiler paralarını çekmek için kuyrukta. Kredi kuruyor, fabrikalar siparişlerinden korkuyor.",
+    "en": "A large bank has failed and savers are queuing to withdraw their money. Credit is drying up and the factories fear for their orders."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Bankaları kamu parasıyla kurtar",
+      "en": "Rescue the banks with public money"
+     },
+     "effects": [
+      {
+       "pp": -40
+      },
+      {
+       "stability": 0.02
+      }
+     ],
+     "ai": 0.5
+    },
+    {
+     "name": {
+      "tr": "Batmalarına izin ver",
+      "en": "Let them fail"
+     },
+     "effects": [
+      {
+       "stability": -0.06
+      },
+      {
+       "pp": 15
+      }
+     ],
+     "ai": 0.5
+    }
+   ],
+   "trigger": null,
+   "recur": {
+    "after": "1945-09-02",
+    "mtth_days": 2600,
+    "cooldown_days": 1100,
+    "from": "self",
+    "require": []
+   }
+  },
+  "officers_plot": {
+   "title": {
+    "tr": "Subay Komplosu",
+    "en": "Officers' Plot"
+   },
+   "desc": {
+    "tr": "İstihbarat, ülke çalkantıdayken iktidarı ele geçirmeye hazırlanan bir subay çevresini ortaya çıkardı.",
+    "en": "Our intelligence service has uncovered a circle of officers preparing to seize power while the country is in turmoil."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Komplocuları tutukla",
+      "en": "Arrest the plotters"
+     },
+     "effects": [
+      {
+       "stability": 0.04
+      },
+      {
+       "war_support": -0.03
+      }
+     ],
+     "ai": 0.5
+    },
+    {
+     "name": {
+      "tr": "Orduya hükümette söz hakkı ver",
+      "en": "Give the army a voice in government"
+     },
+     "effects": [
+      {
+       "popularity": {
+        "fascism": 0.1
+       }
+      },
+      {
+       "stability": 0.03
+      },
+      {
+       "war_support": 0.03
+      }
+     ],
+     "ai": 0.3
+    },
+    {
+     "name": {
+      "tr": "Erken seçime git",
+      "en": "Call early elections"
+     },
+     "effects": [
+      {
+       "popularity": {
+        "democratic": 0.1
+       }
+      },
+      {
+       "stability": -0.02
+      }
+     ],
+     "ai": 0.2
+    }
+   ],
+   "trigger": null,
+   "recur": {
+    "after": "1945-09-02",
+    "mtth_days": 1500,
+    "cooldown_days": 1500,
+    "from": "self",
+    "require": [
+     {
+      "stability_below": 0.35
+     }
+    ]
+   }
+  },
+  "soldiers_home": {
+   "title": {
+    "tr": "Askerler Evine Dönüyor",
+    "en": "The Soldiers Come Home"
+   },
+   "desc": {
+    "tr": "Sınırlarımızda barış var; milyonlarca er terhis edilmeyi bekliyor. Fabrikalar işçi istiyor, generaller eğitimli ordunun dağılmasını istemiyor.",
+    "en": "Peace has returned to our borders and millions of conscripts are waiting to be demobilised. The factories want workers; the generals want to keep a trained army."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Terhis et, ülkeyi yeniden kur",
+      "en": "Demobilise and rebuild"
+     },
+     "effects": [
+      {
+       "building": "civilian_factory",
+       "count": 2
+      },
+      {
+       "war_support": -0.08
+      },
+      {
+       "stability": 0.03
+      }
+     ],
+     "ai": 0.6
+    },
+    {
+     "name": {
+      "tr": "Orduyu silah altında tut",
+      "en": "Keep the army under arms"
+     },
+     "effects": [
+      {
+       "war_support": 0.04
+      },
+      {
+       "stability": -0.04
+      }
+     ],
+     "ai": 0.4
+    }
+   ],
+   "trigger": null,
+   "recur": {
+    "after": "1945-09-02",
+    "mtth_days": 400,
+    "cooldown_days": 3650,
+    "from": "self",
+    "require": [
+     {
+      "at_war": false
+     },
+     {
+      "is_major": true
+     }
+    ]
+   }
   }
  }
 }

@@ -10,6 +10,9 @@
 
 ## Emirler
 - Sol tık / kutu ile seç, **sağ tık** (web ve Mac'te, tümen seçiliyken Ctrl + sol tık) hedef bölgeye git ya da saldır.
+- Tümen seçiliyken farenin altındaki bölgeye yolun **soluk oku** çizilir (emir vermeden önce) ve bölge kartı **tahmini
+  varışı** gösterir ("yaklaşık N gün", ilk üç tümenin en
+  yavaşı; arazi, altyapı, mevsim, yakıt, ikmal ve bütünlük sayılır, muharebe sayılmaz) ya da yol olmadığını söyler.
 - Ok rengi: **yeşil** hareket, **kırmızı** düşman toprağına taarruz. Oklar uca doğru akan işaretlerle çizilir.
 - **Durdur**, **Dağıt** (insan gücü geri döner; ekipman döner**mez**).
 - **Son askere kadar**: oyuncunun tümenlerinde açık başlar. Tümen kendiliğinden geri çekilmez; bütünlüğü %12'nin altına
@@ -71,4 +74,6 @@ yakın hava desteği, liman baskını. Görev bölgesini haritadan seç. "Otomat
 ## Deniz (N)
 Filolar: limanda, deniz üstünlüğü, konvoy baskını, konvoy koruma. Görev bölgesi haritadan. Bütünlük düşünce filo limana döner.
 Gemiler yalnız deniz yollarından gider. Bir deniz bölgesinin üstüne gelince ülkelere göre **deniz hâkimiyeti** ve
-nakliyenin orada güvenli olup olmadığı görünür.
+nakliyenin orada güvenli olup olmadığı görünür. Filo seçiliyken farenin altındaki kart emrin hedefine tahmini varışı
+gösterir (kendi limanın: üs değişikliği; başka yer: görev bölgesi) — deniz yollarının gerçek uzunluğu, en yavaş geminin
+hızıyla.

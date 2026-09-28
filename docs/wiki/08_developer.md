@@ -37,12 +37,15 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_land_combat.gd` | Combat multipliers and damage, entrenchment, hold to the last man, retreat, encirclement, supply, army → front |
 | `test_commanders.gd` | Commander rosters, assignment/promotion/new general costs, combat bonus, experience, no automatic assignment for the player, direct orders |
 | `test_navy_air.gd` | Fleet missions/return, naval combat, convoy raiding, wings, air superiority |
-| `test_military.gd` | Training time (conscription law) |
+| `test_military.gd` | Training time (conscription law); the estimated arrival matches the real march (the fleet's in `test_navy_air.gd`) |
 | `test_save_load.gd` | 200 days → save → load: every field identical (a differing field is named) |
 | `test_determinism.gd` | Two runs with the same seed give the same world |
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |
 | `test_fleet_motion.gd` | The fleet's visual position (corner curves, leaving port, sailing) stays at sea; the FleetLayer formation never spills onto land |
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
+| `test_open_game.gd` | No end date; victory when no country is left outside the player's side, defeat when the country is gone, a surrendered player with land plays on; refinement levels (open after the branch, rising cost, falling gain, saved, AI researches them, reset in a new game) |
+| `test_world_events.gd` | World events log (wars, programs, elections), the news feed only for the player's matters and great powers' wars, answers to foreign wars and annexations (cost, requirement, effect, one answer, expiry), democracies condemning the player's aggression, menu filters |
+| `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows, the faint path preview |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer
 tests use `ProbeMap` (a MapView3D subclass that skips the heavy textures). If the sea lanes change,
@@ -60,7 +63,9 @@ save as well: `test_save_load.gd` catches an unsaved field by name (fields recom
 `--pause_menu`, `--settings` (in-game settings), `--menu_settings` (main menu settings), `--lang_test=en|tr`,
 `--gameover=win|lose`, `--politics_of=TAG` (another country's politics), `--ctrl_hover=x,y` (country card),
 `--hover_at=x,y` (region card at a screen position), `--army=TAG [--army_select --army_cmd]` (all divisions in one army
-facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection).
+facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection),
+`--split_demo=DIST` (a new army with a commander next to another counter in the same region), `--hover_building`
+(hover the building badge nearest the screen centre).
 To try the web renderer on desktop: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3D assets (Blender, headless)

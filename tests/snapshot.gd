@@ -53,6 +53,8 @@ func take(include_derived := false) -> Dictionary:
 	s["ittifaklar"] = _plain(Politics.factions)
 	s["olay geçmişi"] = _plain(Politics.fired_events)
 	s["bekleyen olaylar"] = _plain(Politics.pending_events)
+	s["dünya olayları"] = _plain(World.world_log)
+	s["dünya alındı"] = Game.won
 	s["sayaçlar"] = [Military._next_id, Military._next_army, Navy._next_id, Air._next_id, Diplomacy._next_id,
 		Military._next_commander, Military._next_group]
 	return s

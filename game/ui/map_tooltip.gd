@@ -17,6 +17,7 @@ var _economy: RichTextLabel
 var _military: RichTextLabel
 var _hint: Label
 var _shown_key := ""               ## aynı ülke/deniz kartı yeniden kurulmasın (fare her kıpırdadığında)
+var order_eta := ""                 ## tümen seçiliyken: bu bölgeye tahmini varış (kartın altında)
 var _shown_ms := 0
 var _reflow_pending := false
 
@@ -93,7 +94,7 @@ func show_province(pid: int, screen_pos: Vector2) -> void:
 	if p == null:
 		visible = false
 		return
-	var key := "p%d" % pid
+	var key := "p%d:%s" % [pid, order_eta]
 	if key == _shown_key and visible and Time.get_ticks_msec() - _shown_ms < 500:
 		_position_card(screen_pos)       # aynı bölge: kart yeniden kurulmaz
 		return
@@ -173,9 +174,13 @@ func _show_land(p: Province) -> void:
 	_military.text = (tr("TIPMAP_DIVISIONS") + ": " + ", ".join(force_parts)) if not force_parts.is_empty() else tr("TIPMAP_NO_DIVISIONS")
 	if owner and owner.tag != World.player_tag:
 		_hint.text = tr("TIPMAP_LAND_HINT") + "\n" + tr("CTRY_HOLD_CTRL")
+		if order_eta != "":
+			_hint.text = order_eta + "\n" + _hint.text
 		_show_sections()
 		return
 	_hint.text = tr("TIPMAP_LAND_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
 
 func _show_water(p: Province) -> void:
@@ -194,6 +199,8 @@ func _show_water(p: Province) -> void:
 	if p.type == Province.Type.SEA:
 		_sea_control(p.id)
 	_hint.text = tr("TIPMAP_WATER_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
 
 ## Deniz hâkimiyeti: bölgede görevli filoların gücüne göre ülke payları (renkli çubuk + satırlar), bizim tarafın payı,
@@ -529,6 +536,45 @@ func show_fleet(f: Fleet, screen_pos: Vector2) -> void:
 	_economy.text = "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)]
 	_military.text = tr("NAVY_IN_COMBAT") if f.in_combat else (tr("NAVY_RETURNING") if f.returning else "")
 	_hint.text = tr("TIPMAP_FLEET_HINT") if f.owner == World.player_tag else ""
+	_show_sections()
+	_position_card(screen_pos)
+
+## Haritada yapı rozetinin üstündeyken: yapının adı, eyaleti, seviyesi, süren inşaatı ve ülkedeki toplamı
+func show_building(sid: int, building: String, screen_pos: Vector2) -> void:
+	_shown_key = ""
+	_clear_extra()
+	var st: StateRegion = World.states[sid]
+	var owner: Country = World.countries.get(st.owner)
+	_flag.texture = FlagFactory.get_flag(owner) if owner else null
+	_title.text = Economy.building_name(building)
+	_subtitle.text = "%s · %s" % [st.display_name(), owner.display_name()] if owner else st.display_name()
+	_political.text = tr("BDESC_" + building)
+	var mx := int((Economy.defs.get(building, {}) as Dictionary).get("max", 0))
+	_facts.text = tr("TIPMAP_BUILD_LEVEL") % [st.building_level(building), mx]
+	var queued := 0
+	var first: ConstructionProject = null
+	if owner:
+		for pr: ConstructionProject in owner.construction_queue:
+			if pr.state_id == sid and pr.building == building:
+				queued += 1
+				if first == null:
+					first = pr
+	_economy.text = ""
+	if first:
+		_economy.text = tr("TIPMAP_BUILD_QUEUE") % [queued, roundi(first.fraction() * 100.0)]
+		if first.days_left() >= 0:
+			_economy.text += tr("TIPMAP_BUILD_DAYS") % first.days_left()
+	_military.text = ""
+	if building == "air_base":
+		var wings := 0
+		for w: AirWing in Air.wings:
+			if w.base == sid:
+				wings += 1
+		if wings > 0:
+			_military.text = tr("TIPMAP_BUILD_WINGS") % wings
+	elif owner:
+		_military.text = tr("TIPMAP_BUILD_TOTAL") % [owner.display_name(), Economy.count(owner, building)]
+	_hint.text = tr("TIPMAP_BUILD_HINT") if st.owner == World.player_tag else ""
 	_show_sections()
 	_position_card(screen_pos)
 

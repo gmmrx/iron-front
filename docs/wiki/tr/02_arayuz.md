@@ -30,7 +30,16 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
 - **Devlet Programı (F)**: tam ekran ağaç. Yeşil = bitti, altın = sürüyor, parlak = seçilebilir, soluk = kilitli,
   kırmızı kesik çizgi = ikisinden biri.
 - **Araştırma (I)**: üstte yuvalar; bütün teknolojiler tek sayfada, yıllara ve kategorilere göre zaman çizelgesinde
-  (önkoşul çizgileri ve "bugün" çizgisiyle).
+  (önkoşul çizgileri ve "bugün" çizgisiyle). Araştırma bitmez: son sütunda (1943+) her dalın sıradaki **iyileştirme**
+  seviyesi durur; dalın bütün teknolojileri bitince açılır. Her seviye bir öncekinden daha uzun sürer (+%15) ve daha az
+  kazandırır (−%15): uzun oyunda dal hep işe yarar ama sınırsız büyümez. Her seviyenin yılı bir öncekinden bir yıl
+  sonradır; erken araştırmak her yıl için yine +%150 süre alır.
+- **Dünya olayları (E)**: dünyada olanlar, en yenisi üstte: savaşlar, ittifaklar, garantiler, teslimler, ilhaklar, barışlar,
+  seçimler, yeni liderler, büyük güçlerin devlet programları — bayrak, metin, tarih ve tür. Süzgeçler: *Komşularım* (sen
+  ve sınır komşuların), *İttifakım*, *Bütün dünya*. Satıra tıklayınca harita oraya gider. Taraf olmadığın bir savaş
+  ilanına ya da ilhaka bir süre (30 / 60 gün; altın satırlar) cevap verebilirsin: seçenekler, bedelleri ve etkileri
+  ipucunda (bkz. [Diplomasi](06_diplomasi.md)). Ekranın ortasındaki haber akışı senin işlerine (ve büyük güçlerin
+  savaşlarına ve ilhaklarına) ayrılır; dünyanın geri kalanı bu menüdedir.
 - **Diplomasi (O)**: ülke listesi, seçili ülkenin ayrıntısı ve eylemleri (kapalı olanların nedeniyle), dünya durumu
   (kriz endeksi, savaşlar, ittifaklar).
 - **Ticaret (R)**: kaynak tablosu, satın alma, anlaşmalar (+/−, iptal), ihracat.
@@ -60,10 +69,16 @@ Harita bir kurmay masasıdır: 3D arazi kalır, üstündeki her şey model yerin
 her zamanki harita ikonları (şehir, liman, hava üssü) görünür; yaklaştıkça her ikon yerden yükselen bir iğneye dönüşür.
 - **Şehir**: şehri elinde tutan ülkenin renginde başlı iğne; şehir büyüdükçe iğne büyür. Adı başın üstündedir.
 - **Tümen, filo, hava kanadı**: sayaç iğnenin bayrağıdır. Her ordunun kendi iğnesi vardır (aynı bölgedeki ordular yan
-  yana durur, ordunun adı sayacının altında yazar).
-- **Yapılar**: eyalet başına bir iğne; ucunda eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane,
-  rafineri, uçaksavar, deniz üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi
-  iğnesi vardır.
+  yana durur, ordunun adı sayacının altında yazar). Yakında ordunun ana sayacının (en çok tümenli olan) üstünde
+  komutanının portresi durur; ordular bir bakışta ayırt edilir. Komutanın resmi yoksa adının baş harfleri görünür.
+- **Yapılar**: eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane, rafineri, uçaksavar, deniz
+  üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi rozeti vardır.
+  Binalar yalnız yakında görünür: yaklaşınca rozetler haritanın üstünde küçük ikon olarak belirir; daha da yaklaşınca
+  tam boya büyür ve iğne altlarından yükselir. Farenin
+  rozetin üstüne gelmesiyle rozet büyür, o yapının sesi duyulur ve kart o yapıyı anlatır (seviye / en çok, süren inşaat,
+  ülkedeki toplamı, hava üssünde konuşlu kanatlar). Rozete tıklamak eyaletini açar (İnşaat açıkken: oraya inşa eder).
+- **Muharebeler**: muharebenin yanında küçük oklar belirip söner: durumu az önce düzelen tarafta yeşil ▲, zemin
+  kaybeden tarafta kırmızı ▼ (saldıranın oku saldırının geldiği yanda).
 - **Uçaklar** tek modeldir: ülke renginde küçük bir uçak, üste park etmiş ya da görevinde uçarken.
 - **Eyalet sınırları** her zoom'da belirgin koyu çizgidir, yakında daha kalın.
 İğneler her zoom'da ekranda aynı boydadır.

@@ -229,3 +229,20 @@ func test_annexed_country_units_removed() -> void:
 	eq(Military.country_divisions("CZE").size(), 0, "ilhak edilen ülkenin tümenleri")
 	check(Navy.fleets.filter(func(f: Fleet) -> bool: return f.owner == "CZE").is_empty(), "ilhak edilen ülkenin filosu kaldı")
 	check(Air.wings.filter(func(w: AirWing) -> bool: return w.owner == "CZE").is_empty(), "ilhak edilen ülkenin hava kanadı kaldı")
+
+## Teslim olan ülke savaş dışı kalır: ittifaktan çıkar, garantileri düşer, mütareke boyunca savaş ilan edemez
+func test_surrendered_country_truce() -> void:
+	var hun: Country = World.countries["HUN"]
+	var rom: Country = World.countries["ROM"]
+	Diplomacy.join_faction("HUN", "GER")
+	check(Diplomacy.are_allies("HUN", "GER"), "Macaristan Almanya'nın müttefiki")
+	hun.guarantees.append("AUS")
+	Diplomacy.capitulate(hun)
+	check(hun.exists(), "toprağı kalan teslim")
+	check(not Diplomacy.are_allies("HUN", "GER"), "teslim olan ittifaktan çıkar")
+	eq(hun.guarantees.size(), 0, "teslim olanın garantileri düşer")
+	hun.war_goals["ROM"] = true
+	eq(Diplomacy.can_declare(hun, rom), "DIPLO_ERR_TRUCE", "mütarekede savaş ilanı yok")
+	check(not Diplomacy.declare_war("HUN", "ROM"), "savaş açılamaz")
+	World.day_count += Diplomacy.TRUCE_DAYS + 1
+	eq(Diplomacy.can_declare(hun, rom), "", "mütareke bitince savaş ilan edilebilir")
