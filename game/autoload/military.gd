@@ -1169,6 +1169,27 @@ func order_move(d: Division, to: int, safe := false, land_only := false) -> bool
 	d.attacking = 0
 	return true
 
+## Tümenin bölgeye tahmini varış süresi (saat; yol yoksa -1): yol boyunca her adımın uzaklığı / o adımdaki hız
+## (arazi, altyapı, mevsim, yakıt, ikmal, organizasyon — hareketle aynı _speed). Muharebe süresi sayılmaz.
+func eta_hours(d: Division, to: int) -> float:
+	if d.training > 0:
+		return -1.0
+	if to == d.province:
+		return 0.0
+	var path := find_path(d.owner, d.province, to)
+	if path.is_empty():
+		return -1.0
+	var h := 0.0
+	var at := d.province
+	for i in path.size():
+		var nxt: int = path[i]
+		var km := World.distance_km(at, nxt)
+		if i == 0 and not d.path.is_empty() and d.path[0] == nxt:
+			km = maxf(km - d.progress, 0.0)          # yoldaki tümen ilerlemesini korur
+		h += km / maxf(_speed(d, nxt), 0.01)
+		at = nxt
+	return h
+
 func stop(d: Division) -> void:
 	d.path = PackedInt32Array()
 	d.attacking = 0

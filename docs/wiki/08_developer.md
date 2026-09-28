@@ -37,7 +37,7 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_land_combat.gd` | Combat multipliers and damage, entrenchment, hold to the last man, retreat, encirclement, supply, army → front |
 | `test_commanders.gd` | Commander rosters, assignment/promotion/new general costs, combat bonus, experience, no automatic assignment for the player, direct orders |
 | `test_navy_air.gd` | Fleet missions/return, naval combat, convoy raiding, wings, air superiority |
-| `test_military.gd` | Training time (conscription law) |
+| `test_military.gd` | Training time (conscription law); the estimated arrival matches the real march |
 | `test_save_load.gd` | 200 days → save → load: every field identical (a differing field is named) |
 | `test_determinism.gd` | Two runs with the same seed give the same world |
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |

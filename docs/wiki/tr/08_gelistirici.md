@@ -36,7 +36,7 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
 | `test_commanders.gd` | Komutan kadroları, atama/terfi/yeni general bedelleri, muharebe katkısı, tecrübe, oyuncuya kendiliğinden atama yok, doğrudan emir |
 | `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
-| `test_military.gd` | Eğitim süresi (askerlik yasası) |
+| `test_military.gd` | Eğitim süresi (askerlik yasası); tahmini varış gerçek yürüyüşle uyuşur |
 | `test_save_load.gd` | 200 gün → kaydet → yükle: tüm alanlar aynı (fark eden alan adıyla yazılır) |
 | `test_determinism.gd` | Aynı tohumla iki koşu aynı dünya |
 | `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |

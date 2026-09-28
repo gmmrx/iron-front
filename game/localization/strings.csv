@@ -54,7 +54,7 @@ UI_CITY,City,Şehir
 TERRAIN_marsh,Marsh,Bataklık
 UI_PORT,port,liman
 GAME_TITLE,IRON FRONT,IRON FRONT
-MENU_SUBTITLE,1936 — 1945  ·  GRAND STRATEGY,1936 — 1945  ·  BÜYÜK STRATEJİ
+MENU_SUBTITLE,FROM 1936  ·  GRAND STRATEGY,1936'DAN İTİBAREN  ·  BÜYÜK STRATEJİ
 MENU_NEW_GAME,New Game,Yeni Oyun
 MENU_CONTINUE,Continue,Devam Et
 MENU_SETTINGS,Settings,Ayarlar
@@ -470,6 +470,8 @@ TIPMAP_BUILD_DAYS," · about %d days"," · yaklaşık %d gün"
 TIPMAP_BUILD_TOTAL,%s in total: %d,%s toplamı: %d
 TIPMAP_BUILD_WINGS,Air wings based here: %d,Burada konuşlu hava kanadı: %d
 "TIPMAP_BUILD_HINT","Left click: open the state · with Construction open: build here","Sol tık: eyaleti aç · İnşaat açıkken: buraya inşa et"
+"ORDER_ETA","Selected divisions: arrival in about %d days (without battles)","Seçili tümenler: yaklaşık %d günde varır (muharebesiz)"
+"ORDER_ETA_NONE","Selected divisions: no route there","Seçili tümenler: oraya yol yok"
 NAVY_ORDER_OK,%s: new orders — %s,%s: yeni emir — %s
 TIPMAP_FLEETS,Fleets,Filolar
 TIPMAP_SEA_CONTROL,Our naval control here: %d%%,Buradaki deniz hâkimiyetimiz: %%%d

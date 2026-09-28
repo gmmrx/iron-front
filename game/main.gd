@@ -658,6 +658,7 @@ func _handle_dev_args() -> void:
 			# test: ekran konumundaki bölgenin kartı --hover_at=x,y
 			var hv3: PackedStringArray = args["hover_at"].split(",")
 			var hp3 := Vector2(float(hv3[0]), float(hv3[1]))
+			hud.tooltip.order_eta = _order_eta(_pick(hp3))      # tümen seçiliyse tahmini varış
 			hud.tooltip.show_province(_pick(hp3), hp3)
 			await get_tree().process_frame
 		if args.has("hover_building"):
@@ -808,6 +809,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		map_view.set_hovered(pid)
 		var hb := pins.pick_building(mm.position) if not _dragging and not _middle_down else {}
 		pins.set_hovered_building(hb)
+		hud.tooltip.order_eta = _order_eta(pid)
 		var hf := fleets.pick(mm.position)
 		var hr := _route_at(mm.position)
 		_country_hover(pid if mm.ctrl_pressed else 0, mm.position)
@@ -874,6 +876,36 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F: hud.toggle_focus()
 			KEY_E: hud.toggle_world()
 			KEY_F5: Game.save_game("hizli_kayit")
+
+var _eta_pid := -1
+var _eta_text := ""
+
+## Seçili tümenlerin imleçteki bölgeye tahmini varışı (kartın altında). Yalnız bölge değişince hesaplanır; en çok 3
+## tümenin yolu aranır, en yavaşı yazılır.
+func _order_eta(pid: int) -> String:
+	var p := World.province(pid)
+	if units.selected.is_empty() or p == null or not p.is_land():
+		_eta_pid = -1
+		return ""
+	if pid == _eta_pid:
+		return _eta_text
+	_eta_pid = pid
+	var worst := -1.0
+	var n := 0
+	for d: Division in units.selected:
+		if d.owner != World.player_tag:
+			continue
+		n += 1
+		if n > 3:
+			break
+		worst = maxf(worst, Military.eta_hours(d, pid))
+	if n == 0:
+		_eta_text = ""
+	elif worst < 0.0:
+		_eta_text = tr("ORDER_ETA_NONE")
+	else:
+		_eta_text = tr("ORDER_ETA") % maxi(1, ceili(worst / 24.0))
+	return _eta_text
 
 ## Yollar modunda imlecin altındaki rota
 func _route_at(screen: Vector2) -> Dictionary:

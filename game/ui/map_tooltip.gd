@@ -17,6 +17,7 @@ var _economy: RichTextLabel
 var _military: RichTextLabel
 var _hint: Label
 var _shown_key := ""               ## aynı ülke/deniz kartı yeniden kurulmasın (fare her kıpırdadığında)
+var order_eta := ""                 ## tümen seçiliyken: bu bölgeye tahmini varış (kartın altında)
 var _shown_ms := 0
 var _reflow_pending := false
 
@@ -93,7 +94,7 @@ func show_province(pid: int, screen_pos: Vector2) -> void:
 	if p == null:
 		visible = false
 		return
-	var key := "p%d" % pid
+	var key := "p%d:%s" % [pid, order_eta]
 	if key == _shown_key and visible and Time.get_ticks_msec() - _shown_ms < 500:
 		_position_card(screen_pos)       # aynı bölge: kart yeniden kurulmaz
 		return
@@ -173,9 +174,13 @@ func _show_land(p: Province) -> void:
 	_military.text = (tr("TIPMAP_DIVISIONS") + ": " + ", ".join(force_parts)) if not force_parts.is_empty() else tr("TIPMAP_NO_DIVISIONS")
 	if owner and owner.tag != World.player_tag:
 		_hint.text = tr("TIPMAP_LAND_HINT") + "\n" + tr("CTRY_HOLD_CTRL")
+		if order_eta != "":
+			_hint.text = order_eta + "\n" + _hint.text
 		_show_sections()
 		return
 	_hint.text = tr("TIPMAP_LAND_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
 
 func _show_water(p: Province) -> void:
