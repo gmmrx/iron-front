@@ -1,7 +1,10 @@
 extends Node
-## Ses: arayüz (çeşitlemeli tık, panel açma/kapama, sekme, anahtar, onay damgası, saat), oyuncunun eylemleri (inşaat,
-## üretim, araştırma, odak, yasa, danışman, ticaret, diplomasi, konuşlandırma), birim seçimi ve emirler (telsiz),
-## uyarılar ve müzik yönetmeni. Muharebe sesleri 3D olarak BattleAudio'da.
+## Ses: harekât masası dünyası (1936–45 karargâhında haritanın başında durmak: pirinç iğne, keçe, kâğıt, deri dosya,
+## daktilo, teleks, telgraf, sahra telefonu). Arayüz (çeşitlemeli şalter, dosya açma/kapama, fihrist, anahtar, damga, saat),
+## oyuncunun eylemleri (inşaat, üretim, araştırma, odak, yasa, danışman, ticaret, diplomasi, konuşlandırma), birim seçimi ve
+## emirler (ahşap sayaç, mantara iğne, hat tıkı), harita yapı rozetleri (üstüne gelince yapının uzaktan imzası),
+## bildirimler (teleks, masa zili, kurye, şaryo, dosya, fabrika düdüğü) ve müzik yönetmeni. Muharebe sesleri 3D olarak
+## BattleAudio'da.
 ## Efektler: tools/make_audio.py (assets/audio/*.wav), müzik: tools/make_music.py (assets/audio/music/*.ogg).
 
 ## ad: [dB, çeşitleme sayısı] — çeşitlemeler ad_1.wav, ad_2.wav... (1 ise tek dosya: ad.wav)
@@ -15,6 +18,10 @@ const SOUNDS := {
 	"select_air": [-9.0, 2],
 	"notify_good": [-11.0, 1], "notify_bad": [-10.0, 1], "event": [-9.0, 1], "research_done": [-10.0, 1],
 	"focus_done": [-9.0, 1], "production_done": [-13.0, 1], "capitulation": [-8.0, 1], "battle_start": [-10.0, 2],
+	# harita yapı rozetleri (üstüne gelince; kısık): iğne dokunuşu + yapının uzaktan imzası
+	"map_civilian_factory": [-17.0, 1], "map_military_factory": [-17.0, 1], "map_synthetic_refinery": [-17.0, 1],
+	"map_dockyard": [-17.0, 1], "map_naval_base": [-17.0, 1], "map_air_base": [-17.0, 1], "map_anti_air": [-17.0, 1],
+	"map_infrastructure": [-17.0, 1],
 }
 ## bildirim ve bitiş sesleri üst üste binmez: kuyruğa girer, biri bitince sıradaki çalar (aynı ses kuyrukta tekrarlanmaz)
 const QUEUED := {"notify_good": true, "notify_bad": true, "event": true, "research_done": true, "focus_done": true,
@@ -26,7 +33,7 @@ const MUSIC := {
 	"menu": ["main_theme"],
 	"peace": ["peace_1", "peace_2", "main_theme"],
 	"tension": ["tension", "peace_2"],
-	"war_world": ["war_world", "tension"],
+	"war_world": ["war_world", "tension", "march"],
 	"war_player": ["war_front", "war_hold"],
 }
 const TENSION_MUSIC := 40.0          ## dünya gerginliği bu değeri geçince gerginlik müziği
@@ -163,7 +170,7 @@ func _play_now(n: String, extra_db: float) -> float:
 	var p := _pool[_next]
 	_next = (_next + 1) % POOL
 	p.stream = arr[randi() % arr.size()]
-	p.volume_db = float(SOUNDS[n][0]) + sfx_db + extra_db + (ui_db if n.begins_with("ui_") else 0.0)
+	p.volume_db = float(SOUNDS[n][0]) + sfx_db + extra_db + (ui_db if n.begins_with("ui_") or n.begins_with("map_") else 0.0)
 	p.pitch_scale = randf_range(0.97, 1.03) if not QUEUED.has(n) else 1.0
 	p.play()
 	return p.stream.get_length()
@@ -174,6 +181,10 @@ func _pump_queue() -> void:
 	var q: Array = _queue.pop_front()
 	var length := _play_now(q[0], q[1])
 	_queue_free_ms = Time.get_ticks_msec() + int((minf(length * 0.7, 1.2) + QUEUE_GAP) * 1000.0)   # yankı kuyruğu beklenmez
+
+## Harita yapı rozetinin üstüne gelindi: yapının sesi (map_<yapı>.wav, aynı ses 250 ms'de bir kez); dosyası yoksa sessiz
+func play_building(kind: String) -> void:
+	play("map_" + kind, 250)
 
 ## Yan panel açıldı / kapandı: aynı karede başka panel açılırsa kapanma sesi çalınmaz (panel değiştirme tek ses)
 func panel(opened: bool) -> void:

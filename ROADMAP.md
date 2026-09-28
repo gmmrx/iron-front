@@ -10,7 +10,7 @@ Goal: **AAA visuals even at the closest zoom, 60 FPS**, deep gameplay with its o
 Language: the game and the documentation are in **English first**; Turkish is complete and chosen in Settings → Language.
 
 Status: ✔ done · ◐ basic version exists, to be deepened · ☐ not done
-Last update: **27 September 2026**
+Last update: **28 September 2026**
 
 > ### ⚠ READ FIRST — ORIGINALITY AND INTELLECTUAL PROPERTY (for all agents)
 > The first versions of the game were modelled on the best-known commercial game of the genre; the names, number tables,
@@ -495,16 +495,25 @@ The backbone of the economy and of war: supply, movement speed, industry and res
 ## PART E — SOUND (Phase 14) ✔
 - [x] Procedural synthesis engine (`tools/audio_synth.py`): wavetable strings/brass/winds, piano, percussion, hall
       reverb, mastering
-- [x] Dynamic music (`tools/make_music.py`, 7 tracks ~16 min, OGG): menu theme, peace (2), tension, distant war, the
-      player's war (2); crossfades, no-repeat order; the main theme on the web loading screen (with an on/off button)
+- [x] Dynamic music (`tools/make_music.py`, 8 tracks ~19 min, OGG): a mode-independent menu theme (solemn, 3 min,
+      loopable; also the web loading screen, with an on/off button), a march (distant war), peace (2), tension, distant
+      war, the player's war (2); crossfades, no-repeat order
 - [x] Event music: the player's war (siren + tutti) differs from war in the world; victory, defeat, peace; the music ducks
       while they play
-- [x] A sound for every action (`tools/make_audio.py`, 51 effects, with variants): click/panel/tab/toggle/confirm stamp,
-      speed and pause, construction, production lines, research, programs, trade, diplomacy, deployment, radio unit orders
-- [x] Notification and completion sounds soft and distinct; they never overlap, they play in turn (queue)
+- [x] Map-room sound world (`tools/make_audio.py`, 59 effects, with variants): everything is heard from the 1936–45
+      headquarters map table (brass pin on felt, paper, leather dossier, typewriter, teleprinter, telegraph, field
+      telephone); the war itself only from far away, through a line or a closed window. Interface: bakelite switch,
+      dossier, index tab, rubber stamp, brass lever, clock gear. Unit counters: wooden counter, slide across the paper
+      map, pin into cork, line click and wordless murmur; attack: red pin and stamp with a distant rumble
+- [x] Building badges on the map: hovering a badge plays the pin touch and the building's distant signature (factory
+      whistle and belt clatter, steel press, steam and pipe, riveting and chains, ship's horn and wave, radial engine,
+      anti-aircraft thumps, locomotive)
+- [x] Notifications and completions in the same world (teleprinter and desk bell, stuttering teleprinter and muted alarm
+      bell, courier envelope torn open, carriage return and stamp, dossier closed onto the stack, distant factory
+      whistle); no modern notification tones; they never overlap, they play in turn (queue)
 - [x] Combat ambience (3D, close zoom: rifles, machine guns, artillery, tanks, aircraft, naval guns)
 - [x] Settings: master, music, effects and interface volume; music choice (automatic or any track on repeat)
-- [ ] Alliance and peace conference sounds; audio buses and compression
+- [ ] Alliance and peace conference sounds; a battle turning for/against us on the map; audio buses and compression
 
 ---
 

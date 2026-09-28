@@ -517,10 +517,18 @@ def write_ogg(path: Path, st: np.ndarray, quality: float = 0.45):
 
 def write_mp3(path: Path, st: np.ndarray, kbps: int = 112):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory() as d:
-        w = Path(d) / "x.wav"
-        write_wav(w, st)
-        subprocess.run(["lame", "--quiet", "-b", str(kbps), str(w), str(path)], check=True)
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            w = Path(d) / "x.wav"
+            write_wav(w, st)
+            subprocess.run(["lame", "--quiet", "-b", str(kbps), str(w), str(path)], check=True)
+    except FileNotFoundError:
+        # lame kurulu değilse libsndfile'ın MP3 kodlayıcısı (soundfile >= 0.12, libsndfile >= 1.1)
+        import soundfile as sf
+        data = np.ascontiguousarray(st.T.astype(np.float32))
+        with sf.SoundFile(str(path), "w", SR, data.shape[1], format="MP3", subtype="MPEG_LAYER_III") as f:
+            for i in range(0, len(data), 4096):
+                f.write(data[i:i + 4096])
 
 
 def write_wav(path: Path, x: np.ndarray, peak: float | None = None):

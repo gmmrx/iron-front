@@ -6,7 +6,7 @@ extends Control
 
 signal closed
 
-const TRACKS := ["main_theme", "peace_1", "peace_2", "tension", "war_world", "war_front", "war_hold"]
+const TRACKS := ["main_theme", "march", "peace_1", "peace_2", "tension", "war_world", "war_front", "war_hold"]
 
 var _music_box: VBoxContainer
 
