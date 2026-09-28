@@ -10,7 +10,7 @@ Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özg�
 Dil: oyun ve belgeler **önce İngilizce**; Türkçe eksiksiz, Ayarlar → Dil'den seçilir.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **27 Eylül 2026**
+Son güncelleme: **28 Eylül 2026**
 
 > ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
 > Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
@@ -481,15 +481,24 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 
 ## BÖLÜM E — SES (Faz 14) ✔
 - [x] Prosedürel sentez motoru (`tools/audio_synth.py`): dalga tablolu yaylı/bakır/üflemeli, piyano, vurmalılar, salon yankısı, mastering
-- [x] Dinamik müzik (`tools/make_music.py`, 7 parça ~16 dk, OGG): menü teması, barış (2), gerginlik, uzak savaş, oyuncunun savaşı (2);
-      çapraz kararma, tekrarsız sıra; web yükleme ekranında ana tema (açma/kapama düğmeli)
+- [x] Dinamik müzik (`tools/make_music.py`, 8 parça ~19 dk, OGG): mod bağımsız menü teması (vakur, 3 dk, döngüye uygun;
+      web yükleme ekranında da, açma/kapama düğmeli), marş (uzak savaş), barış (2), gerginlik, uzak savaş, oyuncunun
+      savaşı (2); çapraz kararma, tekrarsız sıra
 - [x] Olay müzikleri: oyuncunun savaşı (siren + tutti) ile dünyada savaş farklı; zafer, yenilgi, barış; çalarken müzik kısılır
-- [x] Her eylem için ses (`tools/make_audio.py`, 51 efekt, çeşitlemeli): tık/panel/sekme/anahtar/onay damgası, hız ve duraklatma,
-      inşaat, üretim hattı, araştırma, odak, ticaret, diplomasi, konuşlandırma, telsizli birlik emirleri
-- [x] Bildirim ve bitiş sesleri yumuşak ve kendine özgü; üst üste binmez, sırayla çalar (kuyruk)
+- [x] Harekât masası ses dünyası (`tools/make_audio.py`, 59 efekt, çeşitlemeli): her şey 1936–45 karargâhındaki harita
+      masasından duyulur (keçede pirinç iğne, kâğıt, deri dosya, daktilo, teleks, telgraf, sahra telefonu); savaşın kendisi
+      yalnız uzaktan, bir hattın ya da kapalı pencerenin ardından. Arayüz: bakalit şalter, dosya, fihrist, lastik damga,
+      pirinç kol, saat dişlisi. Birim sayaçları: ahşap sayaç, kâğıt haritada kaydırma, mantara iğne, hat tıkı ve sözsüz
+      mırıltı; taarruz: kırmızı iğne ve damga, altında uzak gürleme
+- [x] Haritadaki yapı rozetleri: rozetin üstüne gelince iğne dokunuşu ve yapının uzaktan imzası (fabrika düdüğü ve kayış
+      takırtısı, çelik pres, buhar ve boru, perçin ve zincir, gemi borusu ve dalga, yıldız motor, uçaksavar vuruşu,
+      lokomotif)
+- [x] Bildirim ve bitiş sesleri aynı dünyadan (teleks ve masa zili, takılan teleks ve boğuk alarm zili, yırtılan kurye
+      zarfı, şaryo ve damga, yığına konan dosya, uzak fabrika düdüğü); modern bildirim tonu yok; üst üste binmez, sırayla
+      çalar (kuyruk)
 - [x] Muharebe ambiyansı (3D, yakın zoom: tüfek, makineli, top, tank, uçak, gemi topu)
 - [x] Ayarlar: ana ses, müzik, efekt ve arayüz sesi düzeyi; müzik seçimi (otomatik ya da istenen parça sürekli)
-- [ ] İttifak ve barış konferansı sesleri; ses kanalları (bus) ve sıkıştırma
+- [ ] İttifak ve barış konferansı sesleri; haritada muharebenin lehe/aleyhe dönmesi; ses kanalları (bus) ve sıkıştırma
 
 ---
 

@@ -16,3 +16,6 @@ docs/cloud/
 docs/ORIGINALITY.md
 docs/OZGUNLUK.md
 qa_icon_*
+
+# Python derleme önbelleği
+__pycache__/

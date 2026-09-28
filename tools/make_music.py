@@ -2,7 +2,8 @@
 """Iron Front müzikleri (prosedürel orkestra) -> assets/audio/music/*.ogg (+ web yükleme ekranı için tools/web/loading_theme.mp3)
 
 Parçalar oyun durumuna göre çalar (game/autoload/audio.gd):
-  main_theme     menü ve yükleme ekranı (Re minör, ağır marş)
+  main_theme     menü ve yükleme ekranı (Sol minör, ağır ve vakur; mod bağımsız: 2. Dünya Savaşı'na özgü marş değil)
+  march          dünyada savaş (Re minör ağır marş; eski ana tema)
   peace_1/2      barış (Fa majör pastoral / Si bemol majör hafif)
   tension        gerginlik (Do minör, saat tıkırtısı, alçak yaylı ostinato)
   war_world      dünyada savaş var, oyuncu savaşta değil (Sol minör askerî marş)
@@ -197,8 +198,88 @@ def bars_of(chords_per_bar: str) -> list[str]:
 
 # ====================================================================== parçalar
 def main_theme() -> np.ndarray:
-    """Re minör, 72 BPM: korno çağrısı → ana tema (korno + viyola) → yaylılarda tekrar → Fa majör marş (trompet,
-    trampet) → tutti doruk → çağrının yankısı ile kapanış."""
+    """Ana tema (menü ve yükleme ekranı; mod bağımsız): Sol minör, 60 BPM, ~3 dk. Gece yarısı harekât masası: alçak
+    yaylı pedal, uzak trampet, korno çağrısı → ağır tema (korno + çello) → yaylılarda oktav yukarı, alçak bakır karşı ses →
+    Si bemol majör asil bölüm (trompet + yaylı) → tutti doruk → çağrının yankısı ve tek çan ile kapanış. Başı ve sonu aynı
+    pedalda: döngüye uygun (web yükleme ekranı)."""
+    s = Song(60, 45)
+    A = bars_of("Gm Eb Cm D Bb Cm D Gm")
+    melA = ("G4:1.5 A4:.5 Bb4:1 D5:1 C5:2 Bb4:1 A4:1 G4:1.5 F4:.5 Eb4:1 G4:1 D4:4 "
+            "Bb4:1.5 C5:.5 D5:1 F5:1 Eb5:2 D5:1 C5:1 Bb4:1 A4:1 G4:1 F#4:1 G4:4")
+    call = "D4:1 G4:2 Bb4:1 A4:3 r:1 D4:1 G4:2 Bb4:1 A4:4"
+    # --- giriş (0–5): pedal, uzak trampet, korno çağrısı, koro
+    s.bass(0, ["Gm"] * 6, "basses", octave=1, vel=0.42)
+    s.pad(0, ["Gm", "Gm", "Gm", "Gm", "Gm", "Gm"], "cellos", 43, 58, 3, vel=0.26)
+    s.timp_roll(1, 0, 43, 6, 0.03, 0.35)
+    s.drums(2, 4, "x...............", "snare", vel=0.12)
+    s.melody(2, call, "horns", vel=0.5)
+    s.pad(4, ["Gm", "D"], "choir", 55, 67, 3, vel=0.2)
+    # --- A (6–13): tema kornoda, çello bir oktav altta
+    s.pad(6, A, "violins2", 55, 72, 4, vel=0.32)
+    s.bass(6, A, "basses", octave=1, vel=0.45)
+    s.bass(6, A, "cellos", octave=2, vel=0.35, rhythm=((0, 2), (2, 2)))
+    s.melody(6, melA, "horns", vel=0.62)
+    s.melody(6, melA, "cellos", vel=0.3, octave=-1)
+    s.drums(6, 8, "x.......x.......", "snare", vel=0.14)
+    for b in (6, 10):
+        s.timp(b, 0, 43, 0.4)
+    # --- A' (14–21): kemanlarda oktav yukarı, trombon karşı sesi, koro
+    s.pad(14, A, "violas", 52, 67, 4, vel=0.38)
+    s.pad(14, A, "choir", 55, 70, 3, vel=0.22)
+    s.bass(14, A, "basses", octave=1, vel=0.5, rhythm=((0, 2), (2, 2)), fifth=True)
+    s.bass(14, A, "cellos", octave=2, vel=0.4, rhythm=((0, 1), (1, 1), (2, 1), (3, 1)))
+    s.melody(14, melA, "violins", vel=0.58, octave=1)
+    s.melody(14, "r:4 G3:4 Eb4:4 D4:4 F4:4 Eb4:2 D4:2 D4:4 G3:4", "trombones", vel=0.4)
+    s.drums(14, 8, "x.......x...x...", "snare", vel=0.2)
+    for b in range(14, 22, 2):
+        s.timp(b, 0, 43 if b % 4 == 2 else 38, 0.45)
+    s.timp_roll(21, 2, 41, 2, 0.1, 0.7)
+    # --- B (22–29): Si bemol majör, asil ama ölçülü (trompet + keman)
+    B = bars_of("Bb Bb Eb F F Gm Eb D")
+    melB = ("F4:1 Bb4:1 D5:1.5 C5:.5 Bb4:2 F4:2 G4:1 Bb4:1 Eb5:1.5 D5:.5 C5:3 Bb4:1 "
+            "A4:1 C5:1 F5:1.5 Eb5:.5 D5:2 Bb4:1 G4:1 F5:1 Eb5:1 D5:1 C5:1 D5:4")
+    s.pad(22, B, "violins2", 57, 76, 4, vel=0.4)
+    s.pad(22, B, "horns", 50, 65, 3, vel=0.3)
+    s.bass(22, B, "basses", octave=1, vel=0.5, rhythm=((0, 2), (2, 2)), fifth=True)
+    s.bass(22, B, "tuba", octave=2, vel=0.35)
+    s.melody(22, melB, "trumpets", vel=0.5)
+    s.melody(22, melB, "violins", vel=0.45)
+    s.drums(22, 8, "x...x...x...x...", "snare", vel=0.18)
+    s.drums(22, 8, "x.......x.......", "bassdrum", vel=0.25)
+    for b in range(22, 30):
+        s.timp(b, 0, 46 if b % 2 == 0 else 41, 0.4)
+    s.snare_roll(29, 0, 4, 0.1, 0.8)
+    s.timp_roll(29, 0, 38, 4, 0.1, 0.9)
+    # --- A'' tutti (30–37)
+    s.crash(30, 0, 0.6)
+    s.pad(30, A, "violins2", 57, 77, 4, vel=0.48)
+    s.pad(30, A, "trombones", 45, 62, 3, vel=0.42)
+    s.pad(30, A, "choir", 55, 70, 4, vel=0.35)
+    s.bass(30, A, "basses", octave=1, vel=0.62, rhythm=((0, 2), (2, 2)), fifth=True)
+    s.bass(30, A, "tuba", octave=2, vel=0.45, rhythm=((0, 2), (2, 2)))
+    s.melody(30, melA, "horns", vel=0.85)
+    s.melody(30, melA, "trumpets", vel=0.5, octave=1)
+    s.melody(30, melA, "violins", vel=0.6, octave=1)
+    for b in range(30, 38):
+        s.timp(b, 0, 43 if b % 2 == 0 else 38, 0.6)
+        s.timp(b, 2, 43, 0.3)
+    s.drums(30, 8, "X...x...X...x.x.", "snare", vel=0.32)
+    s.drums(30, 8, "X.......X.......", "bassdrum", vel=0.35)
+    # --- kapanış (38–44): çağrının yankısı, tek çan, pedal (başa döner)
+    coda = ["Gm", "Eb", "Cm", "D", "Gm", "Gm", "Gm"]
+    s.pad(38, coda, "violins2", 55, 72, 4, vel=0.34)
+    s.bass(38, coda, "basses", octave=1, vel=0.42)
+    s.bass(38, coda, "cellos", octave=2, vel=0.3)
+    s.melody(39, "D4:1 G4:2 Bb4:1 A4:3 r:1 D4:1 G4:2 Bb4:1 A4:2 G4:6", "horns", vel=0.5)
+    s.put("bells", s.t(42, 0), bell(43, 0.45, 6.0, 0.6), 1.0)
+    s.drums(40, 4, "x...............", "snare", vel=0.1)
+    s.timp_roll(42, 0, 43, 8, 0.4, 0.03)
+    return s.render(2.8)
+
+
+def march() -> np.ndarray:
+    """Re minör, 72 BPM (eski ana tema; dünyada savaş listesinde): korno çağrısı → ana tema (korno + viyola) → yaylılarda
+    tekrar → Fa majör marş (trompet, trampet) → tutti doruk → çağrının yankısı ile kapanış."""
     s = Song(72, 54)
     # --- giriş (0–5)
     s.bass(0, ["Dm"] * 6, "basses", octave=1, vel=0.5)
@@ -621,7 +702,7 @@ def stinger_peace() -> np.ndarray:
 
 
 TRACKS = {
-    "main_theme": main_theme, "peace_1": peace_1, "peace_2": peace_2, "tension": tension, "war_world": war_world,
+    "main_theme": main_theme, "march": march, "peace_1": peace_1, "peace_2": peace_2, "tension": tension, "war_world": war_world,
     "war_front": war_front, "war_hold": war_hold, "stinger_war_player": stinger_war_player,
     "stinger_war_world": stinger_war_world, "stinger_victory": stinger_victory, "stinger_defeat": stinger_defeat,
     "stinger_peace": stinger_peace,
