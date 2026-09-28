@@ -233,3 +233,71 @@ func test_fleet_rehome_and_wait() -> void:
 	check(Navy.is_friendly_port("GER", f.home), "yeni üs dost liman")
 	check(not f.path.is_empty() or f.location == f.home, "yeni üsse yola çıkar")
 	check(not Navy._rehome_wait.has(f.id), "gidilebilen liman bulununca bekleme yok")
+
+## Hava çatışması: görev bölgeleri örtüşen düşman kanatları uçak kaybeder; uzaktaki, düşmansız kanat kaybetmez
+func test_air_combat_overlapping_zones() -> void:
+	_war("GER", "POL")
+	var ger := country("GER")
+	var pol := country("POL")
+	for c: Country in [ger, pol]:
+		c.stockpile[Air.TYPES["fighter"]["eq"]] = 1000.0
+	var gb := Air.bases_of("GER")
+	var pb := Air.bases_of("POL")
+	if not check(not gb.is_empty() and not pb.is_empty(), "iki tarafın hava üssü"):
+		return
+	var front := World.capital_province("POL")
+	var wg: AirWing = Air.deploy(ger, "fighter", gb[0])
+	var wp: AirWing = Air.deploy(pol, "fighter", pb[0])
+	# Almanya'nın en uzak üssünden kendi batısına: düşman yok
+	var far_base := gb[gb.size() - 1]
+	var wf: AirWing = Air.deploy(ger, "fighter", far_base)
+	var ok := Air.set_mission(wg, AirWing.Mission.SUPERIORITY, front) and Air.set_mission(wp, AirWing.Mission.SUPERIORITY, front)
+	if not check(ok, "iki kanat da cepheye görev alır"):
+		return
+	Air.set_mission(wf, AirWing.Mission.SUPERIORITY, World.province(World.capital_province("GER")).id)
+	var far_from_front := Air.distance_km(World.province(wf.zone).center, World.province(front).center) > Air.ZONE_KM * 1.6
+	var g0 := wg.planes
+	var p0 := wp.planes
+	var f0 := wf.planes
+	for i in 10:
+		Air._air_combat()
+	lt(float(wg.planes), float(g0), "Alman kanadı uçak kaybeder")
+	lt(float(wp.planes), float(p0), "Polonya kanadı uçak kaybeder")
+	if far_from_front:
+		eq(wf.planes, f0, "uzaktaki düşmansız kanat kaybetmez")
+	check(Air.fights.has(front), "cephede hava çatışması işareti")
+
+## Uzun oyunda yapay zekânın filo ve kanat sayısı sınırlı: tavandan sonra gemiler en zayıf filoya katılır, uçaklar
+## stokta kalır
+func test_ai_fleet_and_wing_caps() -> void:
+	GameClock.year = 1946                     # tavanlar tarihî akıştan sonra geçerli
+	var eng := country("ENG")
+	var port: int = Navy._main_port("ENG")
+	if not check(port > 0, "İngiltere'nin ana limanı"):
+		return
+	var surface := 0
+	for f in Navy.fleets_of("ENG"):
+		if not f.reserve and not f.is_sub_fleet():
+			surface += 1
+	while surface < Navy.MAX_FLEETS_MAJOR[0]:
+		Navy._create("ENG", {"destroyer": 4}, port, "t%d" % surface)
+		surface += 1
+	var r: Fleet = Navy._create("ENG", {"destroyer": 14}, port, "yedek")
+	r.reserve = true
+	var before := Navy.fleets.size()
+	var ships_before := 0
+	for f in Navy.fleets_of("ENG"):
+		ships_before += f.total()
+	Navy._promote_reserves(eng)
+	eq(Navy.fleets.size(), before - 1, "tavanda yedek yeni filo olmaz, en zayıf filoya katılır")
+	var ships_after := 0
+	for f in Navy.fleets_of("ENG"):
+		ships_after += f.total()
+	eq(ships_after, ships_before, "gemiler kaybolmaz")
+	# kanatlar
+	var eq_name: String = Air.TYPES["fighter"]["eq"]
+	var have := Air.wings_of("ENG").size()
+	eng.stockpile[eq_name] = float((Air.MAX_WINGS_MAJOR - have + 3) * Air.WING_SIZE)
+	Air._absorb(eng)
+	eq(Air.wings_of("ENG").size(), Air.MAX_WINGS_MAJOR, "kanat sayısı tavanda durur")
+	gt(float(eng.stockpile.get(eq_name, 0.0)), float(Air.WING_SIZE * 2), "fazla uçak stokta kalır")

@@ -620,6 +620,11 @@ Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
       multiplied: navy missions 12 → 22 → 37 → 51 s per game year in 1941–44) → a per-hour location index and a zone
       scan (1944: 7 s); naval control rebuilt every 6 hours (transports 22 → 8 s up to 1942); a stranded fleet looks
       for a port once a day. 1936–44 headless: 560 → 436 s
+- [x] Air combat compared every wing on a mission with every other wing each day (quadratic): wings are summed per mission
+      zone and nearby zone pairs measured once, the same result. After the historical flow the AI's fleets and air
+      wings are capped (great power 24 surface + 8 submarine fleets and 40 wings, others 6 + 2 and 12; extra ships
+      make fleets bigger, extra planes stay in stock) — they grew by ~60 fleets and ~55 wings a year without end.
+      Not applied before 2 Sep 1945: in 1940–41 the cap merged British fleets and delayed the fall of France
 - [x] AI/supply/statistics caches; tree shadows off; FXAA instead of MSAA; half-resolution SSAO
 - [ ] Batched drawing of counters and labels in one draw call (currently ~2,600 draw calls)
 - [ ] LOD: city model → icon at far zoom

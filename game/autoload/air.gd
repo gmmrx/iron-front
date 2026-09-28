@@ -7,6 +7,10 @@ signal wings_changed
 signal air_fights_changed
 
 const ZONE_KM := 350.0
+## Yapay zekâ ülkesinin en çok hava kanadı (tavandan sonra yeni uçaklar stokta kalır, kayıpları doldurur). Tarihî akıştan
+## sonra (AI.follows_history bitince) geçerli: uzun oyunda kanat sayısı onlarca yılda sınırsız artıyordu.
+const MAX_WINGS_MAJOR := 40
+const MAX_WINGS_MINOR := 12
 const WING_SIZE := 100
 ## air: hava saldırısı, def: hava savunması, ground: kara desteği, range: km
 const TYPES := {
@@ -135,14 +139,25 @@ func _absorb(c: Country) -> void:
 		if base == 0:
 			continue
 		c.stockpile[eq] = float(c.stockpile.get(eq, 0.0)) - n
+		var count := 0
 		for w in wings:
+			if w.owner == c.tag:
+				count += 1
 			if n <= 0:
-				break
+				continue
 			if w.owner == c.tag and w.type == t and w.planes < WING_SIZE:
 				var add := mini(n, WING_SIZE - w.planes)
 				w.planes += add
 				n -= add
+		# kanat tavanı: fazla uçak stokta kalır, kayıpları doldurur (kanat sayısı onlarca yılda sınırsız artıyordu)
+		var cap := MAX_WINGS_MAJOR if c.is_major() else MAX_WINGS_MINOR
+		if AI.follows_history():
+			cap = 1 << 30                  # tarihî akış ayarlandığı gibi kalır; tavan uzun oyun için
 		while n > 0:
+			if count >= cap:
+				c.stockpile[eq] = float(c.stockpile.get(eq, 0.0)) + n
+				break
+			count += 1
 			var w := AirWing.new()
 			w.id = _next_id
 			_next_id += 1
@@ -319,19 +334,45 @@ func _air_combat() -> void:
 		if w.on_mission():
 			active.append(w)
 	var loss := {}
+	# bölge toplamları: kanatlar görev bölgesine göre toplanır, yakın bölge çiftleri bir kez ölçülür (her kanadı her
+	# kanatla karşılaştırmak kanatlar çoğaldıkça karesel büyüyordu). Sonuç aynı: kanat kendisi sayılmaz.
+	var by_zone := {}                        # bölge -> {sahip: [hava gücü, kalkan (avcı savunması)]}
+	for o in active:
+		if not by_zone.has(o.zone):
+			by_zone[o.zone] = {}
+		var z: Dictionary = by_zone[o.zone]
+		if not z.has(o.owner):
+			z[o.owner] = [0.0, 0.0]
+		var agg: Array = z[o.owner]
+		agg[0] = float(agg[0]) + o.planes * float(TYPES[o.type]["air"]) * (1.0 if o.mission == AirWing.Mission.SUPERIORITY else 0.3)
+		if o.type == "fighter":
+			agg[1] = float(agg[1]) + o.planes * float(TYPES[o.type]["def"])
+	var zones: Array = by_zone.keys()
+	var near := {}                           # bölge -> {sahip: [hava gücü, kalkan]} (menzildeki bütün bölgeler)
+	for za: int in zones:
+		var ca := World.province(za).center
+		var sum := {}
+		for zb: int in zones:
+			if za != zb and distance_km(World.province(zb).center, ca) > ZONE_KM * 1.6:
+				continue
+			for t: String in by_zone[zb]:
+				if not sum.has(t):
+					sum[t] = [0.0, 0.0]
+				sum[t][0] = float(sum[t][0]) + float(by_zone[zb][t][0])
+				sum[t][1] = float(sum[t][1]) + float(by_zone[zb][t][1])
+		near[za] = sum
 	for w in active:
 		var wz := World.province(w.zone).center
 		var enemy_air := 0.0
 		var own_cover := 0.0
-		for o in active:
-			if o == w or distance_km(World.province(o.zone).center, wz) > ZONE_KM * 1.6:
-				continue
-			var oa := o.planes * float(TYPES[o.type]["air"]) * (1.0 if o.mission == AirWing.Mission.SUPERIORITY else 0.3)
-			if Diplomacy.are_enemies(o.owner, w.owner):
-				enemy_air += oa
-			elif o.owner == w.owner or Diplomacy.are_allies(o.owner, w.owner):
-				if o.type == "fighter":
-					own_cover += o.planes * float(TYPES[o.type]["def"])
+		var sum: Dictionary = near[w.zone]
+		for t: String in sum:
+			if Diplomacy.are_enemies(t, w.owner):
+				enemy_air += float(sum[t][0])
+			elif t == w.owner or Diplomacy.are_allies(t, w.owner):
+				own_cover += float(sum[t][1])
+		if w.type == "fighter":
+			own_cover -= w.planes * float(TYPES[w.type]["def"])      # kendisi sayılmaz
 		var d := 0.0
 		if enemy_air > 0.0:
 			var defense := w.planes * float(TYPES[w.type]["def"]) + (own_cover if w.type != "fighter" else 0.0) * 0.5

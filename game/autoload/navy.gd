@@ -873,6 +873,11 @@ func _absorb_new_ships() -> void:
 			target.ships[t] = int(target.ships.get(t, 0)) + n
 			_dirty = true
 
+## Yapay zekâ ülkesinin en çok filosu [su üstü, denizaltı], tarihî akıştan sonra: uzun oyunda filo sayısı sınırsız
+## artıyordu (fazla gemiler artık filoları büyütür). 1942 ortasında en kalabalığı İngiltere'ydi (29, yedekler dahil).
+const MAX_FLEETS_MAJOR := [24, 8]
+const MAX_FLEETS_MINOR := [6, 2]
+
 ## Yedek filo yeterince büyüyünce: filo sayısı azsa yeni filo olur, yoksa en zayıf filoya katılır
 func _promote_reserves(c: Country) -> void:
 	for r in fleets_of(c.tag):
@@ -882,9 +887,14 @@ func _promote_reserves(c: Country) -> void:
 		for f in fleets_of(c.tag):
 			if not f.reserve and f.is_sub_fleet() == r.is_sub_fleet():
 				same.append(f)
-		# büyük güçler 6 filoya kadar; 12+ gemilik yedek beklemeden filo olur (limanda çürümesin)
+		# büyük güçler 6 filoya kadar; 12+ gemilik yedek beklemeden filo olur (limanda çürümesin) — ama en çok
+		# MAX_FLEETS_* kadar: sonra gemiler en zayıf filoya katılır (filo sayısı onlarca yılda sınırsız artıyordu)
 		var cap := (6 if c.is_major() else 3) + (1 if r.is_sub_fleet() else 0)
-		if same.size() < cap or r.total() >= 12:
+		var hard: int = (MAX_FLEETS_MAJOR if c.is_major() else MAX_FLEETS_MINOR)[1 if r.is_sub_fleet() else 0]
+		if AI.follows_history():
+			hard = 1 << 30                 # tarihî akış ayarlandığı gibi kalır (tavanla 1940–41'de İngiliz filoları
+			                               # birleşiyor, Fransa'nın düşüşü gecikebiliyordu)
+		if same.size() < cap or (r.total() >= 12 and same.size() < hard):
 			r.reserve = false
 			r.name = tr("SUB_FLEET_NAME" if r.is_sub_fleet() else "FLEET_NAME") % (same.size() + 1)
 			_dirty = true
@@ -897,6 +907,7 @@ func _promote_reserves(c: Country) -> void:
 			for t: String in r.ships:
 				weakest.ships[t] = int(weakest.ships.get(t, 0)) + int(r.ships[t])
 			r.ships.clear()
+			fleets.erase(r)                  # katıldı: yok edilmedi (temizlikte "filo yok edildi" bildirimi çıkmasın)
 			_dirty = true
 		elif r.mission != Fleet.Mission.PORT or r.home != weakest.home:
 			rebase(r, weakest.home)

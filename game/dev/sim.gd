@@ -65,7 +65,7 @@ func _init() -> void:
 			prof_last = cur.duplicate()
 		if day % 180 == 0:
 			var n: int = mil.divisions.size()
-			print("[%d-%02d] tümen=%d savaş=%d gerginlik=%.0f  (%.1f sn, bellek %.0f MB)" % [clock.year, clock.month, n, dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0, OS.get_static_memory_usage() / 1048576.0])
+			print("[%d-%02d] tümen=%d filo=%d kanat=%d savaş=%d gerginlik=%.0f  (%.1f sn, bellek %.0f MB)" % [clock.year, clock.month, n, root.get_node("Navy").fleets.size(), root.get_node("Air").wings.size(), dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0, OS.get_static_memory_usage() / 1048576.0])
 	print("--- sonuç ---")
 	var rows := []
 	for c in W.countries.values():
@@ -85,6 +85,29 @@ func _init() -> void:
 		for cat: String in research.categories:
 			top_rep = maxi(top_rep, research.repeat_level(c, cat))
 	print("dünya olayları kaydı %d, tanımlı teknoloji %d, en yüksek iyileştirme seviyesi %d" % [W.world_log.size(), research.techs.size(), top_rep])
+	var navy = root.get_node("Navy")
+	var air = root.get_node("Air")
+	var ships := 0
+	for f in navy.fleets:
+		ships += f.total()
+	var planes := 0
+	for w in air.wings:
+		planes += w.planes
+	print("filo %d (gemi %d), hava kanadı %d (uçak %d), tümen %d" % [navy.fleets.size(), ships, air.wings.size(), planes, mil.divisions.size()])
+	var per := {}                            # ülke -> [filo (yedek hariç), kanat]
+	for f in navy.fleets:
+		if not f.reserve:
+			if not per.has(f.owner): per[f.owner] = [0, 0]
+			per[f.owner][0] += 1
+	for w in air.wings:
+		if not per.has(w.owner): per[w.owner] = [0, 0]
+		per[w.owner][1] += 1
+	var top: Array = per.keys()
+	top.sort_custom(func(a, b): return per[a][0] + per[a][1] > per[b][0] + per[b][1])
+	var line := ""
+	for t in top.slice(0, 10):
+		line += "%s f%d k%d  " % [t, per[t][0], per[t][1]]
+	print("ülke başına filo/kanat: ", line)
 	var game = root.get_node("Game")
 	if game.save_game("_uzun_kosu"):
 		var path: String = game.SAVE_DIR + "_uzun_kosu.json"
