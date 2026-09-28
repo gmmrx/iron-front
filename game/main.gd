@@ -733,7 +733,7 @@ func _process(delta: float) -> void:
 			pins.set_hovered_building({})
 		if not units.preview_paths.is_empty():
 			units.preview_paths = []
-			_eta_pid = -1
+			_eta_sig = ""
 	if _ctrl_country != "" and (hud.is_mouse_over_ui() or not Input.is_key_pressed(KEY_CTRL)):
 		_country_hover(0, Vector2.ZERO)        # Ctrl bırakıldı (pencere dışında da) ya da imleç arayüzde: vurgu kalkar
 		map_view.set_hovered(0)
@@ -880,20 +880,32 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_E: hud.toggle_world()
 			KEY_F5: Game.save_game("hizli_kayit")
 
-var _eta_pid := -1
+var _eta_sig := ""
 var _eta_text := ""
 
-## Seçili tümenlerin imleçteki bölgeye tahmini varışı (kartın altında). Yalnız bölge değişince hesaplanır; en çok 3
-## tümenin yolu aranır, en yavaşı yazılır.
+## Seçili birliklerin imleçteki bölgeye tahmini varışı (kartın altında) ve tümenlerin yol önizlemesi. Bölge ya da seçim
+## değişince hesaplanır; en çok 3 tümenin yolu aranır, en yavaşı yazılır. Filo seçiliyse sağ tık hedefine varışı.
 func _order_eta(pid: int) -> String:
 	var p := World.province(pid)
-	if units.selected.is_empty() or p == null or not p.is_land():
-		_eta_pid = -1
-		units.preview_paths = []
-		return ""
-	if pid == _eta_pid:
+	var fl := fleets.selected
+	var sig := "%d|" % pid
+	if fl and fl.owner == World.player_tag:
+		sig += "f%d" % fl.id
+	else:
+		for d: Division in units.selected.slice(0, 3):
+			sig += "%d," % d.id
+	if sig == _eta_sig:
 		return _eta_text
-	_eta_pid = pid
+	_eta_sig = sig
+	_eta_text = ""
+	units.preview_paths = []
+	if fl and fl.owner == World.player_tag:
+		if p != null and p.type != Province.Type.LAKE:
+			var fh := Navy.eta_hours(fl, pid)
+			_eta_text = tr("ORDER_ETA_FLEET_NONE") if fh < 0.0 else tr("ORDER_ETA_FLEET") % maxi(1, ceili(fh / 24.0))
+		return _eta_text
+	if units.selected.is_empty() or p == null or not p.is_land():
+		return ""
 	var worst := -1.0
 	var n := 0
 	var previews: Array = []
@@ -907,12 +919,8 @@ func _order_eta(pid: int) -> String:
 		worst = maxf(worst, float(e["hours"]))
 		previews.append([d, e["path"]])
 	units.preview_paths = previews             # yol önizlemesi (soluk ok)
-	if n == 0:
-		_eta_text = ""
-	elif worst < 0.0:
-		_eta_text = tr("ORDER_ETA_NONE")
-	else:
-		_eta_text = tr("ORDER_ETA") % maxi(1, ceili(worst / 24.0))
+	if n > 0:
+		_eta_text = tr("ORDER_ETA_NONE") if worst < 0.0 else tr("ORDER_ETA") % maxi(1, ceili(worst / 24.0))
 	return _eta_text
 
 ## Yollar modunda imlecin altındaki rota
@@ -1003,7 +1011,7 @@ func _order_move(pid: int) -> void:
 	if p == null or p.type == Province.Type.LAKE:
 		return
 	var ok := 0
-	_eta_pid = -1
+	_eta_sig = ""
 	units.preview_paths = []                   # emir verildi: önizleme yerine gerçek ok
 	for d in units.selected:
 		if Military.order_move(d, pid):

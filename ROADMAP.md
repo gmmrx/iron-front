@@ -295,7 +295,8 @@ The game must go from "watchable" to **playable**: a balanced historical flow, c
 - [x] Path preview and arrival time: with divisions selected, the region under the mouse gets a faint arrow of the same
       style (the first three divisions' routes) and its card shows the estimated arrival (the slowest, without battles;
       `Military.eta`, the same speed as the march)
-- [ ] The same for fleets
+- [x] Arrival time for fleets (the card under the mouse with a fleet selected; `Navy.eta_hours`); a path preview for
+      fleets is still missing
 - [◐] "Why?" tooltips: breakdown of stability and home front, surrender limit, law requirements, the reason a
       diplomacy action is closed, resource shortfall rows, naval control by sea region ✔; remaining: supply shortfall
 - [x] Country card with Ctrl (leader, relation, indicators coloured against ours), other countries' politics read-only

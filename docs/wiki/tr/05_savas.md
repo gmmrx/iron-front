@@ -74,4 +74,6 @@ yakın hava desteği, liman baskını. Görev bölgesini haritadan seç. "Otomat
 ## Deniz (N)
 Filolar: limanda, deniz üstünlüğü, konvoy baskını, konvoy koruma. Görev bölgesi haritadan. Bütünlük düşünce filo limana döner.
 Gemiler yalnız deniz yollarından gider. Bir deniz bölgesinin üstüne gelince ülkelere göre **deniz hâkimiyeti** ve
-nakliyenin orada güvenli olup olmadığı görünür.
+nakliyenin orada güvenli olup olmadığı görünür. Filo seçiliyken farenin altındaki kart emrin hedefine tahmini varışı
+gösterir (kendi limanın: üs değişikliği; başka yer: görev bölgesi) — deniz yollarının gerçek uzunluğu, en yavaş geminin
+hızıyla.

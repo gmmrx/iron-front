@@ -84,4 +84,5 @@ superiority, close air support, port strike. Pick the mission region on the map.
 ## Navy (N)
 Fleets: in port, naval superiority, convoy raiding, convoy escort. Mission region on the map. When cohesion drops the fleet
 returns to port. Ships only travel along sea lanes. Hover a sea region to see **naval control** by country and whether
-your transports are safe there.
+your transports are safe there. With a fleet selected, the card under the mouse shows the estimated arrival at the order's
+target (your port: rebase; elsewhere: the mission region) — the real length of the sea lanes at the slowest ship's speed.

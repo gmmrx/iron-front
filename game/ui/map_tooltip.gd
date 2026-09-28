@@ -199,6 +199,8 @@ func _show_water(p: Province) -> void:
 	if p.type == Province.Type.SEA:
 		_sea_control(p.id)
 	_hint.text = tr("TIPMAP_WATER_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
 
 ## Deniz hâkimiyeti: bölgede görevli filoların gücüne göre ülke payları (renkli çubuk + satırlar), bizim tarafın payı,

@@ -382,6 +382,30 @@ func rebase(f: Fleet, port: int) -> bool:
 	_dirty = true
 	return true
 
+## Filonun sağ tık hedefine tahmini varışı (saat; gidemezse -1): order() ile aynı hedef (kendi limanı ya da görev
+## bölgesi), deniz yollarının gerçek uzunluğu / filonun hızı (en yavaş gemi). Muharebe sayılmaz.
+func eta_hours(f: Fleet, pid: int) -> float:
+	var to := pid if is_friendly_port(f.owner, pid) else sea_for(pid)
+	if to == 0:
+		return -1.0
+	if to == f.location:
+		return 0.0
+	var path := find_path(f.location, to)
+	if path.is_empty():
+		return -1.0
+	var km := 0.0
+	var at := f.location
+	for nxt: int in path:
+		km += leg_km(at, nxt)
+		at = nxt
+	if not f.path.is_empty() and f.path[0] == path[0]:
+		km -= f.progress                              # yoldaki filo ilerlemesini korur
+	var s := 99.0
+	for t: String in f.ships:
+		if int(f.ships[t]) > 0:
+			s = minf(s, float(SHIPS[t]["speed"]))
+	return maxf(km, 0.0) / (s if s < 90.0 else 13.0)   # görev seyri tam hızda (devriye yavaşlığı sayılmaz)
+
 ## Oyuncunun sağ tık emri: kendi limanı -> üs değiştir; deniz/kıyı -> görev bölgesi
 func order(f: Fleet, pid: int) -> bool:
 	if is_friendly_port(f.owner, pid):

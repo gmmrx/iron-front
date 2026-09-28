@@ -281,7 +281,7 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
 - [x] Yol önizlemesi ve varış süresi: tümen seçiliyken farenin altındaki bölgeye aynı stilde soluk bir ok çizilir (ilk
       üç tümenin yolu) ve kartı tahmini varışı gösterir (en yavaşı, muharebesiz; `Military.eta`, yürüyüşle aynı hız)
-- [ ] Aynısı filolar için
+- [x] Filolar için varış süresi (filo seçiliyken fare altındaki kart; `Navy.eta_hours`); filo yol önizlemesi henüz yok
 - [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
       kaynak açığı satırları, deniz bölgesine göre deniz hâkimiyeti ✔; kalan: ikmal açığı
 - [x] Ctrl ile ülke kartı (lider, ilişki, bizimkine göre renkli göstergeler), başka ülkelerin siyaseti salt okunur

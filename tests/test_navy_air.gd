@@ -186,3 +186,28 @@ func test_air_superiority_affects_land_combat() -> void:
 	var pw: AirWing = Air.deploy(pol, "fighter", Air._home_base("POL"))
 	if check(pw != null and Air.set_mission(pw, AirWing.Mission.SUPERIORITY, dst), "Polonya avcıları da bölgede"):
 		near(Air.bonus(dst, "GER"), 0.0, 0.0001, "eşit hava gücünde bonus yok")
+
+## Seçili filonun tahmini varışı (bölge kartında): gerçek seyirle uyuşur
+func test_fleet_eta_matches_voyage() -> void:
+	var f := _surface_fleet("GER")
+	if not check(f != null, "Alman su üstü filosu"):
+		return
+	var target := 0
+	var near := Navy.sea_for(f.home)
+	for n: int in World.province(near).adjacent:
+		var q := World.province(n)
+		if q and q.type == Province.Type.SEA and n != near:
+			target = n
+			break
+	if not check(target > 0, "limanın denizine komşu ikinci deniz bölgesi"):
+		return
+	var eta := Navy.eta_hours(f, target)
+	gt(eta, 0.0, "tahmini varış")
+	check(Navy.order(f, target), "görev emri")
+	var hours := 0
+	while f.location != target and hours < 24 * 30:
+		GameClock.advance_hours(1)
+		hours += 1
+	eq(f.location, target, "filo hedef bölgeye vardı")
+	check(float(hours) >= eta - 1.0 and float(hours) <= eta * 1.25 + 3.0, "gerçek seyir %d saat, tahmin %.1f saat" % [hours, eta])
+	eq(Navy.eta_hours(f, 0), -1.0, "geçersiz hedef: -1")
