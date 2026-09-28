@@ -36,6 +36,12 @@ Large screens open full-screen and the map does not move while they are open.
   previous, so racing ahead costs the usual +150% per year early.
 - **Diplomacy (O)**: country list, the selected country's details and actions (with the reason when an action is closed),
   world situation (crisis index, wars, alliances).
+- **World events (E)**: what happens in the world, newest on top: wars, alliances, guarantees, surrenders, annexations,
+  peace, elections, new leaders, the great powers' state programs — flag, text, date and kind. Filters: *Neighbours* (you
+  and the countries on your borders), *My alliance*, *Whole world*. Click a row and the map goes there. A declaration of
+  war or an annexation where you are on neither side can be answered for a while (30 / 60 days; gold rows): the options,
+  their cost and effects are in the tooltip (see [Diplomacy](06_diplomacy.md)). The news feed in the middle of the screen
+  keeps to your own matters (and the great powers' wars and annexations); the rest of the world is in this menu.
 - **Trade (R)**: resource table, buying, deals (+/−, cancel), exports.
 - **Construction (T)**: summary, building tiles, queue (ordering, cancel, factories at work).
 - **Production (Y)**: military factory / dockyard use, lines (factory icons, efficiency, resource shortfall), stock.

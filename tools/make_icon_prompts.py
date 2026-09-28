@@ -74,6 +74,7 @@ UI = {
  "menu_navy": "a battleship bow cutting through waves, menu button for the navy",
  "menu_air": "a single-engine propeller fighter plane in flight, menu button for the air force",
  "menu_logistics": "an army supply truck with canvas cover loaded with crates, menu button for logistics",
+ "menu_world": "a globe on a brass stand with a folded newspaper leaning on it, menu button for world events",
  "battle": "two crossed ivory cavalry sabres with restrained brass hilts, no explosion, battle symbol",
  "map_capital": "capital location blip: one oversized ivory five-point star on an oxblood-red enamel roundel",
  "map_city": "city location blip: three ivory 1930s European town buildings on a dark olive-green enamel roundel",

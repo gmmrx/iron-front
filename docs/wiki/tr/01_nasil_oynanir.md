@@ -28,7 +28,7 @@
 | Menü / panelleri kapat | Esc |
 | Hükümet, Program, Araştırma, Diplomasi | Q, F, I, O |
 | Ticaret, İnşaat, Üretim, Ordu | R, T, Y, U |
-| Donanma, Hava, Lojistik | N, H, L |
+| Donanma, Hava, Lojistik, Dünya olayları | N, H, L, E |
 | Tümen seç / kutu seçimi / seçime ekle | Sol tık / sürükle / Shift |
 | Hareket veya saldırı emri | Sağ tık (web'de ve Mac'te tümen seçiliyken Ctrl + sol tık) |
 | Ülkenin genel durumu | Haritada Ctrl basılı tut |

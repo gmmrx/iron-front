@@ -38,6 +38,21 @@ Dünyanın genel savaşa ne kadar yaklaştığı. Saldırganlıkla artar (gerek�
   taraflardan biri müttefik üyeyse yalnız o savaştan çıkar, lider diğerleriyle savaşmayı sürdürür.
 - Kapalı eylemin nedeni satırın altında turuncu yazar.
 
+## Dünyaya cevap (Dünya olayları, E)
+Bir ülke başka birine savaş ilan edince ya da onu ilhak edince, sen iki taraftan biri (ya da müttefiki) değilsen, dünya
+olayları menüsündeki kayıt bir süre seçenek taşır:
+| Olay | Seçenek | Etki |
+|---|---|---|
+| Savaş ilanı (30 gün) | Saldırıyı kınamak | −10 nüfuz, iç cephe +%2 (halk kenetlenir) |
+| | Saldırıya uğrayana tüfek göndermek | stoğundan −500 tüfek, −5 nüfuz; saldırıya uğrayana 500 tüfek (stokta 500 gerekir) |
+| | Uzak durmak | istikrar +%1 |
+| İlhak (60 gün) | Tanımamak | −25 nüfuz, ilhak edene karşı savaş gerekçesi |
+| | Tanımak | kriz endeksi −1 |
+
+**Sen** savaş açınca, iki tarafta da olmayan demokratik büyük güçler demokrasi olmayan saldırganı kınar (aynı seçenek,
+bedeli onlara); kınamaları menüde ve haber akışında görünür. Seçenekler ve sayılar veridedir
+(`data/common/world_reactions.json`).
+
 ## Teslim
 - Teslim ilerlemesi = şehirlerin zafer puanlarından düşman elindeki pay (sömürgeler ¼ sayılır) + başkent düştüyse %10.
 - Sınır %80; iç cephe %50'nin altındaysa (0,5 − iç cephe) × 0,6 kadar düşer; bazı ulusal durumlar değiştirir

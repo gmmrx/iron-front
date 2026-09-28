@@ -34,6 +34,12 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
   seviyesi durur; dalın bütün teknolojileri bitince açılır. Her seviye bir öncekinden daha uzun sürer (+%15) ve daha az
   kazandırır (−%15): uzun oyunda dal hep işe yarar ama sınırsız büyümez. Her seviyenin yılı bir öncekinden bir yıl
   sonradır; erken araştırmak her yıl için yine +%150 süre alır.
+- **Dünya olayları (E)**: dünyada olanlar, en yenisi üstte: savaşlar, ittifaklar, garantiler, teslimler, ilhaklar, barışlar,
+  seçimler, yeni liderler, büyük güçlerin devlet programları — bayrak, metin, tarih ve tür. Süzgeçler: *Komşularım* (sen
+  ve sınır komşuların), *İttifakım*, *Bütün dünya*. Satıra tıklayınca harita oraya gider. Taraf olmadığın bir savaş
+  ilanına ya da ilhaka bir süre (30 / 60 gün; altın satırlar) cevap verebilirsin: seçenekler, bedelleri ve etkileri
+  ipucunda (bkz. [Diplomasi](06_diplomasi.md)). Ekranın ortasındaki haber akışı senin işlerine (ve büyük güçlerin
+  savaşlarına ve ilhaklarına) ayrılır; dünyanın geri kalanı bu menüdedir.
 - **Diplomasi (O)**: ülke listesi, seçili ülkenin ayrıntısı ve eylemleri (kapalı olanların nedeniyle), dünya durumu
   (kriz endeksi, savaşlar, ittifaklar).
 - **Ticaret (R)**: kaynak tablosu, satın alma, anlaşmalar (+/−, iptal), ihracat.

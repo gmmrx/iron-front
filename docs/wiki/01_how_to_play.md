@@ -29,7 +29,7 @@
 | Menu / close panels | Esc |
 | Politics, Program, Research, Diplomacy | Q, F, I, O |
 | Trade, Construction, Production, Army | R, T, Y, U |
-| Navy, Air, Logistics | N, H, L |
+| Navy, Air, Logistics, World events | N, H, L, E |
 | Select a division / box select / add to selection | Left click / drag / Shift |
 | Move or attack order | Right click (on the web and on Mac: Ctrl + left click while divisions are selected) |
 | A country's overall situation | Hold Ctrl over the map |

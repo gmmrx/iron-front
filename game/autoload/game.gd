@@ -81,7 +81,7 @@ func save_game(slot: String) -> bool:
 	var data := {
 		"version": 1, "player": World.player_tag,
 		"date": [GameClock.year, GameClock.month, GameClock.day, GameClock.hour],
-		"day_count": World.day_count, "tension": World.world_tension, "won": won,
+		"day_count": World.day_count, "tension": World.world_tension, "won": won, "world_log": World.world_log,
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
 		"factions": Politics.factions, "fired_events": Politics.fired_events, "pending_events": Politics.pending_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
@@ -265,5 +265,7 @@ func load_game(slot: String) -> bool:
 	# kayıttan türeyen durum hemen yeniden hesaplanır (yoksa bir sonraki ay başına kadar 1936 ticareti kalır)
 	Economy._run_trade()
 	Military._compute_supply()
+	# dünya olayları en sonda: yükleme sırasındaki eyalet aktarımlarının yazdığı kayıtlar sayılmaz
+	World.world_log = data.get("world_log", [])
 	loaded = true
 	return true

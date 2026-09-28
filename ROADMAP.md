@@ -71,8 +71,8 @@ Last update: **27 September 2026**
    moved to the nearest water; `tests/test_sea_lanes.gd`, `tests/test_fleet_motion.gd` check this with numbers
 2. ◐ **New icon set and portraits** (made by the user): ✔ icon set in the game; portraits arriving → visual check as they come
 3. ◐ **An open-ended game (PART OPEN)**: ✔ no end date — the game goes on until the player takes the whole world or is
-   destroyed; ✔ research without an end (refinement levels); a world events menu on the left to follow and answer what
-   happens in the world (PART EV)
+   destroyed; ✔ research without an end (refinement levels); ✔ a world events menu on the left to follow and answer
+   what happens in the world (PART EV)
 3b. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
 4. **Content**: ◐ 1936 events with choices added: Japan (26 February), Italy (League sanctions), Britain (the Defence White
    Paper), France (the Popular Front), Germany (the Berlin Olympics), Poland (the Rambouillet loan), USSR (the 1936
@@ -637,16 +637,21 @@ country is completely destroyed**. How many years that takes cannot be known in 
 - [ ] Performance and save size stay stable over decades of game time (long-run test: 30+ game years)
 - [ ] Engine texts without fixed years (also part of PART MOD: the scenario gives the start date, not an end date)
 
-## PART EV — WORLD EVENTS MENU ☐
+## PART EV — WORLD EVENTS MENU ◐
 Things happen in the world all the time (wars declared, alliances, coups, disasters, other countries' decisions). They
 should come to the player as a feed, and some of them can be answered.
-- [ ] A world events menu on the left: a list of what is happening in the world (newest on top), with the country's flag,
-      date and a short text; filters (my neighbours, my alliance, the whole world); click → the map goes there
-- [ ] Reacting to events: some entries carry 2–3 real options (condemn / support / stay out, send volunteers, offer a
-      guarantee, sanctions…) with costs and effects from the existing effect dictionary; the AI reacts to the player's
-      events the same way
-- [ ] Every AI country's important decisions and wars become entries (not only the player's own events)
-- [ ] The alert bar and the notification feed stay for the player's own matters; the world menu is the rest of the world
+- [x] A world events menu on the left (E, `game/ui/world_panel.gd`): what happens in the world, newest on top, with the
+      country's flag, date, kind and a short text; filters (neighbours, my alliance, the whole world); click → the map
+      goes there. The log (`World.world_log`, last 400) is saved; texts are rebuilt in the current language
+- [x] Reacting to events: a declaration of war (30 days) or an annexation (60 days) where the player is on neither side
+      carries options — condemn / send rifles / stay out, refuse to recognise (casus belli) / recognise — with costs,
+      requirements and effects from the existing effect dictionary (`data/common/world_reactions.json`,
+      `game/core/world_react.gd`); democratic great powers condemn the player's own aggression the same way
+- [x] AI countries' wars, alliances, guarantees, surrenders, annexations, peace, elections, new leaders and the great
+      powers' state programs become entries
+- [x] The notification feed keeps to the player's matters (and the great powers' wars and annexations); the world menu is
+      the rest of the world. `tests/test_world_events.gd`
+- [ ] More answers: volunteers, sanctions, guarantees offered from the entry; coups, uprisings, disasters as entries
 
 ## PART H — CONTENT DEPTH (ongoing) ◐
 - [ ] A wide state program tree for every great power, country trees for the middle powers

@@ -16,9 +16,10 @@ func _init() -> void:
 	var dip = root.get_node("Diplomacy")
 	if player != "":
 		W.start_game(player)
-	W.notification.connect(func(t: String, k: String) -> void:
-		if k == "war" or t.contains("ilhak") or t.contains("teslim"):
-			print("  [%04d-%02d-%02d] %s" % [clock.year, clock.month, clock.day, t]))
+	# dünya olayları kaydı: savaş, teslim, ilhak (oyuncuyu ilgilendirmeyenler bildirim akışına düşmez)
+	W.world_logged.connect(func(e: Dictionary) -> void:
+		if String(e["kind"]) in ["war", "annex"]:
+			print("  [%04d-%02d-%02d] %s" % [clock.year, clock.month, clock.day, W.world_text(e)]))
 	var watch: Array = []
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--watch="): watch = a.substr(8).split(",")

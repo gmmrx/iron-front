@@ -40,6 +40,21 @@ everyone's home front (+0.4% per 1%, at most +40%).
   everyone; if one side is an alliance member, only that member leaves the war and the leader keeps fighting the rest.
 - The reason an action is closed is written in orange under its row.
 
+## Answering the world (World events, E)
+When a country declares war on another, or annexes it, and you are on neither side (nor allied to either), the entry in
+the world events menu carries options for a while:
+| Event | Option | Effect |
+|---|---|---|
+| War declared (30 days) | Condemn the aggression | −10 influence, +2% home front (the public rallies) |
+| | Send rifles to the victim | −500 rifles from your stock, −5 influence; the victim gets 500 rifles (needs 500 in stock) |
+| | Stay out of it | +1% stability |
+| Annexation (60 days) | Refuse to recognise it | −25 influence, a casus belli against the annexer |
+| | Recognise it | crisis index −1 |
+
+When **you** start a war, the democratic great powers that are not on either side condemn a non-democratic aggressor
+(the same option, with its cost to them); their condemnation appears in the menu and in your feed. Options and numbers
+are data (`data/common/world_reactions.json`).
+
 ## Surrender
 - Surrender progress = the share of your cities' victory points held by the enemy (colonies count ¼) + 10% if the capital
   has fallen.

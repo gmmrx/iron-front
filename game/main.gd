@@ -118,6 +118,7 @@ func _ready() -> void:
 	hud.pause_menu.load_requested.connect(_load_slot)
 	hud.game_over.to_main_menu.connect(_back_to_menu)
 	hud.game_over.continue_pressed.connect(func() -> void: pass)
+	hud.world.goto.connect(func(p: Vector2) -> void: camera.focus_on(p))      # dünya olayı: harita oraya
 	hud.map_modes.mode_selected.connect(func(m: int) -> void: _apply_mode(m))
 	hud.construction.building_selected.connect(func(_b: String) -> void: _update_construction_marks())
 	hud.construction_toggled.connect(func(_o: bool) -> void: _update_construction_marks())
@@ -356,6 +357,7 @@ func _handle_dev_args() -> void:
 			"research": hud.toggle_research()
 			"focus": hud.toggle_focus()
 			"logistics": hud.toggle_logistics()
+			"world": hud.toggle_world()
 			"navy": hud.toggle_navy()
 			"air": hud.toggle_air()
 			"diplomacy": hud.diplomacy.open_for(args.get("target", ""))
@@ -870,6 +872,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_I: hud.toggle_research()
 			KEY_O: hud.toggle_diplomacy()
 			KEY_F: hud.toggle_focus()
+			KEY_E: hud.toggle_world()
 			KEY_F5: Game.save_game("hizli_kayit")
 
 ## Yollar modunda imlecin altındaki rota

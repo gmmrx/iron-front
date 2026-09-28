@@ -1,0 +1,26 @@
+{
+ "_comment": "Reactions to world events (world events menu): when a country declares war on another, or annexes it, and the player is on neither side, the entry carries these options for 'days' days. Effects use the event effect dictionary (Politics.apply_effects): 'self' is applied to the reacting country, 'target' to the victim, 'actor' to the aggressor; the words 'actor' and 'target' in effect values become those countries. 'require': equipment in stock. 'news': the entry written when a country chooses the option. 'ai': how AI great powers answer the player's own aggression (democracies condemn a non-democratic aggressor). Numbers: a condemnation is a diplomatic note (10 influence) that rallies the public (+2% war support); 500 rifles arm five infantry battalions (100 each); staying out keeps the country calm (+1% stability); refusing to recognise an annexation is a legal claim worth a casus belli (25 influence, the price of a quick justification); recognising it eases world tension a little.",
+ "war": {
+  "days": 30,
+  "ai": {"option": "condemn", "rule": "democracies_condemn"},
+  "options": [
+   {"id": "condemn", "name": {"en": "Condemn the aggression", "tr": "Saldırıyı kınamak"}, "news": "REACT_NEWS_CONDEMN",
+    "self": [{"pp": -10}, {"war_support": 0.02}]},
+   {"id": "arms", "name": {"en": "Send rifles to the victim", "tr": "Saldırıya uğrayana tüfek göndermek"}, "news": "REACT_NEWS_ARMS",
+    "require": {"equipment": {"infantry_equipment": 500}},
+    "self": [{"equipment": {"infantry_equipment": -500}}, {"pp": -5}],
+    "target": [{"equipment": {"infantry_equipment": 500}}]},
+   {"id": "neutral", "name": {"en": "Stay out of it", "tr": "Uzak durmak"}, "news": "",
+    "self": [{"stability": 0.01}]}
+  ]
+ },
+ "annex": {
+  "days": 60,
+  "options": [
+   {"id": "protest", "name": {"en": "Refuse to recognise it", "tr": "Tanımamak"}, "news": "REACT_NEWS_PROTEST",
+    "self": [{"pp": -25}, {"war_goal": "actor"}]},
+   {"id": "recognise", "name": {"en": "Recognise it", "tr": "Tanımak"}, "news": "REACT_NEWS_RECOGNISE",
+    "self": [{"tension": -1}]}
+  ]
+ }
+}

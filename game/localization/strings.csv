@@ -180,6 +180,32 @@ NEWS_BALTIC,%s absorbs the Baltic states.,%s Baltık devletlerini ilhak etti.
 NOTE_CAPITULATED,%s has capitulated!,%s teslim oldu!
 NOTE_WAR_ENDED,A war has ended.,Bir savaş sona erdi.
 "NOTE_WHITE_PEACE","%s and %s have signed a white peace.","Beyaz barış: %s — %s"
+"NOTE_WAR_ENDED_OF","%s: the war is over.","%s: savaş bitti."
+"NEWS_PROGRAM_DONE","%s completes a state program: %s","%s devlet programını tamamladı: %s"
+"REACT_NEWS_CONDEMN","%s condemns the attack: %s → %s","%s saldırıyı kınadı: %s → %s"
+"REACT_NEWS_ARMS","%s sends rifles against the attack: %s → %s","%s saldırıya karşı tüfek gönderdi: %s → %s"
+"REACT_NEWS_PROTEST","%s refuses to recognise the annexation: %s → %s","%s ilhakı tanımıyor: %s → %s"
+"REACT_NEWS_RECOGNISE","%s recognises the annexation: %s → %s","%s ilhakı tanıdı: %s → %s"
+"REACT_NEED_EQUIPMENT","Needs %d %s in stock.","Stokta %d %s gerekir."
+"REACT_TARGET_GONE","That country no longer exists.","O ülke artık yok."
+"REACT_TO","To %s:","%s için:"
+"TASK_WORLD_KEY","World (E)","Dünya (E)"
+"TIP_TASK_WORLD","What happens in the world: wars, alliances, annexations, elections, programs. Some can be answered.","Dünyada olanlar: savaşlar, ittifaklar, ilhaklar, seçimler, programlar. Bir kısmına cevap verilebilir."
+"WORLD_TITLE","World Events","Dünya Olayları"
+"WORLD_FILTER_NEAR","Neighbours","Komşularım"
+"WORLD_FILTER_ALLY","My alliance","İttifakım"
+"WORLD_FILTER_ALL","Whole world","Bütün dünya"
+"WORLD_EMPTY","Nothing has happened here yet.","Burada henüz bir şey olmadı."
+"WORLD_REACT","Your answer (%d days left)","Cevabınız (%d gün kaldı)"
+"WORLD_CHOSEN","Your answer: %s","Cevabınız: %s"
+"WORLD_GOTO","Click: show on the map","Tıkla: haritada göster"
+"WORLD_KIND_war","War","Savaş"
+"WORLD_KIND_peace","Peace","Barış"
+"WORLD_KIND_alliance","Alliance","İttifak"
+"WORLD_KIND_diplomacy","Diplomacy","Diplomasi"
+"WORLD_KIND_politics","Politics","Siyaset"
+"WORLD_KIND_annex","Annexation","İlhak"
+"WORLD_KIND_program","State program","Devlet programı"
 NOTE_GOAL_READY,Casus belli against %s is ready.,Savaş gerekçesi hazır: %s
 DIPLO_ERR_INVALID,Not possible.,Mümkün değil.
 DIPLO_ERR_ALREADY,Already at war or preparing a casus belli.,Zaten savaşta ya da gerekçe hazırlanıyor.

@@ -9,6 +9,7 @@ signal game_started
 signal control_changed                  ## bölge kontrolü (işgal) değişti
 signal country_removed(tag: String)
 signal notification(text: String, kind: String)   ## kind: info | war | good | bad
+signal world_logged(entry: Dictionary)            ## dünya olayları menüsüne yeni kayıt
 
 const COUNTRIES_PATH := "res://data/common/countries.json"
 const PROVINCES_PATH := "res://data/map/provinces.json"
@@ -40,6 +41,7 @@ func _ready() -> void:
 
 ## Başlangıç durumunu (1936) diskten yeniden kur
 func reset() -> void:
+	world_log.clear()
 	countries.clear()
 	country_by_index = [null]
 	states.clear()
@@ -322,10 +324,61 @@ func _remove_country(c: Country) -> void:
 	Navy.remove_all(c.tag)
 	Air.remove_all(c.tag)
 	country_removed.emit(c.tag)
-	notify(tr("NOTE_COUNTRY_GONE") % c.display_name(), "war")
+	world_event("annex", "NOTE_COUNTRY_GONE", ["@" + c.tag], [c.tag], 0, "war")
 
 func notify(text: String, kind: String = "info") -> void:
 	notification.emit(text, kind)
+
+# ------------------------------------------------------------------ dünya olayları
+## Dünyada olanlar (savaş, ittifak, teslim, ilhak, seçim, lider, program...): dünya olayları menüsü (sol menü, E).
+## Kayıt: {day, date, kind, key, args, tags, pid, react?, choice?}. args: "@TAG" ülke adı, "#KEY" çevrilen metin,
+## "!ID" ittifak adı, diğerleri olduğu gibi — metin gösterilirken kurulur, dil değişince kayıtlar yeni dilde okunur.
+## Bildirim akışı oyuncunun işleri içindir: kayıt oyuncuyu ya da müttefikini ilgilendiriyorsa (ya da büyük bir gücün
+## savaşı, teslimi, ilhakı ise) akışa da düşer; gerisi yalnız menüde.
+const WORLD_LOG_MAX := 400
+var world_log: Array = []
+
+func world_event(kind: String, key: String, args: Array, tags: Array, pid: int = 0, notify_kind: String = "info") -> Dictionary:
+	var e := {"day": day_count, "date": date_value(), "kind": kind, "key": key, "args": args, "tags": tags, "pid": pid}
+	world_log.append(e)
+	if world_log.size() > WORLD_LOG_MAX:
+		world_log.pop_front()
+	if _feed_worthy(kind, tags):
+		notify(world_text(e), notify_kind)
+	world_logged.emit(e)
+	return e
+
+func _feed_worthy(kind: String, tags: Array) -> bool:
+	if not in_game or player_tag == "":
+		return true
+	for t: String in tags:
+		if t == player_tag or Diplomacy.are_allies(t, player_tag):
+			return true
+		if (kind == "war" or kind == "annex") and countries.has(t) and (countries[t] as Country).is_major():
+			return true
+	return false
+
+## Kaydın metni (şimdiki dilde)
+func world_text(e: Dictionary) -> String:
+	var args: Array = []
+	for a: Variant in e.get("args", []):
+		var s := str(a)
+		if s.begins_with("@"):
+			var c: Country = countries.get(s.substr(1))
+			args.append(c.display_name() if c else s.substr(1))
+		elif s.begins_with("#"):
+			args.append(tr(s.substr(1)))
+		elif s.begins_with("!"):
+			args.append(Politics.faction_display(s.substr(1)))
+		else:
+			args.append(s)
+	var text := tr(String(e.get("key", "")))
+	var n := text.count("%s")
+	if n == 0:
+		return text
+	while args.size() < n:
+		args.append("?")
+	return text % args.slice(0, n)
 
 ## Kara bölgesi komşuları (boğaz geçişleri dahil)
 var _ln_cache := {}

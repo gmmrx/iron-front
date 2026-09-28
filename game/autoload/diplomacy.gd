@@ -133,7 +133,7 @@ func declare_war(a_tag: String, t_tag: String) -> bool:
 	wars.append(w)
 	a.war_goals.erase(t_tag)
 	World.world_tension = clampf(World.world_tension + (5.0 if a.ideology == "democratic" else 12.0), 0.0, 100.0)
-	World.notify(tr("NOTE_WAR_DECLARED") % [a.display_name(), t.display_name()], "war")
+	var we := World.world_event("war", "NOTE_WAR_DECLARED", ["@" + a_tag, "@" + t_tag], [a_tag, t_tag], World.capital_province(t_tag), "war")
 	# savunmacının müttefikleri ve garantörleri
 	if t.faction != "":
 		for m: String in Politics.factions.get(t.faction, []):
@@ -146,6 +146,8 @@ func declare_war(a_tag: String, t_tag: String) -> bool:
 		for m: String in Politics.factions.get(a.faction, []):
 			if m != a_tag and not are_enemies(m, a_tag):
 				Politics.fire_event(World.countries[m], "call_to_arms", a_tag)
+	# dünyanın tepkisi (savunmaya katılanlar belli olduktan sonra): oyuncu taraf değilse seçenekler, saldırgansa yapay zekâ
+	WorldReact.offer(we, "war", a_tag, t_tag)
 	wars_changed.emit()
 	return true
 
@@ -155,7 +157,8 @@ func _add_to_side(w: Dictionary, side: String, tag: String) -> void:
 	if c == null or not c.exists() or tag in w[side] or tag in w[other]:
 		return
 	w[side].append(tag)
-	World.notify(tr("NOTE_JOINS_WAR") % [c.display_name(), World.countries[w[side][0]].display_name()], "bad")
+	World.world_event("war", "NOTE_JOINS_WAR", ["@" + tag, "@" + String(w[side][0])], [tag, String(w[side][0])],
+		World.capital_province(tag), "bad")
 
 ## c, müttefikinin (ally) tüm savaşlarına onun tarafında katılır
 func join_wars_of(c_tag: String, ally: String) -> void:
@@ -186,7 +189,7 @@ func join_faction(tag: String, leader: String) -> void:
 		leave_faction(tag)
 	Politics.factions[l.faction].append(tag)
 	c.faction = l.faction
-	World.notify(tr("NOTE_JOINS_FACTION") % [c.display_name(), Politics.faction_display(l.faction)], "info")
+	World.world_event("alliance", "NOTE_JOINS_FACTION", ["@" + tag, "!" + l.faction], [tag, leader], World.capital_province(tag))
 	join_wars_of(tag, leader)
 	diplomacy_changed.emit(tag)
 
@@ -213,7 +216,7 @@ func guarantee(g: String, t: String) -> void:
 	var c: Country = World.countries.get(g)
 	if c and not t in c.guarantees and t != g:
 		c.guarantees.append(t)
-		World.notify(tr("NOTE_GUARANTEE") % [c.display_name(), World.countries[t].display_name()], "info")
+		World.world_event("diplomacy", "NOTE_GUARANTEE", ["@" + g, "@" + t], [g, t], World.capital_province(t))
 		diplomacy_changed.emit(g)
 
 func grant_access(giver: String, receiver: String) -> void:
@@ -286,7 +289,7 @@ func capitulation_threshold(c: Country) -> float:
 signal country_capitulated(tag: String)
 
 func capitulate(c: Country) -> void:
-	World.notify(tr("NOTE_CAPITULATED") % c.display_name(), "war")
+	World.world_event("war", "NOTE_CAPITULATED", ["@" + c.tag], [c.tag], World.capital_province(c.tag), "war")
 	country_capitulated.emit(c.tag)
 	if OS.has_environment("CAPDBG") and c.is_major():
 		var lost: Array[String] = []
@@ -364,7 +367,10 @@ func _cleanup_wars() -> void:
 			ended.append(w)
 	for w in ended:
 		wars.erase(w)
-		World.notify(tr("NOTE_WAR_ENDED"), "good")
+		# kalan taraf savaştan çıkar (iki taraf da boşsa beyaz barış kendi kaydını yazar)
+		var side: Array = w["attackers"] if not w["attackers"].is_empty() else w["defenders"]
+		if not side.is_empty():
+			World.world_event("peace", "NOTE_WAR_ENDED_OF", ["@" + String(side[0])], side.duplicate(), 0, "good")
 	if not ended.is_empty():
 		_revert_control()
 
@@ -396,7 +402,7 @@ func white_peace(a: String, b: String) -> void:
 		else:
 			w[sb].erase(b)
 	_cleanup_wars()
-	World.notify(tr("NOTE_WHITE_PEACE") % [World.countries[a].display_name(), World.countries[b].display_name()], "good")
+	World.world_event("peace", "NOTE_WHITE_PEACE", ["@" + a, "@" + b], [a, b], 0, "good")
 	wars_changed.emit()
 
 ## Barış teklifi: AI, kaybediyorsa kabul eder

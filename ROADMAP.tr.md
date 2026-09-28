@@ -67,8 +67,8 @@ Son güncelleme: **27 Eylül 2026**
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. ◐ **Yeni ikon seti ve portreler** (kullanıcı üretiyor): ✔ ikon seti oyunda; portreler geliyor → geldikçe görsel kontrol
 3. ◐ **Açık uçlu oyun (BÖLÜM AÇIK)**: ✔ bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana
-   kadar sürer; ✔ bitmeyen araştırma (iyileştirme seviyeleri); dünyada olanları izlemek ve cevap vermek için solda bir
-   dünya olayları menüsü (BÖLÜM OL)
+   kadar sürer; ✔ bitmeyen araştırma (iyileştirme seviyeleri); ✔ dünyada olanları izlemek ve cevap vermek için solda
+   bir dünya olayları menüsü (BÖLÜM OL)
 3b. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
@@ -609,16 +609,21 @@ olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şe
 - [ ] Performans ve kayıt boyutu onlarca oyun yılı boyunca kararlı (uzun koşu testi: 30+ oyun yılı)
 - [ ] Sabit yıl içermeyen motor metinleri (BÖLÜM MOD'un da parçası: senaryo başlangıç tarihini verir, bitiş tarihini değil)
 
-## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ☐
+## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ◐
 Dünyada sürekli bir şeyler olur (savaş ilanları, ittifaklar, darbeler, felaketler, başka ülkelerin kararları). Bunlar
 oyuncuya bir akış olarak gelmeli; bir kısmına cevap verilebilmeli.
-- [ ] Solda bir dünya olayları menüsü: dünyada olanların listesi (en yenisi üstte), ülke bayrağı, tarih ve kısa metin;
-      süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider
-- [ ] Olaylara tepki: bazı kayıtlar 2–3 gerçek seçenek taşır (kınamak / desteklemek / uzak durmak, gönüllü göndermek,
-      garanti vermek, yaptırım...); bedel ve etkiler var olan etki sözlüğünden; yapay zekâ da oyuncunun olaylarına aynı
-      şekilde tepki verir
-- [ ] Her yapay zekâ ülkesinin önemli kararları ve savaşları kayıt olur (yalnız oyuncunun kendi olayları değil)
-- [ ] Uyarı çubuğu ve bildirim akışı oyuncunun kendi işleri için kalır; dünya menüsü dünyanın geri kalanıdır
+- [x] Solda dünya olayları menüsü (E, `game/ui/world_panel.gd`): dünyada olanlar, en yenisi üstte; ülke bayrağı, tarih,
+      tür ve kısa metin; süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider. Kayıt
+      (`World.world_log`, son 400) kayda geçer; metinler şimdiki dilde yeniden kurulur
+- [x] Olaylara tepki: oyuncunun taraf olmadığı bir savaş ilanı (30 gün) ya da ilhak (60 gün) seçenek taşır — kınamak /
+      tüfek göndermek / uzak durmak, tanımamak (savaş gerekçesi) / tanımak — bedel, şart ve etkiler var olan etki
+      sözlüğünden (`data/common/world_reactions.json`, `game/core/world_react.gd`); demokratik büyük güçler oyuncunun
+      saldırısını aynı şekilde kınar
+- [x] Yapay zekâ ülkelerinin savaşları, ittifakları, garantileri, teslimleri, ilhakları, barışları, seçimleri, yeni
+      liderleri ve büyük güçlerin devlet programları kayıt olur
+- [x] Bildirim akışı oyuncunun işlerine (ve büyük güçlerin savaş ve ilhaklarına) ayrılır; dünya menüsü dünyanın geri
+      kalanıdır. `tests/test_world_events.gd`
+- [ ] Daha çok cevap: gönüllüler, yaptırımlar, kayıttan garanti; darbeler, ayaklanmalar, felaketler kayıt olarak
 
 ## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
 - [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar

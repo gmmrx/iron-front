@@ -168,6 +168,7 @@ func complete_focus_now(c: Country, id: String, with_effects := true) -> void:
 	if with_effects:
 		apply_effects(c, focus_def(c, id)["effects"])
 	focus_completed.emit(c.tag, id)
+	_program_news(c, id)
 	politics_changed.emit(c.tag)
 
 func cancel_focus(c: Country) -> void:
@@ -271,8 +272,16 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"guarantee": Diplomacy.guarantee(c.tag, _resolve(v, from_tag, c))
 			"grant_access": Diplomacy.grant_access(c.tag, _resolve(v, from_tag, c))
 			"white_peace_with": Diplomacy.white_peace(c.tag, _resolve(v, from_tag, c))
-			"annex": World.annex(_resolve(v, from_tag, c), c.tag); _news("NEWS_ANNEX", [World.countries[_resolve(v, from_tag, c)].display_name(), c.display_name()])
-			"annexed_by": World.annex(c.tag, _resolve(v, from_tag, c)); _news("NEWS_ANNEX", [c.display_name(), World.countries[_resolve(v, from_tag, c)].display_name()])
+			"annex":
+				var victim := _resolve(v, from_tag, c)
+				var pid := World.capital_province(victim)
+				World.annex(victim, c.tag)
+				_annex_news(victim, c.tag, pid)
+			"annexed_by":
+				var by := _resolve(v, from_tag, c)
+				var pid2 := World.capital_province(c.tag)
+				World.annex(c.tag, by)
+				_annex_news(c.tag, by, pid2)
 			"cede_border_to": _cede_border(c, _resolve(v, from_tag, c))
 			"cede_city_to":
 				var to := _resolve(v["to"], from_tag, c)
@@ -280,7 +289,7 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 					if city.name == v["city"] or city.names.values().has(v["city"]):
 						World.transfer_state(city.state_id, to)
 				World.flush_ownership()
-				_news("NEWS_CEDE", [c.display_name(), World.countries[to].display_name()])
+				_news("NEWS_CEDE", [c.tag, to])
 			"create_faction": Diplomacy.create_faction(c.tag)
 			"join_faction": Diplomacy.join_faction(c.tag, _resolve(v, from_tag, c))
 			"invite": fire_event(World.countries[_resolve(v, from_tag, c)], "faction_invite", c.tag)
@@ -288,18 +297,29 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"flag_target":
 				var t: Country = World.countries.get(e.get("target", c.tag))
 				if t: t.decisions_active["flag_" + str(v)] = 1 << 30
-			"news": _news(v, [c.display_name()])
+			"news": _news(v, [c.tag])
 			"set_leader":
 				c.leader = v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v)
-				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader_name()], "info")
+				World.world_event("politics", "NEWS_NEW_LEADER", ["@" + c.tag, c.leader_name()], [c.tag], World.capital_province(c.tag))
 
-func _news(key: String, args: Array) -> void:
-	var text := tr(key)
-	if text.count("%s") == args.size():
-		text = text % args
-	elif text.count("%s") > 0:
-		text = text % [args[0]]
-	World.notify(text, "info")
+## Olay/program haberi dünya olayları menüsüne (tags: ilgili ülkeler; metindeki %s'ler sırayla onların adı)
+func _news(key: String, tags: Array) -> void:
+	var args: Array = tags.map(func(t: String) -> String: return "@" + t)
+	World.world_event("politics", key, args, tags, World.capital_province(String(tags[0])) if not tags.is_empty() else 0)
+
+## Büyük güçlerin tamamladığı devlet programları dünya olayları menüsüne (oyuncununki kendi bildiriminde)
+func _program_news(c: Country, id: String) -> void:
+	if not c.is_major() or c.tag == World.player_tag:
+		return
+	var fo := focus_def(c, id)
+	if fo.is_empty():
+		return
+	World.world_event("program", "NEWS_PROGRAM_DONE", ["@" + c.tag, loc(fo["name"])], [c.tag], World.capital_province(c.tag))
+
+## İlhak haberi: oyuncu işin içinde değilse tepki verebilir (kınamak / tanımak)
+func _annex_news(victim: String, by: String, pid: int) -> void:
+	var e := World.world_event("annex", "NEWS_ANNEX", ["@" + victim, "@" + by], [victim, by], pid, "war")
+	WorldReact.offer(e, "annex", by, victim)
 
 func _add_buildings(c: Country, b: String, count: int, where: String) -> void:
 	var sids: Array = c.states.duplicate()
@@ -335,7 +355,7 @@ func _cede_border(c: Country, to: String) -> void:
 	for sid in moved:
 		World.transfer_state(sid, to)
 	World.flush_ownership()
-	_news("NEWS_CEDE", [c.display_name(), World.countries[to].display_name()])
+	_news("NEWS_CEDE", [c.tag, to])
 
 # ------------------------------------------------------------------ olaylar
 func fire_event(target: Country, id: String, from_tag: String) -> void:
@@ -439,6 +459,7 @@ func _on_day_impl() -> void:
 				c.focus_progress = 0.0
 				apply_effects(c, fo["effects"])
 				focus_completed.emit(c.tag, id)
+				_program_news(c, id)
 		for d: String in c.decisions_active.keys():
 			if not d.begins_with("flag_") and World.day_count >= int(c.decisions_active[d]):
 				c.decisions_active.erase(d)
@@ -503,7 +524,7 @@ func _elections() -> void:
 				winner = ideo
 		if winner != c.ideology:
 			c.ideology = winner
-			World.notify(tr("NEWS_ELECTION_CHANGE") % [c.display_name(), tr("IDEOLOGY_" + winner)], "info")
+			World.world_event("politics", "NEWS_ELECTION_CHANGE", ["@" + c.tag, "#IDEOLOGY_" + winner], [c.tag], World.capital_province(c.tag))
 		elif c.tag == World.player_tag:
 			World.notify(tr("NEWS_ELECTION_HOLD") % c.display_name(), "good")
 		if c.tag == World.player_tag and World.in_game:
