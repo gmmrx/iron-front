@@ -682,6 +682,42 @@ func _func_body(path: String, fname: String) -> String:
 	var end := src.find("\nfunc ", start + 1)
 	return src.substr(start, end - start if end > 0 else -1)
 
+## Tarih çizelgesi (data/common/history.json): ülkeler, odaklar, etki ve koşul anahtarları motorda var; tarihler sıralı
+func test_history_timeline() -> void:
+	var data: Dictionary = read_json("res://data/common/history.json")
+	var effects := _match_keys(POLITICS_SRC, "_apply")
+	var conds := _match_keys(POLITICS_SRC, "check")
+	check(effects.size() > 10 and conds.size() > 5, "politics.gd etki/koşul listesi okunamadı")
+	var entries: Array = data.get("entries", [])
+	if GameModes.id == GameModes.BASE_MODE:
+		check(entries.size() > 20, "tarih çizelgesi boş")    # başka bir mod çizelgeyi boşaltabilir (new_mode.py --blank)
+	var last := 0
+	for e: Dictionary in entries:
+		var tag: String = e["tag"]
+		var day := Politics._date(str(e["date"]))
+		check(day >= last, "tarih sırası bozuk: %s" % e["date"])
+		last = day
+		if not check(World.countries.has(tag), "tarih: bilinmeyen ülke %s (%s)" % [tag, e["date"]]):
+			continue
+		var tree := Politics.tree_of(World.countries[tag])
+		var ids: Array = e.get("mark_focus", []).duplicate()
+		if e.has("focus"):
+			ids.append(e["focus"])
+		for id: String in ids:
+			check(tree.has(id), "tarih %s: %s ağacında %s odağı yok" % [e["date"], tag, id])
+		for eff: Dictionary in e.get("effects", []):
+			for k: String in eff:
+				check(k in effects or k in ["target", "ai_only"], "tarih %s: bilinmeyen etki %s" % [e["date"], k])
+		for cnd: Dictionary in e.get("require", []):
+			_history_cond(cnd, conds, str(e["date"]))
+	check(Politics._date(str(data.get("ai_free_from", ""))) >= last, "serbest tarih son adımdan önce")
+
+func _history_cond(cnd: Dictionary, conds: Array[String], date: String) -> void:
+	for k: String in cnd:
+		check(k in conds, "tarih %s: bilinmeyen koşul %s" % [date, k])
+		if k == "not":
+			_history_cond(cnd[k], conds, date)
+
 ## Fonksiyondaki match kollarının anahtarları:  <sekmeler>"anahtar":
 func _match_keys(path: String, fname: String) -> Array[String]:
 	return _regex_in("(?m)^\\t+\"([a-z_]+)\":", _func_body(path, fname))

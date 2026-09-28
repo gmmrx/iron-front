@@ -72,7 +72,7 @@ func refresh() -> void:
 		var nd := float(need.get(e, 0.0))
 		var bal := stock - nd
 		var row := PanelLayout.table_row(t, [
-			PanelLayout.icon_label(UiTheme.equipment_icon(e), Economy.equipment_name(e), 26),
+			PanelLayout.icon_label(UiTheme.equipment_icon(e), Economy.equipment_name(e), 36),
 			UiTheme.format_number(roundi(stock)),
 			UiTheme.format_number(roundi(float(in_use.get(e, 0.0)))),
 			["+%.1f" % float(daily.get(e, 0.0)) if daily.has(e) else "—", UiTheme.GOOD if daily.has(e) else UiTheme.TEXT_DIM],
@@ -93,6 +93,6 @@ func refresh() -> void:
 		var u := float(used.get(r, 0.0))
 		if a <= 0.0 and u <= 0.0:
 			continue
-		PanelLayout.table_row(rt, [PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 24),
+		PanelLayout.table_row(rt, [PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 36),
 			"%d" % roundi(a), "%d" % roundi(u),
 			[("+" if a - u >= 0 else "") + "%d" % roundi(a - u), UiTheme.GOOD if a - u >= 0 else UiTheme.BAD]])

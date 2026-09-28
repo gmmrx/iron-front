@@ -321,13 +321,11 @@ func test_fleet_layer_zoom_modes() -> void:
 			eq(shown, 0, "çok uzakta görünen filo sayacı")
 		else:
 			gt(shown, 10, "görünen filo sayacı (%s)" % mode[1])
-	# 3D gemiler yalnız yakında
-	cam.distance = FleetLayer.SHIP_DIST - 100.0
-	fl._process(0.05)
-	check(fl._mmi["destroyer"].visible, "yakında 3D gemiler görünür")
-	cam.distance = FleetLayer.SHIP_DIST + 100.0
-	fl._process(0.05)
-	check(not fl._mmi["destroyer"].visible, "uzakta 3D gemi yok")
+	# iğne tasarımı: 3D gemi hiç çizilmez (filo = sayaç iğnesi), yakında da
+	for dist: float in [FleetLayer.SHIP_DIST - 100.0, FleetLayer.SHIP_DIST + 100.0]:
+		cam.distance = dist
+		fl._process(0.05)
+		check(not fl._mmi["destroyer"].visible, "iğne tasarımında 3D gemi yok (%d)" % int(dist))
 	_tree().root.remove_child(fl)
 	fl.free()
 	pm.free()

@@ -69,7 +69,7 @@ func _ready() -> void:
 	_hold.text = tr("DIV_HOLD")
 	_hold.tooltip_text = tr("TIP_DIV_HOLD")
 	_hold.focus_mode = Control.FOCUS_NONE
-	_hold.add_theme_font_size_override("font_size", 14)
+	_hold.add_theme_font_size_override("font_size", UiTheme.fs(14))
 	_hold.toggled.connect(func(on: bool) -> void:
 		for d in units.selected:
 			if d.owner == World.player_tag:
@@ -200,7 +200,7 @@ func _build_head(sel: Array[Division], mine: Array[Division]) -> void:
 		opt.focus_mode = Control.FOCUS_NONE
 		opt.tooltip_text = tr("TIP_ARMY_FRONT")
 		opt.custom_minimum_size.x = 150
-		opt.add_theme_font_size_override("font_size", 14)
+		opt.add_theme_font_size_override("font_size", UiTheme.fs(14))
 		opt.add_item(tr("ARMY_NO_FRONT"))
 		var tags := front_candidates()
 		for i in tags.size():
@@ -233,7 +233,7 @@ func _build_head(sel: Array[Division], mine: Array[Division]) -> void:
 				Military.armies_changed.emit())
 			seg.add_child(b)
 		var mng := _btn(tr("ARM_MANAGE"), tr("TIP_ARM_MANAGE"))
-		mng.icon = UiTheme.icon("army")
+		mng.icon = UiTheme.trimmed(UiTheme.icon("army"))
 		mng.expand_icon = true
 		mng.add_theme_constant_override("icon_max_width", 18)
 		mng.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -333,7 +333,7 @@ func _build_comp(sel: Array[Division]) -> void:
 		b.icon = _template_icon(c, d0.template)
 		b.expand_icon = true
 		b.add_theme_constant_override("icon_max_width", 20)
-		b.add_theme_font_size_override("font_size", 14)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(14))
 		b.tooltip_text = tr("TIP_DIVSEL_ONLY") % b.text
 		b.disabled = order.size() < 2
 		b.pressed.connect(func() -> void: units.select_divisions(group, false))
@@ -457,7 +457,7 @@ func _build_tools(mine: Array[Division]) -> void:
 		var join := OptionButton.new()
 		join.focus_mode = Control.FOCUS_NONE
 		join.tooltip_text = tr("TIP_DIVSEL_JOIN")
-		join.add_theme_font_size_override("font_size", 14)
+		join.add_theme_font_size_override("font_size", UiTheme.fs(14))
 		join.add_item(tr("DIVSEL_JOIN"))
 		for a in armies:
 			join.add_item("%s (%d)" % [a.name, Military.army_divisions(a).size()])
@@ -499,7 +499,7 @@ func _btn(text: String, tip: String) -> Button:
 	b.text = text
 	b.tooltip_text = tip
 	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_font_size_override("font_size", 14)
+	b.add_theme_font_size_override("font_size", UiTheme.fs(14))
 	return b
 
 func _bar(value: float, color: Color, width: float, height: float) -> Control:

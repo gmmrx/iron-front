@@ -1,59 +1,64 @@
 ---
 name: yeni-mod
-description: Bu strateji oyununa yeni bir oyun modu ekleme ya da var olan bir modu (data/modes, game/modes) düzenleme. "Yeni mod", "yeni senaryo", "oyun modu ekle", "zombi modu", "mod verisi", "mode.json" gibi isteklerde kullan.
+description: Add a new game mode to this strategy game or edit an existing one (data/modes, game/modes). Use for requests like "new mode", "new scenario", "add a game mode", "zombie mode", "mode data", "mode.json" — also in Turkish: "yeni mod", "yeni senaryo", "oyun modu ekle", "zombi modu", "mod verisi".
 ---
 
-# Yeni oyun modu
+# New game mode
 
-Ayrıntılı rehber: `docs/modlar/README.md`. Bu yetenek oradaki adımları sırayla uygular.
+Detailed guide: `docs/modlar/README.md` (Turkish: `docs/modlar/README.tr.md`). This skill applies its steps in order.
+Talk to the user in Turkish.
 
-## 0. Önce oku
-- `docs/OZGUNLUK.md`: başka oyundan ad, metin, sayı, ekran düzeni alma; başka ticari oyunu hiçbir dosyada anma.
-- `CLAUDE.md` kuralları: oyuncu karar verir (kural 1), veri güdümlü (2), metinler EN+TR (3), görsel değişiklik yok (5),
-  sanat dosyası üretme (6).
+## 0. Read first
+- `docs/ORIGINALITY.md`: take no name, text, number or screen layout from another game; never mention another commercial
+  game in any file.
+- `CLAUDE.md` rules: the player decides (rule 1), data-driven (2), texts EN+TR (3), no visual changes (5), no art files (6).
 
-## 1. İskelet
+## 1. Skeleton
 `python3 tools/new_mode.py <id> --name-en "..." --name-tr "..."` → `data/modes/<id>/mode.json`,
-`game/modes/<id>/rules.gd`, `tests/test_mode_<id>.gd`, kayıt (`data/modes/modes.json`). Kimlik: küçük harf, rakam, `_`.
-Sonra `godot --headless --path . --import` (yeni .gd dosyaları için).
+`game/modes/<id>/rules.gd`, `tests/test_mode_<id>.gd`, registry (`data/modes/modes.json`). Id: lowercase letters, digits, `_`.
+Then `godot --headless --path . --import` (for the new .gd files).
 
 ## 2. Manifest
-`mode.json` alanları README'deki tabloda. Yazılmayan alan WWII değerini alır. Kapalı değer `0` ya da `""` (null değil).
-Yarım bir modu menüde gizlemek için `"hidden": true`.
+The `mode.json` fields are in the README table. A field left out takes the WWII value. An "off" value is `0` or `""` (not null).
+To hide an unfinished mode from the menu: `"hidden": true`.
 
-## 3. Veri
-- Dosyanın çoğu değişecekse: `python3 tools/new_mode.py --copy <id> common/<dosya>.json`, sonra düzenle.
-- Birkaç ekleme/silme: `data/modes/<id>/common/<dosya>.patch.json` (`null` siler; `"id"`li dizilerde `_delete`).
-- WWII olayları ve ülke ağaçları olmasın: `--blank <id> common/events.json` VE `--blank <id> common/focuses.json`.
-- Aynı dosyanın hem tam kopyası hem yaması olmaz (araç ve `--check` durdurur).
-- WWII'de karşılığı olmayan veri (salgın, yeni tablo...): `data/modes/<id>/own/<ad>.json`; kural betiğinde
-  `GameModes.load_own("<ad>.json")`. Sayıları koda sabit yazma.
-- `data/common/` altındaki dosyaları mod için DEĞİŞTİRME.
-- Motorun başvurduğu anahtarlar README'deki "Mod sözleşmesi" tablosunda; silme.
+## 3. Data
+- If most of a file changes: `python3 tools/new_mode.py --copy <id> common/<file>.json`, then edit it.
+- A few additions/deletions: `data/modes/<id>/common/<file>.patch.json` (`null` deletes; `_delete` in arrays with an `"id"`).
+- No WWII events, country trees or history timeline: `--blank <id> common/events.json`, `--blank <id> common/focuses.json`
+  AND `--blank <id> common/history.json` (the timeline completes WWII programs; with an empty timeline the AI may start its
+  own wars from the first day).
+- A file cannot have both a full copy and a patch (the tool and `--check` stop it).
+- Data with no counterpart in WWII (epidemic, a new table...): `data/modes/<id>/own/<name>.json`; in the rule script
+  `GameModes.load_own("<name>.json")`. Do not hard-code numbers in code.
+- Do NOT change the files under `data/common/` for a mode.
+- The keys the engine refers to are in the README's "Mode contract" table; do not delete them.
 
-## 4. Senaryo (isteğe bağlı)
-`scenario.json`: `owners` (eyalet → ülke), `capitals` (ülke → eyalet), `vp` (şehir → puan); manifestte `"scenario": "scenario.json"`.
+## 4. Scenario (optional)
+`scenario.json`: `owners` (state → country), `capitals` (country → state), `vp` (city → points); in the manifest
+`"scenario": "scenario.json"`.
 
-## 5. rules.gd (isteğe bağlı)
-- `extends ModeRules`; kanca listesi `game/core/mode_rules.gd`, örnek `game/modes/_template/rules.gd`.
-- Yeni etki: `effect_keys` + `apply_effect` + `describe_effect` üçü birden; metni `strings.csv`'ye (EN+TR) ekle.
-- Rastgelelik: kendi tohumlu `RandomNumberGenerator`'ın; durumu `to_save`'e `str()` ile yaz.
-- Oyuncu adına iş yapma.
+## 5. rules.gd (optional)
+- `extends ModeRules`; hook list `game/core/mode_rules.gd`, example `game/modes/_template/rules.gd`.
+- A new effect: `effect_keys` + `apply_effect` + `describe_effect`, all three; add its text to `strings.csv` (EN+TR).
+- Randomness: your own seeded `RandomNumberGenerator`; write its state to `to_save` with `str()`.
+- Do nothing on the player's behalf.
 
-## 6. Metinler
-Veri içinde `{"en", "tr"}`; kod/arayüz metinleri `game/localization/strings.csv` (EN+TR), ardından `--import`.
+## 6. Texts
+Inside data `{"en", "tr"}`; code/interface texts in `game/localization/strings.csv` (EN+TR), then `--import`.
 
-## 7. Doğrulama
+## 7. Verification
 1. `python3 tools/new_mode.py --check <id>`
-2. `$GODOT --headless --path . -s tests/run.gd -- --file=test_mode_<id>` ve `-- --file=test_modes`
+2. `$GODOT --headless --path . -s tests/run.gd -- --file=test_mode_<id>` and `-- --file=test_modes`
 3. `$GODOT --headless --path . -s game/dev/country_check.gd -- --game_mode=<id> --days=30`
 4. `GODOT=$GODOT tools/run_tests.sh`
-Kırmızı test varsa hata metnindeki "nasıl düzeltilir" kısmını uygula; testi atlama ya da kapatma.
+If a test is red, apply the "how to fix" part of its message; never skip or disable the test.
 
-## 8. Motor koduna dokunman gerekiyorsa DUR
-`game/autoload`, `game/map`, `game/ui`, `game/core` değişikliği modun işi değildir. Ne gerektiğini ve nedenini kullanıcıya
-yaz, onay bekle. Onay gelirse WWII denge testini de koş (`tools/balance_parallel.sh 6`, her kontrol en az 5/6).
+## 8. If you need to touch engine code, STOP
+Changes to `game/autoload`, `game/map`, `game/ui`, `game/core` are not a mode's job. Write to the user what is needed and
+why, and wait for approval. If approved, also run the WWII balance test (`tools/balance_parallel.sh 6`, each check at least 5/6).
 
-## 9. Teslim
-Ayrı branch + pull request. Açıklamada: ne değişti, koşulan testler ve sonuçları (sayılarla), bilinen sınırlar.
-Commit mesajları Türkçe.
+## 9. Delivery
+A separate branch + pull request. In the description: what changed, the tests run and their results (with numbers), known
+limits. Commit messages in Turkish. Documentation is bilingual: if you change an English page, update its Turkish twin in
+the same task.

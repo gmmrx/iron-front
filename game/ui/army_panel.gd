@@ -15,6 +15,8 @@ var _tab := 0                     ## 0 komuta zinciri, 1 şablonlar
 var _sel := ""                    ## "a:ID" ordu, "g:ID" ordular grubu, "free" bağlanmamış tümenler
 var _pending := false
 var _popup_open := false          ## açılır liste açıkken günlük yenileme listeyi kapatmasın
+var _portrait_map: Dictionary = {}
+var _portrait_map_loaded := false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -142,7 +144,7 @@ func _tree(col: VBoxContainer, c: Country) -> void:
 	var na := PanelLayout.small_button(tr("ARM_NEW_ARMY"), func() -> void:
 		var a := Military.create_army(c.tag, [])
 		_sel = "a:%d" % a.id, true, tr("TIP_ARM_NEW_ARMY"))
-	na.icon = UiTheme.icon("plus")
+	na.icon = UiTheme.trimmed(UiTheme.icon("plus"))
 	na.expand_icon = true
 	na.add_theme_constant_override("icon_max_width", 18)
 	na.custom_minimum_size.y = 38
@@ -151,7 +153,7 @@ func _tree(col: VBoxContainer, c: Country) -> void:
 	var ng := PanelLayout.small_button(tr("ARM_NEW_GROUP"), func() -> void:
 		var g := Military.create_group(c.tag)
 		_sel = "g:%d" % g.id, true, tr("TIP_ARM_NEW_GROUP"))
-	ng.icon = UiTheme.icon("plus")
+	ng.icon = UiTheme.trimmed(UiTheme.icon("plus"))
 	ng.expand_icon = true
 	ng.add_theme_constant_override("icon_max_width", 18)
 	ng.custom_minimum_size.y = 38
@@ -166,6 +168,7 @@ func _node(parent: Container, key: String, indent: int) -> VBoxContainer:
 	parent.add_child(wrap)
 	var pc := PanelContainer.new()
 	pc.theme_type_variation = "SlotGold" if _sel == key else "Row"
+	UiTheme.pad(pc, 12, 9)
 	pc.mouse_filter = Control.MOUSE_FILTER_STOP
 	pc.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	pc.gui_input.connect(func(e: InputEvent) -> void:
@@ -175,7 +178,7 @@ func _node(parent: Container, key: String, indent: int) -> VBoxContainer:
 			refresh())
 	wrap.add_child(pc)
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 2)
+	v.add_theme_constant_override("separation", 4)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pc.add_child(v)
 	return v
@@ -384,7 +387,12 @@ func _free_detail(col: VBoxContainer, c: Country) -> void:
 # ------------------------------------------------------------------ komutan kadrosu
 func _roster(col: VBoxContainer, c: Country) -> void:
 	var list := Military.commanders_of(c.tag)
+	# boştakiler üstte, atanmış komutanlar listenin altında (atanacak komutan hemen bulunsun)
+	var busy := {}
+	for cm in list:
+		busy[cm.id] = Military.post_of(cm) != null
 	list.sort_custom(func(x: Commander, y: Commander) -> bool:
+		if busy[x.id] != busy[y.id]: return not busy[x.id]
 		if x.rank != y.rank: return x.rank > y.rank
 		if x.skill != y.skill: return x.skill > y.skill
 		return x.name < y.name)
@@ -402,12 +410,16 @@ func _roster(col: VBoxContainer, c: Country) -> void:
 			post_txt = (post as ArmyGroup).name
 		var pc := PanelContainer.new()
 		pc.theme_type_variation = "SlotGold" if cm.is_marshal() else "Row"
+		UiTheme.pad(pc, 12, 8)
 		pc.tooltip_text = tr("TIP_COMMANDER") % [cm.name, cm.rank_name(), cm.skill, roundi(cm.xp * 100),
 			roundi(Military.GENERAL_BONUS * cm.skill * 100), roundi(Military.MARSHAL_BONUS * cm.skill * 100)]
 		col.add_child(pc)
 		var hb := HBoxContainer.new()
 		hb.add_theme_constant_override("separation", 8)
 		pc.add_child(hb)
+		var portrait := _commander_portrait(cm, Vector2(42, 54))
+		if portrait != null:
+			hb.add_child(portrait)
 		var v := VBoxContainer.new()
 		v.add_theme_constant_override("separation", 1)
 		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -446,13 +458,18 @@ func _roster(col: VBoxContainer, c: Country) -> void:
 func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: int, on_pick: Callable, bonus_text: String) -> void:
 	var box := PanelContainer.new()
 	box.theme_type_variation = "Row"
+	UiTheme.pad(box, 14, 10)
 	col.add_child(box)
 	var hb := HBoxContainer.new()
 	hb.add_theme_constant_override("separation", 12)
 	box.add_child(hb)
-	var s := PanelLayout.slot(UiTheme.icon("command_power"), 64, "", "SlotGold" if cm else "SlotBad")
-	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(s)
+	var portrait := _commander_portrait(cm, Vector2(64, 76)) if cm else null
+	if portrait != null:
+		hb.add_child(portrait)
+	else:
+		var s := PanelLayout.slot(UiTheme.icon("command_power"), 64, "", "SlotGold" if cm else "SlotBad")
+		s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		hb.add_child(s)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 2)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -476,13 +493,43 @@ func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: in
 	pick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hb.add_child(pick)
 
+## Tarihî kadro portreleri yalnızca veri eşleşmesi varsa gösterilir; rastgele üretilen
+## komutanlara başka bir gerçek kişinin fotoğrafı asla düşmez.
+func _commander_portrait(cm: Commander, size: Vector2) -> Control:
+	if cm == null:
+		return null
+	if not _portrait_map_loaded:
+		_portrait_map_loaded = true
+		# etkin oyun modunun eşlemesi (modun dosyası/patch'i varsa o)
+		var parsed: Variant = GameModes.load_json("res://data/common/commander_portraits.json")
+		if parsed is Dictionary:
+			_portrait_map = parsed
+	var image_path := str(_portrait_map.get("%s|%s" % [cm.owner, cm.name], ""))
+	if image_path.is_empty() or not ResourceLoader.exists(image_path):
+		return null
+	var tex := ResourceLoader.load(image_path) as Texture2D
+	if tex == null:
+		return null
+	var frame := PanelContainer.new()
+	frame.theme_type_variation = "SlotGold" if cm.is_marshal() else "Row"
+	frame.custom_minimum_size = size
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var image := TextureRect.new()
+	image.texture = tex
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	image.custom_minimum_size = size - Vector2(6, 6)
+	frame.add_child(image)
+	return frame
+
 func _division_row(col: VBoxContainer, c: Country, d: Division, action: Control) -> void:
 	var s := Military.div_stats(d)
 	var pc := PanelContainer.new()
 	pc.theme_type_variation = "PanelFlat"
+	UiTheme.pad(pc, 14, 8)
 	col.add_child(pc)
 	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 10)
+	hb.add_theme_constant_override("separation", 12)
 	pc.add_child(hb)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", -2)
@@ -518,9 +565,9 @@ func _option(items: Array, current: Variant, cb: Callable, tip: String = "") -> 
 	var ob := OptionButton.new()
 	ob.focus_mode = Control.FOCUS_NONE
 	ob.tooltip_text = tip
-	ob.add_theme_font_size_override("font_size", 15)
+	ob.add_theme_font_size_override("font_size", UiTheme.fs(16))
 	ob.fit_to_longest_item = false
-	ob.custom_minimum_size.x = 170
+	ob.custom_minimum_size = Vector2(190, 42)
 	for i in items.size():
 		ob.add_item(str(items[i][0]))
 		if items[i][1] == current:
@@ -545,6 +592,9 @@ func _stance(get_mode: Callable, set_mode: Callable) -> HBoxContainer:
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = pair[1]
 		b.tooltip_text = pair[2]
+		b.custom_minimum_size.y = 42
+		b.add_theme_font_size_override("font_size", UiTheme.fs(17))
+		b.add_theme_font_override("font", UiTheme.bold_font())
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.set_pressed_no_signal(get_mode.call() == pair[0])
 		var m: Army.Mode = pair[0]
@@ -607,7 +657,7 @@ func _build_templates(c: Country) -> void:
 		_template_row(c, i)
 	var newb := Button.new()
 	newb.text = tr("ARMY_NEW_TEMPLATE")
-	newb.icon = UiTheme.icon("plus")
+	newb.icon = UiTheme.trimmed(UiTheme.icon("plus"))
 	newb.add_theme_constant_override("icon_max_width", 18)
 	newb.tooltip_text = tr("TIP_NEW_TEMPLATE")
 	newb.focus_mode = Control.FOCUS_NONE

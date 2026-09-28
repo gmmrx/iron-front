@@ -25,7 +25,7 @@ func _ready() -> void:
 	_auto.text = tr("TRD_AUTO")
 	_auto.tooltip_text = tr("TRD_AUTO_TIP")
 	_auto.focus_mode = Control.FOCUS_NONE
-	_auto.add_theme_font_size_override("font_size", 15)
+	_auto.add_theme_font_size_override("font_size", UiTheme.fs(15))
 	_auto.toggled.connect(func(on: bool) -> void:
 		var c := World.player()
 		if c and c.auto_trade != on:
@@ -80,7 +80,7 @@ func refresh() -> void:
 		if r == _res:
 			buy.add_theme_color_override("font_color", UiTheme.ACCENT)
 		var row := PanelLayout.table_row(t, [
-			PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 26),
+			PanelLayout.icon_label(UiTheme.resource_icon(r), tr("RES_" + r), 36),
 			str(int(prod_.get(r, 0))), str(int(need.get(r, 0.0))),
 			[("+%d" % int(imp)) if imp > 0 else "—", UiTheme.GOOD if imp > 0 else UiTheme.TEXT_DIM],
 			[("-%d" % int(exp)) if exp > 0 else "—", UiTheme.ACCENT if exp > 0 else UiTheme.TEXT_DIM],
@@ -166,7 +166,7 @@ func _buy_button(c: Country, r: String, deficit: float) -> Control:
 	mb.text = tr("TRD_BUY")
 	mb.flat = false
 	mb.focus_mode = Control.FOCUS_NONE
-	mb.add_theme_font_size_override("font_size", 13)
+	mb.add_theme_font_size_override("font_size", UiTheme.fs(13))
 	mb.tooltip_text = tr("TRD_BUY_TIP") % tr("RES_" + r)
 	if deficit > 0.5:
 		mb.add_theme_color_override("font_color", UiTheme.ACCENT)

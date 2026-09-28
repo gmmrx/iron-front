@@ -15,7 +15,6 @@ var _fuel: Label
 var _tension: Label
 var _war: Label
 var _date: Label
-var _pause_label: Label
 var _pips: Array[ColorRect] = []
 var _pause_btn: Button
 var _pause_icon: PlayPauseIcon
@@ -177,7 +176,7 @@ func _ready() -> void:
 
 	# --- tarih & hız: sağ üst köşe, ayrı panel
 	var date_panel := PanelContainer.new()
-	date_panel.add_theme_stylebox_override("panel", _tex("strip", 12, 10, 5))
+	date_panel.add_theme_stylebox_override("panel", _tex("strip", 12, 18, 10))
 	add_child(date_panel)
 	date_panel.anchor_left = 1.0
 	date_panel.anchor_right = 1.0
@@ -192,13 +191,13 @@ func _ready() -> void:
 	date_panel.minimum_size_changed.connect(place_date)
 	place_date.call_deferred()
 	var drow := HBoxContainer.new()
-	drow.add_theme_constant_override("separation", 8)
+	drow.add_theme_constant_override("separation", 12)
 	date_panel.add_child(drow)
 	_pause_btn = UiTheme.icon_button("play", tr("UI_PAUSE_TIP"), GameClock.toggle_pause, 32)
 	drow.add_child(_pause_btn)
 	var dcol := VBoxContainer.new()
-	dcol.add_theme_constant_override("separation", -2)
-	dcol.custom_minimum_size.x = 168
+	dcol.add_theme_constant_override("separation", 3)
+	dcol.custom_minimum_size.x = 210
 	_date = UiTheme.make_label("", 17)
 	_date.add_theme_font_override("font", UiTheme.bold_font())
 	_date.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -211,8 +210,7 @@ func _ready() -> void:
 		pip.custom_minimum_size = Vector2(18, 6)
 		pips_row.add_child(pip)
 		_pips.append(pip)
-	_pause_label = UiTheme.make_label(tr("UI_PAUSED"), 13, UiTheme.BAD)
-	pips_row.add_child(_pause_label)
+	# duraklatınca görünüm aynı kalır ("duraklatıldı" yazısı yok); yalnız oynat/duraklat düğmesi değişir
 	dcol.add_child(pips_row)
 	drow.add_child(dcol)
 	drow.add_child(UiTheme.icon_button("minus", tr("TIP_SPEED_DOWN"), func() -> void: GameClock.change_speed(-1)))
@@ -247,7 +245,7 @@ func _stat(parent: Container, kind: ResourceIcon.Kind, tip_key: String) -> Label
 	cell.add_child(col)
 	if ResourceIcon.FILES.has(kind) and UiTheme.icon(ResourceIcon.FILES[kind]) != null:
 		var icon := TextureRect.new()
-		icon.texture = UiTheme.icon(ResourceIcon.FILES[kind])
+		icon.texture = UiTheme.trimmed(UiTheme.icon(ResourceIcon.FILES[kind]))
 		icon.custom_minimum_size = Vector2(36, 36)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -307,8 +305,8 @@ func _update_country() -> void:
 		_flag.stretch_mode = TextureRect.STRETCH_SCALE
 		_mini_flag.visible = false
 	_name.text = c.display_name()
-	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader, tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
-	_leader.text = "%s — %s" % [c.leader, tr("IDEOLOGY_" + c.ideology)]
+	_flag.get_parent().tooltip_text = tr("TIP_COUNTRY") % [c.display_name(), c.leader_name(), tr("IDEOLOGY_" + c.ideology), UiTheme.format_number(c.population), c.states.size()]
+	_leader.text = "%s — %s" % [c.leader_name(), tr("IDEOLOGY_" + c.ideology)]
 	_pp.text = "%d" % int(c.political_power)
 	_cell_of(_pp).tooltip_text = tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()]
 	var stab := Politics.stability(c)
@@ -375,6 +373,5 @@ func _update_date() -> void:
 func _update_time_state() -> void:
 	for i in _pips.size():
 		var on := i < GameClock.speed
-		_pips[i].color = (UiTheme.ACCENT if not GameClock.paused else UiTheme.TEXT_DIM) if on else Color(1, 1, 1, 0.12)
-	_pause_label.visible = GameClock.paused
-	_pause_btn.icon = UiTheme.icon("play" if GameClock.paused else "pause")
+		_pips[i].color = UiTheme.ACCENT if on else Color(1, 1, 1, 0.12)
+	_pause_btn.icon = UiTheme.trimmed(UiTheme.icon("play" if GameClock.paused else "pause"))

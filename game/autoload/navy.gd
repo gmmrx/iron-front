@@ -498,18 +498,36 @@ func _rehome(f: Fleet) -> void:
 		f.home = best
 		_go(f, best)
 
+## Bölgedeki en yakın düşman filo. Saatlik önbellek: görünür filolar sahibine göre, düşman listesi ülkeye göre
+## (her filo bütün filoları taramasın: 1939'da saatte ~4 ms'ydi)
+var _vis_hour := -1
+var _vis_by_owner := {}             ## sahip -> [su üstündeki filolar]
+var _foes := {}                     ## ülke -> düşmanları (bu saat)
+
 func _enemy_in_zone(f: Fleet) -> int:
+	var h := World.day_count * 24 + GameClock.hour
+	if h != _vis_hour:
+		_vis_hour = h
+		_vis_by_owner.clear()
+		_foes.clear()
+		for o in fleets:
+			if o.submerged:
+				continue
+			if not _vis_by_owner.has(o.owner):
+				_vis_by_owner[o.owner] = []
+			_vis_by_owner[o.owner].append(o)
+	if not _foes.has(f.owner):
+		_foes[f.owner] = Diplomacy.enemies_of(f.owner)
 	var here := World.province(f.location).center
 	var best := 0
 	var bd := INF
-	for o in fleets:
-		if o.submerged or not Diplomacy.are_enemies(o.owner, f.owner):
-			continue
-		if in_zone(f.zone_center, o.location):
-			var d := World.province(o.location).center.distance_squared_to(here)
-			if d < bd:
-				bd = d
-				best = o.location
+	for e: String in _foes[f.owner]:
+		for o: Fleet in _vis_by_owner.get(e, []):
+			if in_zone(f.zone_center, o.location):
+				var d := World.province(o.location).center.distance_squared_to(here)
+				if d < bd:
+					bd = d
+					best = o.location
 	return best
 
 # ------------------------------------------------------------------ deniz muharebesi

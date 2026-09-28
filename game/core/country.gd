@@ -103,6 +103,13 @@ func map_name() -> String:
 func daily_political_power_gain() -> float:
 	return maxf(2.0 * (1.0 + mod("political_power_gain") + Politics.stability_pp_mod(self)) + mod("political_power_flat"), 0.1)
 
+## Liderin görünen adı: veride uluslararası ad (ör. "George II"), dilin kendi yazımı çeviri tablosunda
+## ("LEADER_George II" → "II. Yorgi"); yoksa olduğu gibi
+func leader_name() -> String:
+	var key := "LEADER_" + leader
+	var t := TranslationServer.translate(key)
+	return leader if t == key else t
+
 func party_name() -> String:
 	var loc := TranslationServer.get_locale().substr(0, 2)
 	return party.get(loc, party.get("en", ""))

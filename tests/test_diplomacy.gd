@@ -66,10 +66,15 @@ func test_allies_and_guarantors_join_defender() -> void:
 	check(Diplomacy.are_enemies("SOV", "HUN"), "garantör savunmaya katılır")
 	check(not Diplomacy.are_enemies("SOV", "GER"), "garantör başka savaşa girmez")
 
+## Serbest dönemde (tarih çizelgesi bittikten sonra) aynı ideolojili ittifak üyesi saldırı çağrısına uyar; tarih
+## sürerken uymaz, katılım çizelgeden gelir (test_history)
 func test_attacker_faction_answers_call() -> void:
+	var keep := AI.free_from
+	AI.free_from = 0
 	Diplomacy.create_faction("GER")
 	Diplomacy.join_faction("ITA", "GER")
 	check(_war("GER", "POL"), "Almanya → Polonya")
+	AI.free_from = keep
 	check(Diplomacy.are_enemies("ITA", "POL"), "aynı ideolojili ittifak üyesi çağrıya uyar")
 	check(Diplomacy.are_allies("ITA", "GER"), "İtalya saldıran tarafta")
 
@@ -215,3 +220,12 @@ func test_white_peace_leader_with_member() -> void:
 	check(Diplomacy.are_enemies("GER", "POL"), "Almanya–Polonya savaşı sürer")
 	Diplomacy.white_peace("POL", "GER")
 	eq(Diplomacy.wars.size(), 0, "iki lider barışınca savaş biter")
+
+## İlhak edilen ülkenin ordusu haritada kalmaz (Çekoslovakya 1939: tümenler, filolar, hava kanatları kalkar)
+func test_annexed_country_units_removed() -> void:
+	check(Military.country_divisions("CZE").size() > 0, "Çekoslovakya'nın başlangıçta tümeni olmalı")
+	World.annex("CZE", "GER")
+	check(not country("CZE").exists(), "Çekoslovakya ilhak sonrası var")
+	eq(Military.country_divisions("CZE").size(), 0, "ilhak edilen ülkenin tümenleri")
+	check(Navy.fleets.filter(func(f: Fleet) -> bool: return f.owner == "CZE").is_empty(), "ilhak edilen ülkenin filosu kaldı")
+	check(Air.wings.filter(func(w: AirWing) -> bool: return w.owner == "CZE").is_empty(), "ilhak edilen ülkenin hava kanadı kaldı")

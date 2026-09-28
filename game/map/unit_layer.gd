@@ -1,11 +1,13 @@
 class_name UnitLayer
 extends Node3D
-## Tümen sayaçları (bölge + ülke başına bir sayaç), seçim, hareket okları ve muharebe işaretleri.
+## Tümen sayaçları (bölge + ülke + ordu başına bir sayaç: aynı bölgedeki ayrı ordular yan yana ayrı iğnelerde), seçim,
+## hareket okları ve muharebe işaretleri. Oyuncunun ordularının sayacı altında ordunun adı yazar.
 
 const PIXEL := 0.00042
 const FLAG_MODE := 1250.0          ## bu mesafeden uzakta sayı yerine küçük ülke bayrağı (her ülke için)
 const HIDE_ALL := 3000.0           ## bu mesafeden uzakta hiç işaret yok: harita okunur, kare hızı korunur
 const LIFT := 5.0
+const NAME_DIST := 520.0           ## ordu/tümen adı bu mesafenin içinde yazar
 
 var map: MapView3D
 var camera: Camera3D
@@ -30,6 +32,7 @@ var _pulse := 0.0
 var _sel_keys: Array[String] = []
 var _vis_dirty := true
 var _cluster_timer := 0.0
+var _names_close := true
 
 func _ready() -> void:
 	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
@@ -44,6 +47,7 @@ func _ready() -> void:
 	_arrows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_arrows)
 	Military.divisions_changed.connect(func() -> void: _dirty = true)
+	Military.armies_changed.connect(func() -> void: _dirty = true)       # ordu kuruldu / katıldı / ayrıldı
 	Military.battles_changed.connect(_update_battles)
 	World.player_changed.connect(func(_t: String) -> void: clear_selection())
 
@@ -69,6 +73,11 @@ func _process(delta: float) -> void:
 	var far := 0
 	if camera:
 		far = 2 if hide_all else (1 if camera.distance > FLAG_MODE else 0)
+	# ordu/tümen adları yalnız yakında (orta zoom'da haritayı doldurmasın)
+	var names_close: bool = camera == null or (camera as MapCamera3D).distance < NAME_DIST
+	if names_close != _names_close:
+		_names_close = names_close
+		_vis_dirty = true
 	if far != _was_far or _vis_dirty:
 		_was_far = far
 		_vis_dirty = false
@@ -78,6 +87,7 @@ func _process(delta: float) -> void:
 			c["bg"].visible = far == 0
 			c["label"].visible = far == 0
 			c["flag"].visible = far == 1
+			c["army"].visible = far == 0 and (c["army"] as Label3D).text != "" and _names_close
 			c["root"].visible = c["base_vis"] and not c.get("merged", false)
 	_cluster_timer -= delta
 	if _cluster_timer <= 0.0 and not hide_all:
@@ -100,16 +110,42 @@ func _follow_anchors() -> void:
 				n += 1
 		if n == 0:
 			continue
-		var p := sum / n + Vector2(c.get("off", 0.0), 0.0)
 		var root: Node3D = c["root"]
-		# figürlerin üstünde dursun (yakın zoom'da figür boyu kadar yukarı)
 		var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
+		# aynı bölgedeki sayaçlar yan yana: ~56 px aralık, her zoom'da (sabit boy sayaçlar üst üste binmesin)
+		var p := sum / n + Vector2(float(c.get("off", 0.0)) * cam_d * 0.032, 0.0)
 		var h := maxf(map.height_at(p), 0.0) + LIFT + clampf(cam_d * 0.09, 0.0, 14.0)
+		if PinLayer.active():
+			h = maxf(map.height_at(p), 0.0) + PinLayer.lift(cam_d)     # iğne haritası: sayaç iğnenin bayrağı
 		root.position = Vector3(p.x, h, p.y)   # doğrudan: sayaç kaymaz
 
+## İğne haritası: görünen sayaçların kökleri (altlarına iğne gövdesi çizilir)
+func pin_roots() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	if camera is MapCamera3D and (camera as MapCamera3D).distance > HIDE_ALL:
+		return out
+	for key: String in _counters:
+		var root: Node3D = _counters[key]["root"]
+		if root.visible:
+			out.append(root)
+	return out
+
 # ------------------------------------------------------------------ sayaçlar
-func _tex_for(tag: String, ob: int = 10, sb: int = 10, selected := false) -> Texture2D:
-	var ck := "%s:%d:%d:%s" % [tag, ob, sb, selected]
+## Tümenin türü (sayaç sembolü): 0 piyade, 1 motorlu, 2 zırhlı — şablonun taburlarından
+static func division_kind(d: Division) -> int:
+	var c: Country = World.countries.get(d.owner)
+	if c == null or c.templates.is_empty():
+		return 0
+	var bats: Dictionary = c.templates[clampi(d.template, 0, c.templates.size() - 1)]["battalions"]
+	if int(bats.get("light_armor", 0)) + int(bats.get("medium_armor", 0)) > 0:
+		return 2
+	if int(bats.get("motorized", 0)) > 0:
+		return 1
+	return 0
+
+## Sayaç dokusu. kind: 0 piyade (çarpı), 1 motorlu (çarpı + altta tekerlekler), 2 zırhlı (oval palet) — harita sembolleri
+func _tex_for(tag: String, ob: int = 10, sb: int = 10, selected := false, kind := 0) -> Texture2D:
+	var ck := "%s:%d:%d:%s:%d" % [tag, ob, sb, selected, kind]
 	if _counter_tex.has(ck):
 		return _counter_tex[ck]
 	var c: Country = World.countries[tag]
@@ -125,14 +161,36 @@ func _tex_for(tag: String, ob: int = 10, sb: int = 10, selected := false) -> Tex
 	# organizasyon (yeşil) ve güç (sarı) çubukları
 	img.fill_rect(Rect2i(3, bh, int((w - 6) * ob / 10.0), 5), Color(0.45, 0.85, 0.35))
 	img.fill_rect(Rect2i(3, bh + 6, int((w - 6) * sb / 10.0), 4), Color(0.95, 0.78, 0.3))
-	# NATO piyade sembolü (çapraz)
-	for i in 38:
-		var x := 6 + i
-		var y1 := 8 + int(i * (bh - 16) / 38.0)
-		var y2 := bh - 8 - int(i * (bh - 16) / 38.0)
-		for t in 3:
-			img.set_pixel(x, clampi(y1 + t - 1, 0, h - 1), Color(0.9, 0.85, 0.7))
-			img.set_pixel(x, clampi(y2 + t - 1, 0, h - 1), Color(0.9, 0.85, 0.7))
+	var ink := Color(0.9, 0.85, 0.7)
+	if kind == 2:
+		# zırhlı: yatay oval (palet)
+		var cx := 25.0
+		var cy := bh * 0.5
+		for y in bh:
+			for x in range(4, 47):
+				var dx := (x - cx) / 17.0
+				var dy := (y - cy) / 9.0
+				var r := sqrt(dx * dx + dy * dy)
+				if r > 0.82 and r < 1.12:
+					img.set_pixel(x, y, ink)
+	else:
+		# piyade: çapraz (motorluda altta tekerlek için biraz kısa)
+		var y_bot := bh - (14 if kind == 1 else 8)
+		for i in 38:
+			var x := 6 + i
+			var y1 := 8 + int(i * (y_bot - 8) / 38.0)
+			var y2 := y_bot - int(i * (y_bot - 8) / 38.0)
+			for t in 3:
+				img.set_pixel(x, clampi(y1 + t - 1, 0, h - 1), ink)
+				img.set_pixel(x, clampi(y2 + t - 1, 0, h - 1), ink)
+		if kind == 1:
+			# motorlu: altta iki tekerlek
+			for wx: int in [15, 35]:
+				for y in range(bh - 11, bh - 3):
+					for x in range(wx - 4, wx + 5):
+						var dd := Vector2(x - wx, y - (bh - 7)).length()
+						if dd > 2.2 and dd < 4.2:
+							img.set_pixel(x, y, ink)
 	# çerçeve: normalde ince pirinç, seçiliyse kalın parlak altın
 	var brass := Color(1.0, 0.84, 0.36) if selected else Color(0.72, 0.6, 0.34)
 	var bw := 4 if selected else 1
@@ -185,7 +243,7 @@ func _group_pos(pid: int, tag: String, index: int, count: int) -> Vector3:
 func _rebuild() -> void:
 	var groups := {}
 	for d in Military.divisions:
-		var key := "%d:%s" % [d.province, d.owner]
+		var key := "%d:%s:%d" % [d.province, d.owner, d.army]
 		if not groups.has(key):
 			groups[key] = []
 		groups[key].append(d)
@@ -212,7 +270,20 @@ func _rebuild() -> void:
 				_counters[key] = _make_counter(tag)
 			var c: Dictionary = _counters[key]
 			c["divs"] = divs
-			c["off"] = (i - (keys.size() - 1) * 0.5) * 14.0
+			c["off"] = float(i) - float(keys.size() - 1) * 0.5     # yan yana sıra (ekran aralığı _follow_anchors'ta)
+			var army_id := int(key.get_slice(":", 2))
+			var an: Label3D = c["army"]
+			var army := Military.army_by_id(army_id) if army_id != 0 and tag == World.player_tag else null
+			# oyuncunun sayacının altında ad: ordudaysa ordunun adı (altın), tek tümense tümenin adı (açık)
+			if army:
+				an.text = army.name
+				an.modulate = UiTheme.ACCENT
+			elif tag == World.player_tag and divs.size() == 1:
+				an.text = (divs[0] as Division).name
+				an.modulate = UiTheme.TEXT
+			else:
+				an.text = ""
+			an.visible = an.text != "" and _was_far == 0 and _names_close
 			if models == null or c["root"].position == Vector3.ZERO:
 				c["root"].position = _group_pos(pid, tag, i, keys.size())
 			var org := 0.0
@@ -224,7 +295,14 @@ func _rebuild() -> void:
 				if d in selected:
 					sel = true
 			c["label"].text = str(divs.size())
-			c["bg"].texture = _tex_for(tag, clampi(roundi(org / divs.size() * 10.0), 0, 10), clampi(roundi(strn / divs.size() * 10.0), 0, 10), sel)
+			var kinds := [0, 0, 0]
+			for d: Division in divs:
+				kinds[division_kind(d)] += 1
+			var kind := 0
+			for k in 3:
+				if kinds[k] > kinds[kind]:
+					kind = k
+			c["bg"].texture = _tex_for(tag, clampi(roundi(org / divs.size() * 10.0), 0, 10), clampi(roundi(strn / divs.size() * 10.0), 0, 10), sel, kind)
 			c["flag"].texture = flag_marker(tag, sel)
 			c["selected"] = sel
 			if sel:
@@ -265,8 +343,24 @@ func _make_counter(tag: String) -> Dictionary:
 	var flag := _sprite(flag_marker(tag), PIXEL * 0.74, 10)
 	flag.visible = false
 	root.add_child(flag)
+	# oyuncunun ordusu: sayacın altında ordunun adı (ayrılan ordular haritada ayırt edilsin)
+	var an := Label3D.new()
+	an.font = UiTheme.bold_font()
+	an.font_size = 26
+	an.outline_size = 8
+	an.outline_modulate = Color(0, 0, 0, 0.9)
+	an.modulate = UiTheme.ACCENT
+	an.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	an.fixed_size = true
+	an.pixel_size = PIXEL * 0.8
+	an.no_depth_test = true
+	an.render_priority = 12
+	an.outline_render_priority = 11
+	an.offset = Vector2(0, -34)
+	an.visible = false
+	root.add_child(an)
 	_vis_dirty = true
-	return {"root": root, "label": lbl, "bg": bg, "flag": flag, "tag": tag, "divs": [], "selected": false}
+	return {"root": root, "label": lbl, "bg": bg, "flag": flag, "army": an, "tag": tag, "divs": [], "selected": false}
 
 # ------------------------------------------------------------------ muharebe işaretleri
 func _update_battles() -> void:

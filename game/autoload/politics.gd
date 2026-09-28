@@ -162,6 +162,20 @@ func start_focus(c: Country, id: String) -> bool:
 	politics_changed.emit(c.tag)
 	return true
 
+## Odağı beklemeden tamamla (tarih çizelgesi: tarihî adım tam gününde): etkileri uygulanır. with_effects = false ise
+## yalnız yapılmış sayılır (yapay zekâ kendisi seçmesin, ardılları açılsın)
+func complete_focus_now(c: Country, id: String, with_effects := true) -> void:
+	if id in c.focus_done or focus_def(c, id).is_empty():
+		return
+	if c.focus_current == id:
+		c.focus_current = ""
+		c.focus_progress = 0.0
+	c.focus_done.append(id)
+	if with_effects:
+		apply_effects(c, focus_def(c, id)["effects"])
+	focus_completed.emit(c.tag, id)
+	politics_changed.emit(c.tag)
+
 func cancel_focus(c: Country) -> void:
 	c.focus_current = ""
 	c.focus_progress = 0.0
@@ -242,7 +256,10 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"tension": World.world_tension = clampf(World.world_tension + float(v), 0.0, 100.0)
 			"spirit":
 				if not v in c.spirits: c.spirits.append(v)
-			"remove_spirit": c.spirits.erase(v)
+				Military.invalidate_stats(c.tag)          # savunma/bütünlük değiştiyse tümen istatistikleri yenilensin
+			"remove_spirit":
+				c.spirits.erase(v)
+				Military.invalidate_stats(c.tag)
 			"research_slot": c.research_slots += int(v)
 			"research_bonus": c.research_bonus.append({"category": v, "value": float(e.get("value", 0.5)), "uses": int(e.get("uses", 1))})
 			"building": _add_buildings(c, v, int(e.get("count", 1)), e.get("where", "best"))
@@ -283,7 +300,7 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"news": _news(v, [c.display_name()])
 			"set_leader":
 				c.leader = v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v)
-				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader], "info")
+				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader_name()], "info")
 			_:
 				# oyun modunun etkileri (game/modes/<id>/rules.gd → effect_keys / apply_effect)
 				if Game.rules and k in Game.rules.effect_keys():
@@ -345,7 +362,11 @@ func fire_event(target: Country, id: String, from_tag: String) -> void:
 		if id == "faction_invite":
 			opt = 0 if Diplomacy.ai_accepts_invite(target, World.countries[from_tag]) else 1
 		elif id == "call_to_arms":
-			opt = 0 if target.ideology == World.countries[from_tag].ideology or randf() < 0.3 else 1
+			# tarih sürerken saldırı savaşına çağrıya uyulmaz: katılım tarihî gününde çizelgeden gelir (İtalya 1940)
+			if AI.follows_history():
+				opt = 1
+			else:
+				opt = 0 if target.ideology == World.countries[from_tag].ideology or randf() < 0.3 else 1
 		choose_option(target, id, opt, from_tag)
 
 func _ai_option(id: String, c: Country = null) -> int:

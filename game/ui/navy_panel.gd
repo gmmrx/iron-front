@@ -134,11 +134,11 @@ func _card(f: Fleet) -> Control:
 		b.theme_type_variation = "Tab"
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
-		b.icon = UiTheme.icon(MISSION_ICONS[m])
+		b.icon = UiTheme.trimmed(UiTheme.icon(MISSION_ICONS[m]))
 		b.add_theme_constant_override("icon_max_width", 20)
 		b.clip_text = true
 		b.text = tr("MISSION_%d" % m)
-		b.add_theme_font_size_override("font_size", 13)
+		b.add_theme_font_size_override("font_size", UiTheme.fs(13))
 		b.tooltip_text = tr("TIP_MISSION_%d" % m)
 		b.button_pressed = int(f.mission) == m
 		b.custom_minimum_size = Vector2(0, 32)
@@ -161,7 +161,7 @@ func _card(f: Fleet) -> Control:
 	pick.text = tr("NAVY_PICK_ZONE")
 	pick.focus_mode = Control.FOCUS_NONE
 	pick.tooltip_text = tr("TIP_NAVY_PICK_ZONE")
-	pick.add_theme_font_size_override("font_size", 14)
+	pick.add_theme_font_size_override("font_size", UiTheme.fs(14))
 	pick.pressed.connect(func() -> void:
 		selected_id = f.id
 		fleet_selected.emit(f)

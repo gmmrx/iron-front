@@ -9,8 +9,9 @@
         türleri, yazım hatası olan dosya adları (GameModes.validate ile aynı kurallar). Kimlik verilmezse bütün modlar.
   python3 tools/new_mode.py --copy <kimlik> common/<dosya>.json
         Temel veri dosyasını moda kopyalar (dosyanın TAMAMI modda değişecekse).
-  python3 tools/new_mode.py --blank <kimlik> common/events.json|common/focuses.json
-        WWII olaylarını / ülke program ağaçlarını kaldıran bir patch yazar (motorun kendi olayları ve _generic ağacı kalır).
+  python3 tools/new_mode.py --blank <kimlik> common/events.json|common/focuses.json|common/history.json
+        WWII olaylarını / ülke program ağaçlarını / tarih çizelgesini kaldıran bir patch yazar (motorun kendi olayları ve
+        _generic ağacı kalır; boş çizelgede yapay zekâ ilk günden kendi savaşlarını açabilir).
   python3 tools/new_mode.py --remove <kimlik> --yes
         Modu kayıttan ve diskten siler.
 """
@@ -124,6 +125,7 @@ Sonraki adımlar:
                     kısmi      → data/modes/{mid}/common/<dosya>.patch.json (bkz. data/modes/_template)
                     WWII olayları olmasın → python3 tools/new_mode.py --blank {mid} common/events.json
                                             python3 tools/new_mode.py --blank {mid} common/focuses.json
+                                            python3 tools/new_mode.py --blank {mid} common/history.json
                     modun kendi verisi (WWII'de karşılığı yok) → data/modes/{mid}/own/<ad>.json,
                                             kural betiğinde GameModes.load_own("<ad>.json")
   3. Denetle: python3 tools/new_mode.py --check {mid}
@@ -345,8 +347,14 @@ def blank(mid: str, rel: str) -> None:
         base = load(DATA / rel)["trees"]
         patch = {"trees": {k: None for k in base if k != "_generic"}}
         note = f"{len(patch['trees'])} ülke ağacı kaldırıldı; _generic kaldı (kendi ağacı olmayan ülkeler kullanır)"
+    elif rel == "common/history.json":
+        base = load(DATA / rel)["entries"]
+        start = str(load(folder / "mode.json").get("start_date", DEFAULT_DATES["start_date"]))
+        patch = {"ai_free_from": start, "entries": []}
+        note = (f"{len(base)} WWII tarih adımı kaldırıldı; yapay zekâ ilk günden (ai_free_from = {start}) kendi "
+                f"savaşlarını açabilir")
     else:
-        die("--blank yalnız common/events.json ve common/focuses.json için")
+        die("--blank yalnız common/events.json, common/focuses.json ve common/history.json için")
     patch = {"_comment": "tools/new_mode.py --blank ile üretildi: " + note, **patch}
     dst = folder / (rel[:-5] + ".patch.json")
     if dst.exists():
@@ -359,6 +367,10 @@ def blank(mid: str, rel: str) -> None:
         if refs:
             print(f"UYARI: WWII program ağaçları kaldırılan {len(refs)} olaya başvuruyor ({', '.join(refs[:5])}...).")
             print(f"       Ağaçları da kaldır: python3 tools/new_mode.py --blank {mid} common/focuses.json")
+    if rel == "common/focuses.json" and not (folder / "common" / "history.patch.json").exists() \
+            and not (folder / "common" / "history.json").exists():
+        print(f"UYARI: WWII tarih çizelgesi (common/history.json) kaldırılan ağaçların odaklarını tamamlar.")
+        print(f"       Çizelgeyi de kaldır: python3 tools/new_mode.py --blank {mid} common/history.json")
 
 
 def remove(mid: str) -> None:

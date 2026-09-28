@@ -9,3 +9,10 @@ topbar.png.import
 
 # yerel referans notları: commit edilmez
 docs/reference/
+
+# yerel çalışma notları: prompt listeleri, bulut görevleri, özgünlük notları (commit edilmez; sonra bir klasörde toplanacak)
+docs/art/
+docs/cloud/
+docs/ORIGINALITY.md
+docs/OZGUNLUK.md
+qa_icon_*

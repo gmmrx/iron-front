@@ -70,20 +70,6 @@ const PAINTED_ATLAS: Dictionary = {
 	"focus_tur_axis": ["turkey_c", 4],
 	"focus_tur_mosul": ["turkey_c", 5],
 	"focus_tur_aegean": ["turkey_d", 0],
-	"focus_g_industry": ["turkey_d", 1],
-	"focus_g_construction": ["turkey_d", 2],
-	"focus_g_research": ["turkey_d", 3],
-	"focus_g_arms": ["turkey_d", 4],
-	"focus_g_infra": ["turkey_d", 5],
-	"focus_g_army": ["turkey_e", 0],
-	"focus_g_doctrine": ["turkey_e", 1],
-	"focus_g_equipment": ["turkey_e", 2],
-	"focus_g_air": ["turkey_e", 3],
-	"focus_g_air2": ["turkey_e", 4],
-	"focus_g_navy": ["turkey_e", 5],
-	"focus_g_politics": ["turkey_f", 0],
-	"focus_g_unity": ["turkey_f", 1],
-	"focus_g_propaganda": ["turkey_f", 2],
 	"spirit_kemalist_reforms": ["turkey_f", 3],
 	"spirit_armed_neutrality": ["turkey_f", 4],
 	"spirit_village_institutes": ["turkey_f", 5],
@@ -526,13 +512,72 @@ static func event_icon(event: String) -> Texture2D:
 
 ## Arayüzü hazır ama oyuna henüz etkisi olmayan özellik: görünür kalır, soluklaşır, üstünde yasak imleci çıkar
 ## (ipucu nedenini söyler). Oyunu kazandıran ya da kaybettiren her şey açık kalır.
+## Kutuya iç boşluk: tema türünün (theme_type_variation) kutusunu kopyalayıp kenar boşluklarını ayarlar
+static func pad(pc: PanelContainer, h: int = 12, v: int = 9) -> PanelContainer:
+	var variant := pc.theme_type_variation if pc.theme_type_variation != &"" else &"PanelContainer"
+	var base := get_theme().get_stylebox("panel", variant)
+	if base:
+		var sb: StyleBox = base.duplicate()
+		sb.content_margin_left = h
+		sb.content_margin_right = h
+		sb.content_margin_top = v
+		sb.content_margin_bottom = v
+		pc.add_theme_stylebox_override("panel", sb)
+	return pc
+
 static func mark_unavailable(c: Control) -> void:
 	c.modulate = Color(1, 1, 1, 0.38)
 	c.mouse_default_cursor_shape = Control.CURSOR_FORBIDDEN
 
+## Arayüz ikonu: yeni ikon setinin saydam kenar boşluğu (çoğunda her kenarda ~%20) kırpılır; aynı yuvada ikonun kendisi
+## ~1,8 kat büyük görünür. Kırpma kutuları assets/ui/icon_trims.json'da (tools/make_icon_trims.py); listede olmayan ikon
+## masaüstünde bir kez ölçülür, web'de olduğu gibi kalır. Sonuç önbelleklenir. Harita ikonları kırpılmaz.
+static var _trim_cache := {}
+static var _trims: Dictionary = {}
+static func trimmed(tex: Texture2D) -> Texture2D:
+	if tex == null:
+		return null
+	var key := tex.get_instance_id()
+	if _trim_cache.has(key):
+		return _trim_cache[key]
+	var out: Texture2D = tex
+	var path := tex.resource_path
+	if path.begins_with("res://assets/ui/icons_new/"):
+		if _trims.is_empty():
+			var f := FileAccess.open("res://assets/ui/icon_trims.json", FileAccess.READ)
+			var parsed: Variant = JSON.parse_string(f.get_as_text()) if f else null
+			_trims = parsed if parsed is Dictionary else {"": []}
+		var stem := path.get_file().get_basename()
+		var r := Rect2()
+		if _trims.has(stem):
+			var box: Array = _trims[stem]
+			var k := float(tex.get_width()) / maxf(float(box[4]), 1.0)
+			r = Rect2(float(box[0]) * k, float(box[1]) * k, float(box[2]) * k, float(box[3]) * k)
+		elif not OS.has_feature("web"):
+			r = _measure_trim(tex)
+		if r.size.x > 0.0:
+			var at := AtlasTexture.new()
+			at.atlas = tex
+			at.region = r
+			out = at
+	_trim_cache[key] = out
+	return out
+
+static func _measure_trim(tex: Texture2D) -> Rect2:
+	var img := tex.get_image()
+	if img == null or img.is_compressed() or img.detect_alpha() == Image.ALPHA_NONE:
+		return Rect2()
+	var used := img.get_used_rect()
+	var full := Vector2(img.get_width(), img.get_height())
+	if used.size.x <= 0 or used.size.x * used.size.y >= full.x * full.y * 0.8:
+		return Rect2()
+	var side := maxf(used.size.x, used.size.y) * 1.08
+	var c := Vector2(used.position) + Vector2(used.size) * 0.5
+	return Rect2(c - Vector2(side, side) * 0.5, Vector2(side, side)).intersection(Rect2(Vector2.ZERO, full))
+
 static func icon_texture(tex: Texture2D, side := 28) -> TextureRect:
 	var view := TextureRect.new()
-	view.texture = tex
+	view.texture = trimmed(tex)
 	view.custom_minimum_size = Vector2(side, side)
 	view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	view.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -556,7 +601,7 @@ static func install_cursors() -> void:
 ## Oyuna özel ikonlu küçük düğme (metin yok) + açıklama
 static func icon_button(icon_name: String, tip: String, action: Callable, size: int = 30) -> Button:
 	var b := Button.new()
-	b.icon = icon(icon_name)
+	b.icon = trimmed(icon(icon_name))
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	b.custom_minimum_size = Vector2(size, size)
@@ -576,10 +621,10 @@ static func _button_style(bg: Color, border: Color) -> StyleBoxFlat:
 	sb.border_color = border
 	sb.set_border_width_all(1)
 	sb.set_corner_radius_all(2)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 4
-	sb.content_margin_bottom = 4
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
 	return sb
 
 ## Arayüz dokuları (assets/ui/skin, tools/make_ui_skin.py)
@@ -593,7 +638,7 @@ static func skin(name: String, margin: int = 10, content: int = 8) -> StyleBoxTe
 static func _build() -> Theme:
 	var t := Theme.new()
 	t.default_font = load("res://assets/fonts/BarlowCondensed-Medium.ttf")
-	t.default_font_size = 18
+	t.default_font_size = 20
 
 	t.set_color("font_color", "Label", TEXT)
 	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.7))
@@ -605,9 +650,9 @@ static func _build() -> Theme:
 	t.set_stylebox("panel", "Panel", pnl)
 	for pair: Array in [["normal", "button"], ["hover", "button_hover"], ["pressed", "button_pressed"],
 			["hover_pressed", "button_pressed"], ["disabled", "button_disabled"]]:
-		var b := skin(pair[1], 8, 6)
-		b.content_margin_left = 12
-		b.content_margin_right = 12
+		var b := skin(pair[1], 8, 9)
+		b.content_margin_left = 16
+		b.content_margin_right = 16
 		t.set_stylebox(pair[0], "Button", b)
 		t.set_stylebox(pair[0], "MenuButton", b)
 		t.set_stylebox(pair[0], "OptionButton", b)
@@ -656,12 +701,12 @@ static func _build() -> Theme:
 	for v: Array in [["Card", "card", "card_hover", "card_selected"], ["Tab", "tab", "tab", "tab_active"],
 			["MenuTile", "menu_btn", "menu_btn_hover", "menu_btn_pressed"]]:
 		t.set_type_variation(v[0], "Button")
-		var n := skin(v[1], 8, 6)
-		var h := skin(v[2], 8, 6)
-		var p2 := skin(v[3], 8, 6)
+		var n := skin(v[1], 8, 9)
+		var h := skin(v[2], 8, 9)
+		var p2 := skin(v[3], 8, 9)
 		for sb: StyleBoxTexture in [n, h, p2]:
-			sb.content_margin_left = 10
-			sb.content_margin_right = 10
+			sb.content_margin_left = 14
+			sb.content_margin_right = 14
 		t.set_stylebox("normal", v[0], n)
 		t.set_stylebox("hover", v[0], h)
 		t.set_stylebox("pressed", v[0], p2)
@@ -676,7 +721,7 @@ static func _build() -> Theme:
 	t.set_constant("shadow_offset_x", "TooltipLabel", 1)
 	t.set_constant("shadow_offset_y", "TooltipLabel", 2)
 	t.set_constant("line_spacing", "TooltipLabel", 4)
-	t.set_font_size("font_size", "TooltipLabel", 18)
+	t.set_font_size("font_size", "TooltipLabel", 20)
 
 	# ilerleme çubukları: gömük koyu zemin, altın/yeşil dolgu
 	var pb_bg := StyleBoxFlat.new()
@@ -722,9 +767,20 @@ static func format_number(v: float) -> String:
 		return "%.1fK" % (v / 1_000.0)
 	return "%d" % int(v)
 
+## Okunur yazı boyu: tasarım boyutu -> ekrandaki boyut. Küçük yazılar en az 16 olur (pencere/tarayıcı ölçeğinde
+## 1920x1080 tasarımın küçülmesiyle 12'lik yazı okunmuyordu); büyükler orantılı büyür.
+static func fs(size: int) -> int:
+	if size <= 0:
+		return size
+	if size <= 13:
+		return 16
+	if size <= 20:
+		return size + 3
+	return size + 2
+
 static func make_label(text: String, size: int = 18, color: Color = TEXT) -> Label:
 	var l := Label.new()
 	l.text = text
-	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_font_size_override("font_size", fs(size))
 	l.add_theme_color_override("font_color", color)
 	return l

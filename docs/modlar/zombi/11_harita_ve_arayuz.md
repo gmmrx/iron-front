@@ -470,5 +470,5 @@ Sürüm 2 (insan onayı): `MapMode.OUTBREAK` ve `epi_tex` (gölgelendirici deği
 - Depodaki kod: `game/ui/panel_layout.gd`, `game/ui/top_bar.gd`, `game/ui/alert_bar.gd`, `game/ui/notification_feed.gd`,
   `game/ui/map_tooltip.gd`, `game/ui/event_popup.gd`, `game/ui/focus_panel.gd`, `game/ui/game_over.gd`, `game/ui/hud.gd`,
   `game/map/map_view_3d.gd` (`MapMode`, `set_marked_states`), `game/map/map_icon_layer.gd`, `game/map/unit_layer.gd`,
-  `game/ui/flag_factory.gd`, `assets/shaders/map3d.gdshader` (yalnız okundu), `game/main.gd` (kısayollar), `docs/wiki/02_arayuz.md`.
+  `game/ui/flag_factory.gd`, `assets/shaders/map3d.gdshader` (yalnız okundu), `game/main.gd` (kısayollar), `docs/wiki/tr/02_arayuz.md`.
 - Bu klasör: 01 §3e, §6; 02 §1.2, §3, §7; 03 §13; 04 §2.5, §7.4; 05 §8, §11; 06 §4, §7; 07 §15; 08 §14; 09 §11; 10 §5, §7.

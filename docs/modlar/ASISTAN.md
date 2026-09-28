@@ -1,6 +1,8 @@
+[English](ASSISTANT.md) · **Türkçe**
+
 # Yapay zekâ asistanına verilecek tek sayfa: bu oyuna mod eklemek
 
-Bu metni asistanına (Claude, ChatGPT, Copilot...) yapıştır; ayrıntı için docs/modlar/README.md.
+Bu metni asistanına (Claude, ChatGPT, Copilot...) yapıştır; ayrıntı için docs/modlar/README.tr.md.
 
 **Oyun:** Godot 4.7 + GDScript, veri güdümlü 2. Dünya Savaşı büyük strateji oyunu. Modlar motoru değiştirmeden kendi verisini getirir.
 
@@ -13,7 +15,8 @@ Bu metni asistanına (Claude, ChatGPT, Copilot...) yapıştır; ayrıntı için 
 - Kod (gerekirse): `game/modes/<id>/rules.gd`, `extends ModeRules`; kancalar: on_new_game, on_game_started, on_day, on_hour,
   on_month, check_end, score, to_save/from_save, effect_keys/apply_effect/describe_effect, condition_keys/check_condition.
 - Metin: veri içinde `{"en": "...", "tr": "..."}`; arayüz/kod metni `game/localization/strings.csv` (İngilizce + Türkçe).
-- İskelet ve araçlar: `python3 tools/new_mode.py <id>`, `--check`, `--copy <id> common/x.json`, `--blank <id> common/events.json`.
+- İskelet ve araçlar: `python3 tools/new_mode.py <id>`, `--check`, `--copy <id> common/x.json`, `--blank <id> common/events.json`
+  (ayrıca `common/focuses.json`, `common/history.json`: WWII program ağaçları ve tarih çizelgesi).
 
 **Yasaklar**
 - `data/common`, `game/autoload`, `game/map`, `game/ui` dosyalarını mod için değiştirme; gerekiyorsa DUR ve insana sor.

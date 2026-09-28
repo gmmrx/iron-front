@@ -1526,4 +1526,4 @@ Depo içi
 - `game/autoload/politics.gd` (etki sözlüğü, şartlar, olaylar, seçimler), `game/autoload/diplomacy.gd` (savaş, teslim), `game/autoload/economy.gd`
   (yasa şartı ve bedeli), `game/autoload/world.gd` (ülke yükleme, `transfer_state`), `game/core/country.gd`, `game/core/mode_rules.gd`,
   `game/ui/diplomacy_panel.gd`, `game/ui/event_popup.gd`, `game/ui/panel_layout.gd`, `data/common/{countries,laws,spirits,events}.json`,
-  `data/map/states.json`, `data/history/states_1936.json`, `docs/modlar/README.md`, `docs/wiki/03_hukumet.md`, `docs/wiki/06_diplomasi.md`.
+  `data/map/states.json`, `data/history/states_1936.json`, `docs/modlar/README.md`, `docs/wiki/tr/03_hukumet.md`, `docs/wiki/tr/06_diplomasi.md`.

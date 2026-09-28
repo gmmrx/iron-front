@@ -1,125 +1,129 @@
-# Oyun modları — katkıcı rehberi
+**English** · [Türkçe](README.tr.md)
 
-Oyun birden çok **mod** taşıyabilir. İlk mod bugünkü 2. Dünya Savaşı oyunudur (`ww2`). Yeni bir mod, motoru değiştirmeden
-kendi verisini, başlangıç tarihini, oynanabilir ülkelerini ve isteğe bağlı küçük bir kural betiğini getirir. Zombi istilası
-modunun tasarım araştırması [zombi/](zombi/README.md) klasöründe.
+# Game modes — contributor guide
 
-Bu sayfa yapay zekâ asistanıyla kod yazanlar ("vibecoder") için yazıldı. Asistanına tek sayfalık özeti
-[ASISTAN.md](ASISTAN.md) olarak verebilirsin. Claude Code kullanıyorsan `yeni-mod` yeteneği (skill) bu adımları kendisi izler.
+The game can carry several **modes**. The first mode is today's World War II game (`ww2`). A new mode brings its own data,
+start date, playable countries and an optional small rule script without changing the engine. The design research for the
+zombie outbreak mode is in the [zombi/](zombi/README.md) folder (in Turkish).
 
-> **Önce oku:** [docs/OZGUNLUK.md](../OZGUNLUK.md). Başka bir oyundan ad, metin, sayı tablosu ya da ekran düzeni alma.
+This page is written for people who code with an AI assistant ("vibecoders"). You can give your assistant the one-page
+summary [ASSISTANT.md](ASSISTANT.md). If you use Claude Code, the `yeni-mod` skill follows these steps by itself.
+
+> **Read first:** [docs/ORIGINALITY.md](../ORIGINALITY.md). Take no name, text, number table or screen layout from another game.
 
 ---
 
-## 30 dakikada ilk mod
+## Your first mode in 30 minutes
 
 ```bash
-# 1) iskelet: klasör, manifest, kural betiği, test; modu kayda ekler
-python3 tools/new_mode.py soguk_savas --name-en "Cold War" --name-tr "Soğuk Savaş"
+# 1) skeleton: folder, manifest, rule script, test; adds the mode to the registry
+python3 tools/new_mode.py cold_war --name-en "Cold War" --name-tr "Soğuk Savaş"
 
-# 2) manifesti düzenle: data/modes/soguk_savas/mode.json (tarihler, oyuncu, açıklama)
+# 2) edit the manifest: data/modes/cold_war/mode.json (dates, player, description)
 
-# 3) veriyi değiştir (aşağıda ayrıntı)
-python3 tools/new_mode.py --blank soguk_savas common/events.json     # WWII olayları olmasın
-python3 tools/new_mode.py --blank soguk_savas common/focuses.json    # WWII program ağaçları olmasın
-python3 tools/new_mode.py --copy  soguk_savas common/laws.json       # yasaları baştan yazacağım
+# 3) change the data (details below)
+python3 tools/new_mode.py --blank cold_war common/events.json     # no WWII events
+python3 tools/new_mode.py --blank cold_war common/focuses.json    # no WWII program trees
+python3 tools/new_mode.py --blank cold_war common/history.json    # no WWII history timeline
+python3 tools/new_mode.py --copy  cold_war common/laws.json       # I will rewrite the laws
 
-# 4) hızlı denetim (Godot gerekmez)
-python3 tools/new_mode.py --check soguk_savas
+# 4) quick check (no Godot needed)
+python3 tools/new_mode.py --check cold_war
 
-# 5) oyunda aç (ya da menüde Yeni Oyun → mod listesi)
-godot --path . -- --game_mode=soguk_savas
+# 5) open it in the game (or New Game → mode list in the menu)
+godot --path . -- --game_mode=cold_war
 
-# 6) testler
-godot --headless --path . --import                                   # yeni .gd dosyası eklediysen
-godot --headless --path . -s tests/run.gd -- --file=test_mode_soguk_savas
+# 6) tests
+godot --headless --path . --import                                # if you added a new .gd file
+godot --headless --path . -s tests/run.gd -- --file=test_mode_cold_war
 godot --headless --path . -s tests/run.gd -- --file=test_modes
-godot --headless --path . -s game/dev/country_check.gd -- --game_mode=soguk_savas --days=30
+godot --headless --path . -s game/dev/country_check.gd -- --game_mode=cold_war --days=30
 ```
 
-Bitince ayrı bir branch'te pull request aç ve açıklamaya test sonuçlarını sayılarla yaz.
+When you are done, open a pull request from a separate branch and write the test results with numbers in the description.
 
 ---
 
-## Klasörler
+## Folders
 
 ```
 data/modes/
-  modes.json                       kayıt: {"default": "ww2", "modes": ["ww2", "_template", ...]}  (sıra = menü sırası)
-  ww2/mode.json                    WWII: yalnız manifest; verisi data/common, data/history, data/map
-  _template/                       gizli ama ÇALIŞAN örnek mod (CI her koşuda test eder) — kopyalamaya başla
+  modes.json                       registry: {"default": "ww2", "modes": ["ww2", "_template", ...]}  (order = menu order)
+  ww2/mode.json                    WWII: only the manifest; its data is data/common, data/history, data/map
+  _template/                       a hidden but WORKING example mode (CI tests it on every run) — start by copying it
     mode.json
-    scenario.json                  başlangıç sahipliği katmanı
-    common/events.patch.json       1 olay ekler, 2 WWII olayını siler
-    own/settings.json              modun kendi verisi (kural betiği okur)
-  <id>/                            senin modun: manifest + YALNIZ değişen dosyalar
-game/modes/<id>/rules.gd           isteğe bağlı kod kancaları (ModeRules'u genişletir)
-tests/test_mode_<id>.gd            modun testleri
+    scenario.json                  start ownership layer
+    common/events.patch.json       adds 1 event, deletes 2 WWII events
+    own/settings.json              the mode's own data (read by the rule script)
+  <id>/                            your mode: manifest + ONLY the files that change
+game/modes/<id>/rules.gd           optional code hooks (extends ModeRules)
+tests/test_mode_<id>.gd            the mode's tests
 ```
 
-**Yasaklar** (`--check` ve `tests/test_modes.gd` yakalar):
-- `data/modes/**` altında yalnız `.json` olur. `.gd` dosyası `data/` altında yüklenmez (klasör motor için gizli); betik
-  `game/modes/<id>/` altına. Çeviri `game/localization/strings.csv`'ye. Görsel/ses dosyası yok (CLAUDE.md kural 6).
-- `map/` yok: harita geometrisi bütün modlarda ortak (aşağıda "Bilinen sınırlar").
-- Mod klasöründeki her `X.json` ya da `X.patch.json` için `data/X.json` var olmalı (yazım hatalarını yakalar).
-  Tek istisna `own/`: modun kendi verisi (aşağıda).
-- Aynı dosyanın hem tam kopyası (`X.json`) hem yaması (`X.patch.json`) olmaz: yama kopyanın üzerine uygulanır ve
-  içindeki `null`'lar kopyada düzenlediğin kayıtları sessizce siler.
+**Not allowed** (caught by `--check` and `tests/test_modes.gd`):
+- Only `.json` goes under `data/modes/**`. A `.gd` file under `data/` is not loaded (the folder is hidden from the engine);
+  scripts go under `game/modes/<id>/`. Translations go into `game/localization/strings.csv`. No image/sound files
+  (CLAUDE.md rule 6).
+- No `map/`: the map geometry is shared by all modes (see "Known limits" below).
+- For every `X.json` or `X.patch.json` in the mode folder, `data/X.json` must exist (this catches typos).
+  The only exception is `own/`: the mode's own data (below).
+- A file cannot have both a full copy (`X.json`) and a patch (`X.patch.json`): the patch is applied on top of the copy and
+  its `null`s silently delete the records you edited in the copy.
 
 ---
 
 ## Manifest (`mode.json`)
 
-Yazmadığın alan WWII değerini alır.
+A field you leave out takes the WWII value.
 
-| Alan | Tip | Varsayılan (WWII) | Anlamı |
+| Field | Type | Default (WWII) | Meaning |
 |---|---|---|---|
-| `id` | metin | — (zorunlu) | klasör adıyla aynı; küçük harf, rakam, `_` |
-| `name` | `{en, tr}` | — (zorunlu) | menüdeki ad |
-| `hidden` | bool | `false` | `true`: menüde görünmez (yarım modlar için) |
-| `description` | `{en, tr}` | — | menüde adın altında |
-| `subtitle` / `subtitle_key` | `{en, tr}` / CSV anahtarı | `MENU_SUBTITLE` | ana menü alt başlığı |
-| `welcome` / `welcome_key` | `{en, tr}` (tam bir `%s`) | `NOTE_WELCOME` | oyun başında haber (`%s` = ülke adı; yüzde işareti `%%`) |
-| `end_text` / `end_text_key` | `{en, tr}` | `GAMEOVER_TIME` | süre dolunca oyun sonu metni |
-| `start_date` | `"YYYY-AA-GG"` | `1936-01-01` | başlangıç tarihi (takvimde var olan gün; boş olamaz) |
-| `end_date` | `"YYYY-AA-GG"` ya da `""` | `1948-01-01` | süre sınırı (`""` = yok) |
-| `start_tension` | sayı | `0.0` | başlangıç kriz endeksi |
-| `default_player` | ülke kodu | `TUR` | ülke seçiminde önce seçili ülke |
-| `featured` | [ülke kodu] | 8 büyük ülke | ülke seçiminin üstündeki kartlar |
-| `playable` | `"all"` ya da [ülke kodu] | `"all"` | seçilebilir ülkeler |
-| `menu_focus` | ülke kodu | `GER` | ana menü kamerasının süzüldüğü yer |
-| `majors` | [ülke kodu] | GER ENG FRA ITA SOV | büyük güçler (araştırma yuvası, AI davranışı) |
-| `start_techs` | [teknoloji] | 4 temel teknoloji | büyük ve kalabalık ülkelere başta verilir |
-| `start_techs_min_population` | tamsayı | `15000000` | bu nüfusun üstü de alır |
-| `ai.rearm_year` | yıl (`0` = kapalı) | `1939` | AI bu yıldan sonra askerî fabrikaya yönelir |
-| `ai.cautious_until` | tarih (`""` = kapalı) | `1942-01-01` | demokrasiler bu tarihe kadar büyük güce temkinli |
-| `ai.phoney_war_days` | gün (`0` = kapalı) | `270` | demokrasiler savaşın ilk günlerinde isteksiz |
-| `ai.major_hold_fire_days` | gün (`0` = kapalı) | `240` | büyük güçler birbirinin anavatanına bu kadar gün saldırmaz |
-| `combat.phoney_war_days` | gün | `270` | muharebede demokrasi isteksizlik cezası süresi |
-| `scenario` | dosya adı | `""` | başlangıç sahipliği katmanı (aşağıda) |
-| `rules` | `res://game/modes/<id>/rules.gd` | `""` | kod kancaları (aşağıda) |
+| `id` | text | — (required) | same as the folder name; lowercase letters, digits, `_` |
+| `name` | `{en, tr}` | — (required) | name in the menu |
+| `hidden` | bool | `false` | `true`: not shown in the menu (for unfinished modes) |
+| `description` | `{en, tr}` | — | under the name in the menu |
+| `subtitle` / `subtitle_key` | `{en, tr}` / CSV key | `MENU_SUBTITLE` | main menu subtitle |
+| `welcome` / `welcome_key` | `{en, tr}` (exactly one `%s`) | `NOTE_WELCOME` | news at the start of the game (`%s` = country name; percent sign `%%`) |
+| `end_text` / `end_text_key` | `{en, tr}` | `GAMEOVER_TIME` | game-over text when time runs out |
+| `start_date` | `"YYYY-MM-DD"` | `1936-01-01` | start date (a day that exists in the calendar; cannot be empty) |
+| `end_date` | `"YYYY-MM-DD"` or `""` | `1948-01-01` | time limit (`""` = none) |
+| `start_tension` | number | `0.0` | starting crisis index |
+| `default_player` | country tag | `TUR` | country selected first in the country selection |
+| `featured` | [country tag] | 8 large countries | the cards above the country selection |
+| `playable` | `"all"` or [country tag] | `"all"` | selectable countries |
+| `menu_focus` | country tag | `GER` | where the main menu camera drifts |
+| `majors` | [country tag] | GER ENG FRA ITA SOV | major powers (research slot, AI behaviour) |
+| `start_techs` | [technology] | 4 basic technologies | given at the start to large and populous countries |
+| `start_techs_min_population` | integer | `15000000` | countries above this population get them too |
+| `ai.rearm_year` | year (`0` = off) | `1939` | after this year the AI turns to military factories |
+| `ai.cautious_until` | date (`""` = off) | `1942-01-01` | democracies are cautious towards major powers until this date |
+| `ai.phoney_war_days` | days (`0` = off) | `270` | democracies are reluctant in the first days of a war |
+| `ai.major_hold_fire_days` | days (`0` = off) | `240` | major powers do not attack each other's homeland for this many days |
+| `combat.phoney_war_days` | days | `270` | how long the democracies' reluctance penalty lasts in combat |
+| `scenario` | file name | `""` | start ownership layer (below) |
+| `rules` | `res://game/modes/<id>/rules.gd` | `""` | code hooks (below) |
 
-Kapalı değer için `null` yazma; `0` ya da `""` yaz.
+For an "off" value do not write `null`; write `0` or `""`.
 
 ---
 
-## Veriyi değiştirmek: tam dosya ya da patch
+## Changing data: a full file or a patch
 
-Mod `data/` altındaki her JSON'u (harita geometrisi hariç) iki yolla değiştirebilir:
+A mode can change every JSON under `data/` (except the map geometry) in two ways:
 
-| Yol | Ne zaman | Nasıl |
+| Way | When | How |
 |---|---|---|
-| **Tam dosya** | dosyanın çoğu değişecek | `data/modes/<id>/common/laws.json` (kopya: `--copy`). Temel dosyanın **tamamının** yerine geçer. |
-| **Patch** | birkaç şey eklenecek/silinecek | `data/modes/<id>/common/events.patch.json`. Temel dosyayla derin birleşir. |
+| **Full file** | most of the file will change | `data/modes/<id>/common/laws.json` (copy: `--copy`). Replaces the **whole** base file. |
+| **Patch** | a few things are added/removed | `data/modes/<id>/common/events.patch.json`. Deep-merged with the base file. |
 
-**Patch kuralları:**
-- Sözlükler iç içe birleşir. Değeri `null` olan anahtar **silinir**; yeni anahtar sona eklenir.
-- Öğeleri `"id"` taşıyan diziler kimliğe göre birleşir: aynı kimlik güncellenir, yeni kimlik sona eklenir,
-  `{"id": "x", "_delete": true}` o öğeyi siler.
-- Diğer diziler ve değerler olduğu gibi değişir.
-- Temel sıra korunur; sonuç her seferinde aynıdır (belirlenimci).
+**Patch rules:**
+- Dictionaries merge recursively. A key whose value is `null` is **deleted**; a new key is added at the end.
+- Arrays whose items carry an `"id"` merge by id: the same id is updated, a new id is added at the end,
+  `{"id": "x", "_delete": true}` deletes that item.
+- Other arrays and values are replaced as they are.
+- The base order is kept; the result is the same every time (deterministic).
 
-Örnek (`_template`):
+Example (`_template`):
 ```json
 {"events": {
   "jap_february_26": null,
@@ -127,102 +131,112 @@ Mod `data/` altındaki her JSON'u (harita geometrisi hariç) iki yolla değişti
 }}
 ```
 
-**`--blank`:** `common/events.json` için bütün WWII olaylarını, `common/focuses.json` için bütün ülke program
-ağaçlarını kaldıran bir patch yazar. Motorun kendi olayları ve `_generic` ağacı kalır. Olayları boşaltırsan ağaçları da
-boşalt: WWII programları bazı olayları açar (araç bunu uyarır, test de yakalar).
+**`--blank`:** writes a patch that removes every WWII event for `common/events.json`, every country program tree for
+`common/focuses.json`, and the history timeline for `common/history.json`. The engine's own events and the `_generic` tree
+stay. If you empty the events, empty the trees too: WWII programs fire some events. If you empty the trees, empty the
+timeline too: the timeline completes WWII programs (the tool warns about both, and the tests catch it).
 
-## Senaryo katmanı (`scenario.json`)
+**History timeline (`common/history.json`):** AI countries take the historical steps listed here on their exact day (wars,
+annexations, alliances); the player's country never takes any of them by itself. Before the `ai_free_from` date the AI does
+not start wars on its own and does not answer calls to a war of aggression (1945-09-02 in WWII). A mode can write its own
+timeline (`{"ai_free_from": "YYYY-MM-DD", "entries": [{"date", "tag", "focus" | "mark_focus" | "effects", "require"}]}`)
+or empty it with `--blank`; with an empty timeline `ai_free_from` becomes the mode's start date.
 
-Harita ortak, ama başlangıç sınırları moda göre değişebilir:
+## Scenario layer (`scenario.json`)
+
+The map is shared, but the starting borders can change per mode:
 ```json
 {"owners": {"346": "TUR"}, "capitals": {"TUR": 346}, "vp": {"123": 10}}
 ```
-`owners`: eyalet kimliği → ülke; `capitals`: ülke → eyalet kimliği; `vp`: şehir kimliği → zafer puanı. Kimlikler
-`data/map/states.json` ve `data/map/cities.json`'da. Nüfus, insan gücü ve kontrol kendiliğinden yeniden hesaplanır.
-Olmayan bir eyalet/ülke/şehir kimliği (yazım hatası) `test_modes::test_mode_contract`'ı kırmızı yapar.
+`owners`: state id → country; `capitals`: country → state id; `vp`: city id → victory points. The ids are in
+`data/map/states.json` and `data/map/cities.json`. Population, manpower and control are recomputed automatically.
+An id of a state/country/city that does not exist (a typo) turns `test_modes::test_mode_contract` red.
 
-## Modun kendi verisi (`own/`)
+## The mode's own data (`own/`)
 
-WWII verisinde karşılığı olmayan her şey (ör. salgın parametreleri, zombi türleri, araştırma merkezi tablosu)
-`data/modes/<id>/own/<ad>.json` dosyalarına yazılır. Bu klasörde "temel dosya var mı" denetimi ve tam dosya/yama kuralı
-yoktur; motor bu dosyaları kendiliğinden okumaz, **kural betiğin** okur:
+Everything with no counterpart in the WWII data (e.g. epidemic parameters, zombie types, a research centre table) is
+written to `data/modes/<id>/own/<name>.json` files. This folder has no "does the base file exist" check and no
+full-file/patch rule; the engine does not read these files by itself, **your rule script** does:
 ```gdscript
-var cfg: Variant = GameModes.load_own("epidemic.json")     # yoksa null
+var cfg: Variant = GameModes.load_own("epidemic.json")     # null if missing
 ```
-Sayıları koda sabit yazma, buraya koy (CLAUDE.md kural 2). Örnek: `data/modes/_template/own/settings.json` ve
+Do not hard-code numbers in code; put them here (CLAUDE.md rule 2). Example: `data/modes/_template/own/settings.json` and
 `game/modes/_template/rules.gd`.
 
 ---
 
-## Kural betiği (`game/modes/<id>/rules.gd`)
+## Rule script (`game/modes/<id>/rules.gd`)
 
-Veri yetmediğinde küçük kod kancaları. `extends ModeRules`; kullanmadığın kancayı sil. Tam liste:
-[`game/core/mode_rules.gd`](../../game/core/mode_rules.gd), örnek: [`game/modes/_template/rules.gd`](../../game/modes/_template/rules.gd).
+Small code hooks for when data is not enough. `extends ModeRules`; delete the hooks you do not use. Full list:
+[`game/core/mode_rules.gd`](../../game/core/mode_rules.gd), example: [`game/modes/_template/rules.gd`](../../game/modes/_template/rules.gd).
 
-| Kanca | Ne zaman |
+| Hook | When |
 |---|---|
-| `on_new_game()` | her yeni oyunda (açılışta ve `Game.new_game` sonunda); her oyunda taze betik örneği |
-| `on_game_started(player)` | oyuncu ülkesini seçip oyuna girince |
-| `on_day()` / `on_hour()` / `on_month()` | her gün (AI'dan sonra, oyun sonu denetiminden önce) / saat / ay |
-| `check_end()` | `{}` = devam; `{"victory": bool, "reason": "<CSV anahtarı>"}` = oyun biter |
-| `score(tag)` | oyun sonu skoru (`-1` = zafer puanı toplamı) |
-| `to_save()` / `from_save(d)` | modun kendi durumu kayda yazılır/okunur (büyük tamsayıları `str()` ile yaz) |
-| `effect_keys()`, `apply_effect`, `describe_effect` | olay/program için **yeni etki** (üçüne birden ekle; CLAUDE.md kural 2) |
-| `condition_keys()`, `check_condition` | olay/program için **yeni şart** |
+| `on_new_game()` | on every new game (at startup and at the end of `Game.new_game`); a fresh script instance for every game |
+| `on_game_started(player)` | when the player picks a country and enters the game |
+| `on_day()` / `on_hour()` / `on_month()` | every day (after the AI, before the game-over check) / hour / month |
+| `check_end()` | `{}` = go on; `{"victory": bool, "reason": "<CSV key>"}` = the game ends |
+| `score(tag)` | game-over score (`-1` = sum of victory points) |
+| `to_save()` / `from_save(d)` | the mode's own state is written to / read from the save (write large integers with `str()`) |
+| `effect_keys()`, `apply_effect`, `describe_effect` | a **new effect** for events/programs (add all three; CLAUDE.md rule 2) |
+| `condition_keys()`, `check_condition` | a **new condition** for events/programs |
 
-Kurallar: oyuncu adına iş yapma (kural 1); rastgelelik gerekiyorsa kendi `RandomNumberGenerator`'ını tohumla ve kayda yaz;
-autoload'lara adıyla erişebilirsin (`World`, `Economy`...), ama motor dosyalarını değiştirmen gerekiyorsa **dur ve sor**.
+Rules: do nothing on the player's behalf (rule 1); if you need randomness, seed your own `RandomNumberGenerator` and write it
+to the save; you can reach the autoloads by name (`World`, `Economy`...), but if you need to change engine files, **stop and
+ask**.
 
-## Metinler
+## Texts
 
-- Veri içindeki metinler JSON'da `{"en": "...", "tr": "..."}` (olay başlıkları, mod adı...).
-- Arayüz ya da kural betiği metinleri `game/localization/strings.csv`'ye İngilizce ve Türkçe satır olarak; ardından
+- Texts inside data are JSON `{"en": "...", "tr": "..."}` (event titles, mode name...).
+- Interface or rule-script texts go into `game/localization/strings.csv` as English and Turkish rows; then
   `godot --headless --path . --import`.
 
 ---
 
-## Mod sözleşmesi
+## Mode contract
 
-Motor bazı anahtarlara doğrudan başvurur. Modun verisi bunları silmemeli; `tests/test_modes.gd::test_mode_contract` ve
-`test_mode_<id>` denetler.
+The engine refers to some keys directly. A mode's data must not delete them; `tests/test_modes.gd::test_mode_contract` and
+`test_mode_<id>` check this.
 
-| Dosya | Anahtar | Eksikse |
+| File | Key | If missing |
 |---|---|---|
-| `common/events.json` | `call_to_arms`, `white_peace`, `election`, `faction_invite` | `call_to_arms`/`faction_invite`: hata vermez, sessizce çalışmaz (müttefikler savaşa çağrılmaz, davet boşa düşer); `white_peace`: barış teklifi oyuncuya gitmez; `election`: seçim penceresi hata verir |
-| `common/focuses.json` | `trees._generic` | program ağacı her istendiğinde hata verir; kendi ağacı olmayan ülkelerin programı olmaz |
-| `common/laws.json` | `conscription`, `economy`, `trade` grupları; `start._default` | yasa kurulumu çöker |
-| `common/spirits.json` | `popularity._<ideoloji>` (ülkelerin bütün ideolojileri için), `start`, `start_factions` | siyaset kurulumu çöker |
-| `common/units.json` | `start_divisions._default`, `templates` (en az bir şablon; 0: piyade, 1: zırhlı), `terrain.plains` (bilinmeyen arazinin yedeği) | ordu kurulumu çöker |
-| `common/equipment.json` | `infantry_equipment`, `convoy`; `start_fleets._default_coastal` | üretim/konvoy/filo kurulumu çöker |
-| `common/buildings.json` | kaynaklar içinde `oil` | yakıt hesabı |
-| `common/technologies.json` | `start_techs`'teki her teknoloji | başlangıç teknolojisi verilemez |
-| `common/countries.json` | haritadaki eyaletlerin sahibi olan her ülke | harita yüklenemez |
+| `common/events.json` | `call_to_arms`, `white_peace`, `election`, `faction_invite` | `call_to_arms`/`faction_invite`: no error, silently does nothing (allies are not called to war, the invitation is lost); `white_peace`: the peace offer never reaches the player; `election`: the election window errors |
+| `common/focuses.json` | `trees._generic` | the program tree errors every time it is asked for; countries without their own tree have no programs |
+| `common/laws.json` | the `conscription`, `economy`, `trade` groups; `start._default` | law setup crashes |
+| `common/spirits.json` | `popularity._<ideology>` (for every ideology of the countries), `start`, `start_factions` | politics setup crashes |
+| `common/units.json` | `start_divisions._default`, `templates` (at least one template; 0: infantry, 1: armour), `terrain.plains` (fallback for unknown terrain) | army setup crashes |
+| `common/equipment.json` | `infantry_equipment`, `convoy`; `start_fleets._default_coastal` | production/convoy/fleet setup crashes |
+| `common/buildings.json` | `oil` among the resources | fuel calculation |
+| `common/technologies.json` | every technology in `start_techs` | the starting technology cannot be given |
+| `common/countries.json` | every country that owns a state on the map | the map cannot load |
 
-## "Bitti" tanımı
+## Definition of "done"
 
-1. `python3 tools/new_mode.py --check <id>` → sorun yok
-2. `-s tests/run.gd -- --file=test_modes` ve `--file=test_mode_<id>` → hepsi geçti
-3. `-s game/dev/country_check.gd -- --game_mode=<id> --days=30` → 0 sorun
-4. `GODOT=... tools/run_tests.sh` (CI'daki iş; bütün modları koşar) → hepsi geçti
-5. Motor koduna dokunduysan WWII denge testi: `GODOT=... tools/balance_parallel.sh 6` (her kontrol en az 5/6)
+1. `python3 tools/new_mode.py --check <id>` → no problems
+2. `-s tests/run.gd -- --file=test_modes` and `--file=test_mode_<id>` → all pass
+3. `-s game/dev/country_check.gd -- --game_mode=<id> --days=30` → 0 problems
+4. `GODOT=... tools/run_tests.sh` (the CI job; runs every mode) → all pass
+5. If you touched engine code, the WWII balance test: `GODOT=... tools/balance_parallel.sh 6` (each check at least 5/6)
 
-## Bilinen sınırlar
+## Known limits
 
-- **Harita ortak.** Bütün modlar aynı bölge/eyalet/şehir geometrisini kullanır; ayrı harita paketi (≈120 MB) web sürümünü
-  şişirir. Sınırlar `scenario.json` ile değişir.
-- **WWII'ye göre yazılmış motor ayrıntıları.** Mod aynı kimlikleri koruduğu sürece çalışır: ideoloji adları
-  (demokratik/komünist/faşist/bağlantısız), AI'ın yasa ve danışman sırası (`ai.gd`), birkaç ülkeye özgü AI ayarı, başlangıç
-  üretim hattı ekipmanları. Bunları değiştiren bir mod AI'ı ilgili konuda pasif bırakır.
-- **Birim modelleri, ikonlar, sesler** moddan değiştirilemez (kural 5 ve 6); görsel ihtiyaçlar listelenir, kullanıcı üretir.
-- **Moda özgü arayüz paneli ve harita modu yok.** Gerekirse ayrı bir iş olarak, yalnız `panel_layout` yardımcılarıyla eklenir.
-- **WWII denetimleri** (`balance.gd`, `gov_check.gd`, `playtest.gd`) yalnız `ww2` modunda koşar.
-- Bir mod kaydı eski sürümde açılırsa WWII verisine yüklenir.
+- **The map is shared.** All modes use the same region/state/city geometry; a separate map package (≈120 MB) would bloat
+  the web version. Borders change through `scenario.json`.
+- **Engine details written for WWII.** They work as long as the mode keeps the same ids: ideology names
+  (democratic/communist/fascist/non-aligned), the AI's law and advisor order (`ai.gd`), a few country-specific AI settings,
+  the equipment of the starting production lines. A mode that changes them leaves the AI passive on that subject.
+- **Unit models, icons, sounds** cannot be changed from a mode (rules 5 and 6); visual needs are listed and the user makes them.
+- **No mode-specific interface panel or map mode.** If needed, it is added as a separate task, only with the `panel_layout`
+  helpers.
+- **The WWII checks** (`balance.gd`, `gov_check.gd`, `playtest.gd`) only run in the `ww2` mode.
+- A mode's save opened in an older version loads onto the WWII data.
 
-## SSS
+## FAQ
 
-- **Modum menüde görünmüyor.** `modes.json`'da kayıtlı mı? (`--check` sorun olarak yazar.) `mode.json`'da `"hidden": true`
-  mı kalmış? (`--check` bunu "bilgi" satırı olarak yazar; `false` yap.)
-- **"Kaydın oyun modu bulunamadı".** Kayıt, kayıtlı olmayan bir moddan (silinmiş ya da adı değişmiş).
-- **Yeni bir etki istiyorum.** Önce var olan etki sözlüğüne bak (`game/autoload/politics.gd` → `apply_effects`); yoksa
-  `rules.gd`'de `effect_keys` + `apply_effect` + `describe_effect`.
-- **Test "bilinmeyen etki" diyor.** Etki anahtarı ne motorda ne de `rules.gd`'nin `effect_keys()` listesinde.
+- **My mode does not show up in the menu.** Is it registered in `modes.json`? (`--check` reports it as a problem.) Is
+  `"hidden": true` still in `mode.json`? (`--check` prints this as an "info" line; set it to `false`.)
+- **Log warning "Kaydın oyun modu bulunamadı…" (the save's game mode was not found).** The save comes from a mode that is
+  not registered (deleted or renamed).
+- **I want a new effect.** First look at the existing effect dictionary (`game/autoload/politics.gd` → `apply_effects`); if
+  it is not there, `effect_keys` + `apply_effect` + `describe_effect` in `rules.gd`.
+- **The test says "unknown effect".** The effect key is neither in the engine nor in the `effect_keys()` list of `rules.gd`.

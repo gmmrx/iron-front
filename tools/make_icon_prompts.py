@@ -17,6 +17,10 @@ STYLE_ICON = ("Hand-painted icon for a WWII grand strategy game, 1930s-1940s era
 STYLE_SMALL = ("Small UI glyph for a WWII strategy game top bar, embossed brass/bronze metal emblem, "
                "simple bold silhouette readable at 24 px, soft bevel and gold rim light, "
                "transparent background, no text, no letters, no numbers, square 1:1, 256x256")
+STYLE_MAP_MARKER = ("1936-era military map location blip, a large opaque solid-color enamel roundel with a stout downward coordinate point, "
+                    "thick dark outline and aged brass rim, bold ivory stencil symbol, gently worn 1930s staff-map finish, "
+                    "transparent only outside the filled marker silhouette, unmistakable over terrain when zoomed out, "
+                    "no text, no labels, no scenery, square 1:1, 512x512")
 STYLE_FOCUS = ("State program emblem for a WWII grand strategy game, "
                "a painted object/scene on a round enamel medallion with a thin brass rim, 1930s propaganda-poster palette, "
                "muted colors with gold accents, dramatic lighting, centered, transparent background, "
@@ -70,11 +74,11 @@ UI = {
  "menu_navy": "a battleship bow cutting through waves, menu button for the navy",
  "menu_air": "a single-engine propeller fighter plane in flight, menu button for the air force",
  "menu_logistics": "an army supply truck with canvas cover loaded with crates, menu button for logistics",
- "battle": "two crossed sabres with an explosion burst behind them, battle marker",
- "map_capital": "a golden star inside a laurel ring, capital city marker",
- "map_city": "a small cluster of European town houses with a church spire, city marker",
- "map_port": "a ship anchor with a rope, naval port marker",
- "map_airbase": "a propeller plane silhouette over a runway, airbase marker",
+ "battle": "two crossed ivory cavalry sabres with restrained brass hilts, no explosion, battle symbol",
+ "map_capital": "capital location blip: one oversized ivory five-point star on an oxblood-red enamel roundel",
+ "map_city": "city location blip: three ivory 1930s European town buildings on a dark olive-green enamel roundel",
+ "map_port": "port location blip: one large ivory anchor on a deep petrol-blue enamel roundel",
+ "map_airbase": "airfield location blip: an ivory three-blade propeller above a short runway bar on a slate-blue enamel roundel",
 }
 h("0. Nasıl kullanılır")
 out.append("""- Her başlığın altında **dosya adı** ve görsel üreticiye yapıştırılacak **prompt** var (İngilizce; üreticiler İngilizce'de daha tutarlı).
@@ -85,7 +89,8 @@ out.append("""- Her başlığın altında **dosya adı** ve görsel üreticiye y
 """)
 h("1. Arayüz: üst bar, menü düğmeleri, harita işaretleri")
 for k, v in UI.items():
-    row(k, v, STYLE_SMALL if not k.startswith("menu_") and not k.startswith("map_") else STYLE_ICON)
+    style = STYLE_MAP_MARKER if k.startswith("map_") else (STYLE_SMALL if not k.startswith("menu_") else STYLE_ICON)
+    row(k, v, style)
 
 # ---------------------------------------------------------------- binalar / kaynaklar / ekipman
 B = {
@@ -181,7 +186,7 @@ for k in sp["spirits"]:
 KEYS = [("industr", "factories with smoking chimneys"), ("railway", "a steam train on new rails"), ("rail", "a steam train on new rails"),
         ("army", "marching infantry with modern equipment"), ("navy", "warships at sea"), ("naval", "warships at sea"), ("air", "fighter planes in formation"),
         ("research", "scientists with blueprints"), ("construction", "cranes and scaffolding"), ("arms", "an arms factory producing guns"),
-        ("doctrine", "officers planning over a map table"), ("equipment", "new rifles and helmets"), ("unity", "a crowd holding one flag"),
+        ("doctrine", "officers planning over a map table"), ("equipment", "new rifles and helmets"), ("unity", "citizens gathered beneath a plain unmarked banner"),
         ("propaganda", "posters and a radio loudspeaker"), ("politic", "a parliament building"), ("steel", "a steel mill with molten metal"),
         ("plan", "a five-year plan chart and a factory"), ("fort", "concrete fortifications"), ("guarantee", "a treaty and a shield"),
         ("pact", "diplomats signing a pact"), ("alliance", "diplomats signing an alliance"), ("tank", "tanks in a column"), ("radar", "a radar antenna")]

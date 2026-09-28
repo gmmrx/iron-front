@@ -69,6 +69,7 @@ func _ready() -> void:
 		_close_all()
 		army.open_army(id))
 	feed = NotificationFeed.new()
+	feed.hud = self
 	root.add_child(feed)
 	task_bar = top_bar.task_row
 	var tasks := [
@@ -81,10 +82,10 @@ func _ready() -> void:
 	# kare simge düğmeleri: ad ipucunda, kısayol harfi köşede
 	for t: Array in tasks:
 		var b := Button.new()
-		b.icon = UiTheme.icon_or(t[3], t[1])
+		b.icon = UiTheme.trimmed(UiTheme.icon_or(t[3], t[1]))
 		b.expand_icon = true
 		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.add_theme_constant_override("icon_max_width", 54)
+		b.add_theme_constant_override("icon_max_width", 40)
 		for spec: Array in [["normal", "menu_btn"], ["hover", "menu_btn_hover"], ["pressed", "menu_btn_pressed"], ["hover_pressed", "menu_btn_pressed"]]:
 			var sb2 := UiTheme.skin(spec[1], 8, 1)          # resim düğmeyi doldursun (iç boşluk 1 px)
 			b.add_theme_stylebox_override(spec[0], sb2)
@@ -99,16 +100,24 @@ func _ready() -> void:
 		b.pressed.connect(t[2])
 		var m := RegEx.create_from_string("\\(([^)]+)\\)").search(label)
 		if m:
+			# kısayol harfi sağ alt köşede, okunsun diye küçük siyah zemin üstünde
+			var kbg := PanelContainer.new()
+			var ksb := StyleBoxFlat.new()
+			ksb.bg_color = Color(0, 0, 0, 0.82)
+			ksb.set_corner_radius_all(3)
+			ksb.content_margin_left = 3
+			ksb.content_margin_right = 3
+			ksb.content_margin_top = 0
+			ksb.content_margin_bottom = 0
+			kbg.add_theme_stylebox_override("panel", ksb)
+			kbg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			var k := UiTheme.make_label(m.get_string(1), 13, Color(1.0, 0.93, 0.75))
 			k.add_theme_font_override("font", UiTheme.bold_font())
 			k.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			k.position = Vector2(45, 33)
-			k.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 1))
-			k.add_theme_constant_override("shadow_offset_x", 1)
-			k.add_theme_constant_override("shadow_offset_y", 1)
-			k.add_theme_constant_override("outline_size", 3)
-			k.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-			b.add_child(k)
+			k.add_theme_constant_override("line_spacing", 0)
+			kbg.add_child(k)
+			kbg.position = Vector2(42, 30)
+			b.add_child(kbg)
 		task_bar.add_child(b)
 	alerts = AlertBar.new()
 	alerts.hud = self

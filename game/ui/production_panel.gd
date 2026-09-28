@@ -18,7 +18,7 @@ func _ready() -> void:
 		["factory", tr("PRO_CELL_OUTPUT"), tr("PRO_CELL_OUTPUT_TIP")]])
 	_add = MenuButton.new()
 	_add.text = tr("PRODUCTION_ADD")
-	_add.icon = UiTheme.icon("plus")
+	_add.icon = UiTheme.trimmed(UiTheme.icon("plus"))
 	_add.expand_icon = false
 	_add.add_theme_constant_override("icon_max_width", 20)
 	_add.tooltip_text = tr("TIP_LINE_ADD")
@@ -90,7 +90,7 @@ func refresh() -> void:
 		_row(c, i)
 	_lines_box = cols[1]
 	PanelLayout.section(_lines_box, tr("PRODUCTION_STOCKPILE"))
-	var grid := PanelLayout.grid(3)
+	var grid := PanelLayout.grid(2)
 	var any_stock := false
 	for eq: String in Economy.equipment:
 		var n := int(c.stockpile.get(eq, 0.0))
@@ -100,16 +100,25 @@ func refresh() -> void:
 		var cell := PanelContainer.new()
 		cell.theme_type_variation = "Slot"
 		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cell.custom_minimum_size.y = 58
+		var csb: StyleBox = UiTheme.get_theme().get_stylebox("panel", "Slot").duplicate()
+		csb.content_margin_left = 10
+		csb.content_margin_right = 12
+		cell.add_theme_stylebox_override("panel", csb)
 		var hb := HBoxContainer.new()
-		hb.add_theme_constant_override("separation", 6)
+		hb.add_theme_constant_override("separation", 10)
 		cell.add_child(hb)
-		hb.add_child(UiTheme.icon_texture(UiTheme.equipment_icon(eq), 30))
-		var nm := UiTheme.make_label(Economy.equipment_name(eq), 14)
+		var ic := UiTheme.icon_texture(UiTheme.equipment_icon(eq), 44)
+		ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		hb.add_child(ic)
+		var nm := UiTheme.make_label(Economy.equipment_name(eq), 16)
+		nm.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		nm.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		nm.custom_minimum_size.x = 60
 		hb.add_child(nm)
-		var amount := UiTheme.make_label(UiTheme.format_number(n), 15, UiTheme.ACCENT)
+		var amount := UiTheme.make_label(UiTheme.format_number(n), 19, UiTheme.ACCENT)
+		amount.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		amount.add_theme_font_override("font", UiTheme.bold_font())
 		hb.add_child(amount)
 		cell.tooltip_text = "%s: %s" % [Economy.equipment_name(eq), UiTheme.format_number(n)]
@@ -132,7 +141,7 @@ func _catalog(c: Country) -> void:
 		var tip := "%s\n%s IC%s" % [Economy.equipment_name(eq), str(d["cost"]), ("\n" + ", ".join(res)) if not res.is_empty() else ""]
 		if not ok:
 			tip += "\n\n⚠ " + tr("PRODUCTION_LOCKED") % Research.tech_name(Research.unlocking_tech(eq))
-		var t := PanelLayout.tile(UiTheme.equipment_icon(eq), Economy.equipment_name(eq), "%s IC" % str(d["cost"]), tip, 100, 104)
+		var t := PanelLayout.tile(UiTheme.equipment_icon(eq), Economy.equipment_name(eq), "%s IC" % str(d["cost"]), tip, 100)
 		t.disabled = not ok
 		t.pressed.connect(func() -> void:
 			if Economy.can_produce(c, eq):
@@ -153,11 +162,11 @@ func _row(c: Country, i: int) -> void:
 		tip, "SlotBad" if short else "Row")
 	# fabrika simgeleri (hattaki her fabrika bir simge)
 	var fac := HBoxContainer.new()
-	fac.add_theme_constant_override("separation", 1)
+	fac.add_theme_constant_override("separation", 3)
 	fac.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var ftex := UiTheme.building_icon("dockyard" if Economy.is_naval(l.equipment) else "military_factory")
 	for k in mini(l.factories, 15):
-		var d := UiTheme.icon_texture(ftex, 15)
+		var d := UiTheme.icon_texture(ftex, 26)
 		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fac.add_child(d)
 	if not eqd["resources"].is_empty():
@@ -166,10 +175,10 @@ func _row(c: Country, i: int) -> void:
 		sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		fac.add_child(sp)
 		for r: String in eqd["resources"]:
-			var ri := UiTheme.icon_texture(UiTheme.resource_icon(r), 16)
+			var ri := UiTheme.icon_texture(UiTheme.resource_icon(r), 26)
 			ri.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			fac.add_child(ri)
-			var rl := UiTheme.make_label(str(eqd["resources"][r]), 12, UiTheme.BAD if short else UiTheme.TEXT_DIM)
+			var rl := UiTheme.make_label(str(eqd["resources"][r]), 15, UiTheme.BAD if short else UiTheme.TEXT_DIM)
 			rl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			fac.add_child(rl)
 	col.add_child(fac)

@@ -554,6 +554,6 @@ Tarih
 - Sülfonamidler, 1935. *Science History Institute.* — https://www.sciencehistory.org/education/scientific-biographies/gerhard-domagk/
 
 Depo içi
-- `game/autoload/game_clock.gd` (hızlar), `game/autoload/game.gd` (oyun sonu), `game/autoload/diplomacy.gd` ve `docs/wiki/06_diplomasi.md`
+- `game/autoload/game_clock.gd` (hızlar), `game/autoload/game.gd` (oyun sonu), `game/autoload/diplomacy.gd` ve `docs/wiki/tr/06_diplomasi.md`
   (teslim), `game/autoload/military.gd` (`winter_level`), `game/map/map_view_3d.gd` (`set_marked_states`), `data/map/states.json`
-  (nüfus ve alan), `docs/wiki/01_nasil_oynanir.md` (temel oyunun ilk 30 günü).
+  (nüfus ve alan), `docs/wiki/tr/01_nasil_oynanir.md` (temel oyunun ilk 30 günü).

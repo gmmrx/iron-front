@@ -1,0 +1,74 @@
+**English** · [Türkçe](tr/02_arayuz.md)
+
+# Interface
+
+## Top bar (left to right)
+| Indicator | What it tells you |
+|---|---|
+| Leader portrait / flag | The leader if a portrait file exists, otherwise the flag; click for country info |
+| Influence | +2 a day × (1 + bonuses + stability effect). Laws, advisors, decisions and diplomacy spend it |
+| Stability | Effective value; the tooltip breaks it down (base, national conditions/laws/advisors, ruling party popularity) |
+| Home front | Effective value; the tooltip breaks it down (base, bonuses, crisis index, war situation) and shows the surrender limit |
+| Manpower | Recruitable population (depends on the conscription law) |
+| Factories | Civilian / military; dockyards and resources in the tooltip |
+| Fuel, Supply, Convoys | Cells with bars: fuel stock, share of supplied divisions, convoy/import need |
+| Crisis, War | Crisis index; at war, the number of enemies and your surrender progress |
+| Command power, know-how | Separate box: command power (spent on the chain of command), land/naval/air know-how |
+| Date and speed | Top right; pause, speed buttons |
+
+Land, naval and air know-how build up in battle but are **not spent on anything yet** (doctrines come later). Their cells
+are shown faded with a "not allowed" cursor, and the tooltip says why.
+
+The menu runs down the left edge of the screen; each button shows its shortcut letter. The red tiles next to the top bar
+are alerts (empty research slot, idle factories, no state program chosen).
+
+## Screens
+Every side panel follows the same layout: a title band, summary cells on top, the content below (drag to scroll).
+Large screens open full-screen and the map does not move while they are open.
+- **Politics (Q)**: leader, party, ideology pie, elections; influence / stability / home front breakdowns; national
+  conditions; three law groups side by side (requirements in the tooltip); advisors; decisions.
+- **State Program (F)**: full-screen tree. Green = done, gold = in progress, bright = available, faded = locked,
+  red dashed line = only one of the two.
+- **Research (I)**: slots on top, all technologies on one timeline by year and category, with prerequisite lines and a
+  "today" line.
+- **Diplomacy (O)**: country list, the selected country's details and actions (with the reason when an action is closed),
+  world situation (crisis index, wars, alliances).
+- **Trade (R)**: resource table, buying, deals (+/−, cancel), exports.
+- **Construction (T)**: summary, building tiles, queue (ordering, cancel, factories at work).
+- **Production (Y)**: military factory / dockyard use, lines (factory icons, efficiency, resource shortfall), stock.
+- **Army (U)**: two tabs. *Chain of command*: army groups → armies → divisions, the selected army or group (commander,
+  front, stance, divisions), commander roster. *Division templates*: templates, designer (battalion grid, +/−), deployment.
+- **Navy (N)**, **Air (H)**: fleets and wings, missions, mission regions; the wings' "Automatic" box starts off.
+- **Logistics (L)**: equipment stock / in use / daily output / need / balance, resource balance.
+- **State panel**: click a state on the map. Building slots, provincial buildings, resources; build directly in your own states.
+- **Selected divisions** (bottom): army header, summary cells, composition by template, division cards and a toolbar
+  (see [Warfare](05_warfare.md)).
+- **Event window**: title, picture, description, options (effects in the tooltip; an option whose condition is not met is locked).
+
+## Map cards
+- Hover a land region: owner, relation to you (ours / ally / enemy), terrain, buildings, resources, divisions.
+- Hover a sea region: **naval control** by country (coloured share bar), our side's share, whether transports are safe,
+  the fleets there.
+- Hold **Ctrl** over a country: leader portrait, relation, alliance, ideology bar, stability, home front, influence,
+  population, factories, divisions, ships and aircraft (red when stronger than you, green when weaker), wars, national
+  conditions and the current state program. **Ctrl + click** opens that country's politics screen, read-only.
+- Numbers are coloured: good green, bad red.
+
+## The map: pins
+The map is a general staff table: the 3D terrain stays, and everything on it is a pin stuck into it instead of a model.
+Far away you see the usual map icons (cities, ports, air bases); zoom in and each icon rises into a pin.
+- **City**: a pin with a head in the colour of the country holding it; the bigger the city, the bigger the pin. The name
+  sits on the head.
+- **Division, fleet, air wing**: the counter is the pin's flag. Each army has its own pin (armies in the same region stand
+  side by side, the name of your army written under its counter).
+- **Buildings**: one pin per state carrying the state's buildings side by side as pictures (civilian and military
+  factories, dockyards, refineries, anti-air, naval base) with their level in the corner; a construction in progress is
+  an orange-framed picture with "+n". The air base has its own pin.
+- **Aircraft** are the only models: one small plane in the country's colour, parked by the air base or flying its mission.
+- **State borders** are drawn as clear dark lines at every zoom, thicker up close.
+Pins keep the same size on screen at every zoom.
+
+## Settings
+Main menu → **Settings**, or Esc → **Settings** in the game: master volume, music, sound effects and interface sounds;
+music (automatic by game situation, or any track on repeat); language (English / Türkçe, switches at once and a game in
+progress carries on); fullscreen, screen-edge scrolling. Everything is saved.

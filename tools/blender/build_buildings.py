@@ -126,12 +126,18 @@ def detailed_house(style, rng, i):
     floors = ([2, 2, 1, 1, 3, 2] if style != "orient" else [2, 1, 2, 1, 2, 2])[i]
     h = floors * FH
     if style == "orient":
-        wall = rng.choice(["facade_beige_flat", "facade_whitewash"])
+        # Anadolu/Osmanlı kenti: çoğu evde kiremit kırma çatı ve cumba; bir kısmı teraslı düz dam (Orta Doğu, K. Afrika)
+        wall = ["facade_whitewash", "facade_ochre", "facade_cream", "facade_beige_flat", "facade_whitewash", "facade_pink"][i]
         bevel_all(A.box(w / 2, d / 2, 0, w, d, h, wall, top="concrete"))
         facade_details(w, d, floors, wall, "stone_sand", sills=True, balconies=i in (4, 5))
+        if i in (0, 1, 2, 3):
+            if floors >= 2 and i in (0, 1):
+                A.box(w / 2, -0.022, FH * 1.05, w * 0.55, 0.045, FH * 0.9, wall)          # cumba
+                A.box(w / 2, -0.024, FH * 1.95, w * 0.6, 0.05, 0.01, "wood_red")
+            solid(A.hip_roof(w / 2, d / 2, h, w, d, 0.07, "roof_terracotta", 0.0, 0.03))
+            A.chimney(w * 0.3, d * 0.6, h + 0.03, 0.0)
+            return
         A.box(w / 2, d / 2, h, w + 0.008, d + 0.008, 0.02, "stone_sand")       # parapet
-        if i == 3:
-            solid(A.hip_roof(w / 2, d / 2, h + 0.02, w, d, 0.05, "roof_terracotta"))
         if i == 4:  # iç avlulu/teraslı kent evi silueti
             A.box(w * 0.72, d * 0.5, h + 0.02, 0.07, d * 0.7, 0.055, wall)
             A.dome(w * 0.72, d * 0.5, h + 0.075, 0.035, "roof_copper", seg=12, height=0.55)
@@ -178,9 +184,13 @@ def detailed_block(style, rng, i):
     floors = [3, 4, 5, 4, 5, 6][i]
     h = floors * FH
     if style == "orient":
-        wall = ["facade_beige_flat", "facade_whitewash", "facade_beige_flat", "facade_whitewash", "facade_beige_flat", "facade_whitewash"][i]
+        wall = ["facade_cream", "facade_whitewash", "facade_ochre", "facade_beige_flat", "facade_pink", "facade_whitewash"][i]
         bevel_all(A.box(w / 2, d / 2, 0, w, d, h, wall, top="concrete"))
         facade_details(w, d, floors, wall, "stone_sand", shop=True, balconies=True)
+        if i in (0, 1, 2, 3):
+            solid(A.hip_roof(w / 2, d / 2, h, w, d, 0.08, "roof_terracotta", 0.0, 0.025))
+            A.chimney(w * 0.25, d * 0.7, h + 0.04, 0.0)
+            return
         A.box(w / 2, d / 2, h, w + 0.01, d + 0.01, 0.02, "stone_sand")
         if i >= 4:
             A.box(w * 0.76, d * 0.68, h + 0.02, 0.09, 0.09, 0.07, "facade_beige_flat")
@@ -365,7 +375,7 @@ def add_review_assets():
     sizes = ("town", "medium", "large", "capital")
     for row, style in enumerate(STYLES):
         for col, size in enumerate(sizes):
-            review_specs.append((OUT / f"city_{style}_{size}.glb",
+            review_specs.append((OUT / f"city_{style}_{size}.gltf",
                                  Vector((-15.0 + col * 10.0, -13.0 - row * 12.0, 0.0))))
     for path, anchor in review_specs:
         if not path.exists():
@@ -414,4 +424,5 @@ def render(made):
         bpy.ops.render.render(write_still=True)
 
 
-main()
+if __name__ == "__main__":
+    main()

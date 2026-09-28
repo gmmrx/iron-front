@@ -7,6 +7,9 @@ const VISIBLE_DIST := 2200.0
 const MODEL_FILES := ["res://assets/models/muster_units.glb", "res://assets/models/units.glb"]
 const MUSTER_SCALE := 0.28          ## Muster uçakları gerçek metre (~10 m kanat); tanktan biraz büyük
 const BLENDER_SCALE := {"fighter": 1.25, "bomber": 0.95}
+## İğne tasarımı: her kanat aynı tek uçak modeliyle, küçük (ülke renginde); iğnelerin yanında sade durur
+const SINGLE_MODEL := "fighter"
+const PIN_SCALE := 0.8
 const ZS := 2.6                     ## sabit ölçek: zoom'la uçaklar büyüyüp yer değiştirmez
 const ORBIT_R := 13.0               ## tur yarıçapı (× ölçek)
 const ALT := 14.0                   ## avcı irtifası (× ölçek); yakın destek alçakta, dalışta yere iner
@@ -78,6 +81,8 @@ func _view_rect() -> Rect2:
 
 ## Kanat -> [model adı, ülkeye özgü mü (Muster)]
 func _model(w: AirWing) -> Array:
+	if _mmi.has(SINGLE_MODEL):
+		return [SINGLE_MODEL, false]
 	var fac := UnitModels.faction_of(w.owner)
 	if w.type == "bomber":
 		return ["bomber", false]
@@ -91,7 +96,7 @@ func _model(w: AirWing) -> Array:
 	return ["fighter", false]
 
 func _scale(name: String) -> float:
-	return (MUSTER_SCALE if not BLENDER_SCALE.has(name) else float(BLENDER_SCALE[name])) * _zs
+	return (MUSTER_SCALE if not BLENDER_SCALE.has(name) else float(BLENDER_SCALE[name])) * _zs * PIN_SCALE
 
 ## Muster +Z'ye, Blender -Z'ye bakar
 func _yaw_fix(name: String) -> float:
@@ -124,7 +129,7 @@ func _update_planes() -> void:
 			continue
 		var total: int = group_planes[gk]
 		var m := _model(w)
-		var col: Color = World.countries[w.owner].color.darkened(0.25)
+		var col: Color = World.countries[w.owner].color.lightened(0.18)     # açık ton: arazide seçilsin
 		var custom := Color(col.r, col.g, col.b, 1000.0 if m[1] else 0.0)
 		if not w.on_mission():
 			if not map.airbase_sites.has(w.base):
@@ -135,14 +140,15 @@ func _update_planes() -> void:
 				continue
 			var yaw: float = site[1]
 			var along := Vector2(cos(yaw), sin(yaw))
+			# parkta: kanat başına tek, küçük uçak (üs başına en çok üç)
 			var i := int(parked.get(w.base, 0))
-			var n := mini(3, maxi(1, total / 34))
-			for k in n:
-				var p := pos + along * ((i + k) * 3.6 - 5.5) * _zs + Vector2(-along.y, along.x) * 3.6 * _zs
+			if i < 3:
+				# üssün güneyinde yan yana: ekranda sayaç iğnesinin (yukarıda) altında kalır, onunla örtüşmez
+				var p := pos + Vector2(-5.0 + i * 4.5, 9.0)
 				var h := maxf(map.height_at(p), 0.0) + 0.3
-				var b := Basis(Vector3.UP, -yaw + PI * 0.5 + _yaw_fix(m[0])).scaled(Vector3.ONE * _scale(m[0]))
+				var b := Basis(Vector3.UP, -yaw + PI * 0.5 + _yaw_fix(m[0])).scaled(Vector3.ONE * _scale(m[0]) * 0.65)
 				lists[m[0]].append([Transform3D(b, Vector3(p.x, h, p.y)), custom])
-			parked[w.base] = i + n
+			parked[w.base] = i + 1
 			_counter(gk, w.owner, total, Vector3(pos.x, maxf(map.height_at(pos), 0.0) + 5.0, pos.y), counters_seen)
 			continue
 		# görevde: hedef üstünde saldırı turu (yakın destek / bombardıman) ya da yüksekte devriye (avcı)
@@ -234,9 +240,20 @@ func _counter(key: String, owner: String, total: int, pos: Vector3, seen: Dictio
 		lbl.name = "n"
 		root.add_child(lbl)
 		_counters[key] = root
+	if PinLayer.active():
+		pos.y = maxf(map.height_at(Vector2(pos.x, pos.z)), 0.0) + PinLayer.lift(camera.distance, PinLayer.AIR_LIFT)
 	root.position = pos
 	root.visible = camera.distance < 1100.0
 	(root.get_node("n") as Label3D).text = str(total)
+
+## İğne haritası: görünen hava kanadı sayaçlarının kökleri
+func pin_roots() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	for key: String in _counters:
+		var root: Node3D = _counters[key]
+		if root.visible:
+			out.append(root)
+	return out
 
 var _plates := {}
 func _plate_tex(owner: String) -> Texture2D:
