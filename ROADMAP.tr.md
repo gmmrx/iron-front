@@ -592,9 +592,10 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
       mahsur filo günde bir liman arar. 1936–44 ekransız: 560 → 436 sn
 - [x] Hava çatışması görevdeki her kanadı her gün diğer bütün kanatlarla karşılaştırıyordu (karesel): kanatlar görev
       bölgesine göre toplanır, yakın bölge çiftleri bir kez ölçülür, sonuç aynı. Tarihî akıştan sonra yapay zekânın filo
-      ve hava kanadı sayısına tavan (büyük güç 24 su üstü + 8 denizaltı filosu ve 40 kanat, diğerleri 6 + 2 ve 12; fazla
-      gemi filoları büyütür, fazla uçak stokta kalır) — yılda ~60 filo ve ~55 kanat sınırsız artıyordu. 2 Eylül 1945'ten
-      önce uygulanmaz: 1940–41'de tavan İngiliz filolarını birleştirip Fransa'nın düşüşünü geciktiriyordu
+      ve hava kanadı sayısına sanayiye bağlı tavan (su üstü filo = tersane / 3, 6–24 arası; denizaltı filosu tersane / 8,
+      2–8; kanat = askerî fabrika / 3, 12–40; fazla gemi filoları büyütür, fazla uçak stokta kalır) — yılda ~60 filo ve
+      ~55 kanat sınırsız artıyordu. 2 Eylül 1945'ten önce uygulanmaz: 1940–41'de tavan İngiliz filolarını birleştirip
+      Fransa'nın düşüşünü geciktiriyordu
 - [x] AI/ikmal/istatistik önbellekleri; ağaç gölgeleri kapalı; MSAA yerine FXAA; yarım çözünürlük SSAO
 - [ ] Sayaç ve etiketleri tek çizim çağrısında toplu çizim (şu an ~2.600 çizim çağrısı)
 - [ ] LOD: uzak zoom'da şehir modeli → ikon

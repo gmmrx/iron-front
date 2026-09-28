@@ -7,10 +7,14 @@ signal wings_changed
 signal air_fights_changed
 
 const ZONE_KM := 350.0
-## Yapay zekâ ülkesinin en çok hava kanadı (tavandan sonra yeni uçaklar stokta kalır, kayıpları doldurur). Tarihî akıştan
-## sonra (AI.follows_history bitince) geçerli: uzun oyunda kanat sayısı onlarca yılda sınırsız artıyordu.
-const MAX_WINGS_MAJOR := 40
-const MAX_WINGS_MINOR := 12
+## Yapay zekâ ülkesinin en çok hava kanadı: askerî fabrika sayısının üçte biri, 12 ile 40 arasında (kanatları besleyen
+## sanayi kadar; tavandan sonra yeni uçaklar stokta kalır, kayıpları doldurur). Tarihî akıştan sonra (AI.follows_history
+## bitince) geçerli: uzun oyunda kanat sayısı onlarca yılda sınırsız artıyordu.
+const MIN_WINGS := 12
+const MAX_WINGS := 40
+
+static func wing_cap(c: Country) -> int:
+	return clampi(Economy.count(c, "military_factory") / 3, MIN_WINGS, MAX_WINGS)
 const WING_SIZE := 100
 ## air: hava saldırısı, def: hava savunması, ground: kara desteği, range: km
 const TYPES := {
@@ -150,7 +154,7 @@ func _absorb(c: Country) -> void:
 				w.planes += add
 				n -= add
 		# kanat tavanı: fazla uçak stokta kalır, kayıpları doldurur (kanat sayısı onlarca yılda sınırsız artıyordu)
-		var cap := MAX_WINGS_MAJOR if c.is_major() else MAX_WINGS_MINOR
+		var cap := wing_cap(c)
 		if AI.follows_history():
 			cap = 1 << 30                  # tarihî akış ayarlandığı gibi kalır; tavan uzun oyun için
 		while n > 0:

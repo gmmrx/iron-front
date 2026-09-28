@@ -279,7 +279,7 @@ func test_ai_fleet_and_wing_caps() -> void:
 	for f in Navy.fleets_of("ENG"):
 		if not f.reserve and not f.is_sub_fleet():
 			surface += 1
-	while surface < Navy.MAX_FLEETS_MAJOR[0]:
+	while surface < Navy.fleet_cap(eng, false):
 		Navy._create("ENG", {"destroyer": 4}, port, "t%d" % surface)
 		surface += 1
 	var r: Fleet = Navy._create("ENG", {"destroyer": 14}, port, "yedek")
@@ -297,7 +297,11 @@ func test_ai_fleet_and_wing_caps() -> void:
 	# kanatlar
 	var eq_name: String = Air.TYPES["fighter"]["eq"]
 	var have := Air.wings_of("ENG").size()
-	eng.stockpile[eq_name] = float((Air.MAX_WINGS_MAJOR - have + 3) * Air.WING_SIZE)
+	var cap := Air.wing_cap(eng)
+	eng.stockpile[eq_name] = float((cap - have + 3) * Air.WING_SIZE)
 	Air._absorb(eng)
-	eq(Air.wings_of("ENG").size(), Air.MAX_WINGS_MAJOR, "kanat sayısı tavanda durur")
+	eq(Air.wings_of("ENG").size(), maxi(cap, have), "kanat sayısı tavanda durur")
+	# tavan sanayiye bağlı: sanayisi büyük ülkenin tavanı küçük ülkeninkinden yüksek (ya da eşit)
+	check(Navy.fleet_cap(country("USA"), false) >= Navy.fleet_cap(country("LUX"), false), "ABD'nin filo tavanı Lüksemburg'unkinden düşük değil")
+	check(Air.wing_cap(country("USA")) >= Air.MIN_WINGS and Air.wing_cap(country("USA")) <= Air.MAX_WINGS, "kanat tavanı 12–40")
 	gt(float(eng.stockpile.get(eq_name, 0.0)), float(Air.WING_SIZE * 2), "fazla uçak stokta kalır")
