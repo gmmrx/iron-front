@@ -33,7 +33,7 @@ var _city_needles: MultiMeshInstance3D
 var _heads: MultiMeshInstance3D
 var _counter_needles: MultiMeshInstance3D
 var _build_needles: MultiMeshInstance3D
-var _bpins: Array = []               ## yapı iğneleri: [kök Node3D, konum Vector2, zemin yüksekliği]
+var _bpins: Array = []               ## yapı iğneleri: [kök Node3D, konum Vector2, zemin yüksekliği, rozetler [tür, yazı, inşaat mı]]
 var _build_sig := -1
 var _plates := {}
 var _needle_mat: ShaderMaterial
@@ -349,7 +349,7 @@ func _add_pin(p: Vector2, items: Array) -> void:
 		l.render_priority = 12
 		l.outline_render_priority = 11
 		root.add_child(l)
-	_bpins.append([root, p, maxf(map.height_at(p), 0.0)])
+	_bpins.append([root, p, maxf(map.height_at(p), 0.0), items])
 
 func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
 	var sp := Sprite3D.new()
@@ -385,6 +385,28 @@ func _plate(building: bool) -> Texture2D:
 	var tex := ImageTexture.create_from_image(img)
 	_plates[building] = tex
 	return tex
+
+## Ekran noktasının altındaki yapı rozetinin türü ("civilian_factory"...) ya da "": rozet üstüne gelme sesi (main.gd →
+## Audio.play_building). Rozet ölçüleri 1080p ekran pikseli (PX): başka çözünürlükte yükseklik oranıyla ölçeklenir.
+func badge_at(screen: Vector2) -> String:
+	if not _on or camera == null:
+		return ""
+	var k := get_viewport().get_visible_rect().size.y / 1080.0
+	var half := BADGE_PX * 0.55 * k
+	for b: Array in _bpins:
+		var root: Node3D = b[0]
+		if not root.visible or camera.is_position_behind(root.global_position):
+			continue
+		var sp := camera.unproject_position(root.global_position)
+		if absf(screen.y - (sp.y - BADGE_PX * 0.5 * k)) > half:
+			continue
+		var items: Array = b[3]
+		var n := items.size()
+		for i in n:
+			var cx := sp.x + (float(i) - float(n - 1) * 0.5) * BADGE_GAP * k
+			if absf(screen.x - cx) <= half:
+				return str(items[i][0])
+	return ""
 
 ## Resimli uçların yüksekliği iğne boyuyla birlikte (kamera uzaklığı katı); menzil dışındakiler gizli
 func _update_building_heights(d: float) -> void:

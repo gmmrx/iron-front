@@ -805,6 +805,7 @@ SET_MUSIC_AUTO,Automatic (follows the game),Otomatik (oyunun durumuna göre)
 SET_MUSIC_AUTO_TIP,"Menu theme, peace, tension, distant wars and your own war each have their own music; events get short cues.","Menü teması, barış, gerginlik, uzak savaşlar ve sizin savaşınızın ayrı müzikleri var; olaylarda kısa müzikler çalar."
 SET_DONE,Done,Tamam
 MUSIC_main_theme,Main Theme,Ana Tema
+MUSIC_march,Marching Orders,Yürüyüş Emri
 MUSIC_peace_1,Anatolian Morning,Anadolu Sabahı
 MUSIC_peace_2,The Diplomats,Diplomatlar
 MUSIC_tension,Uneasy Peace,Gergin Barış

@@ -16,6 +16,8 @@ var _sun: DirectionalLight3D
 var map_view: MapView3D
 var camera: MapCamera3D
 var _ctrl_country := ""            ## Ctrl ile üzerine gelinen ülke (vurgulu)
+var pins: PinLayer
+var _hover_badge := ""              ## imlecin üstünde olduğu yapı rozeti (ses bir kez çalar)
 var cities: CityLayer3D
 var units: UnitLayer
 var fleets: FleetLayer
@@ -87,7 +89,7 @@ func _ready() -> void:
 	air_layer.camera = camera
 	air_layer.models = models
 	add_child(air_layer)
-	var pins := PinLayer.new()
+	pins = PinLayer.new()
 	pins.map = map_view
 	pins.camera = camera
 	pins.cities = cities
@@ -748,6 +750,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		map_view.set_hovered(pid)
 		var hf := fleets.pick(mm.position)
 		var hr := _route_at(mm.position)
+		# yapı rozetinin üstüne gelince yapının sesi (harekât masası); rozetten çıkınca yeniden çalabilir
+		var badge := pins.badge_at(mm.position) if pins and not hud.is_mouse_over_ui() else ""
+		if badge != "" and badge != _hover_badge:
+			Audio.play_building(badge)
+		_hover_badge = badge
 		_country_hover(pid if mm.ctrl_pressed else 0, mm.position)
 		if _ctrl_country != "":
 			pass
