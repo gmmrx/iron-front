@@ -212,6 +212,10 @@ func check(c: Country, cond: Dictionary) -> bool:
 				if not c.decisions_active.has("flag_" + str(v)): return false
 			"at_war":
 				if Diplomacy.at_war(c.tag) != bool(v): return false
+			"stability_below":
+				if c.stability >= float(v): return false
+			"is_major":
+				if c.is_major() != bool(v): return false
 			"enemies_at_war":
 				if not Diplomacy.are_enemies(v[0], v[1]): return false
 			"owns_city_not":
@@ -465,6 +469,8 @@ func _on_day_impl() -> void:
 				c.decisions_active.erase(d)
 				c.spirits.erase(d)
 	_scheduled_events()
+	if World.day_count % 7 == 0:
+		_recurring_events()
 	_elections()
 	_expire_spirits()
 	# gerginlik yavaşça düşer (savaş yoksa)
@@ -503,6 +509,47 @@ func _scheduled_events() -> void:
 			continue
 		fired_events.append(id)
 		fire_event(target, id, str(t.get("from", target.tag)))
+
+## Kurala dayalı, yinelenen olaylar (tarihî akıştan sonra dünya durmasın): events.json'da "recur": {after, mtth_days,
+## cooldown_days, from, require[]} olanlar "after" tarihinden sonra her ülkeye haftada 7 / mtth_days olasılıkla gelir
+## (ortalama mtth_days günde bir); aynı ülkeye yeniden gelmeden önce cooldown_days geçer ("cd_<olay>" kararı olarak
+## tutulur, kayda geçer). from: "self" ya da "neighbour" (müttefik olmayan rastgele kara komşusu; yoksa olay gelmez).
+## "after" tarihinden önce rastgele sayı çekilmez: tarihî akış ve belirlenimcilik bundan etkilenmez.
+func _recurring_events() -> void:
+	var today := World.date_value()
+	for id: String in events:
+		var r: Variant = events[id].get("recur")
+		if r == null:
+			continue
+		var rd: Dictionary = r
+		if today < _date(str(rd.get("after", "1936-01-01"))):
+			continue
+		var chance := 7.0 / maxf(float(rd.get("mtth_days", 1000)), 7.0)
+		for c: Country in World.countries.values():
+			if not c.exists() or c.decisions_active.has("cd_" + id):
+				continue
+			if randf() >= chance or not check_all(c, rd.get("require", [])):
+				continue
+			var from := c.tag
+			if str(rd.get("from", "self")) == "neighbour":
+				from = random_neighbour(c)
+				if from == "":
+					continue
+			c.decisions_active["cd_" + id] = World.day_count + int(rd.get("cooldown_days", 365))
+			fire_event(c, id, from)
+
+## Müttefik olmayan rastgele kara komşusu ("" = yok)
+func random_neighbour(c: Country) -> String:
+	var seen := {}
+	for sid: int in c.states:
+		for pid: int in World.states[sid].provinces:
+			for n: int in World.land_neighbors(pid):
+				var st: StateRegion = World.states.get(World.province(n).state_id)
+				if st and st.owner != c.tag and not Diplomacy.are_allies(st.owner, c.tag):
+					seen[st.owner] = true
+	var keys := seen.keys()
+	keys.sort()
+	return String(keys[randi() % keys.size()]) if not keys.is_empty() else ""
 
 ## Seçimler (demokrasiler ve seçim yapan diğer rejimler): tarih gelince popülerliği %50'yi aşan ideoloji iktidara gelir;
 ## kimse aşmıyorsa iktidar kalır. Oyuncuya sonuç penceresi gösterilir.

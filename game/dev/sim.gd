@@ -50,7 +50,7 @@ func _init() -> void:
 			print(line)
 		if day % 180 == 0:
 			var n: int = mil.divisions.size()
-			print("[%d-%02d] tümen=%d savaş=%d gerginlik=%.0f  (%.1f sn)" % [clock.year, clock.month, n, dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0])
+			print("[%d-%02d] tümen=%d savaş=%d gerginlik=%.0f  (%.1f sn, bellek %.0f MB)" % [clock.year, clock.month, n, dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0, OS.get_static_memory_usage() / 1048576.0])
 	print("--- sonuç ---")
 	var rows := []
 	for c in W.countries.values():
@@ -63,6 +63,18 @@ func _init() -> void:
 	var prof: Dictionary = clock.prof
 	for k in prof: print("  profil %s: %.1f sn" % [k, prof[k] / 1e6])
 	print("toplam süre %.1f sn" % ((Time.get_ticks_msec() - t0) / 1000.0))
+	# uzun oyun: kayıt boyu, dünya olayları, iyileştirme seviyeleri (bitmeyen oyun onlarca yıl kararlı kalmalı)
+	var research = root.get_node("Research")
+	var top_rep := 0
+	for c in W.countries.values():
+		for cat: String in research.categories:
+			top_rep = maxi(top_rep, research.repeat_level(c, cat))
+	print("dünya olayları kaydı %d, tanımlı teknoloji %d, en yüksek iyileştirme seviyesi %d" % [W.world_log.size(), research.techs.size(), top_rep])
+	var game = root.get_node("Game")
+	if game.save_game("_uzun_kosu"):
+		var path: String = game.SAVE_DIR + "_uzun_kosu.json"
+		print("kayıt boyu %.0f KB" % (FileAccess.get_file_as_bytes(path).size() / 1024.0))
+		DirAccess.remove_absolute(path)
 	# --- denetimler
 	var problems: Array[String] = []
 	if W.day_count - day0 != days:

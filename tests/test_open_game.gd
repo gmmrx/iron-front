@@ -153,3 +153,68 @@ func test_ai_researches_refinements() -> void:
 	gt(ai.research_current.size(), 0, "bütün dalları biten yapay zekâ araştırmayı sürdürür")
 	for r: Dictionary in ai.research_current:
 		check(Research.is_repeat(String(r["tech"])), "yapay zekâ iyileştirme araştırır: " + String(r["tech"]))
+
+# ------------------------------------------------------------------ tarihî akıştan sonra
+## Yinelenen olayı her ülkeye bu hafta gelecek kadar sık yap (mtth 7 gün), testten sonra eski değer
+func _force(id: String) -> int:
+	var r: Dictionary = Politics.events[id]["recur"]
+	var old := int(r["mtth_days"])
+	r["mtth_days"] = 7
+	return old
+
+func _unforce(id: String, old: int) -> void:
+	Politics.events[id]["recur"]["mtth_days"] = old
+
+func _set_date(y: int, m: int, d: int) -> void:
+	GameClock.year = y
+	GameClock.month = m
+	GameClock.day = d
+
+func test_recurring_events_wait_for_history() -> void:
+	var old := _force("bank_run")
+	var me := player()
+	_set_date(1944, 6, 1)
+	Politics._recurring_events()
+	check(not me.decisions_active.has("cd_bank_run"), "tarihî akış sürerken yinelenen olay yok")
+	check(Politics.pending_events.filter(func(p: Dictionary) -> bool: return p["id"] == "bank_run").is_empty(), "1944'te bekleyen olay yok")
+	_set_date(1946, 6, 1)
+	Politics._recurring_events()
+	check(me.decisions_active.has("cd_bank_run"), "1946'da olay gelir, bekleme süresi başlar")
+	eq(Politics.pending_events.filter(func(p: Dictionary) -> bool: return p["id"] == "bank_run").size(), 1, "oyuncuya pencere (karar oyuncunun)")
+	var ai_got := 0
+	for c: Country in World.countries.values():
+		if c.tag != me.tag and c.exists() and c.decisions_active.has("cd_bank_run"):
+			ai_got += 1
+	gt(ai_got, 20, "yapay zekâ ülkelerine de gelir (kendileri seçer)")
+	Politics._recurring_events()
+	eq(Politics.pending_events.filter(func(p: Dictionary) -> bool: return p["id"] == "bank_run").size(), 1, "bekleme süresinde yeniden gelmez")
+	World.day_count += int(Politics.events["bank_run"]["recur"]["cooldown_days"]) + 1
+	Politics._on_day_impl()                # süresi dolan bekleme kalkar
+	check(not me.decisions_active.has("cd_bank_run"), "bekleme süresi dolar")
+	_unforce("bank_run", old)
+
+func test_recurring_event_requirements() -> void:
+	var old := _force("officers_plot")
+	_set_date(1946, 6, 1)
+	var me := player()
+	me.stability = 0.8
+	Politics._recurring_events()
+	check(not me.decisions_active.has("cd_officers_plot"), "istikrar yüksekken subay komplosu yok")
+	me.stability = 0.2
+	Politics._recurring_events()
+	check(me.decisions_active.has("cd_officers_plot"), "istikrar düşükken gelir")
+	_unforce("officers_plot", old)
+
+func test_border_incident_gives_casus_belli_and_ai_wars() -> void:
+	var me := player()
+	var n := Politics.random_neighbour(me)
+	check(n != "" and not Diplomacy.are_allies(n, me.tag), "müttefik olmayan komşu: " + n)
+	Politics.choose_option(me, "border_incident", 0, n)
+	check(me.war_goals.has(n), "tazminat istemek komşuya karşı savaş gerekçesi verir")
+	# tarihî akıştan sonra gerekçesi olan yapay zekâ savaşı kendisi açar (yeni savaşlar)
+	_set_date(1946, 6, 1)
+	check(not AI.follows_history(), "1946: yapay zekâ serbest")
+	var ita: Country = World.countries["ITA"]
+	ita.war_goals["ALB"] = true
+	AI._declare(ita)
+	check(Diplomacy.are_enemies("ITA", "ALB"), "gerekçesi olan yapay zekâ savaş açar")

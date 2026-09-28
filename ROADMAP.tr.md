@@ -602,8 +602,13 @@ olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şe
       ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır (formül ve gerekçeler
       `data/common/technologies.json` → `repeatable`)
 - [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
-- [ ] Tarihî akıştan sonra olaylar ve yapay zekâ: tarihli olaylar bitince dünya durmaz — kurala dayalı olaylar (krizler,
-      sınır olayları, ayaklanmalar, darbeler, ekonomik şoklar) ve yeni savaşlar planlayan yapay zekâ
+- [x] Tarihî akıştan sonra olaylar ve yapay zekâ: 2 Eylül 1945'ten sonra her ülkeye kurala dayalı, yinelenen olaylar
+      gelir (`events.json` içinde `"recur"`: başlangıç, ortalama süre, bekleme, şartlar, karşı taraf olarak komşu) —
+      Sınırda Çatışma (savaş gerekçesi: yapay zekâ yeni savaşları böyle bulur), Bankalara Hücum, Subay Komplosu (düşük
+      istikrar), Askerler Evine Dönüyor (barıştaki büyük güçler); bu tarihten önce rastgele sayı çekilmez, tarihî akış
+      değişmez
+- [ ] Daha çok kurala dayalı olay: işgal altındaki topraklarda ayaklanma, gerçek darbe (rejim değişikliği), felaketler,
+      sömürge krizleri
 - [ ] Uzun oyunda da işe yarayan yasalar, programlar ve kararlar (savaş sonrası yeniden inşa, işgal politikası, büyük bir
       imparatorluğun ekonomisi)
 - [ ] Performans ve kayıt boyutu onlarca oyun yılı boyunca kararlı (uzun koşu testi: 30+ oyun yılı)

@@ -19,6 +19,18 @@ The timeline is data (`data/common/history.json`).
   Poland, Vyborg is no longer Finnish…) the step is skipped and the world goes its own way from there.
 - **Until 2 September 1945** the AI starts no war on its own and does not join an ally's war of aggression when called
   (defending an ally or a guaranteed country still happens at once). After that date the AI acts freely.
+- **After the historical flow the world keeps moving**: from 2 September 1945, rule-based events come to every country
+  (the player decides, the AI picks by weight), each on average once in its period and not again before its pause:
+  | Event | Comes to | On average | Pause | Options |
+  |---|---|---|---|---|
+  | Clash on the Border | a country at peace, with a non-allied neighbour | 1,800 days | 720 days | demand reparations (−20 influence, casus belli against the neighbour, crisis +2) / settle it (+2% stability, −2% home front) |
+  | Run on the Banks | any country | 2,600 days | 1,100 days | rescue the banks (−40 influence, +2% stability) / let them fail (−6% stability, +15 influence) |
+  | Officers' Plot | a country with stability under 35% | 1,500 days | 1,500 days | arrest them (+4% stability, −3% home front) / give the army a voice (fascism +10%, +3% stability, +3% home front) / early elections (democracy +10%, −2% stability) |
+  | The Soldiers Come Home | a great power at peace | 400 days | 10 years | demobilise (2 civilian factories, −8% home front, +3% stability) / keep the army (+4% home front, −4% stability) |
+
+  The border clash is how the AI finds new wars: a country that demands reparations gets a casus belli, and a
+  non-democratic AI with a casus belli declares war when its army is strong enough. The events are data (`"recur"` in
+  `data/common/events.json`).
 
 ## Crisis index
 How close the world is to general war. It rises with aggression (preparing a casus belli, annexations, war). It strengthens

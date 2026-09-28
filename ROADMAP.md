@@ -630,8 +630,11 @@ country is completely destroyed**. How many years that takes cannot be known in 
       tree; the last column of the research timeline; the AI researches them too (formula and reasons in
       `data/common/technologies.json` → `repeatable`)
 - [ ] Production and units after the war years: later equipment generations follow the repeatable research levels
-- [ ] Events and AI after the historical flow: when the dated historical events run out, the world keeps moving —
-      rules-based events (crises, border incidents, uprisings, coups, economic shocks) and AI that plans new wars
+- [x] Events and AI after the historical flow: from 2 Sep 1945 rule-based recurring events come to every country (`"recur"`
+      in `events.json`: after, average period, pause, requirements, a neighbour as the other side) — Clash on the Border
+      (a casus belli: the AI finds new wars this way), Run on the Banks, Officers' Plot (low stability), The Soldiers Come
+      Home (great powers at peace); no random number is drawn before that date, so the historical flow is unchanged
+- [ ] More rule-based events: uprisings in occupied lands, real coups (a change of regime), disasters, colonial crises
 - [ ] Laws, programs and decisions that stay useful in a long game (post-war reconstruction, occupation policy, the
       economy of a large empire)
 - [ ] Performance and save size stay stable over decades of game time (long-run test: 30+ game years)
