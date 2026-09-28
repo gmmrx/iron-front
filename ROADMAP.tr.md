@@ -270,8 +270,11 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
       Büyük Terör −%30, hazırlıksız ordu), Alman program tarihleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
 - [x] Komutanlarla (27 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6; bir koşuda Almanya/İtalya erken, bir koşuda Fransa geç
       düştü — izlenecek
-- [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
-- [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
+- [x] Fransa Haziran–Temmuz 1940'ta düşer (6/6 koşu, 28 Eyl 2026): tarih çizelgesi (Sarı Plan, 10 Mayıs 1940) ve
+      Mayıs–Ekim 1940 "Cephenin Çöküşü" durumu
+- [x] Teslim olan ülke tutarlı devredilir: işgal edilen eyaletleri işgalcilere geçer, bütün savaşlardan ve (lideri
+      değilse) ittifakından çıkar, verdiği garantiler düşer, iki yıl savaş ilan edemez (`Diplomacy.TRUCE_DAYS`); eski
+      müttefiklerinin savaşlarına yeniden çekilmez
 - [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
 
 ### P2. Oyuncuya geri bildirim
@@ -601,7 +604,8 @@ olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şe
 - [x] Bitmeyen araştırma: bir dalın tarihî teknolojileri bitince dal iyileştirme seviyeleriyle sürer ("Piyade
       İyileştirmesi I, II, ...", `rep_<dal>_<n>`): maliyet 180 gün, seviye başına +%15; kazanç seviye başına −%15
       (toplamı sınırlı); her seviyenin yılı bir öncekinden bir yıl sonra (1943'ten), yıl cezası iyileştirmeleri tarihî
-      ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır (formül ve gerekçeler
+      ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır, yalnız seviyenin yılı gelince
+      (yıllar önce alınan seviye bir yuvayı yıllarca kilitlerdi) (formül ve gerekçeler
       `data/common/technologies.json` → `repeatable`)
 - [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
 - [x] Tarihî akıştan sonra olaylar ve yapay zekâ: 2 Eylül 1945'ten sonra her ülkeye kurala dayalı, yinelenen olaylar

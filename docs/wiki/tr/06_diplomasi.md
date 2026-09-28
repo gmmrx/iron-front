@@ -71,3 +71,5 @@ bedeli onlara); kınamaları menüde ve haber akışında görünür. Seçenekle
 - Sınır %80; iç cephe %50'nin altındaysa (0,5 − iç cephe) × 0,6 kadar düşer; bazı ulusal durumlar değiştirir
   (ör. Fransa'nın Kısa Ömürlü Kabineler durumu −%30). En düşük %20.
 - Teslim olan ülkenin işgal edilen eyaletleri işgalciye geçer.
+- Teslim olan ülke bütün savaşlardan ve (lideri değilse) ittifakından çıkar, verdiği garantiler düşer ve **iki yıl**
+  savaş ilan edemez (mütareke: dağılan orduyu yeniden kurma süresi). Elinde toprak kaldıysa oynamayı sürdürür — oyuncu da.

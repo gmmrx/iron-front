@@ -8,6 +8,9 @@ signal diplomacy_changed(tag: String)
 const JUSTIFY_DAYS := 30
 const JUSTIFY_COST := 30.0
 const CAPITULATION_BASE := 0.8
+## Teslimden sonra mütareke: 2 yıl savaş ilan edilemez (ordusu dağılmış, toprağı işgal edilmiş bir ülkenin yeniden
+## silahlanıp kendini toparlaması için makul süre; teslim olan oyuncu da oynamayı sürdürür, hemen intikam savaşı açamaz)
+const TRUCE_DAYS := 730
 
 var wars: Array = []         ## [{id, attackers: [tag], defenders: [tag]}]
 var _next_id := 1
@@ -121,6 +124,8 @@ func can_declare(a: Country, t: Country) -> String:
 		return "DIPLO_ERR_ALLY"
 	if not a.war_goals.has(t.tag):
 		return "DIPLO_ERR_NO_GOAL"
+	if World.day_count < a.truce_until:
+		return "DIPLO_ERR_TRUCE"
 	return ""
 
 func declare_war(a_tag: String, t_tag: String) -> bool:
@@ -328,6 +333,12 @@ func capitulate(c: Country) -> void:
 				winner = t
 		World.annex(c.tag, winner)
 	_leave_all_wars(c.tag)
+	# teslim olan ülke savaş dışı kalır: ittifaktan çıkar (lider değilse), verdiği garantiler düşer, mütareke boyunca
+	# savaş ilan edemez — eski müttefiklerinin savaşlarına yeniden çekilmez
+	if c.faction != "" and c.faction != c.tag:
+		leave_faction(c.tag)
+	c.guarantees.clear()
+	c.truce_until = World.day_count + TRUCE_DAYS
 	Military.remove_all(c.tag)
 	Navy.remove_all(c.tag)
 	Air.remove_all(c.tag)

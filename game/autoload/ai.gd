@@ -184,6 +184,10 @@ func _research(c: Country) -> void:
 		for id: String in Research.techs:
 			if not Research.can_research(c, id):
 				continue
+			# iyileştirme seviyesi yılı gelmeden seçilmez: yıl cezasıyla ~2000 günlük bir seviye yuvayı yıllarca kilitler,
+			# tarihî teknolojiler geri kalırdı (1942'de Almanya'yı zayıflatıyordu)
+			if Research.is_repeat(id) and int(Research.techs[id]["year"]) > GameClock.year:
+				continue
 			var cat: String = Research.techs[id]["cat"]
 			var score := Research.days_needed(c, id) * (1.0 + prio.find(cat) * 0.12)
 			if score < best_score:

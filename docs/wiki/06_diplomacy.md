@@ -73,3 +73,6 @@ are data (`data/common/world_reactions.json`).
 - The limit is 80%; when the home front is below 50% it drops by (0.5 − home front) × 0.6; some national conditions change
   it (e.g. France's Revolving-Door Cabinets −30%). The lowest is 20%.
 - The occupied states of a surrendering country pass to the occupier.
+- A surrendering country leaves every war and its alliance (unless it leads it), the guarantees it gave lapse, and it
+  cannot declare war for **two years** (a truce: time to rebuild an army that has been disbanded). If it still holds land
+  it plays on — the player too.

@@ -283,9 +283,11 @@ The game must go from "watchable" to **playable**: a balanced historical flow, c
       dates (Danzig 1 Sep 1939, West May 1940)
 - [x] With commanders (27 Sep 2026, 6 runs): all 12 checks ≥5/6; Germany/Italy fell early in one run and France late in
       another — to be watched
-- [ ] The fall of France in Feb–Jun 1941 (historical: Jun 1940): concentration and encirclement through Belgium/the
-      Netherlands to be sped up
-- [ ] The wars and lands of a surrendering country should pass on consistently (a surrendered country cannot declare war)
+- [x] The fall of France in June–July 1940 (6/6 runs, 28 Sep 2026): the historical timeline (Case Yellow on 10 May 1940)
+      and the "Collapse of the Front" condition of May–October 1940
+- [x] A surrendering country passes on consistently: its occupied states go to the occupiers, it leaves every war and its
+      alliance (unless it leads it), its guarantees lapse and it cannot declare war for two years (`Diplomacy.TRUCE_DAYS`),
+      so it is not pulled back into its old allies' wars
 - [ ] Peace conference (simple): the winning side shares the states
 
 ### P2. Feedback to the player
@@ -630,7 +632,8 @@ country is completely destroyed**. How many years that takes cannot be known in 
 - [x] Research without an end: once a branch's historical technologies are done it goes on with refinement levels
       ("Infantry Refinement I, II, …", `rep_<branch>_<n>`): cost 180 days +15% per level, gain −15% per level (bounded
       total), dated one year after the previous level (from 1943) so the year penalty keeps them after the historical
-      tree; the last column of the research timeline; the AI researches them too (formula and reasons in
+      tree; the last column of the research timeline; the AI researches them too, only once a level's year has come (a
+      level taken years early would lock a research slot for years) (formula and reasons in
       `data/common/technologies.json` → `repeatable`)
 - [ ] Production and units after the war years: later equipment generations follow the repeatable research levels
 - [x] Events and AI after the historical flow: from 2 Sep 1945 rule-based recurring events come to every country (`"recur"`

@@ -213,6 +213,7 @@ DIPLO_ERR_ALLY,They are our ally.,Müttefikimiz.
 DIPLO_ERR_PP,Not enough influence.,Yeterli nüfuz yok.
 DIPLO_ERR_TENSION,The crisis index is too low for our ideology.,İdeolojimiz için kriz endeksi çok düşük.
 DIPLO_ERR_NO_GOAL,We need a casus belli first.,Önce bir savaş gerekçesi gerekli.
+"DIPLO_ERR_TRUCE","We surrendered: no declarations of war for two years.","Teslim olduk: iki yıl savaş ilan edemeyiz."
 "NOTE_DIV_DESTROYED","%s of %s was encircled and destroyed.","%s (%s) kuşatıldı ve yok edildi."
 NOTE_SAVED,Game saved: %s,Oyun kaydedildi: %s
 GAMEOVER_DEFEAT,Your nation has been destroyed.,Ülkeniz yok edildi.

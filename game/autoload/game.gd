@@ -104,7 +104,7 @@ func save_game(slot: String) -> bool:
 			"research_slots": c.research_slots, "fuel": c.fuel, "rstore": c.research_stored, "research_current": c.research_current, "research_done": Array(c.research_done),
 			"research_bonus": c.research_bonus, "decisions": c.decisions_active, "manpower_used": c.manpower_used,
 			"templates": c.templates, "faction": c.faction, "war_goals": c.war_goals, "justify": c.justify_progress,
-			"guarantees": Array(c.guarantees), "access": Array(c.access), "capitulated": c.capitulated,
+			"guarantees": Array(c.guarantees), "access": Array(c.access), "capitulated": c.capitulated, "truce": c.truce_until,
 			"auto_trade": c.auto_trade, "trade_orders": c.trade_orders,
 			"popularity": c.popularity, "stockpile": c.stockpile, "lines": lines, "queue": queue,
 		}
@@ -200,7 +200,7 @@ func load_game(slot: String) -> bool:
 		c.research_bonus = cd["research_bonus"]; c.decisions_active = cd["decisions"]
 		c.manpower_used = int(cd["manpower_used"]); c.templates = cd["templates"]; c.faction = cd["faction"]
 		c.war_goals = cd["war_goals"]; c.justify_progress = cd["justify"]
-		c.guarantees.assign(cd["guarantees"]); c.access.assign(cd["access"]); c.capitulated = cd["capitulated"]
+		c.guarantees.assign(cd["guarantees"]); c.access.assign(cd["access"]); c.capitulated = cd["capitulated"]; c.truce_until = int(cd.get("truce", 0))
 		c.popularity = cd["popularity"]; c.stockpile = cd["stockpile"]
 		c.production_lines.clear()
 		for l: Dictionary in cd["lines"]:
