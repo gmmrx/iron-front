@@ -204,8 +204,8 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
 - [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
       rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
-- [x] Yapı rozetleri geç gelir (28 Eyl 2026): orta uzaklıkta haritanın üstünde ikon olarak durur, iğne ancak çok
-      yakında yükselir. Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
+- [x] Yapı rozetleri (28 Eyl 2026): orta uzaklıktan (kamera 900) haritanın üstünde küçük ikon (%72 boy), 420'den içeride
+      tam boy ve altlarından yükselen iğne. Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
       gelene kadar yakın bir eylem sesi) ve kart yapıyı anlatır (seviye / en çok, inşaat, ülke toplamı, konuşlu kanatlar);
       tıklamak eyaletini açar
 - [x] Oyuncunun ordusu yakında ana sayacının üstünde komutanının portresini taşır (resim yoksa baş harfleri)

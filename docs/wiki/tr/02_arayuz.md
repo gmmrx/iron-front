@@ -73,7 +73,8 @@ her zamanki harita ikonları (şehir, liman, hava üssü) görünür; yaklaştı
   komutanının portresi durur; ordular bir bakışta ayırt edilir. Komutanın resmi yoksa adının baş harfleri görünür.
 - **Yapılar**: eyaletin yapıları yan yana resim olarak (sivil ve askerî fabrika, tersane, rafineri, uçaksavar, deniz
   üssü), köşesinde seviyesi; süren inşaat turuncu çerçeveli resim ve "+n". Hava üssünün kendi rozeti vardır. Orta
-  uzaklıkta rozetler haritanın üstünde ikon olarak durur; iğne ancak çok yaklaşınca altlarından yükselir. Farenin
+  uzaklıktan itibaren rozetler haritanın üstünde küçük ikon olarak durur; yaklaştıkça tam boya büyür ve iğne
+  altlarından yükselir. Farenin
   rozetin üstüne gelmesiyle rozet büyür, o yapının sesi duyulur ve kart o yapıyı anlatır (seviye / en çok, süren inşaat,
   ülkedeki toplamı, hava üssünde konuşlu kanatlar). Rozete tıklamak eyaletini açar (İnşaat açıkken: oraya inşa eder).
 - **Muharebeler**: muharebenin yanında küçük oklar belirip söner: durumu az önce düzelen tarafta yeşil ▲, zemin

@@ -60,7 +60,7 @@ func test_building_pins_icon_then_needle() -> void:
 	eq(pl._build_needles.multimesh.instance_count, pl._bpins.size(), "her yapı iğnesinin gövdesi")
 	lt(PinLayer.BUILD_PIN_RANGE, PinLayer.BUILD_RANGE * 0.6, "iğne rozetlerden çok sonra (yakında) çıkar")
 	# [uzaklık, görünür mü, yerden yükseklik katı]: orta uzaklıkta ikon (yere yakın), çok yakında iğnenin ucunda
-	var cases := [[400.0, true, 0.004], [150.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
+	var cases := [[650.0, true, 0.004], [150.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
 	for cs: Array in cases:
 		var d: float = cs[0]
 		cam.focus_on(at, d)
@@ -73,6 +73,17 @@ func test_building_pins_icon_then_needle() -> void:
 			elif root.visible and absf(root.position.y - float(b[2]) - d * float(cs[2])) > 0.01:
 				wrong += 1
 		eq(wrong, 0, "yapı rozetleri, uzaklık %d" % int(d))
+		if bool(cs[1]):
+			# uzakta rozet küçük, iğnede tam boy; görünen rozetler şimdiki boyda
+			if d <= PinLayer.BUILD_PIN_RANGE:
+				near(pl._badge_k, 1.0, 0.001, "iğnede rozet tam boy (%d)" % int(d))
+			else:
+				check(pl._badge_k < 0.85 and pl._badge_k >= PinLayer.FAR_BADGE - 0.001, "uzakta rozet küçük (%d): %.2f" % [int(d), pl._badge_k])
+			var stale := 0
+			for b: Array in pl._bpins:
+				if (b[0] as Node3D).visible and absf(float(b[5]) - pl._badge_k) > 0.001:
+					stale += 1
+			eq(stale, 0, "görünen rozetler şimdiki boyda, uzaklık %d" % int(d))
 	_free_all([pl, cam, pm])
 
 func test_building_pick_hover_and_card() -> void:
