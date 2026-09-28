@@ -49,8 +49,8 @@ var _last_label_d := -1.0
 var _recheck := 0.0
 
 const BUILD_LIFT := 0.045                                             ## yapı iğnesinin boyu
-const BUILD_RANGE := 350.0                                            ## yapı rozetleri bu uzaklığın içinde (önce ikon)
-const BUILD_PIN_RANGE := 200.0                                        ## iğne bu kadar yakında yerden yükselir
+const BUILD_RANGE := 240.0                                            ## yapı rozetleri bu uzaklığın içinde (önce ikon)
+const BUILD_PIN_RANGE := 140.0                                        ## iğne bu kadar yakında yerden yükselir
 const HOVER_SCALE := 1.3                                              ## fare altındaki rozet büyür
 const FAR_BADGE := 0.72                                               ## rozetin en uzaktaki boyu (iğne çıkınca tam boy)
 ## iğnesi olan yapılar (altyapı her eyalette olduğundan iğnesi yok: haritayı doldururdu; bölge panelinde görünür)
@@ -461,19 +461,21 @@ func _add_pin(p: Vector2, items: Array) -> Array:
 		l.no_depth_test = true
 		root.add_child(l)
 		var b := [plate, icon, l, x]
-		_layout_badge(b, _badge_k)
+		_layout_badge(b, 1.0)
 		badges.append(b)
-	return [root, p, maxf(map.height_at(p), 0.0), items, badges, _badge_k]
+	root.scale = Vector3.ONE * _badge_k
+	return [root, p, maxf(map.height_at(p), 0.0), items, badges]
 
 ## Rozetin iğneye göre yatay yeri (ekran pikseli): rozetler iğnenin iki yanına dizilir
 static func _badge_x(k: int, n: int) -> float:
 	return (float(k) - float(n - 1) * 0.5) * BADGE_GAP
 
-## Rozeti k katı boyda yerleştir (alt kenarı iğnenin ucunda kalır); rozetler arası aralık uzaklık boyuyla (_badge_k)
-## ölçeklenir, fare altındaki rozet ayrıca büyür ve komşularının önüne geçer
+## Rozeti k katı boyda yerleştir (alt kenarı iğnenin ucunda kalır); büyütülen (fare altındaki) rozet komşularının önüne
+## geçer. Uzaklıkla küçülme kökün ölçeğiyle (_badge_k): etiket boyunu değiştirmek her Label3D'nin metnini yeniden
+## kurduruyordu (yakınlaştırırken 150+ ms takılma).
 func _layout_badge(b: Array, k: float) -> void:
-	var x: float = float(b[3]) * _badge_k
-	var top := 6 if k > _badge_k + 0.001 else 0
+	var x: float = b[3]
+	var top := 6 if k > 1.0 else 0
 	var size := BADGE_PX * k
 	var plate: Sprite3D = b[0]
 	plate.pixel_size = size / (maxf(float(plate.texture.get_height()), 1.0) * PX)
@@ -553,7 +555,7 @@ func _apply_hover(hk: String, on: bool) -> bool:
 	var badges: Array = _bstate[key][1][4]
 	if k >= badges.size():
 		return false
-	_layout_badge(badges[k], (HOVER_SCALE if on else 1.0) * _badge_k)
+	_layout_badge(badges[k], HOVER_SCALE if on else 1.0)
 	return true
 
 func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
@@ -603,22 +605,12 @@ func _update_building_heights(d: float) -> void:
 	var k := lerpf(1.0, FAR_BADGE, smoothstep(BUILD_PIN_RANGE, BUILD_RANGE * 0.8, d))
 	if absf(k - _badge_k) > 0.01:
 		_badge_k = k
-	# fare altındaki rozet (büyük kalsın)
-	var hrec: Array = []
-	var hidx := -1
-	var cut := _hover_key.rfind("#")
-	if cut > 0 and _bstate.has(_hover_key.substr(0, cut)):
-		hrec = _bstate[_hover_key.substr(0, cut)][1]
-		hidx = int(_hover_key.substr(cut + 1))
+	var sc := Vector3.ONE * _badge_k
 	for b: Array in _bpins:
 		var root: Node3D = b[0]
 		root.visible = show > 0.45
 		if root.visible:
 			var p: Vector2 = b[1]
 			root.position = Vector3(p.x, float(b[2]) + d * (0.004 + BUILD_LIFT * grow), p.y)
-			if absf(float(b[5]) - _badge_k) > 0.001:
-				b[5] = _badge_k
-				var badges: Array = b[4]
-				for i in badges.size():
-					var hovered := b == hrec and i == hidx
-					_layout_badge(badges[i], (HOVER_SCALE if hovered else 1.0) * _badge_k)
+			if root.scale != sc:
+				root.scale = sc

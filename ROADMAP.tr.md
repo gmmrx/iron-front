@@ -204,8 +204,9 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
 - [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
       rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
-- [x] Yapı rozetleri yalnız yakında (28 Eyl 2026): kamera ~320'den itibaren haritanın üstünde küçük ikon (%72 boy),
-      ~190'dan içeride tam boy ve altlarından yükselen iğne; daha uzakta haritada bina görünmez. Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
+- [x] Yapı rozetleri yalnız yakında (28 Eyl 2026): kamera ~215'ten itibaren haritanın üstünde küçük ikon (%72 boy),
+      ~130'dan içeride tam boy ve altlarından yükselen iğne; daha uzakta haritada bina görünmez. Boy iğne düğümünün
+      ölçeğiyle değişir (yakınlaştırırken her etiketi yeniden boyutlamak kareleri 150+ ms takıyordu). Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
       gelene kadar yakın bir eylem sesi) ve kart yapıyı anlatır (seviye / en çok, inşaat, ülke toplamı, konuşlu kanatlar);
       tıklamak eyaletini açar
 - [x] Oyuncunun ordusu yakında ana sayacının üstünde komutanının portresini taşır (resim yoksa baş harfleri)
@@ -690,7 +691,8 @@ docs/            → wiki (docs/wiki İngilizce, docs/wiki/tr Türkçe), özgün
 - Test paketi: `tools/run_tests.sh` (içe aktarma + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
   (PR ve main push'ta; denge testi elle tetiklenen ayrı iş)
 - Denge testi: `tools/balance_parallel.sh 6` (6 paralel koşu, ~15–20 dk); tek koşu `game/dev/balance.gd`
-- Performans: `godot --path . -- --play=GER --run --fps=10`
+- Performans: `godot --path . -- --play=GER --run --fps=10` (`--fps_mouse`: fare haritada daire çizer, `--fps_zoom`:
+  kamera yakınlaşıp uzaklaşır; `--load=kayıt` bir kaydı ölçer)
 - Görsel QA (kare dizisi): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`
 - Video: `godot --path . --write-movie out.avi --fixed-fps 30 -- --play=DEN --war=GER,DEN --focus_battle=200 --speed=2
   --film=5 --dolly=320,120` (`--pan=dx,dz`, `--track`, `--hide_ui`); klipler ffmpeg ile birleştirilir → `docs/media/`

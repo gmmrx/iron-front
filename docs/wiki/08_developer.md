@@ -65,7 +65,8 @@ save as well: `test_save_load.gd` catches an unsaved field by name (fields recom
 `--hover_at=x,y` (region card at a screen position), `--army=TAG [--army_select --army_cmd]` (all divisions in one army
 facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection),
 `--split_demo=DIST` (a new army with a commander next to another counter in the same region), `--hover_building`
-(hover the building badge nearest the screen centre).
+(hover the building badge nearest the screen centre), `--scroll_end` (the open side panel scrolled to the bottom, its
+rect printed), `--fps=N [--fps_mouse] [--fps_zoom]` (frame times while the mouse circles / the camera zooms).
 To try the web renderer on desktop: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3D assets (Blender, headless)

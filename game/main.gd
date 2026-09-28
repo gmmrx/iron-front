@@ -486,6 +486,19 @@ func _handle_dev_args() -> void:
 			await get_tree().process_frame
 			if args.has("run") and GameClock.paused:
 				GameClock.set_paused(false)      # ölçüm: pencereye yanlışlıkla basılan Space/olay penceresi süreyi durdurmasın
+			if args.has("fps_zoom"):
+				# kamera 120 ile 1600 arasında gidip gelir (yakınlaştırma/uzaklaştırma, ~4 sn'de bir tur)
+				var zt := Time.get_ticks_msec() / 1000.0
+				camera.focus_on(Vector2(camera.target.x, camera.target.z), lerpf(120.0, 1600.0, 0.5 + 0.5 * sin(zt * 1.6)))
+			if args.has("fps_mouse"):
+				# fare haritada daire çizer (hover: bölge/yapı kartı, seçiliyse varış ve yol önizlemesi) — her karede 3 olay
+				var vp := get_viewport().get_visible_rect().size
+				for j in 3:
+					var a := (Time.get_ticks_msec() / 1000.0 + j * 0.01) * 1.3
+					var mv := InputEventMouseMotion.new()
+					mv.position = vp * 0.5 + Vector2(cos(a), sin(a) * 0.6) * vp.y * 0.35
+					mv.global_position = mv.position
+					Input.parse_input_event(mv)
 			var tn := Time.get_ticks_usec()
 			ft.append((tn - tprev) / 1000.0)
 			if (tn - tprev) > 150000:
@@ -661,6 +674,14 @@ func _handle_dev_args() -> void:
 			hud.tooltip.order_eta = _order_eta(_pick(hp3))      # tümen seçiliyse tahmini varış
 			hud.tooltip.show_province(_pick(hp3), hp3)
 			await get_tree().process_frame
+		if args.has("scroll_end"):
+			# test: açık yan panel en alta kaydırılır; panelin ve kaydırma alanının ekrandaki yeri yazılır
+			for p: Control in hud._left_panels():
+				if p.visible and p.has_meta("scroll"):
+					var sc: ScrollContainer = p.get_meta("scroll")
+					sc.scroll_vertical = int(sc.get_v_scroll_bar().max_value)
+					await get_tree().process_frame
+					print("PANEL ", p.name, " rect=", p.get_global_rect(), " scroll=", sc.get_global_rect(), " vp=", get_viewport().get_visible_rect().size)
 		if args.has("hover_building"):
 			# test: ekranın ortasına en yakın yapı rozetinin üstüne gel (büyüme, ses, kart) --hover_building
 			var best := {}
@@ -808,6 +829,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _middle_down:
 			camera.drag(_last_mouse, mm.position)
 		_last_mouse = mm.position
+		var __hv := Time.get_ticks_usec()
 		var pid := _pick(mm.position)
 		map_view.set_hovered(pid)
 		var hb := pins.pick_building(mm.position) if not _dragging and not _middle_down else {}
@@ -826,6 +848,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			hud.tooltip.show_route(hr, mm.position)
 		else:
 			hud.tooltip.show_province(pid, mm.position)
+		GameClock.timed("hover", __hv)
 	elif event is InputEventMagnifyGesture:
 		var mg := event as InputEventMagnifyGesture
 		camera.zoom_at(mg.position, log(mg.factor) / log(MapCamera3D.ZOOM_STEP))

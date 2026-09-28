@@ -63,7 +63,8 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 `--hover_at=x,y` (ekran konumundaki bölge kartı), `--army=TAG [--army_select --army_cmd]` (bütün tümenler TAG'e karşı tek
 ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim),
 `--split_demo=UZAKLIK` (aynı bölgede başka sayacın yanında komutanlı yeni ordu), `--hover_building` (ekranın ortasına en
-yakın yapı rozetinin üstüne gel).
+yakın yapı rozetinin üstüne gel), `--scroll_end` (açık yan panel en alta kaydırılır, yeri yazılır), `--fps=N [--fps_mouse]
+[--fps_zoom]` (fare daire çizerken / kamera yakınlaşıp uzaklaşırken kare süreleri).
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3B varlıklar (Blender, ekransız)

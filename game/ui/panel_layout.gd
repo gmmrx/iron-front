@@ -171,6 +171,11 @@ static func fixed(panel: PanelContainer) -> VBoxContainer:
 	root.add_child(box)
 	root.move_child(box, 1)
 	panel.set_meta("fixed", box)
+	# sabit alan açıldıktan sonra dolunca (araştırma yuvaları, hücreler) panel yeniden sığdırılır: yoksa kaydırma alanı
+	# eski boyda kalır, panel ekranın altına taşar ve son satırlar görünmez
+	box.minimum_size_changed.connect(func() -> void:
+		if panel.visible:
+			fit_full.call_deferred(panel))
 	return box
 
 ## Özet hücreleri: [[ikon, başlık, ipucu], ...] -> değer etiketleri (sonradan .text ile güncellenir)

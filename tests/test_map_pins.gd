@@ -54,13 +54,13 @@ func test_building_pins_icon_then_needle() -> void:
 	var cam := _camera()
 	var pl := _pins(pm, cam)
 	var at: Vector2 = World.states[World.countries[World.player_tag].capital_state].center
-	cam.focus_on(at, 250.0)
+	cam.focus_on(at, 170.0)
 	pl._process(0.1)
 	gt(pl._bpins.size(), 20, "yapı iğnesi sayısı")
 	eq(pl._build_needles.multimesh.instance_count, pl._bpins.size(), "her yapı iğnesinin gövdesi")
 	lt(PinLayer.BUILD_PIN_RANGE, PinLayer.BUILD_RANGE * 0.6, "iğne rozetlerden çok sonra (yakında) çıkar")
 	# [uzaklık, görünür mü, yerden yükseklik katı]: orta uzaklıkta ikon (yere yakın), çok yakında iğnenin ucunda
-	var cases := [[250.0, true, 0.004], [100.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
+	var cases := [[170.0, true, 0.004], [90.0, true, 0.004 + PinLayer.BUILD_LIFT], [PinLayer.BUILD_RANGE + 60.0, false, 0.0]]
 	for cs: Array in cases:
 		var d: float = cs[0]
 		cam.focus_on(at, d)
@@ -81,7 +81,7 @@ func test_building_pins_icon_then_needle() -> void:
 				check(pl._badge_k < 0.85 and pl._badge_k >= PinLayer.FAR_BADGE - 0.001, "uzakta rozet küçük (%d): %.2f" % [int(d), pl._badge_k])
 			var stale := 0
 			for b: Array in pl._bpins:
-				if (b[0] as Node3D).visible and absf(float(b[5]) - pl._badge_k) > 0.001:
+				if (b[0] as Node3D).visible and absf((b[0] as Node3D).scale.x - pl._badge_k) > 0.001:
 					stale += 1
 			eq(stale, 0, "görünen rozetler şimdiki boyda, uzaklık %d" % int(d))
 	_free_all([pl, cam, pm])
@@ -90,7 +90,7 @@ func test_building_pick_hover_and_card() -> void:
 	var pm := ProbeMap.new()
 	var cam := _camera()
 	var pl := _pins(pm, cam)
-	cam.focus_on(World.states.values()[0].center, 150.0)
+	cam.focus_on(World.states.values()[0].center, 90.0)
 	pl._process(0.1)
 	var pin := _player_pin(pl)
 	if not check(not pin.is_empty(), "oyuncunun yapı iğnesi"):
@@ -98,7 +98,7 @@ func test_building_pick_hover_and_card() -> void:
 		return
 	var key: String = pin[0]
 	var rec: Array = pin[1]
-	cam.focus_on(rec[1], 150.0)
+	cam.focus_on(rec[1], 90.0)
 	pl._last_label_d = -1.0
 	pl._process(0.1)
 	var root: Node3D = rec[0]
