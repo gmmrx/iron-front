@@ -211,3 +211,25 @@ func test_fleet_eta_matches_voyage() -> void:
 	eq(f.location, target, "filo hedef bölgeye vardı")
 	check(float(hours) >= eta - 1.0 and float(hours) <= eta * 1.25 + 3.0, "gerçek seyir %d saat, tahmin %.1f saat" % [hours, eta])
 	eq(Navy.eta_hours(f, 0), -1.0, "geçersiz hedef: -1")
+
+## Üssü düşen filo en yakın gidilebilen dost limana döner; mahsur filo bekleme süresinde yeniden yol aramaz
+func test_fleet_rehome_and_wait() -> void:
+	var f := _surface_fleet("GER")
+	if not check(f != null, "Alman su üstü filosu"):
+		return
+	var sea := Navy.sea_for(f.home)
+	f.location = sea
+	f.path = PackedInt32Array()
+	# eski üs artık gidilemez (deniz ağında olmayan bir kara bölgesi)
+	var inland := World.capital_province("GER")
+	f.home = inland
+	var now := World.day_count * 24 + GameClock.hour
+	Navy._rehome_wait[f.id] = now + 24
+	Navy._return_home(f)
+	eq(f.home, inland, "bekleme süresinde yol aranmaz")
+	check(f.path.is_empty(), "bekleme süresinde yola çıkmaz")
+	Navy._rehome_wait.erase(f.id)
+	Navy._return_home(f)
+	check(Navy.is_friendly_port("GER", f.home), "yeni üs dost liman")
+	check(not f.path.is_empty() or f.location == f.home, "yeni üsse yola çıkar")
+	check(not Navy._rehome_wait.has(f.id), "gidilebilen liman bulununca bekleme yok")

@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless simülasyon testi: godot --headless --path . -s game/dev/sim.gd -- --days=1200 [--player=TUR]
+## Headless simülasyon testi: godot --headless --path . -s game/dev/sim.gd -- --days=1200 [--player=TUR] [--prof_every=365]
 ## Sorun bulursa 1 ile çıkar: motor/betik hatası, gün sayacı kayması, tümen/ülke değerlerinde NaN/sonsuz ya da aralık dışı değer.
 func _init() -> void:
 	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
@@ -7,9 +7,12 @@ func _init() -> void:
 	await process_frame
 	var days := 1200
 	var player := ""
+	var prof_every := 0
+	var prof_last: Dictionary = {}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--days="): days = int(a.substr(7))
 		if a.begins_with("--player="): player = a.substr(9)
+		if a.begins_with("--prof_every="): prof_every = int(a.substr(13))
 	var W = root.get_node("World")
 	var clock = root.get_node("GameClock")
 	var mil = root.get_node("Military")
@@ -48,6 +51,18 @@ func _init() -> void:
 					if W.controller[pid] == c.index: prov += 1
 				line += " | %s d=%d s=%.2f o=%.2f sup=%d cmb=%d prov=%d sur=%.2f" % [t, ds.size(), st / max(ds.size(), 1), og / max(ds.size(), 1), sup, fights, prov, c.surrender_progress]
 			print(line)
+		if prof_every > 0 and day % prof_every == 0 and day > 0:
+			# yıllık profil: bu dönemde en çok süre alan işler (uzun oyunda neyin büyüdüğünü görmek için)
+			var cur: Dictionary = clock.prof
+			var rows2: Array = []
+			for k in cur:
+				rows2.append([float(cur[k]) - float(prof_last.get(k, 0.0)), k])
+			rows2.sort_custom(func(a, b): return a[0] > b[0])
+			var parts: Array[String] = []
+			for r in rows2.slice(0, 6):
+				parts.append("%s %.1f" % [r[1], r[0] / 1e6])
+			print("  profil (sn): ", ", ".join(parts))
+			prof_last = cur.duplicate()
 		if day % 180 == 0:
 			var n: int = mil.divisions.size()
 			print("[%d-%02d] tümen=%d savaş=%d gerginlik=%.0f  (%.1f sn, bellek %.0f MB)" % [clock.year, clock.month, n, dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0, OS.get_static_memory_usage() / 1048576.0])

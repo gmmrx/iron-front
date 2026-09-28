@@ -585,7 +585,11 @@ zombi salgını).
 
 ## BÖLÜM G — PERFORMANS (sürekli) ◐
 Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
-- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü)
+- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü; `--prof_every=365` her yıl en pahalı sistemleri yazar)
+- [x] Uzun savaşta donanma maliyeti (28 Eyl 2026): görevdeki her filo her saat bütün düşman filolarını tarıyordu (filolar
+      çoğaldıkça karesel: donanma görevleri 1941–44'te oyun yılı başına 12 → 22 → 37 → 51 sn) → saatlik konum dizini ve
+      görev bölgesi taraması (1944: 7 sn); deniz hâkimiyeti 6 saatte bir kurulur (nakliye 1942'ye kadar 22 → 8 sn);
+      mahsur filo günde bir liman arar. 1936–44 ekransız: 560 → 436 sn
 - [x] AI/ikmal/istatistik önbellekleri; ağaç gölgeleri kapalı; MSAA yerine FXAA; yarım çözünürlük SSAO
 - [ ] Sayaç ve etiketleri tek çizim çağrısında toplu çizim (şu an ~2.600 çizim çağrısı)
 - [ ] LOD: uzak zoom'da şehir modeli → ikon

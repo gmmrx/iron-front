@@ -614,7 +614,12 @@ outbreak).
 
 ## PART G — PERFORMANCE (ongoing) ◐
 Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
-- [x] Simulation profiling tools (`game/dev/sim.gd`, `--fps` measurement)
+- [x] Simulation profiling tools (`game/dev/sim.gd`, `--fps` measurement; `--prof_every=365` prints the costliest systems
+      every year)
+- [x] Long-war navy cost (28 Sep 2026): every fleet on a mission scanned every enemy fleet each hour (quadratic as fleets
+      multiplied: navy missions 12 → 22 → 37 → 51 s per game year in 1941–44) → a per-hour location index and a zone
+      scan (1944: 7 s); naval control rebuilt every 6 hours (transports 22 → 8 s up to 1942); a stranded fleet looks
+      for a port once a day. 1936–44 headless: 560 → 436 s
 - [x] AI/supply/statistics caches; tree shadows off; FXAA instead of MSAA; half-resolution SSAO
 - [ ] Batched drawing of counters and labels in one draw call (currently ~2,600 draw calls)
 - [ ] LOD: city model → icon at far zoom
