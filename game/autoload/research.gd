@@ -13,19 +13,23 @@ var techs: Dictionary = {}
 var categories: Dictionary = {}
 
 func _ready() -> void:
-	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-	techs = d["techs"]
-	categories = d["categories"]
+	load_data()
 	World.daily_update.connect(_on_day)
 	reset()
+
+## Tanımları etkin oyun modundan (yeniden) yükle
+func load_data() -> void:
+	var d: Dictionary = GameModes.load_json(PATH)
+	techs = d["techs"]
+	categories = d["categories"]
 
 func reset() -> void:
 	for c: Country in World.countries.values():
 		c.research_done.clear()
 		c.research_current.clear()
 		c.tech_mods.clear()
-		if c.is_major() or c.population > 15_000_000:
-			for t in START_TECHS:
+		if c.is_major() or c.population > GameModes.start_techs_min_population():
+			for t: String in GameModes.start_techs():
 				_complete(c, t, false)
 
 ## Ekipmanı açan teknoloji ("" = serbest)

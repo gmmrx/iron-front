@@ -28,6 +28,7 @@ Python araçları için: `pip install pillow numpy scipy`.
 | `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 istikrar/savaş desteği, tarihli olaylar, seçimler |
 | `$GODOT --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
 | `$GODOT --headless --path . -s game/dev/sim.gd` | simülasyon hızı (profil) |
+| `$GODOT --headless --path . -s tests/run.gd -- --file=test_modes` | oyun modu sistemi (kayıt, yama birleştirme, mod değiştirme, kayıt sürümü) |
 
 Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değiştiren her işten sonra koş.
 
@@ -55,6 +56,16 @@ Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değişt
    Game, GameClock, Audio.
 9. Oyuncunun ülkesi `World.player_tag`; `World.start_game(tag)` oyuncuya özgü varsayılanları (elle ticaret, elle kanat,
    "son askere kadar") ayarlar; kayıttan devamda `World.resume_game(tag)` (tercihler korunur). Kayıt/yükleme: `game/autoload/game.gd` — yeni ülke/tümen alanını kayda ekle.
+
+## Oyun modları
+- Mod = `data/modes/<id>/mode.json` manifest + yalnız değişen veri dosyaları (tam dosya ya da `.patch.json`) + isteğe bağlı
+  `game/modes/<id>/rules.gd` (`extends ModeRules`). Kayıt: `data/modes/modes.json`. İlk mod `ww2` (bugünkü oyun, verisi `data/common`).
+- Mod yazarken motoru değiştirme; gereken kanca yoksa sor. Rehber: `docs/modlar/README.tr.md`, iskelet: `python3 tools/new_mode.py <id>`,
+  denetim: `--check <id>`. Motor tarafı `GameModes` (saf, statik) üzerinden okur: tarih, oyuncu, büyük güçler, başlangıç
+  teknolojileri, AI takvimi; veri dosyaları (`history.json` dahil) `GameModes.load_json` ile. WWII davranışı modsuz hâliyle
+  birebir aynı kalmalı.
+- `ww2` dışındaki modlarda `balance.gd`, `gov_check.gd`, `playtest.gd` çıkış 2 verir (WWII'ye özgü); modu
+  `country_check --game_mode=<id>` ve `tests/test_mode_<id>.gd` denetler. Zombi modu tasarımı: `docs/modlar/zombi/`.
 
 ## İş akışı
 - Her görev **ayrı branch + pull request**. **main'e doğrudan push yok** (main'e push web sürümünü yeniden yayınlar).

@@ -5,6 +5,10 @@ func _init() -> void:
 	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
 	OS.add_logger(catcher)
 	await process_frame
+	if GameModes.id != GameModes.BASE_MODE:
+		print("Bu betik yalnız WWII modunun tarihî akışını denetler (etkin mod: %s). Modlar için: country_check.gd -- --game_mode=<id>" % GameModes.id)
+		quit(2)
+		return
 	var W = root.get_node("World")
 	var clock = root.get_node("GameClock")
 	var mil = root.get_node("Military")

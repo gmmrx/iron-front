@@ -76,7 +76,9 @@ Son güncelleme: **27 Eylül 2026**
 5. **Eksik mekanikler** (BÖLÜM M): ◐ generaller (komuta zinciri ✔; özellikler, portreler, tarihî giriş/çıkış sırada), doktrinler
    (birikim hücreleri onlarla açılır), savaş planları, barış konferansı, kuklalar, istihbarat, ikmal merkezleri
 6. ✔ Küçük ülkeler de inşaat yapabilir (1 fabrikalık kamu inşaat tabanı, ithalat ödemesi de bunu yiyemez); ✔ duraklatma menüsü, oyun sonu, tümen paneli yeni tasarımda
-7. ☐ **Mod desteği** (BÖLÜM MOD): oyun modlanabilir bir platform olur; 2. Dünya Savaşı ilk senaryodur
+7. ◐ **Mod desteği** (BÖLÜM MOD): oyun modlanabilir bir platform olur; 2. Dünya Savaşı ilk senaryodur. ✔ oyun modu
+   altyapısı (WWII ilk mod, veri katmanı, kural kancaları, kayıt sürümü 2, katkıcı rehberi `docs/modlar/`); ✔ zombi
+   istilası tasarım araştırması (`docs/modlar/zombi/`); ☐ zombi modunun kendisi (önce motor kancaları)
 
 ---
 
@@ -541,19 +543,32 @@ Bugünkü arayüz ilk sürümlerden kalma bir düzeni izliyor; kendi arayüz kim
 | İşgal | ☐ | direniş, uyum, garnizon |
 | İstihbarat | ☐ | ajanlar, operasyonlar, şifre çözme |
 | Kriz endeksi | ✔ | eşikler ideolojiye göre ✔ |
-| Modlar | ☐ | senaryo paketleri, bkz. BÖLÜM MOD |
+| Modlar | ◐ | oyun modları (WWII + gizli örnek mod); menüde seçim ikinci görünür modla açılır, bkz. BÖLÜM MOD |
 
-## BÖLÜM MOD — MOD DESTEĞİ ☐
+## BÖLÜM MOD — MOD DESTEĞİ ◐
 Oyun bir platform olacak: motor (harita, ekonomi, siyaset, savaş, yapay zekâ, arayüz) + senaryo paketleri. 1936 İkinci
 Dünya Savaşı ilk senaryodur; başkaları bizden ya da oyunculardan gelebilir (ör. Atatürk'lü alternatif tarih/fantezi,
-zombi salgını).
-- [ ] Senaryo paketi biçimi: `mods/<ad>/` içinde `data/common/*.json` (ülkeler, yasalar, olaylar, programlar, teknolojiler,
-      birimler, komutanlar...), metinler (`strings.csv`), isteğe bağlı harita, ikon, portre, müzik; bildirim dosyası (ad,
-      sürüm, açıklama, başlangıç tarihi, temel senaryo)
-- [ ] Yükleme sırası ve üzerine yazma (mod temel dosyaları değiştirir ya da genişletir), ana menüde mod listesi
-- [ ] Motor metinlerinden 2. Dünya Savaşı varsayımlarının çıkarılması (tarihler, "1936–1945", bitiş tarihi senaryodan)
+zombi salgını). Mod yapımcısı rehberi: [docs/modlar](docs/modlar/README.tr.md) ([İngilizce](docs/modlar/README.md)).
+- [x] Mod paketi biçimi: `data/modes/<id>/mode.json` manifest (ad, açıklama, başlangıç/bitiş tarihi, varsayılan oyuncu,
+      öne çıkan ve oynanabilir ülkeler, büyük güçler, başlangıç teknolojileri, AI takvimi), kayıt `data/modes/modes.json`;
+      ilk mod 2. Dünya Savaşı (`ww2`, verisi `data/common`'da kalır)
+- [x] Yükleme ve üzerine yazma: moddaki dosya WWII dosyasının yerine geçer ya da `.patch.json` ile derin birleşir (`null`
+      siler, `id`li dizilerde `_delete`); başlangıç sahipliği katmanı (`scenario.json`); modun kendi verisi (`own/`); kural
+      kancaları (`ModeRules`: gün/saat/ay, oyun sonu, skor, kayıtta mod durumu, yeni etki ve şart anahtarları); kayıt
+      sürümü 2 (mod + mod durumu), mod başına kayıt yuvası, bilinmeyen/bozuk modlu kaydın reddi
+- [x] Ana menüde mod listesi (birden çok görünür mod varken); CI'da test edilen gizli örnek mod `_template`
+- [◐] Motorun 2. Dünya Savaşı varsayımlarından arınması: tarih, oyuncu, büyük güçler, başlangıç teknolojileri, AI takvimi,
+      tarih çizelgesi ve bitiş tarihi moddan gelir; hâlâ "1936–1945" diyen metinlere bakılacak
+- [◐] Moda özgü metinler `game/localization/strings.csv`'ye yazılır; moda özgü harita, ikon, portre ve müzik henüz yok
+      (harita ortak; sanat dosyalarını kullanıcı üretir)
 - [ ] Genel bir oyun adı (2. Dünya Savaşı'na bağlı değil) — bkz. BÖLÜM Ö, Oyun adı
-- [ ] Mod yapımcıları için belge (İngilizce + Türkçe) ve doğrulama aracı (`tests/test_data.gd` veri testleri)
+- [x] Mod yapımcıları için belge (İngilizce + Türkçe: `docs/modlar/README.tr.md`, `docs/modlar/ASISTAN.md`) ve doğrulama
+      aracı (`tools/new_mode.py`: iskelet, `--check`, kopyala, boşalt, sil; `yeni-mod` Claude Code yeteneği)
+- [x] Zombi istilası modu: tasarım araştırması, 17 belge ([docs/modlar/zombi](docs/modlar/zombi/README.md))
+- [ ] Zombi istilası modu: uygulama — teknik plan [14_teknik_plan.md](docs/modlar/zombi/14_teknik_plan.md) (48 motor
+      kancası, 8'i zorunlu), yol haritası [16_yol_haritasi.md](docs/modlar/zombi/16_yol_haritasi.md) (kancalar → MVP →
+      alfa → içerik → cila)
+- [ ] Moda özel harita, moda özel arayüz paneli kancası, mod başına ses/müzik listesi
 
 ## BÖLÜM WEB — TARAYICI SÜRÜMÜ ◐
 - [x] GitHub Pages yayını: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer yalnız web'de,
@@ -638,10 +653,12 @@ oyuncuya bir akış olarak gelmeli; bir kısmına cevap verilebilmeli.
 
 ## Mimari
 ```
-data/            → içerik (JSON/CSV), üretilmiş harita dosyaları
+data/            → içerik (JSON/CSV), üretilmiş harita dosyaları; data/modes/ → oyun modları
 tools/           → harita, doku, model (Blender), ses üretim betikleri
 game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
-game/core/       → saf simülasyon sınıfları (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet...)
+game/core/       → saf simülasyon sınıfları (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet,
+                   GameModes, ModeRules...)
+game/modes/      → mod kural betikleri (game/modes/<id>/rules.gd)
 game/map/        → 3D harita, kamera, şehir/ağaç/birim katmanları
 game/ui/         → arayüz
 game/dev/        → headless test ve simülasyon
@@ -651,6 +668,7 @@ docs/            → wiki (docs/wiki İngilizce, docs/wiki/tr Türkçe), özgün
 ```
 
 ## Geliştirici araçları
+- Yeni oyun modu: `python3 tools/new_mode.py <id>` (rehber `docs/modlar/README.tr.md`)
 - Test paketi: `tools/run_tests.sh` (içe aktarma + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
   (PR ve main push'ta; denge testi elle tetiklenen ayrı iş)
 - Denge testi: `tools/balance_parallel.sh 6` (6 paralel koşu, ~15–20 dk); tek koşu `game/dev/balance.gd`

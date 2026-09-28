@@ -50,7 +50,18 @@ var _next_id := 1
 var _dirty := false
 
 func _ready() -> void:
-	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(UNITS_PATH))
+	load_data()
+	apply_mode()
+	armies_changed.connect(func() -> void: _bonus_cache.clear())
+	GameClock.hour_passed.connect(_on_hour)
+	Diplomacy.wars_changed.connect(invalidate_masks)
+	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void: invalidate_masks())
+	World.daily_update.connect(_on_day)
+	Research.tech_completed.connect(func(tag: String, _t: String) -> void: invalidate_stats(tag))
+
+## Tanımları etkin oyun modundan (yeniden) yükle
+func load_data() -> void:
+	var d: Dictionary = GameModes.load_json(UNITS_PATH)
 	battalions = d["battalions"]
 	default_templates = d["templates"]
 	terrain = d["terrain"]
@@ -58,13 +69,14 @@ func _ready() -> void:
 	amphibious_attack = float(d["amphibious_attack"])
 	start_divisions = d["start_divisions"]
 	_division_equipment = d["division_equipment"]
-	_cmd_data = JSON.parse_string(FileAccess.get_file_as_string(COMMANDERS_PATH))
-	armies_changed.connect(func() -> void: _bonus_cache.clear())
-	GameClock.hour_passed.connect(_on_hour)
-	Diplomacy.wars_changed.connect(invalidate_masks)
-	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void: invalidate_masks())
-	World.daily_update.connect(_on_day)
-	Research.tech_completed.connect(func(tag: String, _t: String) -> void: invalidate_stats(tag))
+	_cmd_data = GameModes.load_json(COMMANDERS_PATH)
+	_stats_cache.clear()
+	_bonus_cache.clear()
+
+## Oyun modunun muharebe eşikleri (mode.json "combat")
+var _phoney_days := PHONEY_DAYS
+func apply_mode() -> void:
+	_phoney_days = int(GameModes.sub("combat", "phoney_war_days"))
 
 var _division_equipment: Dictionary = {}
 
@@ -1165,7 +1177,7 @@ func _phoney_war_malus(tag: String) -> float:
 	for w: Dictionary in Diplomacy.wars:
 		if tag in w["attackers"] or tag in w["defenders"]:
 			longest = maxi(longest, World.day_count - int(w.get("start", 0)))
-	return 0.25 if longest >= 0 and longest < PHONEY_DAYS else 0.0
+	return 0.25 if longest >= 0 and longest < _phoney_days else 0.0
 
 # ------------------------------------------------------------------ mevsim ve yakıt
 ## Kış: Aralık–Şubat, kuzey yarıkürede 45° üstü (güneyde Haziran–Ağustos, 45° altı); 55° üstünde sert kış

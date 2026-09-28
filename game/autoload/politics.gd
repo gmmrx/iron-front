@@ -24,23 +24,29 @@ var pending_events: Array = []      ## oyuncuya gösterilecek [{id, from}]
 var _data: Dictionary = {}
 
 func _ready() -> void:
-	var f: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FOCUS_PATH))["trees"]
+	load_data()
+	World.daily_update.connect(_on_day)
+	reset()
+
+## Tanımları etkin oyun modundan (yeniden) yükle (Game.switch_mode da çağırır)
+func load_data() -> void:
+	trees.clear()
+	tree_order.clear()
+	var f: Dictionary = GameModes.load_json(FOCUS_PATH)["trees"]
 	for tag: String in f:
 		trees[tag] = {}
 		tree_order[tag] = []
 		for fo: Dictionary in f[tag]:
 			trees[tag][fo["id"]] = fo
 			tree_order[tag].append(fo["id"])
-	events = JSON.parse_string(FileAccess.get_file_as_string(EVENTS_PATH))["events"]
-	_data = JSON.parse_string(FileAccess.get_file_as_string(SPIRITS_PATH))
+	events = GameModes.load_json(EVENTS_PATH)["events"]
+	_data = GameModes.load_json(SPIRITS_PATH)
 	spirits = _data["spirits"]
 	advisor_defs = _data["advisors"]
 	decisions = _data["decisions"]
 	advisor_cost = float(_data["advisor_cost"])
 	max_advisors = int(_data["max_advisors"])
 	faction_names = _data["factions"]
-	World.daily_update.connect(_on_day)
-	reset()
 
 var fired_events: Array = []       ## tarihli olaylardan tetiklenenler (bir kez)
 
@@ -220,6 +226,9 @@ func check(c: Country, cond: Dictionary) -> bool:
 						if st and st.owner == c.tag: return false
 			"not":
 				if check(c, v): return false
+			_:
+				# oyun modunun şartları (game/modes/<id>/rules.gd → condition_keys / check_condition)
+				if Game.rules and k in Game.rules.condition_keys() and not Game.rules.check_condition(c, k, v): return false
 	return true
 
 # ------------------------------------------------------------------ etkiler
@@ -292,6 +301,10 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 			"set_leader":
 				c.leader = v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v)
 				World.notify(tr("NEWS_NEW_LEADER") % [c.display_name(), c.leader_name()], "info")
+			_:
+				# oyun modunun etkileri (game/modes/<id>/rules.gd → effect_keys / apply_effect)
+				if Game.rules and k in Game.rules.effect_keys():
+					Game.rules.apply_effect(c, k, v)
 
 func _news(key: String, args: Array) -> void:
 	var text := tr(key)
@@ -472,7 +485,7 @@ func _scheduled_events() -> void:
 		if tr_ == null or id in fired_events:
 			continue
 		var t: Dictionary = tr_
-		if today < _date(str(t.get("date", "1936-01-01"))):
+		if today < _date(str(t.get("date", GameModes.get_value("start_date")))):
 			continue
 		var target: Country = World.countries.get(str(t.get("tag", "")))
 		if target == null or not target.exists():
@@ -560,6 +573,9 @@ func describe_effects(effects: Array, from_tag := "") -> String:
 				"white_peace_with": t = tr("EFF_WHITE_PEACE") % _cname(_resolve(v, from_tag, World.player()))
 				"grant_access": t = tr("EFF_ACCESS") % _cname(_resolve(v, from_tag, World.player()))
 				"set_leader": t = tr("EFF_SET_LEADER") % (v.get(TranslationServer.get_locale().substr(0, 2), v.get("en", "")) if v is Dictionary else str(v))
+				_:
+					if Game.rules and k in Game.rules.effect_keys():
+						t = Game.rules.describe_effect(k, v)
 			if t != "":
 				lines.append("• " + t)
 	return "\n".join(lines)

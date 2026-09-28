@@ -500,11 +500,10 @@ func _commander_portrait(cm: Commander, size: Vector2) -> Control:
 		return null
 	if not _portrait_map_loaded:
 		_portrait_map_loaded = true
-		var path := "res://data/common/commander_portraits.json"
-		if FileAccess.file_exists(path):
-			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-			if parsed is Dictionary:
-				_portrait_map = parsed
+		# etkin oyun modunun eşlemesi (modun dosyası/patch'i varsa o)
+		var parsed: Variant = GameModes.load_json("res://data/common/commander_portraits.json")
+		if parsed is Dictionary:
+			_portrait_map = parsed
 	var image_path := str(_portrait_map.get("%s|%s" % [cm.owner, cm.name], ""))
 	if image_path.is_empty() or not ResourceLoader.exists(image_path):
 		return null

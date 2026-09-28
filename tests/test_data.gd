@@ -180,9 +180,9 @@ func test_technologies() -> void:
 				p.append("%s: bilinmeyen modifier '%s'" % [ctx, k])
 		if _tech_cycle(id, id, {}):
 			p.append("%s: gereklilik döngüsü" % ctx)
-	for t: String in Research.START_TECHS:
-		if not Research.techs.has(t):
-			p.append("başlangıç teknolojisi '%s' yok" % t)
+	for t: Variant in GameModes.start_techs():
+		if not Research.techs.has(str(t)):
+			p.append("başlangıç teknolojisi '%s' yok (mode.json start_techs)" % t)
 	none(p, "teknoloji")
 
 func _tech_cycle(from: String, target: String, seen: Dictionary) -> bool:
@@ -469,6 +469,9 @@ func _check_effects(effects: Array, ctx: String, allow_from: bool, p: Array) -> 
 			var v: Variant = e[k]
 			if k in params:
 				continue
+			if Game.rules and k in Game.rules.effect_keys():
+				main += 1                        # oyun modunun etkisi (rules.gd)
+				continue
 			if not k in known:
 				p.append("%s: bilinmeyen etki '%s'" % [ctx, k])
 				continue
@@ -541,6 +544,8 @@ func _check_condition(cond: Dictionary, ctx: String, p: Array) -> void:
 	var known := _match_keys(POLITICS_SRC, "check")
 	for k: String in cond:
 		var v: Variant = cond[k]
+		if Game.rules and k in Game.rules.condition_keys():
+			continue                             # oyun modunun şartı (rules.gd)
 		if not k in known:
 			p.append("%s: bilinmeyen koşul '%s'" % [ctx, k])
 			continue
@@ -643,7 +648,18 @@ func _data_text() -> String:
 	for f in DirAccess.get_files_at("res://data/common/"):
 		if f.ends_with(".json"):
 			parts.append(FileAccess.get_file_as_string("res://data/common/" + f))
+	for mid: String in GameModes.ids(true):          # oyun modlarının veri dosyaları da
+		parts.append_array(_json_texts(GameModes.MODES_DIR + mid + "/"))
 	return "\n".join(parts)
+
+func _json_texts(dir: String) -> PackedStringArray:
+	var out: PackedStringArray = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".json"):
+			out.append(FileAccess.get_file_as_string(dir + f))
+	for sub in DirAccess.get_directories_at(dir):
+		out.append_array(_json_texts(dir + sub + "/"))
+	return out
 
 ## Oyun kodunda (game/**/*.gd) desenin ilk grubunun farklı değerleri
 func _regex_set(pattern: String) -> Array[String]:
@@ -673,7 +689,8 @@ func test_history_timeline() -> void:
 	var conds := _match_keys(POLITICS_SRC, "check")
 	check(effects.size() > 10 and conds.size() > 5, "politics.gd etki/koşul listesi okunamadı")
 	var entries: Array = data.get("entries", [])
-	check(entries.size() > 20, "tarih çizelgesi boş")
+	if GameModes.id == GameModes.BASE_MODE:
+		check(entries.size() > 20, "tarih çizelgesi boş")    # başka bir mod çizelgeyi boşaltabilir (new_mode.py --blank)
 	var last := 0
 	for e: Dictionary in entries:
 		var tag: String = e["tag"]

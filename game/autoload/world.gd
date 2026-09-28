@@ -35,6 +35,7 @@ var day_count := 0                      ## oyun başından beri geçen gün
 
 func _ready() -> void:
 	TranslationServer.set_locale(GameSettings.saved_locale())
+	player_tag = GameModes.default_player()
 	reset()
 	GameClock.day_passed.connect(_on_day_passed)
 
@@ -46,7 +47,7 @@ func reset() -> void:
 	provinces.clear()
 	cities.clear()
 	straits.clear()
-	world_tension = 0.0
+	world_tension = float(GameModes.get_value("start_tension", 0.0))
 	day_count = 0
 	_ln_cache.clear()
 	in_game = false
@@ -64,7 +65,13 @@ func _init_controller() -> void:
 			controller[pid] = ci
 
 # ------------------------------------------------------------------ yükleme
+## Veri dosyası: etkin oyun modunun dosyası/patch'i varsa o (GameModes.load_json); harita geometrisi ortak
 func _read_json(path: String) -> Variant:
+	if path != PROVINCES_PATH:
+		var v: Variant = GameModes.load_json(path)
+		if v == null:
+			push_error("Dosya açılamadı: %s" % GameModes.path(path))
+		return v
 	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
 		push_error("Dosya açılamadı: %s" % path)
@@ -86,6 +93,7 @@ func _load_countries() -> void:
 		c.start_leader = c.leader
 		c.stability = d["stability"]
 		c.war_support = d["war_support"]
+		c.major = GameModes.is_major(tag)
 		c.flag_def = d.get("flag", {})
 		c.party = d.get("party", {})
 		var el: Dictionary = d.get("elections", {})
@@ -172,10 +180,61 @@ func _load_map() -> void:
 	for tag: String in caps:
 		if countries.has(tag):
 			countries[tag].capital_state = int(caps[tag])
+	_apply_scenario(GameModes.scenario())
 	for c: Country in countries.values():
 		if states.has(c.capital_state):
 			c.core_adm0 = states[c.capital_state].adm0
 		recompute_manpower_pop(c)
+
+## Oyun modunun başlangıç katmanı (data/modes/<id>/scenario.json): eyalet sahipliği, başkentler, zafer puanları.
+## Sinyalsiz (yükleme sırasında); katman boşsa hiçbir şey yapmaz.
+func _apply_scenario(sc: Dictionary) -> void:
+	if sc.is_empty():
+		return
+	var owners: Dictionary = sc.get("owners", {})
+	for key: String in owners:
+		var st: StateRegion = states.get(int(key))
+		var to: Country = countries.get(str(owners[key]))
+		if st == null or to == null:
+			push_warning("Senaryo: eyalet %s ya da ülke %s yok" % [key, owners[key]])
+			continue
+		var from: Country = countries.get(st.owner)
+		if from == to:
+			continue
+		if from:
+			var i := from.states.find(st.id)
+			if i >= 0:
+				from.states.remove_at(i)
+			from.population -= st.population
+		to.states.append(st.id)
+		to.population += st.population
+		st.owner = to.tag
+		st.controller = to.tag
+	var capitals: Dictionary = sc.get("capitals", {})
+	for tag: String in capitals:
+		var c: Country = countries.get(tag)
+		if c == null or not states.has(int(capitals[tag])):
+			push_warning("Senaryo: başkent %s → %s geçersiz" % [tag, capitals[tag]])
+			continue
+		if states.has(c.capital_state):
+			for city: City in states[c.capital_state].cities:
+				city.is_capital = false
+		c.capital_state = int(capitals[tag])
+		var best: City = null
+		for city: City in states[c.capital_state].cities:
+			if best == null or city.population > best.population:
+				best = city
+		if best:
+			best.is_capital = true
+	var vp: Dictionary = sc.get("vp", {})
+	for city: City in cities:
+		if vp.has(str(city.id)):
+			city.victory_points = int(vp[str(city.id)])
+
+## Oyun modunda oynanabilir mi (haritada eyaleti var ve mode.json "playable" listesinde)
+func is_playable(tag: String) -> bool:
+	var c: Country = countries.get(tag)
+	return c != null and c.exists() and GameModes.is_playable_tag(tag)
 
 # ------------------------------------------------------------------ sorgular
 ## Ekvatordaki nominal km/piksel (Miller'da ölçek enleme göre değişir: km_per_px_at kullanın)
@@ -406,6 +465,8 @@ func start_game(tag: String) -> void:
 			if d.owner == tag:
 				d.hold = true                 # tümenler emir olmadan geri çekilmez
 	resume_game(tag)
+	if Game.rules:
+		Game.rules.on_game_started(tag)
 
 ## Kayıttan devam: oyuncunun kayıttaki tercihleri (otomatik ticaret, kanat, "son askere kadar") korunur
 func resume_game(tag: String) -> void:

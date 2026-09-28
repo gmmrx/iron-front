@@ -1,0 +1,5 @@
+{
+ "_comment": "Modun kendi verisi: WWII verisinde karşılığı yok. Kural betiği GameModes.load_own(\"settings.json\") ile okur. Sayılar kodda değil burada (CLAUDE.md kural 2).",
+ "check_day": 400,
+ "min_states": 5
+}

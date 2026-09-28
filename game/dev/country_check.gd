@@ -1,6 +1,6 @@
 extends SceneTree
 ## Her ülkeyle oynanabilirlik: oyunu o ülkeyle başlatır, oyuncunun eylemlerinin oyunu gerçekten değiştirdiğini ölçer.
-##   godot --headless --path . -s game/dev/country_check.gd -- [--tags=TUR,GER] [--days=60]
+##   godot --headless --path . -s game/dev/country_check.gd -- [--game_mode=<id>] [--tags=TUR,GER | --featured] [--days=60]
 ## Sütunlar: yasa (insan gücü değişir), ticaret (anlaşma kaynağı artırır), üretim (stok artar), inşaat (ilerler),
 ## araştırma (ilerler), odak (ilerler), danışman (SG kazancı değişir), otomatik yok (oyuncu adına ticaret/kanat yok),
 ## olaylar (oyuncuya sorulur, kendiliğinden seçilmez). Motor/betik hatası olan ülke de sorunlu sayılır.
@@ -21,7 +21,13 @@ func _init() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--days="): days = int(a.substr(7))
 		if a.begins_with("--tags="): only = a.substr(7).split(",")
-	var tags: Array = only if not only.is_empty() else W.countries.keys()
+		if a == "--featured": only = GameModes.featured().duplicate()
+	# oyun modu: -- --game_mode=<id> (varsayılan ww2); yalnız modun oynanabilir ülkeleri
+	print("oyun modu: %s" % GameModes.id)
+	var tags: Array = []
+	for t: String in (only if not only.is_empty() else W.countries.keys()):
+		if GameModes.is_playable_tag(t):
+			tags.append(t)
 	var fails := 0
 	var t0 := Time.get_ticks_msec()
 	for tag: String in tags:

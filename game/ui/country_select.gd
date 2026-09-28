@@ -39,9 +39,9 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	tv.add_child(row)
-	for tag in FEATURED:
-		var c: Country = World.countries.get(tag)
-		if c:
+	for tag: Variant in GameModes.featured():       # oyun modunun öne çıkan ülkeleri (WWII: FEATURED)
+		var c: Country = World.countries.get(str(tag))
+		if c and World.is_playable(c.tag):
 			row.add_child(_card(c))
 	var hint := UiTheme.make_label(tr("SELECT_HINT"), 15, UiTheme.TEXT_DIM)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -150,7 +150,7 @@ func _card(c: Country) -> Button:
 
 func select(tag: String) -> void:
 	var c: Country = World.countries.get(tag)
-	if c == null or c.states.is_empty():
+	if c == null or c.states.is_empty() or not World.is_playable(tag):
 		return
 	selected = tag
 	for t: String in _cards:

@@ -1,0 +1,16 @@
+{
+ "_comment": "Patch: data/common/events.json ile birleşir. Yeni kimlik eklenir; değeri null olan kimlik silinir. Motorun kendi açtığı olaylar (call_to_arms, white_peace, election, faction_invite) silinmemeli.",
+ "events": {
+  "jap_february_26": null,
+  "ita_league_sanctions": null,
+  "template_hello": {
+   "title": {"en": "A Template Event", "tr": "Bir Şablon Olay"},
+   "desc": {"en": "This event only exists in the template mode. It shows a dated trigger, two options and an effect added by the mode's rule script.", "tr": "Bu olay yalnız şablon modda var. Tarihli tetiği, iki seçeneği ve modun kural betiğinin eklediği bir etkiyi gösterir."},
+   "options": [
+    {"name": {"en": "Take the bonus", "tr": "Bonusu al"}, "effects": [{"template_bonus": 25}], "ai": 0.7},
+    {"name": {"en": "Stability instead", "tr": "Onun yerine istikrar"}, "effects": [{"stability": 0.02}], "ai": 0.3}
+   ],
+   "trigger": {"tag": "TUR", "from": "TUR", "date": "1936-01-10", "require": []}
+  }
+ }
+}

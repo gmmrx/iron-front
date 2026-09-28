@@ -44,6 +44,12 @@ if [ "$IMPORT" -eq 1 ]; then
 fi
 step tests "$GODOT" --headless --path . -s tests/run.gd
 step country_check "$GODOT" --headless --path . -s game/dev/country_check.gd -- --days="$DAYS"
+# diğer oyun modları (data/modes/modes.json): her biri kendi verisiyle 30 gün; _template yalnız öne çıkan ülkelerle
+for m in $(python3 -c 'import json;print(" ".join(m for m in json.load(open("data/modes/modes.json"))["modes"] if m != "ww2"))'); do
+  extra=""
+  [ "$m" = "_template" ] && extra="--featured"
+  step "country_check_$m" "$GODOT" --headless --path . -s game/dev/country_check.gd -- --game_mode="$m" --days=30 $extra
+done
 
 echo ""
 echo "=== toplam ==="

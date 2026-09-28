@@ -17,6 +17,10 @@ var selected: Array[Division] = []
 var _counters := {}                ## "pid:tag" -> {root, label, org, str, divs}
 var _counter_tex := {}             ## tag -> Texture2D
 static var _flag_tex := {}         ## "tag:seçili" -> çerçeveli küçük bayrak
+
+## Mod değişiminde: bayraklar değişmiş olabilir
+static func clear_flag_cache() -> void:
+	_flag_tex.clear()
 var _battle_nodes := {}            ## pid -> Node3D
 var _arrows: MeshInstance3D
 var _arrow_mat: ShaderMaterial

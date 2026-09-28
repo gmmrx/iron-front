@@ -63,7 +63,7 @@ func _main() -> void:
 	_clear(tr("PAUSE_TITLE"))
 	_btn(tr("PAUSE_RESUME"), close)
 	_btn(tr("PAUSE_SAVE"), func() -> void:
-		var slot := "%s_%d_%02d_%02d" % [World.player_tag, GameClock.year, GameClock.month, GameClock.day]
+		var slot := GameModes.save_prefix() + "%s_%d_%02d_%02d" % [World.player_tag, GameClock.year, GameClock.month, GameClock.day]
 		Game.save_game(slot)
 		close(), tr("TIP_SAVE"))
 	_btn(tr("PAUSE_LOAD"), _load_list)

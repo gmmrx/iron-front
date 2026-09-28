@@ -1,10 +1,11 @@
 extends Node
-## Oyun yaşam döngüsü: yeni oyun, kaydet/yükle (JSON), oyun sonu kontrolü.
+## Oyun yaşam döngüsü: yeni oyun, oyun modu (switch_mode), kaydet/yükle (JSON), oyun sonu kontrolü.
 
 signal game_over(victory: bool, reason: String)
 
 const SAVE_DIR := "user://saves/"
-const END_DATE := 19480101
+const END_DATE := 19480101          ## WWII bitiş tarihi (eski başvurular için); etkin mod: end_date()
+const SAVE_VERSION := 2             ## 2: "mode" ve "mode_state" alanları (1 = WWII)
 
 var loaded := false            ## sahne yeniden yüklendiğinde doğrudan oyuna gir
 ## Dil değişince sahne yeniden kurulur: Ayarlar yeniden açılır, oyun içindeysek kamera ve duraklatma durumu korunur
@@ -12,18 +13,83 @@ var reopen_settings := false
 var resume_view := Vector3.ZERO   ## x, z, uzaklık (0 = başkente odaklan)
 var resume_was_paused := false
 var over := false
+var goto_setup := false        ## mod seçildi: sahne yeniden yüklenince ülke seçimine gir
+var rules: ModeRules = null    ## etkin oyun modunun kod kancaları (WWII'de yok)
 
 func _ready() -> void:
+	_install_rules()
 	Research.grant_start_equipment()
 	Military.reset()
 	Navy.reset()
 	Air.reset()
-	World.daily_update.connect(_check_end)
+	World.daily_update.connect(_on_day)
+	GameClock.hour_passed.connect(_on_hour)
+	GameClock.month_passed.connect(_on_month)
 	World.country_removed.connect(func(tag: String) -> void:
 		if World.in_game and tag == World.player_tag:
 			_end(false, "GAMEOVER_DEFEAT"))
+	if rules:
+		rules.on_new_game()
+
+# ------------------------------------------------------------------ oyun modu
+## Oyun modunu değiştir (docs/modlar/README.md): tanımları yeniden yükle, önbellekleri temizle, kuralları kur ve
+## yeni oyun kur. Arayüzden çağrıldıysa ardından sahne yeniden yüklenir (main.gd: goto_setup).
+func switch_mode(mode_id: String, force := false) -> bool:
+	if mode_id == GameModes.id and not force:
+		return true
+	if not GameModes.set_current(mode_id):
+		return false
+	Politics.load_data()
+	Research.load_data()
+	Economy.load_data()
+	Military.load_data()
+	AI.apply_mode()
+	Military.apply_mode()
+	Diplomacy._start_vp.clear()
+	AI.clear_caches()
+	Navy.clear_caches()
+	FlagFactory.clear_cache()
+	UiTheme.clear_portrait_cache()
+	UnitLayer.clear_flag_cache()
+	World.player_tag = GameModes.default_player()
+	new_game()
+	return true
+
+## Etkin modun kural betiğini kur (mode.json "rules"); her yeni oyunda taze örnek
+func _install_rules() -> void:
+	rules = null
+	var p := GameModes.rules_path()
+	if p == "":
+		return
+	var scr: Variant = load(p)
+	if not (scr is GDScript):
+		push_error("Oyun modu kural betiği yüklenemedi: %s" % p)
+		return
+	var inst: Variant = (scr as GDScript).new()
+	if inst is ModeRules:
+		rules = inst
+	else:
+		push_error("Kural betiği ModeRules'u genişletmeli (extends ModeRules): %s" % p)
+
+## Etkin modun bitiş tarihi (YYYYMMDD; 0 = süre sınırı yok)
+func end_date() -> int:
+	return GameModes.end_date_int()
+
+func _on_day() -> void:
+	if rules:
+		rules.on_day()
+	_check_end()
+
+func _on_hour() -> void:
+	if rules:
+		rules.on_hour()
+
+func _on_month() -> void:
+	if rules:
+		rules.on_month()
 
 func new_game() -> void:
+	_install_rules()
 	GameClock.reset()
 	World.reset()
 	Politics.reset()
@@ -37,15 +103,28 @@ func new_game() -> void:
 	AI.reset()
 	loaded = false
 	over = false
+	if rules:
+		rules.on_new_game()
 
 func _check_end() -> void:
 	if not World.in_game or over:
 		return
+	if rules:
+		var r := rules.check_end()
+		if not r.is_empty():
+			_end(bool(r.get("victory", false)), str(r.get("reason", "")))
+			return
 	var p := World.player()
 	if p and p.capitulated:
 		_end(false, "GAMEOVER_CAPITULATED")
-	elif World.date_value() >= END_DATE:
-		_end(true, "GAMEOVER_TIME")
+	elif end_date() > 0 and World.date_value() >= end_date():
+		_end(true, _time_up_reason())
+
+## Süre dolunca gösterilen metin: manifestte "end_text" {en, tr} varsa o, yoksa çeviri anahtarı (WWII: GAMEOVER_TIME)
+func _time_up_reason() -> String:
+	if GameModes.manifest.get("end_text") is Dictionary:
+		return GameModes.text("end_text")
+	return str(GameModes.manifest.get("end_text_key", GameModes.TEXT_KEYS["end_text"]))
 
 func _end(victory: bool, reason: String) -> void:
 	over = true
@@ -54,6 +133,10 @@ func _end(victory: bool, reason: String) -> void:
 
 ## Skor: zafer puanı toplamı (şehirlerin mevcut sahibine göre)
 func score(tag: String) -> int:
+	if rules:
+		var rs := rules.score(tag)
+		if rs >= 0:
+			return rs
 	var c: Country = World.countries.get(tag)
 	if c == null:
 		return 0
@@ -66,7 +149,7 @@ func score(tag: String) -> int:
 func save_game(slot: String) -> bool:
 	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 	var data := {
-		"version": 1, "player": World.player_tag,
+		"version": SAVE_VERSION, "mode": GameModes.id, "mode_state": rules.to_save() if rules else {}, "player": World.player_tag,
 		"date": [GameClock.year, GameClock.month, GameClock.day, GameClock.hour],
 		"day_count": World.day_count, "tension": World.world_tension,
 		"controller": Array(World.controller),
@@ -130,13 +213,36 @@ func list_saves() -> Array[String]:
 		return FileAccess.get_modified_time(SAVE_DIR + a + ".json") > FileAccess.get_modified_time(SAVE_DIR + b + ".json"))
 	return out
 
+## Kaydın oyun modu: "mode" alanı; alan yoksa eski (WWII) kayıt; okunamayan kayıt "". Devam düğmesi buna bakar.
+func save_mode(slot: String) -> String:
+	var txt := FileAccess.get_file_as_string(SAVE_DIR + slot + ".json")
+	var json := JSON.new()
+	if txt == "" or json.parse(txt) != OK or not (json.data is Dictionary) or not (json.data as Dictionary).has("date"):
+		return ""
+	return str((json.data as Dictionary).get("mode", GameModes.BASE_MODE))
+
 ## Yükle: dünyayı sıfırla, kaydı uygula. Çağıran sahneyi yeniden yüklemeli.
 func load_game(slot: String) -> bool:
 	var txt := FileAccess.get_file_as_string(SAVE_DIR + slot + ".json")
 	if txt == "":
 		return false
-	var data: Dictionary = JSON.parse_string(txt)
-	new_game()
+	var json := JSON.new()                                   # parse_string bozuk dosyada motor hatası basar
+	var parsed: Variant = json.data if json.parse(txt) == OK else null
+	if not (parsed is Dictionary) or not (parsed as Dictionary).has("date"):
+		push_warning("Kayıt okunamadı: %s" % slot)
+		return false
+	var data: Dictionary = parsed
+	# oyun modu: alan yoksa eski (WWII) kayıt; bilinmeyen modun kaydı açılmaz (durum bozulmadan döner)
+	var mode_id := str(data.get("mode", GameModes.BASE_MODE))
+	if not GameModes.exists(mode_id) or GameModes.info(mode_id).is_empty():
+		push_warning("Kaydın oyun modu bulunamadı ya da manifesti okunamadı: '%s' (%s)" % [mode_id, slot])
+		return false
+	if mode_id != GameModes.id:
+		if not switch_mode(mode_id):                     # manifest okunamadı: hiçbir şey değişmeden döner
+			push_warning("Kaydın oyun modu açılamadı: '%s' (%s)" % [mode_id, slot])
+			return false
+	else:
+		new_game()
 	var dt: Array = data["date"]
 	GameClock.year = int(dt[0]); GameClock.month = int(dt[1]); GameClock.day = int(dt[2]); GameClock.hour = int(dt[3])
 	World.day_count = int(data["day_count"])
@@ -249,5 +355,8 @@ func load_game(slot: String) -> bool:
 	# kayıttan türeyen durum hemen yeniden hesaplanır (yoksa bir sonraki ay başına kadar 1936 ticareti kalır)
 	Economy._run_trade()
 	Military._compute_supply()
+	if rules:
+		var ms: Variant = data.get("mode_state", {})
+		rules.from_save(ms if ms is Dictionary else {})
 	loaded = true
 	return true

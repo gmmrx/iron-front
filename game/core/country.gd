@@ -4,6 +4,7 @@ extends RefCounted
 
 var tag: String
 var index: int                  ## palet/veri dokusundaki indeks (1..255)
+var major := false              ## büyük güç (oyun modunun "majors" listesi; kayda yazılmaz, her yüklemede kurulur)
 var names: Dictionary           ## dil kodu -> ad
 var map_names: Dictionary       ## dil kodu -> harita üzerindeki kısa ad
 var color: Color
@@ -82,8 +83,9 @@ func mod(key: String) -> float:
 func exists() -> bool:
 	return not states.is_empty()
 
+## Büyük güç: etkin oyun modunun "majors" listesi (WWII: GER, ENG, FRA, ITA, SOV); World ülkeleri yüklerken kurar
 func is_major() -> bool:
-	return tag in ["GER", "ENG", "FRA", "ITA", "SOV"]
+	return major
 
 func available_manpower() -> int:
 	return maxi(recruitable_manpower() - manpower_used, 0)

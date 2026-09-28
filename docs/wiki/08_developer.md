@@ -16,6 +16,7 @@ triggered by hand.
 | `godot --headless --path . -s game/dev/war_check.gd -- --player=GER --target=DEN --army [--start=19390828 --save=x \| --load=x] [--observe] [--prof]` | A player war: declare, one army with every division on the target's front (or all to `--goal=City`), report every 5 days (regions taken, idle/attacking divisions, surrender, ms/day); `--observe` only watches the AI; `--prof` lists time per system |
 | `tools/balance_parallel.sh 6` | 1936–1942 historical flow balance test (12 checks; each must pass at least 5/6, otherwise exit 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Turkey → Iraq war, orders, surrender, save/load |
+| `godot --headless --path . -s game/dev/country_check.gd -- --game_mode=<id> --days=30 [--featured]` | Checks a mode with all its playable countries; `--featured` only the manifest's featured countries. `run_tests.sh` runs every mode other than WWII for 30 days (the hidden `_template` with `--featured`) |
 
 ### Writing a test
 A `tests/test_<topic>.gd` file starts with `extends "res://tests/test_case.gd"`; every function starting with `test_` is
@@ -43,6 +44,8 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |
 | `test_fleet_motion.gd` | The fleet's visual position (corner curves, leaving port, sailing) stays at sea; the FleetLayer formation never spills onto land |
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
+| `test_modes.gd` | Mode registry and manifests, patch merge, mode switching, save version 2, rejecting a broken save, mode choice in the menu |
+| `test_mode_template.gd` | The example mode (`_template`): scenario, patched event, rule effect, game over, save; also runs the `test_data` tests on its own data |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer
 tests use `ProbeMap` (a MapView3D subclass that skips the heavy textures). If the sea lanes change,
@@ -53,8 +56,16 @@ A game continued from a save starts with `World.resume_game(tag)` (the player's 
 save as well: `test_save_load.gd` catches an unsaved field by name (fields recomputed every day are in the DERIVED list in
 `tests/snapshot.gd`).
 
+## Game modes
+The game carries several modes; the first is `ww2` (today's game). A mode = `data/modes/<id>/mode.json` + only the data
+files it changes (a full file or a `.patch.json`) + an optional `game/modes/<id>/rules.gd` (`extends ModeRules`). The
+engine reads the mode through `GameModes` (`game/core/game_modes.gd`); `Game.switch_mode(id)` reloads the data and sets up
+a new game. Save file version 2: `mode` and `mode_state` fields; if the save belongs to another mode the game switches to
+it first, an unknown mode is rejected. To pick the mode in a test, put `func mode() -> String: return "<id>"` in the file.
+Details and a step-by-step guide: [docs/modlar](../modlar/README.md); skeleton: `python3 tools/new_mode.py <id>`.
+
 ## Developer arguments (`godot --path . -- ...`)
-`--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
+`--game_mode=<id>` (starting mode), `--play=TAG`, `--panel=politics|focus|research|diplomacy|trade|construction|production|army|navy|air|logistics`,
 `--target=TAG` (diplomacy), `--event=id[,FROM]`, `--select=PID`, `--days=N`, `--dist=N` (camera), `--demo_order`,
 `--demo_fleet`, `--weather=rain|snow`, `--war=A,B`, `--screenshot=file.png --wait=N`, `--click=x,y`,
 `--pause_menu`, `--settings` (in-game settings), `--menu_settings` (main menu settings), `--lang_test=en|tr`,

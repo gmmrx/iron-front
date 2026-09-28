@@ -28,6 +28,7 @@ For the Python tools: `pip install pillow numpy scipy`.
 | `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 stability/home front, dated events, elections |
 | `$GODOT --headless --path . -s game/dev/playtest.gd` | Turkey → Iraq war, orders, surrender, save/load |
 | `$GODOT --headless --path . -s game/dev/sim.gd` | simulation speed (profile) |
+| `$GODOT --headless --path . -s tests/run.gd -- --file=test_modes` | game mode system (registry, patch merge, mode switching, save version) |
 
 The balance test takes long (~15–20 min, 6 parallel processes); run it after any change to game logic.
 
@@ -62,6 +63,18 @@ The balance test takes long (~15–20 min, 6 parallel processes); run it after a
 9. The player's country is `World.player_tag`; `World.start_game(tag)` sets the player-specific defaults (manual trade,
    manual wings, "hold to the last man"); a game continued from a save uses `World.resume_game(tag)` (preferences are
    kept). Save/load: `game/autoload/game.gd` — add every new country/division field to the save.
+
+## Game modes
+- A mode = `data/modes/<id>/mode.json` manifest + only the data files it changes (a full file or a `.patch.json`) + an
+  optional `game/modes/<id>/rules.gd` (`extends ModeRules`). Registry: `data/modes/modes.json`. The first mode is `ww2`
+  (today's game, its data is `data/common`).
+- When writing a mode, do not change the engine; if a hook you need is missing, ask. Guide: `docs/modlar/README.md`,
+  skeleton: `python3 tools/new_mode.py <id>`, check: `--check <id>`. The engine reads through `GameModes` (pure, static):
+  dates, player, major powers, starting technologies, AI calendar; data files (including `history.json`) through
+  `GameModes.load_json`. WWII behaviour must stay exactly the same as without modes.
+- In modes other than `ww2`, `balance.gd`, `gov_check.gd` and `playtest.gd` exit with code 2 (WWII-specific); a mode is
+  checked by `country_check --game_mode=<id>` and `tests/test_mode_<id>.gd`. Zombie mode design (Turkish):
+  `docs/modlar/zombi/`.
 
 ## Workflow
 - Every task is **its own branch + pull request**. **No direct push to main** (a push to main republishes the web version).

@@ -1,0 +1,6 @@
+{
+ "_comment": "Başlangıç katmanı: eyalet sahipliği (eyalet kimliği → ülke), başkent (ülke → eyalet kimliği), zafer puanı (şehir kimliği → sayı). Kimlikler data/map/states.json ve cities.json'da.",
+ "owners": {"346": "TUR"},
+ "capitals": {},
+ "vp": {}
+}

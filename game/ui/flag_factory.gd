@@ -9,6 +9,10 @@ const SS := 3  ## süper örnekleme (kenar yumuşatma)
 
 static var _cache: Dictionary = {}
 
+## Mod değişiminde: ülke tanımı (bayrak) değişmiş olabilir
+static func clear_cache() -> void:
+	_cache.clear()
+
 static func get_flag(c: Country) -> Texture2D:
 	if c == null:
 		return null

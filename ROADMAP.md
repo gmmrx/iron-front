@@ -82,7 +82,9 @@ Last update: **27 September 2026**
    doctrines (the know-how cells light up with them), war plans, peace conference, puppets, intelligence, supply hubs
 6. ✔ Small countries can build too (public construction floor of 1 factory, import payments cannot eat it); ✔ pause menu,
    game over, division panel in the new design
-7. ☐ **Mod support** (PART MOD): the game becomes a moddable platform; WWII is the first scenario
+7. ◐ **Mod support** (PART MOD): the game becomes a moddable platform; WWII is the first scenario. ✔ game mode
+   infrastructure (WWII as the first mode, data layer, rule hooks, save version 2, modder guide `docs/modlar/`);
+   ✔ zombie outbreak design research (`docs/modlar/zombi/`, Turkish); ☐ the zombie mode itself (engine hooks first)
 
 ---
 
@@ -570,19 +572,32 @@ Layer 2 (layout, shortcuts, icon and colour language). Below is what works today
 | Occupation | ☐ | resistance, compliance, garrisons |
 | Intelligence | ☐ | agents, operations, code-breaking |
 | Crisis index | ✔ | thresholds by ideology ✔ |
-| Mods | ☐ | scenario packages, see PART MOD |
+| Mods | ◐ | game modes (WWII + a hidden example mode); menu choice appears with a second visible mode, see PART MOD |
 
-## PART MOD — MOD SUPPORT ☐
+## PART MOD — MOD SUPPORT ◐
 The game will be a platform: the engine (map, economy, politics, war, AI, interface) plus scenario packages. WWII 1936 is
 the first scenario; others can come from us or from players (e.g. an alternative-history fantasy with Atatürk, a zombie
-outbreak).
-- [ ] Scenario package format: `mods/<name>/` with `data/common/*.json` (countries, laws, events, programs, technologies,
-      units, commanders…), text (`strings.csv`), optional map, icons, portraits, music; a manifest (name, version,
-      description, start date, base scenario)
-- [ ] Loading order and overriding (a mod replaces or extends base files), a mod list in the main menu
-- [ ] Engine texts free of WWII assumptions (dates, "1936–1945", end date from the scenario)
+outbreak). Modder guide: [docs/modlar](docs/modlar/README.md) ([Turkish](docs/modlar/README.tr.md)).
+- [x] Mode package format: `data/modes/<id>/mode.json` manifest (name, description, start/end date, default player,
+      featured and playable countries, major powers, starting technologies, AI calendar), registry
+      `data/modes/modes.json`; WWII is the first mode (`ww2`, its data stays in `data/common`)
+- [x] Loading and overriding: a file in the mode replaces the WWII file, or a `.patch.json` deep-merges into it (`null`
+      deletes, `_delete` in arrays of objects with an `id`); start ownership layer (`scenario.json`); the mode's own data
+      (`own/`); rule hooks (`ModeRules`: day/hour/month, game over, score, mode state in the save, new effect and
+      condition keys); save version 2 (mode + mode state), a save slot per mode, saves of an unknown/broken mode rejected
+- [x] Mode list in the main menu (when more than one mode is visible); the hidden example mode `_template`, tested in CI
+- [◐] Engine free of WWII assumptions: dates, player, major powers, starting technologies, AI calendar, history
+      timeline and end date come from the mode; texts that still say "1936–1945" remain to be checked
+- [◐] Per-mode texts go into `game/localization/strings.csv`; a per-mode map, icons, portraits and music are not
+      possible yet (the map is shared; art files are made by the user)
 - [ ] A generic game name (not tied to WWII) — see PART O, Game name
-- [ ] Modder documentation (English + Turkish) and a validation tool (the data tests from `tests/test_data.gd`)
+- [x] Modder documentation (English + Turkish: `docs/modlar/README.md`, `docs/modlar/ASSISTANT.md`) and a validation
+      tool (`tools/new_mode.py`: skeleton, `--check`, copy, blank, remove; the `yeni-mod` Claude Code skill)
+- [x] Zombie outbreak mode: design research, 17 documents in Turkish ([docs/modlar/zombi](docs/modlar/zombi/README.md))
+- [ ] Zombie outbreak mode: implementation — technical plan
+      [14_teknik_plan.md](docs/modlar/zombi/14_teknik_plan.md) (48 engine hooks, 8 of them mandatory), roadmap
+      [16_yol_haritasi.md](docs/modlar/zombi/16_yol_haritasi.md) (hooks → MVP → alpha → content → polish)
+- [ ] Per-mode map, a hook for a per-mode interface panel, a per-mode sound/music list
 
 ## PART WEB — BROWSER VERSION ◐
 - [x] GitHub Pages release: https://gmmrx.github.io/iron-front/ (`.github/workflows/web.yml`; Compatibility renderer on
@@ -666,10 +681,12 @@ should come to the player as a feed, and some of them can be answered.
 
 ## Architecture
 ```
-data/            → content (JSON/CSV), generated map files
+data/            → content (JSON/CSV), generated map files; data/modes/ → game modes
 tools/           → map, texture, model (Blender), sound generation scripts
 game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
-game/core/       → pure simulation classes (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet…)
+game/core/       → pure simulation classes (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet,
+                   GameModes, ModeRules…)
+game/modes/      → mode rule scripts (game/modes/<id>/rules.gd)
 game/map/        → 3D map, camera, city/tree/unit layers
 game/ui/         → interface
 game/dev/        → headless tests and simulation
@@ -679,6 +696,7 @@ docs/            → wiki (docs/wiki, Turkish in docs/wiki/tr), originality, clo
 ```
 
 ## Developer tools
+- New game mode: `python3 tools/new_mode.py <id>` (guide `docs/modlar/README.md`)
 - Test suite: `tools/run_tests.sh` (import + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
   (on PRs and pushes to main; the balance test is a separate job triggered by hand)
 - Balance test: `tools/balance_parallel.sh 6` (6 parallel runs, ~15–20 min); a single run `game/dev/balance.gd`
