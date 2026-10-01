@@ -1,5 +1,7 @@
 class_name ArmyPanel
 extends PanelContainer
+## Konuşlandır: panel kapanır, haritada uygun bölgeler vurgulanır, oyuncu yeri seçer (main._begin_place)
+signal deploy_requested(template: int)
 ## Ordu (U), iki sekme:
 ## - Komuta zinciri: ordular grubu (mareşal) → ordu (general) → tümen ağacı; seçili düğümün ayrıntısı (komutan,
 ##   cephe, duruş, bağlı tümenler, tümen aktarma) ve komutan kadrosu (atama, mareşalliğe terfi, yeni general).
@@ -708,9 +710,7 @@ func _template_row(c: Country, i: int) -> void:
 		for k: String in short:
 			tip += "\n• %s" % (tr("UI_MANPOWER") if k == "manpower" else Economy.equipment_name(k))
 	ctl.add_child(PanelLayout.small_button(tr("ARMY_DEPLOY"), func() -> void:
-		if Military.deploy(c, i) != null:
-			World.notify(tr("NOTE_DEPLOYED") % c.templates[i]["name"], "good")
-		refresh(), short.is_empty(), tip))
+		deploy_requested.emit(i), short.is_empty(), tip))
 	PanelLayout.row_action(col, ctl)
 
 func _build_designer(c: Country, i: int) -> void:

@@ -1,6 +1,6 @@
 extends "res://tests/test_case.gd"
 ## Deniz ve hava: filo görevi ve dönüş, deniz muharebesi, konvoy baskını; kanat konuşlandırma, oyuncu kanadının
-## otomatik kapalı başlaması, hava üstünlüğünün kara muharebesine etkisi. Oyuncu Almanya.
+## otomatik kapalı başlaması, hava üstünlüğünün kara muharebesine etkisi, bombardıman, bölgeden görev. Oyuncu Almanya.
 
 func player_tag() -> String:
 	return "GER"
@@ -305,3 +305,109 @@ func test_ai_fleet_and_wing_caps() -> void:
 	check(Navy.fleet_cap(country("USA"), false) >= Navy.fleet_cap(country("LUX"), false), "ABD'nin filo tavanı Lüksemburg'unkinden düşük değil")
 	check(Air.wing_cap(country("USA")) >= Air.MIN_WINGS and Air.wing_cap(country("USA")) <= Air.MAX_WINGS, "kanat tavanı 12–40")
 	gt(float(eng.stockpile.get(eq_name, 0.0)), float(Air.WING_SIZE * 2), "fazla uçak stokta kalır")
+
+## Oyuncunun yeni gemileri stokta bekler (liman kendiliğinden seçilmez); oyuncu limanı seçince oradaki yedek filoya katılır
+func test_player_new_ships_wait_for_port() -> void:
+	var c := player()
+	var before := Navy.fleets_of(c.tag).size()
+	c.stockpile["destroyer"] = 3.0
+	c.stockpile["submarine"] = 2.0
+	Navy._absorb_new_ships()
+	eq(int(c.stockpile["destroyer"]), 3, "oyuncunun muhripleri stokta bekler")
+	eq(Navy.fleets_of(c.tag).size(), before, "kendiliğinden yeni filo yok")
+	eq(Navy.new_ships(c), {"destroyer": 3, "submarine": 2}, "bekleyen gemiler")
+	var ports := Navy.ports_of(c.tag)
+	if not check(not ports.is_empty(), "oyuncunun limanı"):
+		return
+	check(Navy.deploy_ships(c, 0) == null, "liman olmayan yere konuşlanmaz")
+	var port: int = ports[ports.size() - 1]
+	var f := Navy.deploy_ships(c, port)
+	if check(f != null, "limana konuşlandı"):
+		eq(f.location, port, "yedek filo seçilen limanda")
+		eq(int(f.ships.get("destroyer", 0)), 3, "muhripler yedek filoda")
+		check(f.reserve, "yedek filo")
+	eq(Navy.new_ships(c), {}, "stokta gemi kalmadı")
+	var subs := 0
+	for g in Navy.fleets_of(c.tag):
+		if g.is_sub_fleet() and g.location == port:
+			subs += int(g.ships.get("submarine", 0))
+	eq(subs, 2, "denizaltılar aynı limanda ayrı yedek filoda")
+
+# ------------------------------------------------------------------ bombardıman ve bölgeden görev
+## Polonya'nın fabrikalı, Alman ana üssünden bombardıman menzilindeki bir eyaleti (yoksa 0)
+func _bomb_target(w: AirWing) -> int:
+	var best := 0
+	var bl := 0
+	for sid: int in country("POL").states:
+		var st: StateRegion = World.states[sid]
+		var lv := st.building_level("civilian_factory") + st.building_level("military_factory")
+		var pid: int = st.provinces[0]
+		if lv > bl and Air.in_range(w, pid):
+			bl = lv
+			best = pid
+	return best
+
+func test_bombing_stops_factories_and_wears_morale() -> void:
+	_war("GER", "POL")
+	for w in Air.wings.duplicate():
+		Air.wings.erase(w)
+	var ger := country("GER")
+	var pol := country("POL")
+	ger.stockpile[Air.TYPES["bomber"]["eq"]] = 500.0
+	ger.stockpile[Air.TYPES["fighter"]["eq"]] = 500.0
+	var bw: AirWing = Air.deploy(ger, "bomber", Air._home_base("GER"))
+	if not check(bw != null, "bombardıman kanadı"):
+		return
+	var target := _bomb_target(bw)
+	if not check(target > 0, "menzilde fabrikalı Polonya eyaleti"):
+		return
+	var st := World.state_of_province(target)
+	# kurallar: avcı bomba taşımaz, kendi eyaletimiz bombalanmaz
+	var fw: AirWing = Air.deploy(ger, "fighter", Air._home_base("GER"))
+	eq(Air.bomb_target_error(fw, target), "AIR_ERR_NO_BOMBS", "avcı bomba taşımaz")
+	eq(Air.bomb_target_error(bw, World.capital_province("GER")), "AIR_ERR_BOMB_TARGET", "kendi eyaletimiz hedef olmaz")
+	check(not Air.set_mission(bw, AirWing.Mission.BOMBING, World.capital_province("GER")), "geçersiz hedefe görev verilmez")
+	eq(Air.assign(bw, target, AirWing.Mission.BOMBING), "", "bölgeden görev: bombardıman")
+	eq(int(bw.mission), int(AirWing.Mission.BOMBING), "görev bombardıman")
+	check(not bw.auto, "oyuncunun emri kanadı elle yönetime alır")
+	var civ0 := Economy.available_civilian(pol)
+	var ws0 := pol.war_support
+	for day in 30:
+		Air._bombing()
+	gt(st.damage, 0.3, "bir ay karşı koymasız bombardıman sanayinin çoğunu durdurur: %.2f" % st.damage)
+	lt(st.damage, Air.BOMB_MAX + 0.0001, "hasar tavanı")
+	lt(pol.war_support, ws0, "halkın savaş desteği düşer")
+	gt(Economy.damaged_share(pol, "civilian_factory") + Economy.damaged_share(pol, "military_factory"), 0.0, "hasarlı fabrika payı")
+	check(Economy.available_civilian(pol) <= civ0, "bombalanmış sivil fabrika inşaata çalışmaz")
+	# akın bitince onarılır
+	Air.set_mission(bw, AirWing.Mission.IDLE)
+	var d0 := st.damage
+	for day in 10:
+		Air._bombing()
+	near(st.damage, maxf(d0 - Air.BOMB_REPAIR * 10.0, 0.0), 0.0001, "günde %1 onarım")
+
+func test_assign_moves_wing_to_a_base_in_range() -> void:
+	_war("GER", "POL")
+	for w in Air.wings.duplicate():
+		Air.wings.erase(w)
+	var ger := country("GER")
+	ger.stockpile[Air.TYPES["cas"]["eq"]] = 500.0
+	var bases := Air.bases_of("GER")
+	if not check(bases.size() >= 2, "Almanya'nın birden çok hava üssü"):
+		return
+	# hedef: Polonya sınırı; kanat hedefe en uzak üste kurulur (yakın destek menzili kısa: 500 km)
+	var target := World.capital_province("POL")
+	var far := bases[0]
+	for sid in bases:
+		if Air.distance_km(Air.base_pos(sid), World.province(target).center) > Air.distance_km(Air.base_pos(far), World.province(target).center):
+			far = sid
+	var w: AirWing = Air.deploy(ger, "cas", far)
+	if not check(w != null and not Air.in_range(w, target), "kanat uzak üste, hedef menzil dışında"):
+		return
+	var near_base := Air.base_for(w, target)
+	if near_base == 0:
+		eq(Air.assign(w, target, AirWing.Mission.CAS), "AIR_ERR_RANGE", "menzili yeten üs yoksa emir verilmez")
+		return
+	eq(Air.assign(w, target, AirWing.Mission.CAS), "", "görev verildi")
+	eq(w.base, near_base, "kanat menzili yeten üsse geçti")
+	check(Air.in_range(w, target), "artık menzilde")

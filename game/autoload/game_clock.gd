@@ -7,7 +7,12 @@ signal month_passed
 signal time_state_changed(speed: int, paused: bool)
 
 const MAX_SPEED := 5
-const HOURS_PER_SECOND: Array[float] = [0.0, 5.0, 12.0, 30.0, 80.0, 240.0]
+## Hız kademeleri (deneme): 1× = saniyede 5 oyun saati; kademeler 0,1× · 0,2× · 0,3× · 0,5× · 1× — savaş izlenerek
+## oynanır. Eski kademeler 1× · 2,4× · 6× · 16× · 48× idi (saniyede 240 saate kadar); gerçekçi yürüyüşle birlikte çok
+## hızlı bulundu. Kademeyi değiştirmek için yalnız SPEED_X.
+const BASE_HOURS_PER_SECOND := 5.0
+const SPEED_X: Array[float] = [0.0, 0.1, 0.2, 0.3, 0.5, 1.0]
+const HOURS_PER_SECOND: Array[float] = [0.0, 1.5, 3.0, 4.5, 7.5, 12.0]
 const MAX_TICKS_PER_FRAME := 48
 const FRAME_BUDGET_USEC := 8000         ## kare başına saat işleme bütçesi (µs): ağır savaşta oyun yavaşlar, kare hızı korunur
 const MAX_BACKLOG_HOURS := 24.0
@@ -48,6 +53,7 @@ func hours_per_second() -> float:
 func advance_hours(n: int) -> void:
 	for i in n:
 		_advance_hour()
+		Military.flush_skirmish()        # kare akmıyor: yan yana ateş her saat hemen (oyunda bir sonraki karede)
 
 func _process(delta: float) -> void:
 	if paused:

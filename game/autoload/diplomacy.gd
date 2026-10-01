@@ -118,6 +118,8 @@ func add_war_goal(a: Country, t: String) -> void:
 func can_declare(a: Country, t: Country) -> String:
 	if t == null or not t.exists() or not a.exists():
 		return "DIPLO_ERR_INVALID"
+	if not World.is_active(a.tag) or not World.is_active(t.tag):
+		return "DIPLO_ERR_NEUTRAL"             # savaşa katılmayan tarafsız ülke (data/common/participants.json)
 	if are_enemies(a.tag, t.tag):
 		return "DIPLO_ERR_ALREADY"
 	if are_allies(a.tag, t.tag):

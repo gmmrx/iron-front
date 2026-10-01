@@ -2,7 +2,28 @@
 
 # Nasıl oynanır
 
-## Başlangıç
+## Senaryolar
+Ana menüde **Senaryolar**'ı, sonra bir senaryonun bir tarafını seç. Senaryo savaşın hazır bir anından başlar. Süre yoktur:
+savaş taraflardan biri teslim olana ya da yok olana kadar sürer. İki taraf barış yaparsa anahtar şehir puanlarının daha
+çoğunu tutan taraf kazanmış sayılır.
+- **Anahtar şehirler** iki tarafın da uğruna savaştığı yerlerdir; bilgisayar saldıracağı yeri seçerken onlara ek ağırlık
+  verir, anahtar şehrin kartı bunu söyler.
+- Kendi tarafını yeni oyun varsayılanlarıyla oynarsın (elle ticaret, elle kanatlar, "son askere kadar"); öbür bütün
+  ülkeleri bilgisayar yönetir.
+- **Doğu Cephesi, 1941**: 22 Haziran 1941, Almanya Sovyetler Birliği'ne karşı. Anahtar şehirler: Moskova 50, Leningrad
+  15, Kiev 15, Minsk 10, Kharkov 10, Odessa, Dnipropetrovsk, Stalino ve Rostov 5'er.
+
+## Oyun döngüsü
+1. **Keşfet**: toprağının ve sınırın bir bölge ötesinin dışında harita karanlıktır. **K**'ya (ya da Keşif düğmesine) basıp
+   bir bölgeye tıkla: boştaki bir hava kanadı bir gün üstünde uçar, 350 km çevresini kalıcı olarak açar. Bir uçuş 15 sanayi
+   puanı (SP) tutar.
+2. **Asker al**: kendi şehirlerinden birine tıkla: eyalet paneli orada alınabilecekleri (piyade, zırhlı, avcı, yakın destek
+   ve bombardıman kanadı) SP bedeli, insan gücü ve eğitim günüyle listeler. Birlik o şehirde çıkar.
+3. **Savaş**: figürlerini seçip haritadan emir ver; düşman bölgesinin kartı saldırıyı tahmin eder.
+4. **Büyü**: ana şehrini elinde tuttuğun eyaletlerin fabrikaları her gün SP verir (askerî fabrika 1, sivil 0,4; üst çubuk
+   SP'yi ve günlük geliri gösterir). Bir şehri alırsan fabrikaları senin için çalışır; bombalanan fabrika vermez.
+
+## Başlangıç (serbest oyun)
 1. Ana menüde **Yeni oyun** → haritadan ya da listeden bir ülke seç → **Oyna**.
 2. Oyun **duraklatılmış** başlar (1 Ocak 1936). Boşluk ile başlat/durdur, 1–5 ile hız seç.
 3. Oyun İngilizce açılır; Türkçe için **Ayarlar → Dil** (ana menü ya da Esc menüsü).
@@ -33,7 +54,7 @@
 | Hareket veya saldırı emri | Sağ tık (web'de ve Mac'te tümen seçiliyken Ctrl + sol tık) |
 | Ülkenin genel durumu | Haritada Ctrl basılı tut |
 | O ülkenin siyaset ekranı (salt okunur) | Ctrl + sol tık (tümen seçili değilken) |
-| Kamera | Orta tuş sürükle, tekerlek, iki parmak |
+| Kamera | Orta tuş sürükle (bırakınca süzülür), tekerlek, iki parmak, ok tuşları / WASD; her hareket yumuşakça başlar ve durur |
 
 Hareket okları **yeşil** (hareket) ya da **kırmızı** (düşman toprağına taarruz) çizilir. Uzak zoom'da tümen sayıları
 yerine küçük ülke bayrakları görünür; daha uzakta harita sade kalsın diye birlik işaretleri gizlenir.

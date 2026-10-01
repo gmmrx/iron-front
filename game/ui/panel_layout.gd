@@ -58,8 +58,9 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	panel.set_meta("body", body)
 	panel.visibility_changed.connect(func() -> void:
 		if panel.visible: fit_full.call_deferred(panel))
+	# kök görünüm sahneden uzun yaşar: sahne yeniden kurulunca (dil değişimi, kayıttan açma) silinen panel atlanır
 	panel.get_viewport().size_changed.connect(func() -> void:
-		if panel.visible: fit_full(panel))
+		if is_instance_valid(panel) and panel.visible: fit_full(panel))
 	return body
 
 static func set_title(panel: Control, title: String) -> void:
@@ -300,6 +301,94 @@ static func progress(value: float, color: Color = UiTheme.ACCENT, height: float 
 	fill.border_width_top = 1
 	pb.add_theme_stylebox_override("fill", fill)
 	return pb
+
+## Seçenek şeridi (filo/kanat görevi gibi): eşit genişlikte kart düğmeler; seçili olan altın çerçeveli, kalın ve
+## altın yazılı, öbürleri koyu ve soluk (hangisinin seçili olduğu bir bakışta okunur). items: [[ikon, ad, ipucu], ...]
+static func choice_row(parent: Container, items: Array, selected: int, on_pick: Callable, height: int = 42) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	parent.add_child(row)
+	for i in items.size():
+		var it: Array = items[i]
+		var b := Button.new()
+		b.theme_type_variation = "Card"
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.set_pressed_no_signal(i == selected)
+		b.icon = UiTheme.trimmed(it[0] if it[0] is Texture2D else UiTheme.icon(str(it[0])))
+		b.expand_icon = true
+		b.add_theme_constant_override("icon_max_width", 24)
+		b.add_theme_constant_override("h_separation", 6)
+		b.text = str(it[1])
+		b.clip_text = true
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.tooltip_text = str(it[2]) if it.size() > 2 else ""
+		b.custom_minimum_size = Vector2(0, height)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.add_theme_font_size_override("font_size", UiTheme.fs(14))
+		if i == selected:
+			b.add_theme_font_override("font", UiTheme.bold_font())
+			for fc: String in ["font_color", "font_pressed_color", "font_hover_pressed_color", "font_hover_color"]:
+				b.add_theme_color_override(fc, UiTheme.ACCENT)
+		else:
+			b.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+			b.add_theme_color_override("icon_normal_color", Color(1, 1, 1, 0.5))
+		var idx := i
+		b.pressed.connect(func() -> void: on_pick.call(idx))
+		row.add_child(b)
+	return row
+
+## Birim kartının başlığı (filo, hava kanadı): solda gömük simge yuvası, yanında ad ve altında durum satırı, sağda
+## isteğe bağlı denetim. Seçili kartta yuva altın, ad altın rengi; seçili değilse yuva düz, ad açık renk.
+static func card_head(parent: Container, tex: Texture2D, title: String, sub: String, selected: bool, sub_color: Color = UiTheme.TEXT_DIM) -> HBoxContainer:
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	parent.add_child(head)
+	var s := slot(tex, 46, "", "SlotGold" if selected else "Slot")
+	s.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(s)
+	var nb := VBoxContainer.new()
+	nb.add_theme_constant_override("separation", 0)
+	nb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nb.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	nb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(nb)
+	var n := UiTheme.make_label(title, 19, UiTheme.ACCENT if selected else UiTheme.TEXT)
+	n.add_theme_font_override("font", UiTheme.bold_font())
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	n.custom_minimum_size.x = 1
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	nb.add_child(n)
+	if sub != "":
+		var d := UiTheme.make_label(sub, 14, sub_color)
+		d.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		d.custom_minimum_size.x = 1
+		d.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		nb.add_child(d)
+	return head
+
+## Adlı ince çubuk satırı: solda ad, ortada çubuk, sağda değer (bütünlük, uçak sayısı)
+static func bar_row(parent: Container, label: String, value: float, text: String, color: Color, tip: String = "") -> HBoxContainer:
+	var r := HBoxContainer.new()
+	r.add_theme_constant_override("separation", 10)
+	r.tooltip_text = tip
+	r.mouse_filter = Control.MOUSE_FILTER_STOP if tip != "" else Control.MOUSE_FILTER_IGNORE
+	parent.add_child(r)
+	var l := UiTheme.make_label(label, 13, UiTheme.TEXT_DIM)
+	l.custom_minimum_size.x = 84
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_child(l)
+	var b := progress(value, color, 7.0)
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_child(b)
+	var v := UiTheme.make_label(text, 14, UiTheme.TEXT)
+	v.custom_minimum_size.x = 64
+	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_child(v)
+	return r
 
 ## Kare seçim karosu: ikon üstte, ad ve alt metin altta (bina, ekipman, tümen şablonu seçimi)
 static func tile(tex: Texture2D, title: String, sub: String = "", tip: String = "", w: int = 110, h: int = 140) -> Button:

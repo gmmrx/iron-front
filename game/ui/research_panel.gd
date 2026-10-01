@@ -184,10 +184,13 @@ func _tech_button(c: Country, id: String) -> Button:
 		var sb := UiTheme.skin(style if st != "hover" or not can else "card_selected", 8, 5)
 		b.add_theme_stylebox_override(st, sb)
 	if running:
-		var pb := PanelLayout.progress(progress, UiTheme.ACCENT, 5.0)
-		pb.position = Vector2(8, NODE.y - 10)
-		pb.size = Vector2(NODE.x - 16, 5)
-		b.add_child(pb)
+		# süren araştırma: ilerleme düğmenin zemini olarak dolar (yazı ve resim önde, aynı kalır)
+		var bg := UiTheme.skin(style, 8, 5)
+		for st: String in ["normal", "hover", "pressed", "disabled"]:
+			var e := bg.duplicate() as StyleBox
+			e.set("draw_center", false)               # çerçeve düğmede; iç zemin arkadaki katmanda
+			b.add_theme_stylebox_override(st, e)
+		_progress_back(b, bg, progress)
 	var tip := Research.tech_name(id) + "  (%d)" % int(t["year"])
 	if repeat:
 		tip += "\n" + tr("RES_REPEAT_TIP") % Research.repeat_level(c, t["cat"])
@@ -270,6 +273,46 @@ func _draw_timeline(ctrl: Control) -> void:
 		var tri := PackedVector2Array([Vector2(tx - 7.0, HEAD_H - 9.0), Vector2(tx + 7.0, HEAD_H - 9.0), Vector2(tx, HEAD_H - 1.0)])
 		ctrl.draw_colored_polygon(tri, Color(0.95, 0.78, 0.35))
 
+## İlerleme zemini: düğmenin/kutunun arkasında koyu zemin ve üstünde soldan dolan altın dolgu (sağ kenarı parlak).
+## show_behind_parent: katmanlar düğmenin yazısının ve resminin arkasında kalır.
+static func _progress_back(host: Control, bg: StyleBox, progress: float) -> void:
+	var base := Panel.new()
+	base.show_behind_parent = true
+	base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	base.set_anchors_preset(Control.PRESET_FULL_RECT)
+	base.add_theme_stylebox_override("panel", bg)
+	host.add_child(base)
+	# dolgu: soldan sağa koyulaşan altın geçiş (ilerlemenin ucu en parlak), ucunda ince parlak çizgi
+	var fill := TextureRect.new()
+	fill.show_behind_parent = true
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var g := Gradient.new()
+	g.set_color(0, Color(UiTheme.ACCENT.darkened(0.45), 0.10))
+	g.set_color(1, Color(UiTheme.ACCENT.darkened(0.1), 0.42))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.width = 64
+	gt.height = 4
+	fill.texture = gt
+	fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fill.stretch_mode = TextureRect.STRETCH_SCALE
+	if progress < 0.995:
+		var edge := ColorRect.new()
+		edge.color = Color(UiTheme.ACCENT.lightened(0.2), 0.9)
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		edge.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+		edge.offset_left = -2
+		fill.add_child(edge)
+	fill.anchor_top = 0.0
+	fill.anchor_bottom = 1.0
+	fill.anchor_left = 0.0
+	fill.anchor_right = clampf(progress, 0.0, 1.0)
+	fill.offset_left = 4
+	fill.offset_top = 4
+	fill.offset_bottom = -4
+	fill.offset_right = -4 if progress >= 0.995 else 0
+	host.add_child(fill)
+
 func _refresh_slots() -> void:
 	var c := World.player()
 	if c == null:
@@ -289,6 +332,7 @@ func _refresh_slots() -> void:
 		slot.add_child(row)
 		if i < c.research_current.size():
 			slot.theme_type_variation = "SlotGold"
+			slot.clip_contents = true
 			var r: Dictionary = c.research_current[i]
 			var id: String = r["tech"]
 			var t: Dictionary = Research.techs[id]
@@ -303,7 +347,12 @@ func _refresh_slots() -> void:
 			l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			l.custom_minimum_size.x = 120
 			col.add_child(l)
-			col.add_child(PanelLayout.progress(float(r["progress"]) / maxf(cost, 0.001), Color("7fb0d9"), 9.0))
+			# ilerleme yuvanın zemini olarak dolar (yazılar önde)
+			var holder := Control.new()
+			holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot.add_child(holder)
+			slot.move_child(holder, 0)
+			_progress_back(holder, StyleBoxEmpty.new(), float(r["progress"]) / maxf(cost, 0.001))
 			var left := (cost - float(r["progress"])) / (Research.speed(c) * (1.0 + float(r.get("bonus", 0.0))))
 			col.add_child(UiTheme.make_label("%d %s" % [ceili(left), tr("UI_DAYS")], 13, UiTheme.TEXT_DIM))
 			var x := UiTheme.icon_button("close", tr("TIP_RESEARCH_CANCEL"), func() -> void: Research.cancel(c, id), 30)

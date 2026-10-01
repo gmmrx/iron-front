@@ -13,8 +13,10 @@ void vertex() {
 }
 
 void fragment() {
-	float d = cloud_density(world_pos.xz, TIME);
-	float edge = cloud_density(world_pos.xz + vec2(25.0, 15.0), TIME);
+	// hava bulutu: cephe geçerken küme bulutları (weather_cloud), aralarda açık gök
+	float d = weather_cloud(world_pos.xz, TIME);
+	if (d < 0.003) { discard; }
+	float edge = weather_cloud(world_pos.xz + vec2(25.0, 15.0), TIME);
 	vec3 col = mix(vec3(0.78, 0.8, 0.84), vec3(1.0), smoothstep(0.2, 1.0, d - edge * 0.5 + 0.5));
 	ALBEDO = col;
 	ALPHA = d * 0.62 * cloud_amount;

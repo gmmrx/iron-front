@@ -57,6 +57,12 @@ GAME_TITLE,IRON FRONT,IRON FRONT
 MENU_SUBTITLE,FROM 1936  ·  GRAND STRATEGY,1936'DAN İTİBAREN  ·  BÜYÜK STRATEJİ
 MENU_NEW_GAME,New Game,Yeni Oyun
 MENU_CONTINUE,Continue,Devam Et
+DIP_SEARCH,Search country…,Ülke ara…
+TIP_DIP_SEARCH,"Type a country's name or code to filter the list; Enter selects the first match.","Listeyi süzmek için ülkenin adını ya da kodunu yaz; Enter ilk eşleşeni seçer."
+MENU_DEV_WAR,Dev: Watch a war,Geliştirici: Savaş izle
+TIP_DEV_WAR,"Opens the war demo in observer mode: the AI runs every country, time runs by itself and the camera drops onto the busiest front. You only watch (developer build only).","Savaş demosunu izleyici modunda açar: bütün ülkeleri yapay zekâ yönetir, zaman kendiliğinden akar, kamera en kalabalık cepheye iner. Sen yalnız izlersin (yalnız geliştirici sürümünde)."
+NOTE_OBSERVER,Observer mode: the AI runs every country. Pan around and watch the war.,İzleyici modu: bütün ülkeleri yapay zekâ yönetiyor. Haritada gezin ve savaşı izle.
+TIP_DEV_WAR_MISSING,"No war demo save yet. Create it with: godot --headless --path . -s game/dev/war_demo.gd","Savaş demosu kaydı yok. Şununla oluştur: godot --headless --path . -s game/dev/war_demo.gd"
 MENU_SETTINGS,Settings,Ayarlar
 MENU_QUIT,Quit,Çıkış
 SELECT_TITLE,Choose Your Nation,Ülkenizi Seçin
@@ -64,6 +70,9 @@ SELECT_HINT,You can also click any country on the map.,Haritadaki herhangi bir �
 SELECT_STATES,States,Eyaletler
 SELECT_START,Start Game,Oyunu Başlat
 SELECT_BACK,Back,Geri
+"SELECT_NONE","Choose a nation: a great power above or any country on the map.","Bir ülke seçin: yukarıdaki büyük güçlerden ya da haritadaki herhangi bir ülke."
+"SELECT_SHOW_FEATURED","Show great powers","Büyük güçleri göster"
+"SELECT_HIDE_FEATURED","Hide great powers","Büyük güçleri gizle"
 CONSTRUCTION_TITLE,Construction,İnşaat
 CONSTRUCTION_BUTTON,Construction (T),İnşaat (T)
 CONSTRUCTION_HINT,Select a building type.,Bir bina türü seçin.
@@ -208,6 +217,7 @@ NOTE_WAR_ENDED,A war has ended.,Bir savaş sona erdi.
 "WORLD_KIND_program","State program","Devlet programı"
 NOTE_GOAL_READY,Casus belli against %s is ready.,Savaş gerekçesi hazır: %s
 DIPLO_ERR_INVALID,Not possible.,Mümkün değil.
+DIPLO_ERR_NEUTRAL,A neutral country stays out of the war.,Tarafsız ülke savaşın dışında kalır.
 DIPLO_ERR_ALREADY,Already at war or preparing a casus belli.,Zaten savaşta ya da gerekçe hazırlanıyor.
 DIPLO_ERR_ALLY,They are our ally.,Müttefikimiz.
 DIPLO_ERR_PP,Not enough influence.,Yeterli nüfuz yok.
@@ -219,6 +229,27 @@ NOTE_SAVED,Game saved: %s,Oyun kaydedildi: %s
 GAMEOVER_DEFEAT,Your nation has been destroyed.,Ülkeniz yok edildi.
 GAMEOVER_WORLD,No nation is left outside your side: the world is yours.,Tarafınızın dışında ayakta ülke kalmadı: dünya sizin.
 GAMEOVER_DATE,Date: %s,Tarih: %s
+GAMEOVER_SCENARIO_WIN,The war is over: your side has won.,Savaş bitti: tarafın kazandı.
+GAMEOVER_SCENARIO_LOSS,The war is over: your side has lost.,Savaş bitti: tarafın kaybetti.
+MENU_SCENARIOS,Scenarios,Senaryolar
+SCEN_TITLE,Scenarios,Senaryolar
+SCEN_NONE,No scenarios found.,Senaryo bulunamadı.
+SCEN_BACK,Back,Geri
+SCEN_INFO,No time limit: the war goes on until one side gives up. The key cities are what both sides fight for.,Süre yok: savaş taraflardan biri teslim olana kadar sürer. İki taraf da anahtar şehirler için savaşır.
+SCEN_KEY_CITIES,Key cities: %s,Anahtar şehirler: %s
+SCEN_PLAY_AS,Play as %s,%s ile oyna
+SCEN_ATTACKER_TIP,Attacker: break the enemy until it gives up (%d key city points).,Saldıran: düşmanı teslim olana kadar kır (anahtar şehirler %d puan).
+SCEN_DEFENDER_TIP,Defender: hold out and break the attacker (%d key city points).,Savunan: dayan ve saldıranı kır (anahtar şehirler %d puan).
+SCEN_STATUS,%d days left · cities %d / %d,%d gün kaldı · şehir %d / %d
+TIP_SCEN_STATUS,"%s
+%s must hold %d of the %d key city points when time runs out.
+Days left: %d. Green: your side is winning right now; red: losing.
+The scenario also ends when the war between the two sides ends.","%s
+%s süre bittiğinde anahtar şehirlerin %d puanını tutmalı (toplam %d).
+Kalan gün: %d. Yeşil: tarafın şu an kazanıyor; kırmızı: kaybediyor.
+İki taraf arasındaki savaş biterse senaryo da biter."
+NOTE_SCENARIO_START,%s: the war goes on until one side gives up.,"%s: savaş, taraflardan biri teslim olana kadar sürer."
+TIPMAP_KEY_CITY,Key city: %d points,Anahtar şehir: %d puan
 EFF_PP,%+d influence,%+d nüfuz
 EFF_STABILITY,%+d%% stability,%%%+d istikrar
 EFF_WAR_SUPPORT,%+d%% home front,%%%+d iç cephe
@@ -292,8 +323,21 @@ ARMY_DESIGNER,Designer: %s,Tasarım: %s
 "TIP_BATTALION","Anti-personnel %s, anti-armor %s, defense %s, shock %s, HP %s, cohesion %s, speed %s km/h, frontage %s","Personel ateşi %s, tanksavar ateşi %s, savunma %s, şok %s, can %s, bütünlük %s, hız %s km/s, cephe genişliği %s"
 TIP_BAT_MINUS,Remove one battalion,Bir tabur çıkar
 TIP_BAT_PLUS,Add one battalion,Bir tabur ekle
-DIV_STOP,Stop,Durdur
-TIP_DIV_STOP,Cancel movement and attacks,Hareket ve saldırıları iptal et
+DIV_STOP,Halt,Dur
+TIP_DIV_STOP,"HALT
+Stop moving and attacking. A division that waits in place digs in: its defence rises by up to 15% over 10 days.","DUR
+Yürüyüşü ve saldırıyı keser. Yerinde bekleyen tümen siper kazar: savunması 10 günde %15'e kadar artar."
+DIV_WITHDRAW,Withdraw,Geri çekil
+TIP_DIV_WITHDRAW,"WITHDRAW
+The division marches to the nearest safe friendly province behind the front.
+If it is attacking, it breaks off the attack at no cost.
+If it is under attack, it breaks away at once but loses a quarter of its cohesion.
+An encircled division has nowhere to go.","GERİ ÇEKİL
+Tümen cephenin gerisindeki en yakın güvenli dost bölgeye yürür.
+Saldırıyorsa saldırıyı bedelsiz keser.
+Saldırı altındaysa hemen kopar ama bütünlüğünün dörtte birini kaybeder.
+Kuşatılmış tümenin gidecek yeri yoktur."
+NOTE_NO_WITHDRAW,No safe province to withdraw to,Çekilecek güvenli bölge yok
 DIV_DISBAND,Disband,Dağıt
 TIP_DIV_DISBAND,Disband selected divisions (manpower returns),Seçili tümenleri dağıt (insan gücü geri döner)
 DIV_SELECTED,%d divisions selected,%d tümen seçili
@@ -392,6 +436,9 @@ TOP_TENSION,Crisis %d%%,Kriz %%%d
 "TIP_AT_WAR","Enemies: %s\nWe capitulate at %d%% surrender progress (occupied victory points).","Düşmanlar: %s\nTeslim ilerlemesi %%%d olunca teslim oluruz (işgal edilen zafer puanları)."
 NOTE_WELCOME,"Welcome, leader of %s. Pick a state program (F) and research (I)!","Hoş geldiniz, %s lideri. Bir devlet programı (F) ve araştırma (I) seçin!"
 NOTE_NO_PATH,No route to that province.,O bölgeye yol bulunamadı.
+"NOTE_NO_ACCESS","No military access to %s: we are neither allied nor at war. Ask for access in Diplomacy.","%s topraklarına geçiş iznimiz yok: ne müttefikiz ne savaştayız. Diplomasi'den geçiş izni isteyin."
+"NOTE_NO_PATH_SEA","That province can only be reached by sea, and the way is closed: an enemy navy holds the sea or there is no coast to sail from.","O bölgeye ancak denizden gidilir ve yol kapalı: denizi düşman donanması tutuyor ya da çıkılacak kıyı yok."
+"NOTE_IN_TRAINING","The selected divisions are still in training and cannot move yet.","Seçili tümenler hâlâ eğitimde, henüz yürüyemez."
 SET_VOLUME,Master volume,Ana ses düzeyi
 SET_MUSIC,Music,Müzik
 SET_SFX,Sound effects,Ses efektleri
@@ -409,14 +456,59 @@ TIPMAP_PORT_CITY,Port city,Liman şehri
 TIPMAP_BUILDINGS,Strategic buildings,Stratejik yapılar
 TIPMAP_DIVISIONS,Divisions in province,Bölgedeki tümenler
 TIPMAP_NO_DIVISIONS,No detected divisions in this province.,Bu bölgede tespit edilen tümen yok.
+"TIPMAP_H_GROUND","Ground and weather","Arazi ve hava"
+"TIPMAP_H_REGION","Region","Bölge"
+"TIPMAP_TERRAIN","Terrain","Arazi"
+"TIPMAP_WEATHER","Weather","Hava"
+"TIPMAP_W_CLEAR","Clear","Açık"
+"TIPMAP_W_MUD","Mud","Çamur"
+"TIPMAP_W_WINTER","Winter","Kış"
+"TIPMAP_W_HARD_WINTER","Hard winter","Sert kış"
+"TIPMAP_W_WINTER_SEA","Winter sea","Kış denizi"
+"TIPMAP_MOVE","March speed","Yürüyüş hızı"
+"TIPMAP_ATTACK_IN","Attacking here","Buraya saldırı"
+"TIPMAP_FRONTAGE","Frontage","Cephe genişliği"
+"TIPMAP_SUPPLY","Supply","İkmal"
+"TIPMAP_SUPPLY_OK","Supplied","Var"
+"TIPMAP_SUPPLY_NO","Cut off","Yok"
+"TIPMAP_SUPPLY_PEACE","At peace","Barış"
+"TIPMAP_RIVER_NOTE","Attacking across the river: −%d%%","Nehir aşarak saldırı: −%%%d"
+"TIPMAP_SEA_NOTE","Landing from the sea: −%d%%","Denizden çıkarmayla saldırı: −%%%d"
+"TIPMAP_TRAINING","  ·  %d in training","  ·  %d eğitimde"
+"TIPMAP_BATTLE","Battle here: attacker %d%% · defender %d%%","Burada muharebe: saldıran %%%d · savunan %%%d"
+TIPMAP_ODDS,Attack estimate,Saldırı tahmini
+ODDS_0,Hopeless,Umutsuz
+ODDS_1,Hard,Zor
+ODDS_2,Even,Dengeli
+ODDS_3,Favourable,Üstünüz
+ODDS_4,Overwhelming,Ezici üstünlük
+ODDS_SIDES,%d of ours against %d divisions,"Bizden %d, karşıda %d tümen"
+ODDS_DEF_BREAKS,Defenders break in about %s,Savunma yaklaşık %s içinde çözülür
+ODDS_ATT_BREAKS,Our attack runs out in about %s,Saldırımız yaklaşık %s içinde tükenir
+ODDS_HOURS,%d hours,%d saat
+ODDS_DAYS,%d days,%d gün
+ODDS_EMPTY,No enemy troops here: whoever enters takes it,Burada düşman askeri yok: giren alır
+ODDS_F_terrain,Terrain: %s,Arazi: %s
+ODDS_F_river,River crossing,Nehir geçişi
+ODDS_F_amphibious,Landing from the sea,Denizden çıkarma
+ODDS_F_entrench,Enemy dug in,Düşman siperde
+ODDS_F_air,Our air superiority,Hava üstünlüğümüz
+ODDS_F_enemy_air,Enemy air superiority,Düşman hava üstünlüğü
+ODDS_F_supply,Out of supply,İkmalsiz
+ODDS_F_season,Mud and winter,Çamur ve kış
+ODDS_F_planning,Planning,Planlama
+ODDS_F_phoney,Reluctant war,İsteksiz savaş
+ODDS_F_fuel,No fuel,Yakıt yok
+ODDS_F_command,Commanders,Komutanlar
+ODDS_F_support,Our artillery next door,Komşudaki topçumuz
+ODDS_F_enemy_support,Enemy artillery next door,Komşudaki düşman topçusu
+"TIPMAP_PORTS","Ports","Limanlar"
 "TIPMAP_LAND_HINT","Left click: select state  ·  Right click: issue order to selected divisions","Sol tık: eyaleti seç  ·  Sağ tık: seçili tümenlere emir ver"
 TIPMAP_NAVAL_REGION,Naval region,Deniz bölgesi
 TIPMAP_INTERNATIONAL_WATERS,International waters,Uluslararası sular
 TIPMAP_COASTS,Adjacent coasts,Bitişik kıyı
 TIPMAP_NAVAL_HINT,Naval and air control affect convoy safety and invasion routes.,Deniz ve hava üstünlüğü konvoy güvenliğini ve çıkarma rotalarını etkiler.
 "TIPMAP_WATER_HINT","Mouse wheel: zoom  ·  Middle mouse: move map","Fare tekeri: yakınlaştır  ·  Orta tuş: haritayı taşı"
-FLEET_NAME,%d. Fleet,%d. Filo
-SUB_FLEET_NAME,%d. U-Boat Flotilla,%d. Denizaltı Filosu
 SEA_ZONE_NEAR,Waters off %s,%s açıkları
 SEA_ZONE,Open sea,Açık deniz
 SHIP_battleship,battleship,zırhlı gemi
@@ -457,8 +549,6 @@ NAVY_CLICK_ZONE,Click a sea zone on the map…,Haritada bir deniz bölgesine tı
 NAVY_ORG,Cohesion,Bütünlük
 NAVY_SELECT,Select,Seç
 "TIP_FLEET_COUNTER","%s\n%s\nCohesion %d%%\nLeft click: select · Right click with a fleet selected: send","%s\n%s\nBütünlük %%%d\nSol tık: seç · Filo seçiliyken sağ tık: gönder"
-RESERVE_FLEET,Reserve Fleet,Yedek Filo
-RESERVE_SUB_FLEET,Reserve Flotilla,Yedek Denizaltı Filosu
 NAVY_CONVOY_FACTOR,"Convoys carry %d%% of imports","Konvoylar ithalatın %%%d'ini taşıyor"
 "TIP_FLEET_CARD","Click to select the fleet and centre the map on it.","Filoyu seçmek ve haritada ona gitmek için tıklayın."
 "TIP_SHIP_TYPE","%s: %d\nFirepower %.0f · Durability %.1f · Speed %d km/h","%s: %d\nAteş gücü %.0f · Dayanıklılık %.1f · Hız %d km/sa"
@@ -478,9 +568,6 @@ TIPMAP_BUILD_WINGS,Air wings based here: %d,Burada konuşlu hava kanadı: %d
 NAVY_ORDER_OK,%s: new orders — %s,%s: yeni emir — %s
 TIPMAP_FLEETS,Fleets,Filolar
 TIPMAP_SEA_CONTROL,Our naval control here: %d%%,Buradaki deniz hâkimiyetimiz: %%%d
-WING_NAME_fighter,%d. Fighter Wing,%d. Avcı Kanadı
-WING_NAME_cas,%d. Close Support Wing,%d. Yakın Destek Kanadı
-WING_NAME_bomber,%d. Bomber Wing,%d. Bombardıman Kanadı
 WING_TYPE_fighter,Fighters,Avcı
 WING_TYPE_cas,Close air support,Yakın hava desteği
 WING_TYPE_bomber,Tactical bombers,Taktik bombardıman
@@ -488,10 +575,18 @@ AIR_MISSION_0,Standby,Beklemede
 AIR_MISSION_1,Air superiority,Hava üstünlüğü
 AIR_MISSION_2,Close air support,Yakın destek
 AIR_MISSION_3,Port strike,Liman baskını
+AIR_MISSION_4,Bombing,Bombardıman
+AIR_MISSION_5,Reconnaissance,Keşif
 "TIP_AIR_MISSION_0","Stay at the air base.","Hava üssünde bekle."
 "TIP_AIR_MISSION_1","Fight enemy aircraft over the zone. Air superiority gives our divisions up to +25% attack and defense there and weakens enemy close air support.","Bölge üzerinde düşman uçaklarıyla savaş. Hava üstünlüğü oradaki tümenlerimize %25'e kadar saldırı/savunma kazandırır ve düşmanın yakın desteğini zayıflatır."
 "TIP_AIR_MISSION_2","Support our divisions in battles inside the zone (up to +30% attack). Needs air superiority to be effective; enemy anti-air causes losses.","Bölgedeki muharebelerde tümenlerimizi destekle (%30'a kadar saldırı). Etkili olması için hava üstünlüğü gerekir; düşman uçaksavarı kayıp verdirir."
 "TIP_AIR_MISSION_3","Bomb enemy fleets anchored in ports inside the zone.","Bölgedeki limanlarda demirli düşman filolarını bombala."
+TIP_AIR_MISSION_4,"Bomb the factories of an enemy state and wear down its people's will to fight.
+A full wing of 100 bombers, unopposed, stops about 3% of the state's factories a day; repairs bring back 1% a day, and no more than 80% ever stop.
+Enemy fighters and anti-air blunt it. Bombers carry a full load, close support planes a small one, fighters none.","Düşman eyaletinin fabrikalarını bombala, halkının savaşma isteğini yıprat.
+Karşı koymasız 100 uçaklık tam bombardıman kanadı eyaletin fabrikalarının günde yaklaşık %3'ünü durdurur; onarım günde %1 geri getirir, en çok %80'i durabilir.
+Düşman avcıları ve uçaksavar etkisini azaltır. Bombardıman uçağı tam yük taşır, yakın destek uçağı az, avcı hiç taşımaz."
+TIP_AIR_MISSION_5,Fly over the zone and report what stands there: enemy divisions inside it (up to 350 km around its centre) show on the map through the fog of war. Any aircraft can fly it; enemy fighters shoot at it.,Bölgenin üstünde uçup orada ne olduğunu bildir: bölgedeki düşman tümenleri (merkezinin 350 km çevresi) savaş sisine rağmen haritada görünür. Her uçak yapabilir; düşman avcıları ateş eder.
 AIR_TITLE,Air Force,Hava Kuvvetleri
 AIR_SUMMARY,"%d fighters · %d close support · %d bombers","%d avcı · %d yakın destek · %d bombardıman"
 AIR_NO_WINGS,"We have no air wings. Produce aircraft (Production) and build air bases.","Hava kanadımız yok. Uçak üretin (Üretim) ve hava üssü inşa edin."
@@ -504,18 +599,63 @@ AIR_PICK_ZONE,Pick zone,Bölge seç
 AIR_CLICK_ZONE,Click a zone on the map for the air wing…,Hava kanadı için haritada bir bölgeye tıklayın…
 AIR_ERR_RANGE,Out of range of this wing's base.,Bu kanadın üssünün menzili dışında.
 AIR_ERR_BASE,No usable air base there.,Orada kullanılabilir hava üssü yok.
+AIR_ERR_NO_BOMBS,Fighters carry no bombs.,Avcı uçakları bomba taşımaz.
+AIR_ERR_BOMB_TARGET,Only an enemy state on land can be bombed.,Yalnız karadaki bir düşman eyaleti bombalanabilir.
+NOTE_BOMBED,%s is being bombed: factory damage %d%%,"%s bombalanıyor, fabrika hasarı: %%%d"
+AIR_DEPLOYED,%s formed at the %s air base,%s kuruldu: %s hava üssü
+AIR_TARGET,Target: %s,Hedef: %s
+AIR_TARGET_HINT,"Click a region on the map to make it the target, then give your wings a mission there.","Haritada bir bölgeye tıkla, hedef olsun; sonra kanatlarına oradan görev ver."
+AIR_TARGET_SUP,Our air superiority: %d%%,Hava üstünlüğümüz: %%%d
+AIR_TARGET_DAMAGE,Factory damage: %d%%,Fabrika hasarı: %%%d
+AIR_TARGET_CLEAR,Clear,Temizle
+TIP_AIR_TARGET_CLEAR,Clear the target region.,Hedef bölgeyi kaldır.
+AIR_TARGET_HERE,Here: %s,Burada: %s
+AIR_TARGET_PLANES,%d aircraft,%d uçak
+TIPMAP_BOMB_DAMAGE,Bombing damage: %d%% of the factories are out,Bombardıman hasarı: fabrikaların %%%d kadarı durdu
+TIPMAP_FOG,No information: this region is beyond our sight. Air reconnaissance reveals it.,Bilgi yok: bu bölge görüş alanımızın dışında. Hava keşfi açar.
+ODDS_UNKNOWN,Enemy strength unknown: the region is beyond our sight. Send air reconnaissance.,Düşman gücü bilinmiyor: bölge görüş alanımızın dışında. Hava keşfi gönder.
 AIR_ORDER_OK,%s: %s — %s,%s: %s — %s
 "TIP_WING_STATS","%s\n%d/%d aircraft · range %d km\nLosses today: %d","%s\n%d/%d uçak · menzil %d km\nBugünkü kayıp: %d"
 TASK_AIR,Air (H),Hava (H)
+TASK_RECON,Recon (K),Keşif (K)
+TIP_TASK_RECON,"RECONNAISSANCE
+Then click a region on the map: the nearest idle air wing that can reach it flies over it for a day and reveals 350 km around. A flight costs 15 industry points (SP). What is revealed stays revealed. Fighters go first; wings busy with another mission are not taken.","KEŞİF
+Ardından haritada bir bölgeye tıkla: oraya yetişen en yakın boştaki hava kanadı bir gün üstünde uçar, 350 km çevresini açar. Bir uçuş 15 sanayi puanı (SP) tutar. Açılan yer bir daha kapanmaz. Önce avcılar gider; başka görevdeki kanatlar alınmaz."
+RECON_PICK,Reconnaissance: click a region on the map (Esc: cancel).,Keşif: haritada bir bölgeye tıkla (Esc: vazgeç).
+RECON_OK,%s flies reconnaissance over %s (−%d SP),%s keşfe çıktı: %s (−%d SP)
+RECON_NONE,No idle air wing can reach there. Form a wing in the Air panel or free one from its mission.,Oraya yetişen boşta hava kanadı yok. Hava panelinden kanat kur ya da birini görevinden al.
+RECON_ERR_SP,Not enough industry points (SP) for a reconnaissance flight.,Keşif uçuşu için sanayi puanı (SP) yetmiyor.
+TIP_SP,"INDUSTRY POINTS (SP): %d
+Spent on recruiting units in your cities and on reconnaissance flights.
+Every day the factories of the states whose main city you hold give SP: military factory 1, civilian factory 0.4. Bombed factories give nothing; take a city and its factories work for you.
+Today: +%d SP (military factories %d, civilian %d)","SANAYİ PUANI (SP): %d
+Şehirlerinde asker almaya ve keşif uçuşlarına harcanır.
+Ana şehrini elinde tuttuğun eyaletlerin fabrikaları her gün SP verir: askerî fabrika 1, sivil fabrika 0,4. Bombalanan fabrika vermez; bir şehri alırsan fabrikaları senin için çalışır.
+Bugün: +%d SP (askerî fabrika %d, sivil %d)"
+RECRUIT_HEAD,Recruit in %s,%s şehrinde asker al
+RECRUIT_UNIT_infantry,Infantry division,Piyade tümeni
+RECRUIT_UNIT_armor,Armoured division,Zırhlı tümen
+RECRUIT_UNIT_fighter,Fighter wing,Avcı kanadı
+RECRUIT_UNIT_cas,Close support wing,Yakın destek kanadı
+RECRUIT_UNIT_bomber,Bomber wing,Bombardıman kanadı
+RECRUIT_COST_DIV,%d SP · %s men · ready in %d days,%d SP · %s asker · %d günde hazır
+RECRUIT_COST_WING,%d SP · 100 aircraft at the nearest air base,%d SP · en yakın hava üssünde 100 uçak
+RECRUIT_BUY,Buy,Al
+TIP_RECRUIT,Pay the cost now; the unit appears here and trains for the given days before it can move.,"Bedeli şimdi öde; birlik burada çıkar, verilen gün kadar eğitim görüp sonra yürür."
+RECRUIT_OK,%s recruited in %s,%s alındı: %s
+RECRUIT_ERR_KIND,Unknown unit.,Bilinmeyen birlik.
+RECRUIT_ERR_CITY,Units can only be recruited in a city you hold.,Asker yalnız elinde tuttuğun bir şehirde alınır.
+RECRUIT_ERR_SP,Not enough industry points (SP).,Sanayi puanı (SP) yetmiyor.
+RECRUIT_ERR_MANPOWER,Not enough manpower.,İnsan gücü yetmiyor.
+RECRUIT_ERR_AIRBASE,You have no air base for a new wing.,Yeni kanat için hava üssün yok.
 "TIP_TASK_AIR","AIR FORCE\nAir wings, bases and missions. Air superiority and close air support decide land battles.\nShortcut: H","HAVA KUVVETLERİ\nHava kanatları, üsler ve görevler. Hava üstünlüğü ve yakın destek kara muharebelerini belirler.\nKısayol: H"
 "NOTE_AIR_LOSSES","We lost %d aircraft today.","Bugün %d uçak kaybettik."
 TIPMAP_AIR,Air superiority here: %d%%,Buradaki hava üstünlüğümüz: %%%d
 PRODUCTION_LOCKED,Requires research: %s,Araştırma gerekli: %s
 AIR_STOCK,"In stock: %d fighters · %d close support · %d bombers","Stokta: %d avcı · %d yakın destek · %d bombardıman"
 AIR_DEPLOY,Deploy wing,Kanat kur
-"TIP_AIR_DEPLOY","Form a new air wing (up to 100 aircraft) from the stockpile at the chosen air base.","Stoktaki uçaklardan seçili hava üssünde yeni bir kanat kur (en fazla 100 uçak)."
+TIP_AIR_DEPLOY,"Form a new air wing (up to 100 aircraft) from the stockpile at the air base nearest the capital. When you give it a mission, it moves to the nearest base in range by itself.",Stoktaki uçaklardan başkente en yakın hava üssünde yeni bir kanat kur (en fazla 100 uçak). Görev verdiğinde kanat menzili yeten en yakın üsse kendisi geçer.
 "TIP_AIR_DEPLOY_TYPE","Aircraft type to deploy (number in stock).","Konuşlandırılacak uçak tipi (stoktaki sayı)."
-"TIP_AIR_DEPLOY_BASE","Air base (level). Higher level bases hold more aircraft.","Hava üssü (seviye). Yüksek seviyeli üs daha çok uçak barındırır."
 AIR_REINFORCE,Reinforce,Takviye
 "TIP_AIR_REINFORCE","Fill this wing up to 100 aircraft from the stockpile.","Bu kanadı stoktan 100 uçağa tamamla."
 AIR_DISBAND,Disband,Dağıt
@@ -532,6 +672,17 @@ ROUTE_ETA,%d km left · arrives in ≈%.1f days,Kalan %d km · varış ≈%.1f g
 ROUTE_AIR,Mission over %s,Görev bölgesi: %s
 ALERT_EVENT,Event waiting,Bekleyen olay
 ALERT_EVENT_D,%d event(s) await your decision.,%d olay kararını bekliyor.
+ALERT_RECRUIT,Units to recruit,Asker alabilirsin
+ALERT_RECRUIT_D,%d industry points (SP) in hand: click one of your cities to recruit (this opens the capital).,"Elinde %d sanayi puanı (SP) var: asker almak için şehirlerinden birine tıkla (bu, başkenti açar)."
+ALERT_IDLE_WINGS,Idle air wings,Boşta hava kanadı
+ALERT_IDLE_WINGS_D,%d air wings have no mission: send them on reconnaissance (K) or give them a mission in the Air panel.,%d hava kanadının görevi yok: keşfe gönder (K) ya da Hava panelinden görev ver.
+GLOBE_TIP,"WORLD CLOCK
+%s at your capital · %s
+The globe turns with game time: noon is when the sun stands over your capital; the dark side is night.","DÜNYA SAATİ
+Başkentinde saat %s · %s
+Küre oyun saatiyle döner: güneş başkentinin üstündeyken öğlendir; karanlık taraf gecedir."
+GLOBE_DAY,day,gündüz
+GLOBE_NIGHT,night,gece
 ALERT_RESEARCH,Research slot idle,Araştırma boşta
 ALERT_RESEARCH_D,%d research slot(s) are empty.,%d araştırma yuvası boş.
 ALERT_FOCUS,No state program,Devlet programı seçilmedi
@@ -563,7 +714,6 @@ DIV_XP_3,Hardened,Sınanmış
 DIV_XP_4,Crack,Seçme
 DIV_XP_LINE,Experience: %s (%+d%% attack),Tecrübe: %s (saldırı %+d%%)
 DIV_PLANNING_LINE,Preparation: +%d%% (grows while waiting on the front),Hazırlık: +%%%d (cephede beklerken birikir)
-ARMY_NAME,%d. Army,%d. Ordu
 ARMY_CREATE,Create army,Ordu kur
 TIP_ARMY_CREATE,"CREATE ARMY\nGroups the selected divisions into an army. Assign it to a front and it spreads along the border by itself.","ORDU KUR\nSeçili tümenleri bir orduda toplar. Bir cepheye ata; ordu sınır boyunca kendiliğinden dağılır."
 ARMY_NO_FRONT,No front,Cephe yok
@@ -684,7 +834,7 @@ CON_CELL_CIV_TIP,All civilian factories you own.,Sahip olduğunuz tüm sivil fab
 CON_CELL_CONSUMER,Consumer goods,Tüketim malı
 CON_CELL_CONSUMER_TIP,Civilian factories that must produce consumer goods for the population (set by the economy law and stability).,Halk için tüketim malı üretmek zorunda olan sivil fabrikalar (ekonomi yasası ve istikrara bağlı).
 CON_CELL_FREE,For construction,İnşaata ayrılan
-CON_CELL_FREE_TIP,Civilian factories working on the queue. Each project can use at most 12; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.,Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 12 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
+CON_CELL_FREE_TIP,"Civilian factories working on the queue. Each project can use at most 12; trade deals also take factories. Even if consumer goods and imports take them all, the state keeps 1 factory of public works.",Kuyrukta çalışan sivil fabrikalar. Her proje en fazla 12 fabrika kullanır; ticaret anlaşmaları da fabrika alır. Tüketim malı ve ithalat hepsini alsa da devletin 1 fabrikalık kamu inşaat gücü kalır.
 CON_CELL_SPEED,Construction speed,İnşaat hızı
 CON_CELL_SPEED_TIP,"Bonus from laws, conditions, advisors and technology, minus the low-stability penalty.","Yasalar, ulusal durumlar, danışmanlar ve teknolojiden gelen katkı; düşük istikrar cezası düşülmüş."
 CON_BUILDINGS,Buildings,Binalar
@@ -706,6 +856,10 @@ TRD_CELL_EARNED_TIP,Civilian factories gained from buyers: 1 factory per 8 resou
 TRD_CELL_CONVOY,Convoy coverage,Konvoy karşılama
 TRD_CELL_CONVOY_TIP,Imports travel by sea: 1 convoy per 2 resources. Without enough convoys only part of the imports arrive.,İthalat denizden gelir: 2 kaynak başına 1 konvoy. Konvoy yetmezse ithalatın yalnız bir kısmı ulaşır.
 TRD_AUTO,Automatic trade,Otomatik ticaret
+TRD_AUTO_STATE_ON,On,Açık
+TRD_AUTO_STATE_OFF,Off — you trade,Kapalı — elle
+TRD_AUTO_TURN_ON,Turn on,Aç
+TRD_AUTO_TURN_OFF,Turn off,Kapat
 TRD_AUTO_TIP,"Off: you make every trade deal yourself (pick the seller and the amount).
 On: missing resources are bought automatically from the largest sellers.","Kapalı: her ticaret anlaşmasını siz yaparsınız (satıcıyı ve miktarı seçersiniz).
 Açık: eksik kaynaklar en büyük satıcılardan otomatik alınır."
@@ -808,7 +962,11 @@ A high crisis index strengthens everyone's home front.","KRİZ ENDEKSİ
 Saldırganlıkla artar: gerekçeler, ilhaklar, savaşlar.
 Demokrasiler ancak yüksek endekste harekete geçebilir; faşist ve komünist devletler daha erken.
 Yüksek kriz endeksi herkesin iç cephesini güçlendirir."
-FOCUS_HELP,Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two. Hold and drag on empty space to move around the tree.,Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir. Ağacı kaydırmak için boş yerde basılı tutup sürükleyin.
+FOCUS_FIT,Fit,Sığdır
+TIP_FOCUS_FIT,Show the whole tree,Bütün ağacı göster
+TIP_FOCUS_ZOOM_IN,Zoom in (mouse wheel),Yakınlaştır (tekerlek)
+TIP_FOCUS_ZOOM_OUT,Zoom out (mouse wheel),Uzaklaştır (tekerlek)
+FOCUS_HELP,"Pick a bright program to start it. Green: completed. Gold: in progress. Faded: prerequisites or date not met yet. Red dashes: you can take only one of the two. Drag on empty space to move around the tree (it glides when you let go), use the mouse wheel to zoom, or the arrow keys.","Başlatmak için parlak bir program seçin. Yeşil: tamamlandı. Altın: sürüyor. Soluk: önkoşul ya da tarih henüz sağlanmadı. Kırmızı kesik çizgi: ikisinden yalnız biri alınabilir. Ağacı boş yerde sürükleyerek kaydırın (bırakınca süzülür), tekerlekle yakınlaştırın ya da ok tuşlarını kullanın."
 EVENT_CHOICES,Your decision,Kararınız
 ST_SLOTS,Building slots %d / %d,Bina yuvaları %d / %d
 ST_QUEUED,under construction,inşa ediliyor
@@ -819,8 +977,17 @@ ST_BUILD_HERE,Build here,Burada inşa et
 ST_QUEUED_NOTE,%s queued in %s.,%s kuyruğa eklendi: %s.
 EVENT_NEED_LEADER,Only possible while %s leads the country.,Yalnız %s liderken seçilebilir.
 EVENT_OPTION_LOCKED,Conditions for this choice are not met.,Bu seçeneğin şartları sağlanmıyor.
-DIV_HOLD,Hold to the last man,Son askere kadar
-TIP_DIV_HOLD,HOLD TO THE LAST MAN\nOn: the division never retreats by itself; when its cohesion is exhausted it keeps fighting at half strength until destroyed.\nOff: it retreats to the nearest safe province when cohesion runs out.\nYour divisions start with this on: nobody pulls back without your order.,SON ASKERE KADAR SAVUN\nAçık: tümen kendiliğinden geri çekilmez; bütünlüğü bitince yarı güçle yok olana kadar savaşır.\nKapalı: bütünlük bitince en yakın güvenli bölgeye çekilir.\nTümenlerin açık başlar: emrin olmadan kimse geri dönmez.
+DIV_STANCE_HOLD,To the last man,Son askere kadar
+TIP_DIV_STANCE_HOLD,"TO THE LAST MAN
+The division never retreats by itself. When its cohesion is exhausted it fights on at half strength until destroyed.
+Your divisions start this way: nobody pulls back without your order.","SON ASKERE KADAR
+Tümen kendiliğinden geri çekilmez. Bütünlüğü bitince yarı güçle, yok olana kadar savaşır.
+Tümenlerin böyle başlar: emrin olmadan kimse geri dönmez."
+DIV_STANCE,Stance,Duruş
+DIV_STANCE_FLEX,Flexible,Esnek
+TIP_DIV_STANCE_FLEX,"FLEXIBLE
+When its cohesion runs out the division retreats by itself to the nearest safe province and lives to fight again. The province it leaves may fall.","ESNEK
+Bütünlüğü bitince tümen kendiliğinden en yakın güvenli bölgeye çekilir ve yeniden savaşmak için hayatta kalır. Bıraktığı bölge düşebilir."
 TRD_CANT_PAY,"Not enough civilian factories to pay for more imports (8 resources = 1 factory, after consumer goods).",İthalatı ödeyecek sivil fabrika yok (8 kaynak = 1 fabrika; tüketim malından arta kalanla ödenir).
 RES_TODAY,Today,Bugün
 DIP_COUNTRIES,Countries,Ülkeler
@@ -872,7 +1039,6 @@ POL_FOCUS_DONE,Completed programs: %d. Latest: %s,Tamamlanan program: %d. Son ol
 POL_NO_DECISIONS,No decisions in effect.,Yürürlükte karar yok.
 CMD_RANK_0,General,General
 CMD_RANK_1,Field Marshal,Mareşal
-ARMY_GROUP_NAME,%d. Army Group,%d. Ordular Grubu
 NOTE_CMD_SKILL,%s gained experience in battle: skill %d,%s muharebede tecrübe kazandı: beceri %d
 ARM_CELL_CP,Command power,Komuta gücü
 ARM_CELL_CP_TIP,"COMMAND POWER
@@ -1007,10 +1173,13 @@ DIVSEL_LEAVE,Leave army (%d),Ordudan çıkar (%d)
 TIP_DIVSEL_LEAVE,"LEAVE ARMY
 Takes the selected divisions out of their army; they act only on your direct orders.","ORDUDAN ÇIKAR
 Seçili tümenleri ordularından çıkarır; yalnız sizin doğrudan emrinizle hareket ederler."
-DIVSEL_SPLIT,"Split: keep %d, release %d","Böl: %d kalsın, %d bırak"
-TIP_DIVSEL_SPLIT,"SPLIT SELECTION
-Keeps the first half selected and releases the rest, so you can send the two halves to different places.","SEÇİMİ BÖL
-İlk yarı seçili kalır, öbür yarı bırakılır; iki yarıyı ayrı yerlere gönderebilirsiniz."
+DIV_SPLIT,Split,Böl
+TIP_DIV_SPLIT,"SPLIT
+Choose how many divisions of each selected figure your next order moves: 1, half or all. The freshest (highest cohesion) go first; the rest stay where they are.","BÖL
+Seçili her figürden sonraki emrinle kaç tümenin gideceğini seç: 1, yarısı ya da hepsi. En dinçler (bütünlüğü en yüksek) önce gider, kalanlar yerinde kalır."
+DIV_SPLIT_ONE,1,1
+DIV_SPLIT_HALF,Half,Yarısı
+DIV_SPLIT_ALL,All,Hepsi
 DIVSEL_TO_PLAN,Back to army plan (%d),Ordu planına döndür (%d)
 TIP_DIVSEL_TO_PLAN,"BACK TO ARMY PLAN
 A division you order directly stays in its army but the army no longer moves it. This hands it back to the army's front plan.","ORDU PLANINA DÖNDÜR
@@ -1059,3 +1228,15 @@ LEADER_Boris III,Boris III,III. Boris
 LEADER_Zog I,Zog I,I. Zogu
 LEADER_Reza Shah Pahlavi,Reza Shah Pahlavi,Rıza Şah Pehlevi
 LEADER_Ghazi I,Ghazi I,I. Gazi
+"PLACE_DIVISION","Deploy %s: click a highlighted region on the map (right click / Esc: cancel).","%s konuşlandır: haritada vurgulu bir bölgeye tıkla (sağ tık / Esc: vazgeç)."
+"PLACE_WING","Deploy a %s wing: click a highlighted state with an air base (right click / Esc: cancel).","%s kanadı konuşlandır: haritada hava üssü olan vurgulu bir eyalete tıkla (sağ tık / Esc: vazgeç)."
+"PLACE_SHIPS","Deploy the %s: click a highlighted state with a port (right click / Esc: cancel).","%s konuşlandır: haritada limanı olan vurgulu bir eyalete tıkla (sağ tık / Esc: vazgeç)."
+"PLACE_INVALID","You cannot deploy there: pick a highlighted region.","Oraya konuşlandırılamaz: vurgulu bir bölge seç."
+"PLACE_NONE","There is nowhere to deploy it.","Konuşlandırılacak bir yer yok."
+"NOTE_DEPLOYED_AT","New division deployed: %s in %s","Yeni tümen konuşlandırıldı: %s, %s"
+"NOTE_WING_DEPLOYED","New air wing: %s at %s","Yeni hava kanadı: %s, %s"
+"NOTE_SHIPS_DEPLOYED","The new ships joined %s at %s","Yeni gemiler %s filosuna katıldı, %s"
+"NAVY_NEW_SHIPS","new ships","yeni gemileri"
+"NAVY_NEW_SHIPS_ROW","New ships waiting for a port","Liman bekleyen yeni gemiler"
+"NAVY_DEPLOY_SHIPS","Deploy","Konuşlandır"
+"TIP_NAVY_DEPLOY_SHIPS","Ships from the dockyards wait until you choose their port: the panel closes and you pick a state with a port on the map; they join the reserve fleet there.","Tersaneden çıkan gemiler limanını seçmeni bekler: panel kapanır, haritada limanı olan bir eyalet seçersin; oradaki yedek filoya katılırlar."

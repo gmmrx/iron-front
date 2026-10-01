@@ -15,6 +15,8 @@ var _fuel: Label
 var _tension: Label
 var _war: Label
 var _date: Label
+var _scen: Label                    ## senaryoda: kalan gün ve anahtar şehir puanı (serbest oyunda gizli)
+var globe: WorldGlobe               ## dünya saati (tarih kutusunun solunda; main dokusunu bağlar)
 var _pips: Array[ColorRect] = []
 var _pause_btn: Button
 var _pause_icon: PlayPauseIcon
@@ -61,7 +63,7 @@ static func _metal(bg: Color, border: Color, radius: int = 3, bw: int = 1) -> St
 	return sb
 
 ## Metal doku kutusu (arayüzün geri kalanıyla aynı set): margin doku kenarı, h/v iç boşluk
-static func _tex(name: String, margin: int, h: int, v: int) -> StyleBoxTexture:
+static func _tex(name: String, margin: int, h: int, v: int) -> StyleBox:
 	var sb := UiTheme.skin(name, margin, v)
 	sb.content_margin_left = h
 	sb.content_margin_right = h
@@ -193,6 +195,8 @@ func _ready() -> void:
 	var drow := HBoxContainer.new()
 	drow.add_theme_constant_override("separation", 12)
 	date_panel.add_child(drow)
+	globe = WorldGlobe.new()
+	drow.add_child(globe)
 	_pause_btn = UiTheme.icon_button("play", tr("UI_PAUSE_TIP"), GameClock.toggle_pause, 32)
 	drow.add_child(_pause_btn)
 	var dcol := VBoxContainer.new()
@@ -210,8 +214,14 @@ func _ready() -> void:
 		pip.custom_minimum_size = Vector2(18, 6)
 		pips_row.add_child(pip)
 		_pips.append(pip)
+
 	# duraklatınca görünüm aynı kalır ("duraklatıldı" yazısı yok); yalnız oynat/duraklat düğmesi değişir
 	dcol.add_child(pips_row)
+	_scen = UiTheme.make_label("", 13, UiTheme.TEXT_DIM)
+	_scen.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_scen.mouse_filter = Control.MOUSE_FILTER_STOP
+	_scen.visible = false
+	dcol.add_child(_scen)
 	drow.add_child(dcol)
 	drow.add_child(UiTheme.icon_button("minus", tr("TIP_SPEED_DOWN"), func() -> void: GameClock.change_speed(-1)))
 	drow.add_child(UiTheme.icon_button("plus", tr("TIP_SPEED_UP"), func() -> void: GameClock.change_speed(1)))
@@ -219,6 +229,7 @@ func _ready() -> void:
 	GameClock.hour_passed.connect(_update_date)
 	GameClock.time_state_changed.connect(func(_s: int, _p: bool) -> void: _update_time_state())
 	World.daily_update.connect(_update_country)
+	Military.sp_changed.connect(_update_country)
 	Economy.building_completed.connect(func(_t: String, _s: int, _b: String) -> void: _update_country())
 	World.player_changed.connect(func(_t: String) -> void: _update_country())
 	_update_country()
@@ -321,15 +332,18 @@ func _update_country() -> void:
 		sg.call(Politics.war_state_support(c)), roundi(ws * 100), roundi(Diplomacy.capitulation_threshold(c) * 100)]
 	_cell_of(_manpower).tooltip_text = tr("TIP_MANPOWER") % [UiTheme.format_number(c.recruitable_manpower()), Economy.law_name("conscription", c.laws["conscription"])]
 	_manpower.text = UiTheme.format_number(c.recruitable_manpower())
-	_factories.text = "%d / %d" % [Economy.count(c, "civilian_factory"), Economy.count(c, "military_factory")]
-	var tip := tr("UI_FACTORIES_TIP") + "\n" + tr("CONSTRUCTION_SUMMARY") % [Economy.count(c, "civilian_factory"), Economy.consumer_goods_factories(c), Economy.available_civilian(c)]
+	# sanayi puanı (SP): asker alma ve keşif parası; fabrikalar sabit, sayıları değil SP gösterilir
+	var inc := Military.sp_income(c)
+	_factories.text = "%d  +%d" % [int(c.sp), roundi(inc)]
+	var tip := tr("TIP_SP") % [int(c.sp), roundi(inc), Economy.count(c, "military_factory"), Economy.count(c, "civilian_factory")]
 	tip += "\n" + Economy.building_name("dockyard") + ": %d" % Economy.count(c, "dockyard")
 	for r: String in Economy.resource_names:
 		var n := Economy.resource_total(c, r)
 		if n > 0:
 			tip += "\n%s: %d" % [tr("RES_" + r), n]
 	_cell_of(_factories).tooltip_text = tip
-	var fcap := maxf(c.fuel_cap, 1.0)
+	# depo sığası günlük hesaplanır; henüz hesaplanmadıysa (eski kayıt, ilk gün) eldeki yakıt dolu sayılır
+	var fcap := c.fuel_cap if c.fuel_cap > 0.0 else maxf(c.fuel, 1.0)
 	_fuel.text = "%d%%" % roundi(maxf(c.fuel, 0.0) / fcap * 100.0)
 	_set_bar(ResourceIcon.Kind.FUEL, maxf(c.fuel, 0.0) / fcap)
 	_fuel.add_theme_color_override("font_color", Color(0.95, 0.4, 0.3) if c.fuel <= fcap * 0.1 and c.fuel >= 0.0 else UiTheme.TEXT)
@@ -369,9 +383,15 @@ func _update_country() -> void:
 
 func _update_date() -> void:
 	_date.text = GameClock.date_string()
+	_update_scenario()
+
+## Senaryo satırı: senaryolarda süre olmadığı için şimdilik gösterilmez (yeri hazır)
+func _update_scenario() -> void:
+	_scen.visible = false
 
 func _update_time_state() -> void:
 	for i in _pips.size():
 		var on := i < GameClock.speed
 		_pips[i].color = UiTheme.ACCENT if on else Color(1, 1, 1, 0.12)
+
 	_pause_btn.icon = UiTheme.trimmed(UiTheme.icon("play" if GameClock.paused else "pause"))

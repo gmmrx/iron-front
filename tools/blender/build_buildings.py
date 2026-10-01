@@ -370,8 +370,7 @@ def arrange_library(made):
 
 def add_review_assets():
     """Tam şehir dioramaları ve stratejik yapıları QA sahnesine ekler."""
-    review_specs = [(OUT / "airbase.glb", Vector((-2.0, -6.7, 0.0))),
-                    (OUT / "trees.glb", Vector((2.0, -6.7, 0.0)))]
+    review_specs = [(OUT / "airbase.glb", Vector((-2.0, -6.7, 0.0)))]
     sizes = ("town", "medium", "large", "capital")
     for row, style in enumerate(STYLES):
         for col, size in enumerate(sizes):

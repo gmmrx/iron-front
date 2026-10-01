@@ -14,6 +14,7 @@ func player_tag() -> String:
 func _begin() -> void:
 	_failures.clear()
 	_warnings.clear()
+	Military.fog_enabled = false            # savaş sisi yalnız kendi testinde (test_fog.gd açar)
 
 # ------------------------------------------------------------------ doğrulamalar
 func fail(msg: String) -> bool:

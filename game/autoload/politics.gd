@@ -294,6 +294,15 @@ func _apply(c: Country, e: Dictionary, from_tag: String) -> void:
 						World.transfer_state(city.state_id, to)
 				World.flush_ownership()
 				_news("NEWS_CEDE", [c.tag, to])
+			"cede_state_to":
+				# şehri olmayan eyalet (Sortavala, Petsamo): adıyla, yalnız bu ülkenin elindeyse
+				var to3 := _resolve(v["to"], from_tag, c)
+				for sid: int in World.states:
+					var st: StateRegion = World.states[sid]
+					if st.owner == c.tag and (st.name == v["state"] or st.names.values().has(v["state"])):
+						World.transfer_state(sid, to3)
+				World.flush_ownership()
+				_news("NEWS_CEDE", [c.tag, to3])
 			"create_faction": Diplomacy.create_faction(c.tag)
 			"join_faction": Diplomacy.join_faction(c.tag, _resolve(v, from_tag, c))
 			"invite": fire_event(World.countries[_resolve(v, from_tag, c)], "faction_invite", c.tag)
@@ -365,7 +374,7 @@ func _cede_border(c: Country, to: String) -> void:
 func fire_event(target: Country, id: String, from_tag: String) -> void:
 	if target == null or not target.exists() or not events.has(id):
 		return
-	if target.tag == World.player_tag and World.in_game:
+	if target.tag == World.player_tag and World.in_game and not Game.observer:
 		pending_events.append({"id": id, "from": from_tag})
 		event_fired.emit(target.tag, id, from_tag)
 	else:
@@ -574,7 +583,7 @@ func _elections() -> void:
 			World.world_event("politics", "NEWS_ELECTION_CHANGE", ["@" + c.tag, "#IDEOLOGY_" + winner], [c.tag], World.capital_province(c.tag))
 		elif c.tag == World.player_tag:
 			World.notify(tr("NEWS_ELECTION_HOLD") % c.display_name(), "good")
-		if c.tag == World.player_tag and World.in_game:
+		if c.tag == World.player_tag and World.in_game and not Game.observer:
 			pending_events.append({"id": "election", "from": c.tag})
 			event_fired.emit(c.tag, "election", c.tag)
 		politics_changed.emit(c.tag)
@@ -616,6 +625,7 @@ func describe_effects(effects: Array, from_tag := "") -> String:
 				"annexed_by": t = tr("EFF_ANNEXED_BY") % _cname(_resolve(v, from_tag, World.player()))
 				"cede_border_to": t = tr("EFF_CEDE_BORDER") % _cname(_resolve(v, from_tag, World.player()))
 				"cede_city_to": t = tr("EFF_CEDE_CITY") % [v["city"], _cname(_resolve(v["to"], from_tag, World.player()))]
+				"cede_state_to": t = tr("EFF_CEDE_CITY") % [v["state"], _cname(_resolve(v["to"], from_tag, World.player()))]
 				"give_war_goal": t = tr("EFF_GIVE_WAR_GOAL") % _cname(_resolve(v, from_tag, World.player()))
 				"create_faction": t = tr("EFF_CREATE_FACTION")
 				"join_faction": t = tr("EFF_JOIN_FACTION") % _cname(_resolve(v, from_tag, World.player()))

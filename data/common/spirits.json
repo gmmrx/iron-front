@@ -1131,6 +1131,18 @@
    "communism": 0.1,
    "fascism": 0.1,
    "neutrality": 0.6
+  },
+  "DNZ": {
+   "democratic": 0.34,
+   "communism": 0.03,
+   "fascism": 0.59,
+   "neutrality": 0.04
+  },
+  "TNG": {
+   "democratic": 0.2,
+   "communism": 0.1,
+   "fascism": 0.1,
+   "neutrality": 0.6
   }
  },
  "factions": {

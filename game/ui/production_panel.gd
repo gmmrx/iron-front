@@ -182,6 +182,10 @@ func _row(c: Country, i: int) -> void:
 			rl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			fac.add_child(rl)
 	col.add_child(fac)
+	var gap := Control.new()                 # çubuğun üstünde biraz boşluk (simgelere yapışmasın)
+	gap.custom_minimum_size.y = 6
+	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(gap)
 	col.add_child(PanelLayout.progress(l.efficiency / float(Economy.prod["efficiency_cap"]), Color("7fb0d9"), 6.0))
 	if short:
 		var need := Economy.line_resource_need(l)
@@ -192,16 +196,22 @@ func _row(c: Country, i: int) -> void:
 		warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		warn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		col.add_child(warn)
+	# sağda: fabrika sayısı (− sayı +) ve ayrı duran sil düğmesi; satırın dikeyde ortasında
 	var ctl := HBoxContainer.new()
-	ctl.add_theme_constant_override("separation", 0)
-	ctl.add_child(UiTheme.icon_button("minus", tr("TIP_LINE_MINUS"), func() -> void: Economy.set_line_factories(c, i, l.factories - 1), 26))
-	var n := UiTheme.make_label("%d" % l.factories, 18)
+	ctl.add_theme_constant_override("separation", 4)
+	ctl.alignment = BoxContainer.ALIGNMENT_CENTER
+	ctl.add_child(UiTheme.icon_button("minus", tr("TIP_LINE_MINUS"), func() -> void: Economy.set_line_factories(c, i, l.factories - 1), 28))
+	var n := UiTheme.make_label("%d" % l.factories, 20)
 	n.add_theme_font_override("font", UiTheme.bold_font())
-	n.custom_minimum_size.x = 26
+	n.custom_minimum_size = Vector2(36, 28)
 	n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	n.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	n.tooltip_text = tr("TIP_LINE_FACTORIES")
 	n.mouse_filter = Control.MOUSE_FILTER_STOP
 	ctl.add_child(n)
-	ctl.add_child(UiTheme.icon_button("plus", tr("TIP_LINE_PLUS"), func() -> void: Economy.set_line_factories(c, i, l.factories + 1), 26))
-	ctl.add_child(UiTheme.icon_button("close", tr("TIP_LINE_REMOVE"), func() -> void: Economy.remove_line(c, i), 26))
+	ctl.add_child(UiTheme.icon_button("plus", tr("TIP_LINE_PLUS"), func() -> void: Economy.set_line_factories(c, i, l.factories + 1), 28))
+	var sep := Control.new()
+	sep.custom_minimum_size.x = 14
+	ctl.add_child(sep)
+	ctl.add_child(UiTheme.icon_button("close", tr("TIP_LINE_REMOVE"), func() -> void: Economy.remove_line(c, i), 28))
 	PanelLayout.row_action(col, ctl)

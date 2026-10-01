@@ -1,0 +1,7 @@
+{
+ "_comment": "İkinci Dünya Savaşı'na katılan ülkeler: yalnız bunlar oynanabilir ve hareket eder (yapay zekâ, ordu, filo, kanat, savaş). Listede olmayanlar tarafsızdır: haritada durur, ticaret yapar ama birliği yoktur, kimse onlara savaş açamaz, onlar da açamaz. Ölçüt: 1936-1945 arasında savaşa fiilen girmiş ya da topraklarında savaşılmış ülke (Avrupa, Asya, Afrika); Latin Amerika'nın uzak katılımcıları (Brezilya, Meksika) dışarıda. Türkiye Şubat 1945'te savaşa girdi.",
+ "active": ["GER", "ITA", "JAP", "HUN", "ROM", "BUL", "FIN", "MAN", "SIA",
+            "ENG", "FRA", "SOV", "USA", "CHI", "PRC", "GXC", "SHX", "YUN", "XSM", "SIK", "MON",
+            "POL", "CZE", "AUS", "DNZ", "YUG", "GRE", "ALB", "HOL", "BEL", "LUX", "NOR", "DEN", "EST", "LAT", "LIT",
+            "CAN", "AST", "NZL", "SAF", "RAJ", "PHI", "IRQ", "PER", "ETH", "TUR"]
+}

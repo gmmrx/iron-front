@@ -32,7 +32,7 @@ IDEOLOGY = {
     "POL": "neutrality", "POR": "neutrality", "XSM": "neutrality", "ROM": "democratic", "SAU": "neutrality", "SHX": "neutrality",
     "SIA": "neutrality", "SIK": "communism", "SAF": "democratic", "SPR": "democratic", "SWE": "democratic", "SWI": "democratic",
     "TAN": "communism", "TIB": "neutrality", "TUR": "neutrality", "URU": "democratic", "VEN": "fascism", "YEM": "neutrality",
-    "YUG": "neutrality", "YUN": "neutrality",
+    "YUG": "neutrality", "YUN": "neutrality", "DNZ": "fascism", "TNG": "neutrality",
 }
 
 # ------------------------------------------------------------------ lider, parti, popülerlik, hedefler
@@ -60,6 +60,9 @@ GOV = {
     "CZE": dict(leader="Milan Hodža", party=("Broad Coalition", "Geniş Koalisyon"), pop=(71, 12, 3, 14), stab=0.50, ws=0.30,
                 elections=(60, "1940-05-01")),
     "YUG": dict(leader="Prince Paul", party=("Regency Council", "Naiplik Konseyi"), pop=(15, 15, 10, 60), stab=0.35, ws=0.20),
+    # Danzig: Nisan 1935 Volkstag seçimi (NSDAP %59); Tanca: Kontrol Komitesi ve İdareci (uluslararası yönetim)
+    "DNZ": dict(leader="Arthur Greiser", party=("NSDAP", "NSDAP"), pop=(34, 3, 59, 4), stab=0.60, ws=0.30),
+    "TNG": dict(leader="Joseph Le Fur", pop=(20, 10, 10, 60), stab=0.70, ws=0.05),
 }
 DEFAULT_POP = {"democratic": (70, 10, 10, 10), "communism": (5, 85, 5, 5), "fascism": (10, 5, 70, 15), "neutrality": (20, 10, 10, 60)}
 DEM_ELECTIONS = 48    # varsayılan: demokrasiler 4 yılda bir, ilk seçim 1937-06

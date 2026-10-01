@@ -1135,9 +1135,9 @@ def city_size(c):
     return "large" if c["vp"] >= 10 else "medium" if c["vp"] >= 3 else "town"
 
 
-def build_biome_and_trees(rgb, ne1, elev, lat, land, hab, cities, rng):
-    """biome.png (yarım çözünürlük, RGBA = orman, tarla, çöl, bozkır) ve trees.bin (x, z, ölçek, tür)."""
-    log("biyom haritası ve ağaçlar")
+def build_biome(rgb, ne1, lat, land, hab):
+    """biome.png (yarım çözünürlük, RGBA = orman, tarla, çöl, bozkır). Haritada ağaç yok: arazi düz boyalı."""
+    log("biyom haritası")
     green = rgb[..., 1] - rgb[..., 0]
     forest = np.clip((ne1[..., 1] - np.maximum(ne1[..., 0], ne1[..., 2]) - 6.0) / 12.0, 0, 1)
     desert = np.clip((-green - 2.0) / 10.0, 0, 1) * (np.abs(lat) < 44)
@@ -1146,39 +1146,6 @@ def build_biome_and_trees(rgb, ne1, elev, lat, land, hab, cities, rng):
     w = [ndimage.gaussian_filter(np.where(land, a, 0).astype(np.float32), 1.5) for a in (forest, farm, desert, steppe)]
     half = [a[: H // 2 * 2, : W // 2 * 2].reshape(H // 2, 2, W // 2, 2).mean((1, 3)) for a in w]
     Image.fromarray(np.clip(np.stack(half, -1) * 255, 0, 255).astype(np.uint8), "RGBA").save(OUT / "biome.png")
-
-    # ağaçlar: titreşimli ızgara; olasılık orman ağırlığına (tarlada çit ağaçları) bağlı
-    step = 2.0
-    gy, gx = np.mgrid[0:H:step, 0:W:step]
-    px = (gx + rng.random(gx.shape) * step).ravel()
-    py = (gy + rng.random(gy.shape) * step).ravel()
-    ix = np.clip(px.astype(int), 0, W - 1)
-    iy = np.clip(py.astype(int), 0, H - 1)
-    f = w[0][iy, ix]
-    # kümelenme: orman içinde açıklıklar, ağaçlar gruplar halinde
-    clump = smooth_noise((H // 4 + 1, W // 4 + 1), 2.0, rng)[iy // 4, ix // 4]
-    cl = np.clip(0.75 + clump * 0.45, 0, 1)
-    prob = np.clip(f, 0, 1) ** 1.3 * cl + w[1][iy, ix] * 0.006 * (clump > 0.8) * 6 + np.clip(1 - f - w[1][iy, ix] - w[2][iy, ix] - w[3][iy, ix], 0, 1) * 0.02 * cl
-    # uzak bölgelerde seyrek (performans): yoğunluk / bölge çarpanı
-    tf = theater(np.asarray(unproject(px, py)[0]), ROW_LAT[iy])
-    prob = prob / np.maximum(tf, 1.0) ** 0.9
-    keep = land[iy, ix] & (rng.random(px.shape) < prob) & (elev[iy, ix] < 2600)
-    # şehirlerin altı boş
-    city_mask = Image.new("L", (W, H), 0)
-    cdraw = ImageDraw.Draw(city_mask)
-    for c in cities:
-        r = CITY_FOOTPRINT[city_size(c)] * 1.15
-        cdraw.ellipse([c["pos"][0] - r, c["pos"][1] - r, c["pos"][0] + r, c["pos"][1] + r], fill=255)
-    keep &= np.asarray(city_mask)[iy, ix] == 0
-    px, py = px[keep], py[keep]
-    la = lat[iy[keep], ix[keep]]
-    el = elev[iy[keep], ix[keep]]
-    conifer_p = np.clip((np.abs(la) - 50.0) / 10.0, 0, 1) * 0.8 + np.clip((el - 700.0) / 900.0, 0, 1) * 0.7
-    kind = (rng.random(px.shape) < conifer_p).astype(np.float32)          # 0 yaprak döken, 1 iğne yapraklı
-    kind += rng.integers(0, 3, px.shape) * 2                                # 3 varyant: tür = varyant*2 + iğne
-    scale = rng.uniform(0.75, 1.3, px.shape) * np.where(w[0][iy[keep], ix[keep]] > 0.4, 1.0, 0.8)
-    np.stack([px, py, scale, kind], 1).astype("<f4").tofile(OUT / "trees.bin")
-    log(f"  {len(px)} ağaç")
 
 
 # ---------------------------------------------------------------- ana akış
@@ -1401,7 +1368,7 @@ def main():
         city_out.append({"id": i, "name": c["name"], "names": c["names"], "province": c["province"], "state": c["state"],
                          "pos": c["pos"], "pop": c["pop"], "vp": c["vp"], "capital": c["capital"], "port": c["port"], "style": c["style"]})
     json.dump({"cities": city_out}, open(OUT / "cities.json", "w"), ensure_ascii=False, indent=0)
-    build_biome_and_trees(rgb, ne1, elev, lat, land, hab, city_out, rng)
+    build_biome(rgb, ne1, lat, land, hab)
 
     meta = {"width": W, "height": H, "km_per_px": KM_PER_PX, "heightmap_size": [W // 2, H // 2],
             "projection": {"type": "miller", "lon_min": LON_MIN, "lat_top": LAT_TOP, "lat_bot": LAT_BOT,

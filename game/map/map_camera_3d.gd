@@ -22,6 +22,16 @@ var _fit_vp := Vector2.ZERO
 var edge_pan_enabled := true
 var input_locked := false            ## tam ekran panel açıkken tuşla da kaydırma yok
 var target := Vector3.ZERO
+## Kaydırma (tuş, kenar, sürükleme) doğrudan kamerayı değil hedefini oynatır; kamera ona yumuşakça gelir, sürükleme
+## bırakılınca sürtünmeyle süzülür (araştırma ağacındaki gibi). Kodun target'ı doğrudan değiştirmesi de geçerlidir.
+const PAN_SMOOTHING := 12.0
+const DRAG_SMOOTHING := 22.0         ## sürüklerken imleci sıkı izler
+const GLIDE_FRICTION := 5.0
+var _goal := Vector3.ZERO
+var _target_prev := Vector3.ZERO     ## son karede kameranın bıraktığı target (başka kod değiştirdiyse hedef ona uyar)
+var _vel := Vector2.ZERO             ## süzülme hızı (dünya birimi / sn)
+var _dragging := false
+var _drag_us := 0
 var distance := 1400.0
 var _target_distance := 1400.0
 var _zoom_anchor_screen := Vector2.ZERO
@@ -42,21 +52,40 @@ func focus_on(world_xz: Vector2, new_distance: float = -1.0) -> void:
 		distance = clampf(new_distance, MIN_DIST, MAX_DIST)
 		_target_distance = distance
 	_clamp_target()
+	_goal = target
+	_target_prev = target
+	_vel = Vector2.ZERO
 	_apply()
 
 func zoom_at(screen_pos: Vector2, steps: float) -> void:
 	_zoom_anchor_screen = screen_pos
 	_target_distance = clampf(_target_distance / pow(ZOOM_STEP, steps), MIN_DIST, MAX_DIST)
 
-## Sürükleme: imlecin altındaki zemin noktası imleçle birlikte hareket eder.
+## Sürükleme: imlecin altındaki zemin noktası imleçle birlikte hareket eder (kamera sıkı ama yumuşak izler)
 func drag(from_screen: Vector2, to_screen: Vector2) -> void:
 	var a = ground_point(from_screen)
 	var b = ground_point(to_screen)
 	if a == null or b == null:
 		return
-	target += Vector3(a.x - b.x, 0, a.z - b.z)
-	_clamp_target()
-	_apply()
+	var d := Vector3(a.x - b.x, 0, a.z - b.z)
+	_goal = _clamped(_goal + d)
+	var now := Time.get_ticks_usec()
+	var dt := float(now - _drag_us) / 1e6
+	_drag_us = now
+	if _dragging:
+		# bırakınca süzülme hızı: son hareketlerin ortalaması
+		_vel = _vel.lerp(Vector2(d.x, d.z) / maxf(dt, 1.0 / 240.0), 0.5) if dt < 0.1 else Vector2.ZERO
+
+## Fareyle sürükleme başlar / biter (bırakınca harita süzülür; durup bıraktıysa süzülmez)
+func begin_drag() -> void:
+	_dragging = true
+	_vel = Vector2.ZERO
+	_drag_us = Time.get_ticks_usec()
+
+func end_drag() -> void:
+	_dragging = false
+	if float(Time.get_ticks_usec() - _drag_us) / 1e6 > 0.08:
+		_vel = Vector2.ZERO
 
 ## Ekran pikseli / dünya birimi (hedef noktada) — ad katmanı ölçeği için
 func view_scale() -> float:
@@ -81,11 +110,29 @@ func _process(delta: float) -> void:
 			elif m.x >= vp.x - EDGE_MARGIN: dir.x += 1
 			if m.y <= EDGE_MARGIN: dir.y -= 1
 			elif m.y >= vp.y - EDGE_MARGIN: dir.y += 1
+	if target != _target_prev:
+		_goal = target                  # başka kod kamerayı taşıdı: hedef de oraya
+		_vel = Vector2.ZERO
 	if dir != Vector2.ZERO:
 		var world_per_screen := 1.0 / view_scale()
 		var step := dir.normalized() * PAN_SPEED * vp.y * world_per_screen * delta
-		target += Vector3(step.x, 0, step.y)
+		_goal = _clamped(_goal + Vector3(step.x, 0, step.y))
+		_vel = Vector2.ZERO
+	if not _dragging and _vel.length() > 1.0:
+		_goal = _clamped(_goal + Vector3(_vel.x, 0, _vel.y) * delta)
+		_vel *= exp(-GLIDE_FRICTION * delta)
+	elif not _dragging:
+		_vel = Vector2.ZERO
+	var dg := _goal - target
+	if World.wraps:
+		dg.x = wrapf(dg.x, -map_size.x * 0.5, map_size.x * 0.5)
+	if dg.length_squared() > 1e-6:
+		var recent := float(Time.get_ticks_usec() - _drag_us) / 1e6 < 0.12
+		var k := 1.0 - exp(-(DRAG_SMOOTHING if _dragging or recent else PAN_SMOOTHING) * delta)
+		target += dg if dg.length() < 0.02 else dg * k
 		_clamp_target()
+		if World.wraps:
+			_goal.x = target.x + wrapf(_goal.x - target.x, -map_size.x * 0.5, map_size.x * 0.5)
 
 	if absf(distance - _target_distance) > 0.01:
 		var anchor = ground_point(_zoom_anchor_screen)
@@ -95,9 +142,12 @@ func _process(delta: float) -> void:
 		_apply()
 		var after = ground_point(_zoom_anchor_screen)
 		if anchor != null and after != null:
-			target += Vector3(anchor.x - after.x, 0, anchor.z - after.z)
+			var za := Vector3(anchor.x - after.x, 0, anchor.z - after.z)
+			target += za
+			_goal = _clamped(_goal + za)     # kaydırma sürerken de imlecin altındaki nokta yerinde kalır
 		_clamp_target()
 	_apply()
+	_target_prev = target
 
 func _pitch() -> float:
 	return _pitch_for(distance)
@@ -110,16 +160,20 @@ func _apply() -> void:
 
 ## Görüş alanı haritadan taşmasın: ekran köşelerinin zemindeki izdüşümü (hedefe göre) harita içinde kalır
 func _clamp_target() -> void:
+	target = _clamped(target)
+
+func _clamped(v: Vector3) -> Vector3:
 	var e := _extents(distance, get_viewport().get_visible_rect().size)
 	var lo := Vector2(-e.position.x, -e.position.y)
 	var hi := Vector2(map_size.x - e.end.x, map_size.y - e.end.y)
 	if World.wraps:
 		# doğu-batı sarmalanır: kenarda durmaz, dikişten öbür tarafa geçer (harita kopyası kenarı doldurur)
-		if target.x < 0.0 or target.x >= map_size.x:
-			target.x = fposmod(target.x, map_size.x)
+		if v.x < 0.0 or v.x >= map_size.x:
+			v.x = fposmod(v.x, map_size.x)
 	else:
-		target.x = clampf(target.x, lo.x, hi.x) if lo.x <= hi.x else map_size.x * 0.5
-	target.z = clampf(target.z, lo.y, hi.y) if lo.y <= hi.y else map_size.y * 0.5
+		v.x = clampf(v.x, lo.x, hi.x) if lo.x <= hi.x else map_size.x * 0.5
+	v.z = clampf(v.z, lo.y, hi.y) if lo.y <= hi.y else map_size.y * 0.5
+	return v
 
 func _pitch_for(d: float) -> float:
 	var t := sqrt(clampf(inverse_lerp(MIN_DIST, MAX_DIST_EUROPE, d), 0.0, 1.0))

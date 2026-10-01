@@ -1,6 +1,6 @@
 extends Node
 ## Hava kuvvetleri: hava kanatları hava üslerine konuşlanır; görev bölgesinde (menzil içinde) hava üstünlüğü,
-## yakın hava desteği ya da liman baskını yapar. Günlük hava muharebesi (it dalaşı, uçaksavar), bölgesel hava
+## yakın hava desteği, liman baskını ya da bombardıman yapar. Günlük hava muharebesi (it dalaşı, uçaksavar), bölgesel hava
 ## üstünlüğü kara muharebesine etki eder. Oyuncunun kanatları isterse yapay zekâya bırakılabilir.
 
 signal wings_changed
@@ -16,12 +16,24 @@ const MAX_WINGS := 40
 static func wing_cap(c: Country) -> int:
 	return clampi(Economy.count(c, "military_factory") / 3, MIN_WINGS, MAX_WINGS)
 const WING_SIZE := 100
-## air: hava saldırısı, def: hava savunması, ground: kara desteği, range: km
+## air: hava saldırısı, def: hava savunması, ground: kara desteği, bomb: fabrikaya bombardıman, range: km
+## bomb: taktik bombardıman uçağı işin asıl sahibi (1); yakın destek uçağı küçük yük taşır (0,3); avcı bomba taşımaz
 const TYPES := {
-	"fighter": {"eq": "fighter_equipment", "air": 3.0, "def": 1.2, "ground": 0.15, "range": 900.0},
-	"cas": {"eq": "cas_equipment", "air": 0.6, "def": 0.8, "ground": 1.0, "range": 500.0},
-	"bomber": {"eq": "tactical_bomber_equipment", "air": 0.8, "def": 1.4, "ground": 0.8, "range": 900.0},
+	"fighter": {"eq": "fighter_equipment", "air": 3.0, "def": 1.2, "ground": 0.15, "bomb": 0.0, "range": 900.0},
+	"cas": {"eq": "cas_equipment", "air": 0.6, "def": 0.8, "ground": 1.0, "bomb": 0.3, "range": 500.0},
+	"bomber": {"eq": "tactical_bomber_equipment", "air": 0.8, "def": 1.4, "ground": 0.8, "bomb": 1.0, "range": 900.0},
 }
+
+## Bombardıman: BOMBING görevindeki kanat, görev bölgesinin eyaletindeki (düşman toprağı) fabrikaları vurur. Günlük
+## hasar = uçak × bomba gücü × BOMB_DMG × hava üstünlüğü payı × (1 − 0,1 × uçaksavar seviyesi); eyalet hasarı en çok
+## BOMB_MAX. Hedef ülkenin savaş desteği uçak × bomba gücü × BOMB_MORALE × üstünlük kadar düşer. Hasar her gün
+## BOMB_REPAIR onarılır. Neden bu sayılar: karşı koymasız 100 uçaklık tam kanat günde %3 hasar verir, onarım %1 → bir
+## ayda eyalet sanayisinin yarıdan fazlası durur; akın bitince iki ayda onarılır. Savaş desteği tam kanatla ayda ~%3
+## düşer: halkı yıldırmak için birkaç kanat ve aylar gerekir.
+const BOMB_DMG := 0.0003
+const BOMB_MAX := 0.8
+const BOMB_REPAIR := 0.01
+const BOMB_MORALE := 0.00001
 
 var wings: Array[AirWing] = []
 var fights: Dictionary = {}            ## bölge merkezi pid -> {"pos": Vector2, "intensity": float, "tags": [..]}
@@ -38,6 +50,8 @@ func reset() -> void:
 	fights.clear()
 	_bonus_cache.clear()
 	_next_id = 1
+	for st: StateRegion in World.states.values():
+		st.damage = 0.0
 	for c: Country in World.countries.values():
 		if c.exists():
 			_absorb(c)
@@ -105,7 +119,7 @@ func deploy(c: Country, type: String, base: int, n: int = WING_SIZE) -> AirWing:
 	for o in wings:
 		if o.owner == c.tag and o.type == type:
 			k += 1
-	w.name = tr("WING_NAME_" + type) % k
+	w.name = UnitNames.name_of(c.tag, "wing_" + type, k)
 	wings.append(w)
 	_dirty = true
 	wings_changed.emit()
@@ -132,7 +146,7 @@ func reinforce(w: AirWing) -> void:
 
 ## Üretimden (stok) uçaklar kanatlara: dolmayan kanat varsa tamamlanır, yoksa yeni kanat (AI; oyuncu elle konuşlandırır)
 func _absorb(c: Country) -> void:
-	if World.in_game and c.tag == World.player_tag:
+	if World.in_game and c.tag == World.player_tag and not Game.observer:
 		return
 	for t: String in TYPES:
 		var eq: String = TYPES[t]["eq"]
@@ -173,7 +187,7 @@ func _absorb(c: Country) -> void:
 			for o in wings:
 				if o.owner == c.tag and o.type == t:
 					k += 1
-			w.name = tr("WING_NAME_" + t) % k
+			w.name = UnitNames.name_of(c.tag, "wing_" + t, k)
 			wings.append(w)
 			n -= w.planes
 		_dirty = true
@@ -229,6 +243,8 @@ func set_mission(w: AirWing, m: AirWing.Mission, zone: int = -1) -> bool:
 	if zone >= 0:
 		if zone > 0 and not in_range(w, zone):
 			return false
+		if m == AirWing.Mission.BOMBING and zone > 0 and bomb_target_error(w, zone) != "":
+			return false
 		w.zone = zone
 	w.mission = m
 	if m == AirWing.Mission.IDLE:
@@ -247,6 +263,67 @@ func rebase(w: AirWing, sid: int) -> bool:
 	_dirty = true
 	return true
 
+## Bombardıman hedefi uygun mu: "" ya da hata anahtarı (bomba taşımayan tür / düşman kara eyaleti değil)
+func bomb_target_error(w: AirWing, pid: int) -> String:
+	if float(TYPES[w.type]["bomb"]) <= 0.0:
+		return "AIR_ERR_NO_BOMBS"
+	var st := World.state_of_province(pid)
+	if st == null or not World.province(pid).is_land() or not Diplomacy.are_enemies(st.owner, w.owner):
+		return "AIR_ERR_BOMB_TARGET"
+	return ""
+
+## Oyuncunun seçtiği bölgeye görev (hava panelinde önce bölge, sonra görev): kanadın üssü menzildeyse orada kalır,
+## değilse bölgeye en yakın, menzili yeten kendi hava üssüne geçer; hiçbiri yetmiyorsa hata anahtarı döner
+func assign(w: AirWing, pid: int, m: AirWing.Mission) -> String:
+	if m == AirWing.Mission.BOMBING:
+		var err := bomb_target_error(w, pid)
+		if err != "":
+			return err
+	var c: Country = World.countries.get(w.owner)
+	if m == AirWing.Mission.RECON and c and c.sp < recon_cost():
+		return "RECON_ERR_SP"
+	if not in_range(w, pid):
+		var best := base_for(w, pid)
+		if best == 0:
+			return "AIR_ERR_RANGE"
+		w.base = best
+	w.auto = false
+	set_mission(w, m, pid)
+	if m == AirWing.Mission.RECON and c:
+		# keşif uçuşu: bedeli öder, recon_days gün sonra kanat boşa döner (keşfedilen yer kalıcı)
+		c.sp -= recon_cost()
+		w.recon_until = World.day_count + int(Military.recruit_def()["recon_days"])
+		Military.sp_changed.emit()
+	return ""
+
+## Bir noktaya en yakın kendi hava üssü (0: yok)
+func base_for_point(tag: String, at: Vector2) -> int:
+	var best := 0
+	var bd := INF
+	for sid in bases_of(tag):
+		var d := distance_km(base_pos(sid), at)
+		if d < bd:
+			bd = d
+			best = sid
+	return best
+
+## Keşif uçuşunun SP bedeli ve süresi (data/common/recruit.json)
+func recon_cost() -> float:
+	return float(Military.recruit_def()["recon_sp"])
+
+## Kanadın bu bölgeye uçabileceği, bölgeye en yakın kendi hava üssü (0: yok)
+func base_for(w: AirWing, pid: int) -> int:
+	var at := World.province(pid).center
+	var rng := float(TYPES[w.type]["range"])
+	var best := 0
+	var bd := INF
+	for sid in bases_of(w.owner):
+		var d := distance_km(base_pos(sid), at)
+		if d <= rng and d < bd:
+			bd = d
+			best = sid
+	return best
+
 ## Oyuncunun haritadaki emri: kendi hava üssü olan eyalet -> üs değiştir; başka yer -> görev bölgesi
 func order(w: AirWing, pid: int) -> String:
 	var st := World.state_of_province(pid)
@@ -257,6 +334,10 @@ func order(w: AirWing, pid: int) -> String:
 	var m := w.mission
 	if m == AirWing.Mission.IDLE:
 		m = AirWing.Mission.SUPERIORITY if w.type == "fighter" else AirWing.Mission.CAS
+	if m == AirWing.Mission.BOMBING:
+		var err := bomb_target_error(w, pid)
+		if err != "":
+			return err
 	w.auto = false
 	set_mission(w, m, pid)
 	return ""
@@ -319,6 +400,7 @@ func _on_day() -> void:
 			_absorb(c)
 	_air_combat()
 	_port_strikes()
+	_bombing()
 	for c: Country in World.countries.values():
 		if c.exists() and (World.day_count + c.index) % 3 == 0:
 			_ai(c)
@@ -434,6 +516,73 @@ func _port_strikes() -> void:
 			var dmg := w.planes * float(TYPES[w.type]["ground"]) * 0.02 * sup * randf_range(0.6, 1.4)
 			Navy.air_damage(f, dmg)
 
+## Keşif: RECON görevindeki kanatların (tag ya da müttefiklerinin) bölgeleri — görev merkezinden ZONE_KM içindeki
+## bütün bölgeler. Savaş sisini açar (Military._ensure_fog).
+func recon_provinces(tag: String) -> Array[int]:
+	var out: Array[int] = []
+	for w in wings:
+		if w.mission != AirWing.Mission.RECON or not w.on_mission():
+			continue
+		if w.owner != tag and not Diplomacy.are_allies(w.owner, tag):
+			continue
+		var center := World.province(w.zone).center
+		var seen := {w.zone: true}
+		var frontier: Array[int] = [w.zone]
+		while not frontier.is_empty():
+			var cur: int = frontier.pop_back()
+			out.append(cur)
+			for q in World.province(cur).adjacent:
+				if seen.has(q) or World.province(q) == null:
+					continue
+				seen[q] = true
+				if distance_km(World.province(q).center, center) <= ZONE_KM:
+					frontier.append(q)
+	return out
+
+## Günlük bombardıman ve onarım (sabitlerin gerekçesi TYPES'ın altında)
+var bombed_today: Dictionary = {}       ## eyalet id -> bugünkü hasar artışı (görünüm / rapor)
+func _bombing() -> void:
+	bombed_today.clear()
+	for w in wings:
+		if w.mission == AirWing.Mission.RECON and w.recon_until > 0 and World.day_count >= w.recon_until:
+			w.recon_until = 0
+			set_mission(w, AirWing.Mission.IDLE)       # keşif uçuşu bitti: kanat üssüne döner
+	for st: StateRegion in World.states.values():
+		if st.damage > 0.0:
+			st.damage = maxf(st.damage - BOMB_REPAIR, 0.0)
+	var morale := {}
+	for w in wings:
+		if w.mission != AirWing.Mission.BOMBING or not w.on_mission():
+			continue
+		var st := World.state_of_province(w.zone)
+		if st == null or not Diplomacy.are_enemies(st.owner, w.owner):
+			continue
+		# üstünlük payı: düşman avcısı yoksa 1 (kanadın kendisi sayılır), eşitlikte 0,5, düşman hâkimse sıfıra iner
+		var power := w.planes * float(TYPES[w.type]["bomb"]) * superiority(w.zone, w.owner)
+		if power <= 0.0:
+			continue
+		var aa := clampf(1.0 - 0.1 * st.building_level("anti_air"), 0.2, 1.0)
+		var add := minf(power * BOMB_DMG * aa, BOMB_MAX - st.damage)
+		if add > 0.0:
+			st.damage += add
+			bombed_today[st.id] = float(bombed_today.get(st.id, 0.0)) + add
+		morale[st.owner] = float(morale.get(st.owner, 0.0)) + power * BOMB_MORALE
+	for tag: String in morale:
+		var c: Country = World.countries.get(tag)
+		if c:
+			c.war_support = clampf(c.war_support - float(morale[tag]), 0.0, 1.0)
+	if not bombed_today.is_empty():
+		_dirty = true
+		if World.day_count % 7 == 0:
+			_report_bombing()
+
+## Haftalık: oyuncunun bombalanan eyaletleri
+func _report_bombing() -> void:
+	for sid: int in bombed_today:
+		var st: StateRegion = World.states[sid]
+		if st.owner == World.player_tag:
+			World.notify(tr("NOTE_BOMBED") % [st.display_name(), roundi(st.damage * 100.0)], "bad")
+
 # ------------------------------------------------------------------ yapay zekâ
 func _ai(c: Country) -> void:
 	var mine: Array[AirWing] = []
@@ -529,7 +678,7 @@ func to_save() -> Array:
 	var out := []
 	for w in wings:
 		out.append({"id": w.id, "o": w.owner, "n": w.name, "t": w.type, "p": w.planes, "b": w.base,
-			"m": int(w.mission), "z": w.zone, "a": w.auto})
+			"m": int(w.mission), "z": w.zone, "a": w.auto, "ru": w.recon_until})
 	return out
 
 func from_save(arr: Array, next_id: int) -> void:
@@ -538,6 +687,7 @@ func from_save(arr: Array, next_id: int) -> void:
 		var w := AirWing.new()
 		w.id = int(wd["id"]); w.owner = wd["o"]; w.name = wd["n"]; w.type = wd["t"]; w.planes = int(wd["p"])
 		w.base = int(wd["b"]); w.mission = int(wd["m"]) as AirWing.Mission; w.zone = int(wd["z"]); w.auto = bool(wd["a"])
+		w.recon_until = int(wd.get("ru", 0))
 		wings.append(w)
 	_next_id = next_id
 	_bonus_cache.clear()

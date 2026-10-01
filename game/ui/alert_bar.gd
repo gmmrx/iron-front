@@ -35,18 +35,20 @@ func _collect(c: Country) -> Array:
 	var out: Array = []
 	if not Politics.pending_events.is_empty():
 		out.append(["event", "diplomacy", "urgent", tr("ALERT_EVENT"), tr("ALERT_EVENT_D") % Politics.pending_events.size(), func() -> void: hud.events._next()])
-	if c.research_current.size() < c.research_slots:
-		out.append(["research", "research", "urgent", tr("ALERT_RESEARCH"), tr("ALERT_RESEARCH_D") % (c.research_slots - c.research_current.size()), hud.toggle_research])
-	if c.focus_current == "":
-		out.append(["focus", "politics", "urgent", tr("ALERT_FOCUS"), tr("ALERT_FOCUS_D"), hud.toggle_focus])
-	var free_mil := Economy.free_military(c)
-	if free_mil > 0:
-		out.append(["prod", "military_factory", "warn", tr("ALERT_PRODUCTION"), tr("ALERT_PRODUCTION_D") % free_mil, hud.toggle_production])
-	var free_dock := Economy.free_military(c, true)
-	if free_dock > 0:
-		out.append(["dock", "building_dockyard", "warn", tr("ALERT_DOCKYARD"), tr("ALERT_DOCKYARD_D") % free_dock, hud.toggle_production])
-	if c.construction_queue.is_empty():
-		out.append(["build", "construction", "warn", tr("ALERT_CONSTRUCTION"), tr("ALERT_CONSTRUCTION_D"), hud.toggle_construction])
+	# sade oyun (docs/DESIGN.md): araştırma, program, üretim hattı, tersane, inşaat, konvoy, stok uçak ve yakıt uyarıları
+	# yok (o ekranlar menüde değil); yerine asker alma ve boştaki kanat
+	var cheapest := INF
+	for u: Dictionary in Military.recruit_def()["units"].values():
+		cheapest = minf(cheapest, float(u["sp"]))
+	if c.sp >= cheapest:
+		var cap := World.capital_province(c.tag)
+		out.append(["recruit", "army", "info", tr("ALERT_RECRUIT"), tr("ALERT_RECRUIT_D") % int(c.sp), func() -> void: World.select_province(cap)])
+	var idle_wings := 0
+	for w in Air.wings_of(c.tag):
+		if not w.on_mission():
+			idle_wings += 1
+	if idle_wings > 0:
+		out.append(["wings", "air", "info", tr("ALERT_IDLE_WINGS"), tr("ALERT_IDLE_WINGS_D") % idle_wings, hud.toggle_air])
 	var unsup := 0
 	var total := 0
 	for d in Military.country_divisions(c.tag):
@@ -55,14 +57,7 @@ func _collect(c: Country) -> Array:
 			unsup += 1
 	if unsup > 0:
 		out.append(["supply", "army", "urgent", tr("ALERT_SUPPLY"), tr("ALERT_SUPPLY_D") % unsup, hud.toggle_army])
-	if Diplomacy.at_war(c.tag) and Economy.convoy_factor(c) < 0.95:
-		out.append(["convoy", "equipment_convoy", "warn", tr("ALERT_CONVOY"), tr("ALERT_CONVOY_D") % roundi(Economy.convoy_factor(c) * 100.0), hud.toggle_production])
-	var planes := int(c.stockpile.get("fighter_equipment", 0.0)) + int(c.stockpile.get("cas_equipment", 0.0)) + int(c.stockpile.get("tactical_bomber_equipment", 0.0))
-	if planes >= 20:
-		out.append(["planes", "air", "info", tr("ALERT_PLANES"), tr("ALERT_PLANES_D") % planes, hud.toggle_air])
-	if c.fuel >= 0.0 and c.fuel < c.fuel_cap * 0.1:
-		out.append(["fuel", "equipment_convoy", "urgent", tr("ALERT_FUEL"), tr("ALERT_FUEL_D"), hud.toggle_trade])
-	if c.recruitable_manpower() < 20000 and total > 0:
+	if c.available_manpower() < 20000 and total > 0:
 		out.append(["manpower", "manpower", "warn", tr("ALERT_MANPOWER"), tr("ALERT_MANPOWER_D"), hud.toggle_army])
 	if Diplomacy.at_war(c.tag) and c.surrender_progress > 0.2:
 		out.append(["surrender", "battle", "urgent", tr("ALERT_SURRENDER"), tr("ALERT_SURRENDER_D") % roundi(c.surrender_progress * 100.0), hud.toggle_diplomacy])

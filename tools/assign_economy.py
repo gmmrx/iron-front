@@ -27,6 +27,7 @@ COUNTRY_INDUSTRY = {
     "ALB": (1, 0, 0, 1), "SWE": (10, 3, 2, 3), "NOR": (4, 1, 2, 3), "DEN": (4, 1, 1, 4),
     "FIN": (3, 2, 1, 2), "EST": (1, 1, 0, 3), "LAT": (2, 1, 0, 3), "LIT": (1, 1, 0, 2),
     "HOL": (9, 2, 2, 4), "BEL": (9, 3, 1, 4), "LUX": (1, 0, 0, 4), "SWI": (7, 2, 0, 4),
+    "DNZ": (1, 0, 1, 4), "TNG": (1, 0, 0, 3),     # Danzig tersaneleri (Schichau, Danziger Werft); Tanca limanı
     "IRE": (2, 0, 0, 3), "ICE": (1, 0, 0, 2), "PER": (6, 1, 0, 1), "IRQ": (1, 0, 0, 1),
     "SAU": (1, 0, 0, 1), "OMA": (0, 0, 0, 1),
     # dünya (1936 tarihî durumuna yakın)

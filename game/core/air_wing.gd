@@ -2,7 +2,9 @@ class_name AirWing
 extends RefCounted
 ## Hava kanadı: bir hava üssüne (eyalet) konuşlu, tek tür uçaktan oluşan birlik. Görevi bir bölgede (≈350 km) yürütür.
 
-enum Mission { IDLE, SUPERIORITY, CAS, PORT_STRIKE }
+## BOMBING: düşman eyaletinin fabrikalarını ve halkın savaş desteğini vurur (kayıttaki sayılar değişmesin diye sonda)
+## RECON: görev bölgesini savaş sisinden açar (Military.hidden)
+enum Mission { IDLE, SUPERIORITY, CAS, PORT_STRIKE, BOMBING, RECON }
 
 var id: int
 var owner: String
@@ -16,6 +18,7 @@ var auto := true                       ## yapay zekâ yönetsin (oyuncu kapatabi
 var reserve := false                   ## üretimden gelen uçakların toplandığı yedek kanat
 var losses_today := 0.0                ## görünüm / rapor
 var kills_today := 0.0
+var recon_until := 0                   ## keşif uçuşu bu günde (World.day_count) biter, kanat boşa döner
 
 func on_mission() -> bool:
 	return mission != Mission.IDLE and zone > 0 and planes > 0

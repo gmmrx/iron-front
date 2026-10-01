@@ -51,6 +51,7 @@ var decisions_active: Dictionary = {}      ## karar -> bitiş günü (gün sayac
 
 # --- askeri / diplomatik
 var manpower_used := 0                     ## tümenlerde ve kayıplarda kullanılan insan gücü
+var sp := 0.0                              ## sanayi puanı: asker alma ve keşif parası (Military.recruit, data/common/recruit.json)
 var templates: Array = []                  ## [{name, battalions: {tür: adet}}]
 var faction := ""                          ## ittifak adı
 var war_goals: Dictionary = {}             ## hedef tag -> "justifying:gün" | "ready"

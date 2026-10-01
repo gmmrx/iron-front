@@ -75,6 +75,12 @@ UI = {
  "menu_air": "a single-engine propeller fighter plane in flight, menu button for the air force",
  "menu_logistics": "an army supply truck with canvas cover loaded with crates, menu button for logistics",
  "menu_world": "a globe on a brass stand with a folded newspaper leaning on it, menu button for world events",
+ "tip_terrain": "a small relief map fragment with hills and a surveyor's contour line, symbol of terrain",
+ "tip_weather": "a dark storm cloud with slanted rain and a single snowflake over a field, symbol of weather",
+ "tip_movement": "a pair of marching boots on a muddy dirt road with a small forward arrow, symbol of march speed",
+ "tip_attack": "a bayonet rifle pointing forward over a shallow trench line, symbol of attacking a position",
+ "tip_frontage": "a row of small infantry figures standing shoulder to shoulder along a front line, symbol of frontage",
+ "tip_coast": "a rocky shoreline meeting the sea with a small lighthouse, symbol of coasts",
  "battle": "two crossed ivory cavalry sabres with restrained brass hilts, no explosion, battle symbol",
  "map_capital": "capital location blip: one oversized ivory five-point star on an oxblood-red enamel roundel",
  "map_city": "city location blip: three ivory 1930s European town buildings on a dark olive-green enamel roundel",
@@ -257,7 +263,9 @@ EN = {
  "FIN": ("Pehr Evind Svinhufvud", "President of Finland"), "EST": ("Konstantin Päts", "State Elder of Estonia"),
  "LAT": ("Kārlis Ulmanis", "Prime Minister of Latvia"), "LIT": ("Antanas Smetona", "President of Lithuania"),
  "HOL": ("Hendrikus Colijn", "Prime Minister of the Netherlands"), "BEL": ("Paul van Zeeland", "Prime Minister of Belgium"),
- "LUX": ("Joseph Bech", "Prime Minister of Luxembourg"), "SWI": ("Albert Meyer", "President of the Swiss Confederation"),
+ "LUX": ("Joseph Bech", "Prime Minister of Luxembourg"),
+ "DNZ": ("Arthur Greiser", "President of the Senate of the Free City of Danzig"),
+ "TNG": ("Joseph Le Fur", "Administrator of the Tangier International Zone"), "SWI": ("Albert Meyer", "President of the Swiss Confederation"),
  "IRE": ("Éamon de Valera", "President of the Executive Council of Ireland"), "ICE": ("Hermann Jónasson", "Prime Minister of Iceland"),
  "PER": ("Reza Shah Pahlavi", "Shah of Iran"), "IRQ": ("King Ghazi I", "King of Iraq"), "SAU": ("Ibn Saud (King Abdulaziz)", "King of Saudi Arabia"),
  "OMA": ("Said bin Taimur", "Sultan of Muscat and Oman"), "USA": ("Franklin D. Roosevelt", "President of the United States"),
@@ -299,3 +307,74 @@ open("docs/art/ICON_PROMPTS.md", "w", encoding="utf-8").write(
     "Bu dosya `tools/make_icon_prompts.py` ile üretilir (veri değişince yeniden çalıştır).\n" + "".join(out))
 n = sum(1 for l in out if l.startswith("**`"))
 print("docs/art/ICON_PROMPTS.md", n, "öğe")
+
+# ---------------------------------------------------------------- şehir iğnesi ikonları (ayrı dosya)
+# İğnenin ucuna oturan küçük diorama: şehrin önemine göre kademe (CityLayer.tier_of), mimari stile göre bölge.
+# assets/ui/city_pins/city_<stil>_<kademe>.png — stilin dosyası yoksa oyun west'inkini kullanır; başkent ikonu yoksa
+# madalyon, öbür kademelerde fildişi toplu iğne başı.
+STYLE_CITY_PIN = ("Miniature diorama city marker for a WWII-era painted strategy map, like a hand-painted tin wargame "
+                  "token that sits on top of a brass map pin: a tiny cluster of 1930s buildings on a small round earth "
+                  "base with a thin brass rim, seen from a 3/4 top-down view, warm soft light from the upper left, "
+                  "muted painted colours (terracotta, ochre, slate, sage, ivory) with gentle gold highlights, crisp "
+                  "readable silhouette at 40 px, centered, the base touching the bottom edge, transparent background, "
+                  "no text, no letters, no flags with writing, no people, no border, square 1:1, 512x512")
+CITY_STYLES = {
+    "west": "Western/Central European: red and brown tiled pitched roofs, pale plastered walls, gothic church spire",
+    "east": "Eastern European/Russian: timber and whitewashed houses, green and tin roofs, orthodox onion domes",
+    "orient": "Mediterranean/Middle Eastern: flat-roofed whitewashed and sandstone houses, a mosque dome with a slender minaret, palm tree",
+    "nordic": "Scandinavian: steep dark slate roofs, red and ochre timber houses, a white wooden church with a tall steeple",
+}
+CITY_TIERS = {
+    "village": "a village: two or three small cottages and a tiny chapel, a few trees",
+    "town": "a small town: a dozen houses packed together around a church and a market square",
+    "city": "a city: dense blocks of three-storey buildings, a large church or domed temple, a town hall with a clock tower and one factory chimney",
+    "major": "a large industrial city: tightly packed tall buildings, a cathedral, a railway station with a glass roof, two smoking factory chimneys and a river bridge",
+    "capital": "a capital city: grand government palace with a large dome and columns in the centre, monumental avenues, a cathedral, tall city blocks around it and a waving plain flag without symbols",
+}
+pin_out = []
+for st, st_desc in CITY_STYLES.items():
+    pin_out.append(f"\n## {st}\n")
+    for tier, tier_desc in CITY_TIERS.items():
+        name = f"city_{st}_{tier}"
+        pin_out.append(f"**`{name}.png`** — assets/ui/city_pins/\n```\n{tier_desc[0].upper() + tier_desc[1:]}; architecture: "
+                       f"{st_desc}. {STYLE_CITY_PIN}\n```\n")
+open("docs/art/CITY_PIN_PROMPTS.md", "w", encoding="utf-8").write(
+    "# Iron Front — Şehir İğnesi İkonları\n\n"
+    "Bu dosya `tools/make_icon_prompts.py` ile üretilir. Her şehrin iğnesinin ucuna oturan küçük diorama: 5 kademe "
+    "(village < town < city < major < capital; şehrin zafer puanına göre) × 4 mimari stil. Dosyaları "
+    "`assets/ui/city_pins/` içine koy; oyun otomatik kullanır. Önce `west` stilini yapman yeter: bir stilin dosyası "
+    "yoksa oyun `west`'i kullanır, o da yoksa başkentte madalyon, öbürlerinde toplu iğne başı görünür.\n"
+    "Kademeler: capital = başkent (80), major = 10+ puan (136), city = 3+ puan (642), town = 1+ puan, village = 0 puan.\n"
+    "Stiller: west 803 şehir, orient 699, east 290, nordic 55.\n" + "".join(pin_out))
+print("docs/art/CITY_PIN_PROMPTS.md", sum(1 for l in pin_out if l.startswith("**`")), "öğe")
+
+# ---------------------------------------------------------------- birlik levhası resimleri (ayrı dosya)
+# Haritadaki birlik levhasının ortasındaki resim (art/soldier-pins.png tasarımı): koyu levhanın üstünde tek renkli sepya-
+# fildişi, ayrıntılı gravür gibi figür. assets/ui/unit_cards/card_<tür>.png — yoksa oyun teçhizat ikonunu fildişine boyar.
+STYLE_UNIT_CARD = ("Detailed monochrome illustration for a WWII strategy game unit plate, warm sepia and ivory tones only "
+                   "(like an aged engraving or a sepia-tinted period photo), strong highlights and soft shading, crisp "
+                   "silhouette readable at 60 px, side or three-quarter view, centered and filling most of the frame, "
+                   "transparent background, no ground plane, no text, no letters, no numbers, no insignia with writing, "
+                   "no border, landscape 3:2, 768x512")
+UNIT_CARDS = {
+    "infantry": "a 1930s infantryman in a steel helmet and field uniform advancing in a low crouch with a bolt-action rifle, full body",
+    "motorized": "a 1930s canvas-covered army truck driving forward, three-quarter view",
+    "light_armor": "a small 1930s light tank with a riveted turret and a short gun",
+    "medium_armor": "a late-1930s medium tank with a long gun and wide tracks",
+    "artillery": "a 1930s field howitzer on a two-wheeled carriage with split trails, barrel raised",
+    "anti_tank": "a small 1930s anti-tank gun with a low shield and a long thin barrel, on two wheels",
+    "ship": "a 1930s destroyer at speed with a bow wave, side view",
+    "submarine": "a 1930s submarine running on the surface, conning tower and deck gun, side view",
+    "plane": "a 1930s single-engine fighter aircraft in flight, three-quarter view from above",
+}
+uc = []
+for ty, subj in UNIT_CARDS.items():
+    uc.append(f"**`card_{ty}.png`** — assets/ui/unit_cards/\n```\n{subj[0].upper() + subj[1:]}. {STYLE_UNIT_CARD}\n```\n")
+open("docs/art/UNIT_CARD_PROMPTS.md", "w", encoding="utf-8").write(
+    "# Iron Front — Birlik Levhası Resimleri\n\n"
+    "Bu dosya `tools/make_icon_prompts.py` ile üretilir. Haritadaki birlik levhalarının ortasındaki resim "
+    "(`art/soldier-pins.png` tasarımı): tümende yığında en çok olan tür (piyade / motorlu / hafif tank / orta tank), çok "
+    "yakında dağılan levhalarda taburlar (topçu, tanksavar dahil), filoda gemi ya da denizaltı, hava kanadında uçak. "
+    "Dosyaları `assets/ui/unit_cards/` içine koy; oyun otomatik kullanır (olduğu gibi, renk değiştirilmez). Gelene kadar "
+    "teçhizat ikonu fildişine boyanarak kullanılır.\n\n" + "".join(uc))
+print("docs/art/UNIT_CARD_PROMPTS.md", len(uc), "öğe")

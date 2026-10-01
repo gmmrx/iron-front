@@ -1394,6 +1394,80 @@
      }
     ]
    }
+  },
+  "danzig_reunion": {
+   "title": {
+    "tr": "Danzig Reich'a Dönüyor",
+    "en": "Danzig Returns to the Reich"
+   },
+   "desc": {
+    "tr": "Almanya, Danzig Serbest Şehri'nin Reich'a katılmasını istiyor. Senato ve Gauleiter katılmayı ilan etmeye hazır.",
+    "en": "Germany demands that the Free City of Danzig join the Reich. The Senate and the Gauleiter are ready to proclaim the union."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "Reich'a katıl",
+      "en": "Join the Reich"
+     },
+     "effects": [
+      {
+       "annexed_by": "FROM"
+      }
+     ],
+     "ai": 1.0
+    },
+    {
+     "name": {
+      "tr": "Serbest Şehir kalsın",
+      "en": "Remain a Free City"
+     },
+     "effects": [
+      {
+       "give_war_goal": "FROM"
+      }
+     ],
+     "ai": 0.0
+    }
+   ],
+   "trigger": null
+  },
+  "tangier_occupation": {
+   "title": {
+    "tr": "İspanya Tanca'ya Giriyor",
+    "en": "Spain Enters Tangier"
+   },
+   "desc": {
+    "tr": "Fransa'nın çöküşü üzerine İspanya, Uluslararası Bölge'nin tarafsızlığını koruma gerekçesiyle Tanca'ya asker gönderiyor.",
+    "en": "With France collapsing, Spain sends troops into Tangier, claiming to protect the neutrality of the International Zone."
+   },
+   "options": [
+    {
+     "name": {
+      "tr": "İspanyol yönetimini kabul et",
+      "en": "Accept Spanish administration"
+     },
+     "effects": [
+      {
+       "annexed_by": "FROM"
+      }
+     ],
+     "ai": 1.0
+    },
+    {
+     "name": {
+      "tr": "Uluslararası statüde diren",
+      "en": "Hold to the international statute"
+     },
+     "effects": [
+      {
+       "give_war_goal": "FROM"
+      }
+     ],
+     "ai": 0.0
+    }
+   ],
+   "trigger": null
   }
  }
 }

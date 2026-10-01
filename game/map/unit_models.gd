@@ -127,7 +127,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var close := camera != null and camera.distance < VISIBLE_DIST and World.in_game and SHOW_MODELS
 	visible = close
-	_update_anchors()
+	_update_anchors(false)
 	if not close:
 		if not _fx.is_empty():
 			for pid in _fx.keys():
@@ -151,41 +151,55 @@ func _view_rect() -> Rect2:
 ## konumu önbellekli (bölge, saldırı, muharebe değişince yenilenir). Her karede 2000+ tümeni baştan hesaplamak 5× hızda
 ## karenin büyük kısmını yiyordu.
 var _anchor_key := {}                ## div id -> önbellek anahtarı (duran tümen)
+var _spot_off := {}                  ## div id -> [anahtar, çıkış noktası kayması, varış noktası kayması] (yürüyen tümen)
+var _ver := []                       ## son karedeki [oyun saati, emir sayacı, tümen sayacı]
+var _sweep := 0
+var _moving := {}                    ## yürüyen tümenler (Division -> true): her karede yalnız onlar yürütülür
+## Tümenler yalnız bir şey değişince (oyun saati ilerleyince, emir verilince, tümen eklenip silinince) hepsi birden
+## denetlenir; arada her karede yürüyenler ve tümenlerin sekizde biri (gözden kaçan değişiklik en geç 8 karede görünür).
+## Savaşta ~2000 tümeni her karede dolaşmak ~1,7 ms tutuyordu.
+const SWEEP := 8
+## Duran tümenlerin yerleri her yeniden yazılışta artar: sayaç katmanı yerleri değişmeyen duran sayaçları her karede
+## yeniden hesaplamaz (UnitLayer._follow_anchors). Yerleri elle yazan (test) bunu da artırır.
+var static_epoch := 0
+var _rewrote := false
 
-func _update_anchors() -> void:
+func _update_anchors(full := true) -> void:
 	if not World.in_game:
 		anchors.clear()
 		_anchor_key.clear()
+		_spot_off.clear()
+		_moving.clear()
 		return
 	var view := Rect2()
 	var culled := camera != null
 	if culled:
 		view = _view_rect().grow(camera.distance * 0.4)
-	for d in Military.divisions:
-		if not d.path.is_empty() and d.training == 0:
-			if culled and anchors.has(d.id) and not view.has_point(World.province(d.province).center):
-				continue
-			_anchor_key.erase(d.id)
-			var m := PathMotion.division(d)
-			if m[2] and d.attacking == 0:
-				anchors[d.id] = [m[0], m[1], 0.5, float(m[3])]
-				continue
-		var key := d.province * 8 + (2 if d.attacking > 0 else 0) + (1 if d.in_combat else 0) + d.attacking * 1000003
-		if int(_anchor_key.get(d.id, -1)) == key and anchors.has(d.id):
-			continue
-		_anchor_key[d.id] = key
-		var here := World.province(d.province).center
-		var facing: Vector2 = _facing(d) if SHOW_MODELS else _face.get(d.id, Vector2(0, 1))
-		var pos := cities.unit_spot(d.province, here) if cities else here
-		var state := 0.0
-		if d.attacking > 0:
-			var tgt := World.province(d.attacking).center
-			facing = (tgt - here).normalized()
-			pos = here.lerp(tgt, 0.2)
-			state = 1.0
-		elif d.in_combat:
-			state = 1.0
-		anchors[d.id] = [pos, facing, state, 0.0]
+	var ver := [World.day_count * 24 + GameClock.hour, Military.order_version, Military._div_version]
+	_sweep = (_sweep + 1) % SWEEP
+	var divs := Military.divisions
+	if full or ver != _ver:
+		# bir şey değişti: hepsi denetlenir, yürüyenler listelenir (bir sonraki değişikliğe dek yalnız onlar her karede)
+		_ver = ver
+		_moving.clear()
+		for d in divs:
+			if _anchor_one(d, view, culled):
+				_moving[d] = true
+		static_epoch += 1
+	else:
+		_rewrote = false
+		for d: Division in _moving:
+			_anchor_one(d, view, culled)
+		for i in range(_sweep, divs.size(), SWEEP):
+			var d: Division = divs[i]
+			if not _moving.has(d) and _anchor_one(d, view, culled):
+				_moving[d] = true
+				_rewrote = true
+		if _rewrote:
+			static_epoch += 1
+	if _spot_off.size() > divs.size() * 2 + 64:
+		_spot_off.clear()
+
 	# ölen tümenlerin kayıtları
 	if anchors.size() > Military.divisions.size():
 		var alive := {}
@@ -195,6 +209,64 @@ func _update_anchors() -> void:
 			if not alive.has(id):
 				anchors.erase(id)
 				_anchor_key.erase(id)
+
+## Bir tümenin görsel yeri; yürüyorsa true döner
+func _anchor_one(d: Division, view: Rect2, culled: bool) -> bool:
+	if not d.path.is_empty() and d.training == 0:
+		if culled and anchors.has(d.id) and not view.has_point(World.province(d.province).center):
+			return true
+		_anchor_key.erase(d.id)
+		var m := PathMotion.division(d)
+		# yürüyen de saldıran da yol üstünde: saldıran olduğu yerde durup ateş eder (PathMotion.FRONT_T), düşman
+		# temizlenince yürür; püskürtülünce hiç kıpırdamamıştır
+		if m[2] or d.attacking > 0:
+			# yol bölge merkezlerinden geçer; duran tümen ise şehrin/yapıların yanındaki noktada durur. Merkezden kayma
+			# bacak boyunca çıkış noktasınınkinden varış noktasınınkine geçer: emir verince sayaç merkeze sıçramaz,
+			# varınca da duruş noktasına sıçramaz (sıçrayıp durdurunca geri geliyordu)
+			var pos: Vector2 = m[0]
+			if cities and World.province(d.province).is_land() and World.province(d.path[0]).is_land():
+				var so := _spot_offsets(d)
+				pos += (so[1] as Vector2).lerp(so[2], float(m[4]))
+			if d.attacking > 0:
+				var aim := World.province(d.attacking).center - World.province(d.province).center
+				anchors[d.id] = [pos, aim.normalized(), 1.0, 0.0]
+			else:
+				anchors[d.id] = [pos, m[1], 0.5, float(m[3])]
+			return true
+	var key := d.province * 8 + (2 if d.attacking > 0 else 0) + (1 if d.in_combat else 0) + d.attacking * 1000003
+	if int(_anchor_key.get(d.id, -1)) == key and anchors.has(d.id):
+		return false
+	_anchor_key[d.id] = key
+	_rewrote = true
+	var here := World.province(d.province).center
+	var facing: Vector2 = _facing(d) if SHOW_MODELS else _face.get(d.id, Vector2(0, 1))
+	var pos := cities.unit_spot(d.province, here) if cities else here
+	var state := 0.0
+	if d.attacking > 0:
+		var tgt := World.province(d.attacking).center
+		facing = (tgt - here).normalized()
+		pos += (tgt - here) * 0.2                # duruş noktasından sınıra doğru (merkezden değil)
+		state = 1.0
+	elif d.in_combat:
+		state = 1.0
+	anchors[d.id] = [pos, facing, state, 0.0]
+	return false
+
+## Yürüyen tümenin çıkış ve varış duruş noktalarının bölge merkezinden kayması (şehrin, yapıların yanındaki boş
+## nokta; bölgenin olağan noktası). Bölge, yol ve sanayi değişmedikçe aynıdır: önbellekli.
+func _spot_offsets(d: Division) -> Array:
+	var sv: int = cities._industry.version if cities._industry else 0
+	var key := [d.province, d.path[0], sv]
+	var e: Array = _spot_off.get(d.id, [])
+	if not e.is_empty() and e[0] == key:
+		return e
+	var c0 := World.province(d.province).center
+	var c1 := World.province(d.path[0]).center
+	var s0 := cities.unit_spot(d.province, c0)
+	var s1 := cities.unit_spot(d.path[0], c1)
+	e = [key, s0 - c0, s1 - c1]
+	_spot_off[d.id] = e
+	return e
 
 ## Duran tümenin bakışı: düşman komşuya; yoksa son hareket yönü
 func _facing(d: Division) -> Vector2:

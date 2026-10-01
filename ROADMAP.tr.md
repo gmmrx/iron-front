@@ -6,11 +6,11 @@ Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu.
 Başlangıç: **1 Ocak 1936**. Harita: tüm dünya (Avrupa, Kuzey Afrika, Orta Doğu ve Batı SSCB ile başladı).
 
 İlke: **veri güdümlü mimari** — içerik `data/` altında JSON/CSV; motor kodu içerikten bağımsız.
-Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özgü oynanış.
+Hedef: **her zoom'da güzel görünen harita, 60 FPS**, derin ve kendine özgü oynanış.
 Dil: oyun ve belgeler **önce İngilizce**; Türkçe eksiksiz, Ayarlar → Dil'den seçilir.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **28 Eylül 2026**
+Son güncelleme: **29 Eylül 2026**
 
 > ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
 > Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
@@ -24,6 +24,31 @@ Son güncelleme: **28 Eylül 2026**
 > - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Ad değişikliği önerilir;
 >   oyun modlanabilir olacağından (2. Dünya Savaşı, alternatif tarih, zombi...) yeni ad 2. Dünya Savaşı'na bağlı olmayan
 >   genel bir ad olmalı. Yeni ad marka araştırması yapılmadan kullanılmaz.
+
+### Yeni yön: savaş oyunu (29 Eylül 2026)
+Oyun kısalıyor ve sadeleşiyor: bir senaryo 30–45 dakika sürer, tek başına ya da 2–4 kişi çevrim içi oynanır. Kurallar
+[docs/TASARIM.md](docs/TASARIM.md) sayfasında; o sayfaya uymayan yapılmaz. Aşağıdaki bölümler kodun bugünkü hâlini
+anlatır ve kayıt olarak kalır; aşamalar tasarım sayfasının kaldırdıklarını siler. Küçük güzel ayrıntılar sonra, aşamalara
+yayılarak eklenir.
+
+0. ✔ **Tasarım sayfası**: [docs/TASARIM.md](docs/TASARIM.md)
+1. ◐ **Kara savaşı komutları**: ✔ dur ve siper kaz, geri çekil, duruş, böl (1 / yarısı / hepsi); ✔ emirden önce
+   harita kartında saldırı tahmini; ✔ topçu komşu muharebeye destek verir; ◐ ordu, ordular grubu ve komutanlar kalkar (✔ arayüzden çıktı: Ordu ekranı yok, seçim paneli sağda; ☐ koddan çıkacak)
+2. ◐ **Hava**: ✔ bölgeye tıkla, görev seç (üstünlük, yakın destek, bombardıman); ✔ bombardıman fabrikaları durdurur ve
+   savaş desteğini yıpratır; ✔ kanat başkente en yakın üste kurulur, görevde menzili yeten üsse geçer; ✔ keşif (bölgeyi
+   sisten açar)
+3. ◐ **Ekonomi ve siyaset sadeleşir**: ✔ sol menü altı düğmeye indi (artı Keşif); ✔ yalnız savaşa katılan ülkeler
+   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit ve gizli; ☐ yalnız insan gücü, sanayi ve moral;
+   ✔ birlik şehirde sanayi puanıyla doğrudan alınır (SP, `data/common/recruit.json`), keşif uçuşu ücretli; ☐ olay ve buluş kartları
+4. ◐ **Senaryolar ve zafer**: ✔ senaryo dosyası (başlangıç kaydı, süre, taraflar, anahtar şehirler), ana menüde
+   Senaryolar ekranı, süre yok (savaş bir taraf teslim olunca biter), yapay zekâ anahtar şehirleri
+   tartar; ✔ ilk senaryo 1941 Doğu Cephesi; ☐ 1939 Batı, 1941 Pasifik
+5. ◐ **Savaş sisi**: ✔ görüş alanının ötesi bulutlu (toprağımız, tümenlerimiz ve keşif bölgeleri açık, sınırın öbür
+   yanında şerit), altındaki yabancı tümen, filo ve kanatlar gizli, bölge kartı ve saldırı tahmini buna uyar; ✔ bulutun
+   altında yalnız şehir işaretleri, yapılar gizli
+6. ☐ **Deniz**: yalnız hâkimiyet ve çıkarma
+7. ☐ **Çok oyunculu**: belirlenimci simülasyon, önce 2 oyuncu
+8. ☐ **Zombili senaryo**, aynı motorla
 
 ### Şu an nerede? (özet)
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
@@ -120,9 +145,17 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
 - [x] Değişken bölge yoğunluğu: Avrupa ayrıntılı; Doğu Asya/Hindistan 2–2,5x, Sibirya/Afrika/okyanus 5x
       → 13.414 bölge (8.812 kara, 1.901 ada, 2.134 deniz, 567 göl), 1.652 eyalet, 1.847 şehir
 - [x] Dünya yükseltisi (Terrarium z5 + Avrupa z6), enleme göre kar çizgisi, güney yarıküre biyomları
-- [x] 1936 siyasi durumu: 80 ülke, bütün sömürge imparatorlukları, dominyonlar, Mançukuo, Çin savaş ağaları
+- [x] 1936 siyasi durumu: 82 ülke, bütün sömürge imparatorlukları, dominyonlar, Mançukuo, Çin savaş ağaları
+- [x] Modern bölgelerin ortasından geçen yerlerde kesin 1 Ocak 1936 sınırları (`tools/fix_borders_1936.py`, piksel
+      düzeyinde): Alman Yukarı Silezya/Pomeranya/Batı Prusya, Danzig Serbest Şehri (ayrı ülke), Polonya'nın Riga sınırı,
+      Dinyester ve Budjak, Fin Karelyası/Salla/Petsamo, Petseri/Abrene, Fiume/Zara/Onikiadalar/Tenda, Karafuto ve Kuriller,
+      Kwantung, Jehol ve Doğu İç Moğolistan, İspanyol Fas'ının güney sınırı, İfni, Cape Juby, Tanca Uluslararası Bölgesi
+      (ayrı ülke), kendi eyaletleriyle Cebelitarık ve Makao, Newfoundland, Goa, Pondichéry, Kwangchowan, İngiliz Kamerunu,
+      Kanal Bölgesi; ~270 sınır kasabasını `test_borders_1936.gd` denetler → 13.548 bölge, 1.687 eyalet
 - [x] Dünya ekonomisi (ABD, Japonya, Çin, Hindistan...), gerçek yataklar (Malaya kauçuğu, Teksas petrolü...)
 - [x] Coğrafi mesafe (büyük daire) ile hareket, yol bulma, deniz bölgeleri, hava menzili
+- [x] Gerçekçi yürüyüş (gün boyunca yol hızının üçte biri: piyade günde ~33 km, zırhlı ~84) ve yürüyüş yorgunluğu
+  (yürürken bütünlük düşer, durunca toparlanır); Ctrl seçili tümenlerin yürüme menzilini gösterir (1 / 3 / 7 gün)
 - [x] Bellek bütçesi (~750 MB): 16 bit bölge dokusu, yarım çözünürlük SDF/arazi, 128 parçalı harita ağı
 - [x] Kamera: görüş alanı hiçbir zoom'da haritadan taşmaz (kenar boşluğu yok); en uzak zoom tüm dünya; bulut yok
 - [x] Asya odakları: Japonya (Marco Polo 1937, Üçlü Pakt, Güneye Saldırı 1941), ABD, Çin
@@ -280,9 +313,13 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
 
 ### P2. Oyuncuya geri bildirim
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
-- [x] Yol önizlemesi ve varış süresi: tümen seçiliyken farenin altındaki bölgeye aynı stilde soluk bir ok çizilir (ilk
-      üç tümenin yolu) ve kartı tahmini varışı gösterir (en yavaşı, muharebesiz; `Military.eta`, yürüyüşle aynı hız)
-- [x] Filolar için varış süresi (filo seçiliyken fare altındaki kart; `Navy.eta_hours`); filo yol önizlemesi henüz yok
+- [x] Varış süresi: tümen seçiliyken fare altındaki bölgenin kartı tahmini varışı gösterir (ilk üç tümenin en yavaşı,
+      muharebesiz; `Military.eta`, yürüyüşle aynı hız); filo seçiliyken de (`Navy.eta_hours`). Emirden önce yol
+      çizilmez: fareyi izleyen yol, birlikler kendi yolunu seçiyormuş gibi görünüyordu
+- [x] Hareket okları: hedefe akan soluk işaretler zinciri, haritanın altından akıyormuş gibi, ülkenin renginde (taarruzda
+      kırmızı); emir verilen tümen bölge merkezine sıçramaz, yerinde kalır; ok sayacın duracağı yerde biter, sayaca sağ
+      tık o sayacın bölgesine emir verir (yığına katılma)
+- [x] "Yol yok" nedenini söyler: adı verilen ülkeye geçiş izni yok, yalnız denizden gidilen hedefte deniz kapalı, eğitimde
 - [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
       kaynak açığı satırları, deniz bölgesine göre deniz hâkimiyeti ✔; kalan: ikmal açığı
 - [x] Ctrl ile ülke kartı (lider, ilişki, bizimkine göre renkli göstergeler), başka ülkelerin siyaseti salt okunur
@@ -466,6 +503,35 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 - [ ] Kuşatılan şehirlerde yangın, yıkık bina varyantları, cephe hattında siperler ve krater izleri
 
 ### D4. Harita atmosferi
+- [x] Boyalı harita (28 Eyl 2026): tarlalar koyu kenarlı parsellerden yama işi, ince sırtlı ve dereli toprak tonunda
+      dağlar (sabit kuzeybatı ışığıyla kabartma + bükülmüş kırışık gürültü), turkuaz sığ su ve ince köpük çizgisi; siyasi
+      renkler zeminin üstünde boya örtüsü (Arazi kipinde yok); ağaç modeli yok (katman, verisi ve ağaç modeli üreticisi
+      kalktı)
+- [x] Şehir iğnesi yalnız büyük şehirlerde (başkentler, 10+ zafer puanı); öbürleri her zoom'da sade ad
+- [x] Birlik adları her ülkenin kendi dilinde (`data/common/unit_names.json`, 24 dil, yoksa İngilizce)
+- [x] Birlikler levha (28 Eyl 2026, `art/soldier-pins.png`): uzakta rozet, yaklaşınca demir iğnenin ucunda bayrak şeritli,
+      birlik resimli, harita işaretli, sayılı koyu levha (önce denenen yuvarlak başlar bırakıldı)
+- [x] Birlikler yuvarlak iğne (yerini yukarıdaki levhalar aldı): uzakta iğnesiz "bayrak | sayı", "gemi | sayı", "uçak | sayı" rozetleri;
+      yaklaşınca demir iğnenin ucunda `art/soldier-pins.png` tasarımında yuvarlak baş (metal çerçeve, kubbe bayrak,
+      fildişi birlik resmi, sayı sekmesi, ad kutusu),
+      tümende, filoda, hava kanadında aynı; çok yakında yığın taburlarına göre aynı boy başlara dağılır; mat demir
+      iğneler; yapı iğneleri farklı boylarda ve daha uzaktan
+- [x] Haritada konuşlandırma: panel kapanır, harita uygun yerler dışında kararır, oyuncu tümenin / hava kanadının / yeni
+      gemilerin yerini tıklar (yeni gemiler artık kendiliğinden filoya katılmaz)
+- [x] Tümen kartları (yerini yukarıdaki yuvarlak iğneler aldı):
+      çok yakında içindeki taburlar küçük kartlarla; resimler `docs/art/UNIT_CARD_PROMPTS.md`'den (gelene kadar
+      teçhizat ikonları fildişine boyanır); iğnelerde fare büyütmesi yok
+- [x] Kara yolları ve demiryolları (Natural Earth, `tools/build_roads.py`) Yollar harita kipinde, dağın arkasında
+      görünmez; genel olarak daha koyu harita; cilalı çelik gövdeli, pirinç yüksüklü iğne; şehir iğnesi ikonları
+      (5 kademe x 4 stil, promptlar `docs/art/CITY_PIN_PROMPTS.md`'de) — resimleri henüz yok
+- [x] Arazi örtüsü (28 Eyl 2026): ormanlar koyu yeşil, yakında taç kümeleri; bozkır haki ve kuru ot; çöl kum; dağlar
+      yaylada toprak tonunda, dik ve yüksek yamaçta gri-kahve kaya, kar çizgisinin üstünde kar (kışın iner), yamaç
+      yönünde ince sırt ve dereler
+- [x] İğne canlandırması: şehir iğneleri görüş menziline girince yaylanarak çıkar, çıkınca küçülüp kaybolur; ekranın
+      ortasından uzak iğneler küçük (çok yakında hepsi tam boy), farenin altındaki iğne büyür; iğnenin battığı yerde
+      yumuşak gölge. Uzakta sade beyaz şehir adları; yapılar yalnız en yakın zoom adımlarında; uçaklar yalnız yakında
+- [x] Harita tasarımında iğneler: şehir adları koyu çerçeveli kutuda (serifli), fildişi başlar, başkent madalyonu (altın
+      halka ve yıldız), yapılar altın piktogramlı koyu kare karolarda, seviye köşede
 - [x] Kış kar örtüsü (mevsime ve enleme göre, yamalı)
 - [ ] Gün/gece döngüsü (şehir ışıkları), mevsim renkleri
 - [x] Yağmur/kar parçacıkları (bölgesel, mevsime bağlı, yakın zoom'da; FPS dostu)
@@ -688,7 +754,7 @@ data/            → içerik (JSON/CSV), üretilmiş harita dosyaları
 tools/           → harita, doku, model (Blender), ses üretim betikleri
 game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
 game/core/       → saf simülasyon sınıfları (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet...)
-game/map/        → 3D harita, kamera, şehir/ağaç/birim katmanları
+game/map/        → 3D harita, kamera, şehir/iğne/birim katmanları
 game/ui/         → arayüz
 game/dev/        → headless test ve simülasyon
 tests/           → ekransız test paketi (tests/run.gd koşucu, test_*.gd testler)

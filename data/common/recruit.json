@@ -1,0 +1,14 @@
+{
+ "_comment": "Asker alma ve sanayi puanı (SP). Gelir: oyuncunun kontrol ettiği eyaletlerdeki her askerî fabrika günde 1, sivil fabrika 0,4 SP (bombalanmış pay düşülür). Neden: Sovyetler 1941'de ~61 askerî + 74 sivil fabrikayla günde ~90 SP alır; piyade tümeni 120 SP olunca günde bir tümene yakın asker çıkar, cephe kayıpları yerine konabilir ama kayıp kolay telafi edilmez. Zırhlı tümen 2,5 piyade (pahalı ama yarma gücü). Kanat 100 uçak: avcı ucuz, bombardıman pahalı. Keşif uçuşu 15 SP: yakıt ve risk, bedava ve sınırsız olmasın. Eğitim günleri: birlik o şehirde bu kadar gün yürüyemez. İnsan gücü şablonun taburlarından (tümen başına ~8-10 bin).",
+ "income": {"military_factory": 1.0, "civilian_factory": 0.4},
+ "start_sp": 300,
+ "recon_sp": 15,
+ "recon_days": 1,
+ "units": {
+  "infantry": {"template": 0, "sp": 120, "days": 7, "icon": "army"},
+  "armor": {"template": 1, "sp": 300, "days": 10, "icon": "equipment_light_tank_equipment"},
+  "fighter": {"wing": "fighter", "sp": 150, "days": 5, "icon": "equipment_fighter_equipment"},
+  "cas": {"wing": "cas", "sp": 180, "days": 5, "icon": "equipment_cas_equipment"},
+  "bomber": {"wing": "bomber", "sp": 240, "days": 6, "icon": "equipment_tactical_bomber_equipment"}
+ }
+}

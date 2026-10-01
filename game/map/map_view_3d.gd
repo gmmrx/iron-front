@@ -38,9 +38,12 @@ var airbase_sites: Dictionary = {}     ## eyalet id -> [konum (Vector2), yön (f
 
 const AIRBASE_RADIUS := 12.5           ## büyütülmüş pist için tamamen düzleştirilen yarıçap
 var _data_texture: ImageTexture
+var _province_texture: ImageTexture
+var rim: CountryRim                    ## ülke sınırına yakınlık alanı (siyasi haritada renk sınıra doğru koyulaşır)
 var _palette_texture: ImageTexture
 var _province_la := false            ## bölge kimliği L + A*256 olarak kodlu (RGBA8'e çevrilse de)
 var labels: CountryLabels3D
+var terrain_texture: Texture2D           ## arazi rengi (dünya saati küresi de kullanır)
 
 func _ready() -> void:
 	var terrain := Image.load_from_file(TERRAIN_PATH)
@@ -60,10 +63,12 @@ func _ready() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = SHADER
 	UnitModels.compat_material(_material)
-	_material.set_shader_parameter("terrain_tex", ImageTexture.create_from_image(terrain))
+	terrain_texture = ImageTexture.create_from_image(terrain)
+	_material.set_shader_parameter("terrain_tex", terrain_texture)
 	height_texture = ImageTexture.create_from_image(_height_image)
 	_material.set_shader_parameter("height_tex", height_texture)
-	_material.set_shader_parameter("province_tex", ImageTexture.create_from_image(_province_image))
+	_province_texture = ImageTexture.create_from_image(_province_image)
+	_material.set_shader_parameter("province_tex", _province_texture)
 	border_texture = ImageTexture.create_from_image(borders)
 	_material.set_shader_parameter("border_tex", border_texture)
 	var water := Image.load_from_file(WATER_PATH)
@@ -115,8 +120,14 @@ func _ready() -> void:
 	labels.map = self
 	rebuild_palette()
 	rebuild_province_data()
+	rim = CountryRim.new()
+	add_child(rim)
+	rim.setup(_province_texture, _data_texture, map_size, World.wraps)
+	_material.set_shader_parameter("rim_tex", rim.texture)
 	World.ownership_changed.connect(rebuild_province_data)
 	World.control_changed.connect(rebuild_province_data)
+	World.ownership_changed.connect(func() -> void: rim.refresh())   # veri dokusu yenilendikten sonra (bağlantı sırası)
+	World.control_changed.connect(func(_a: Variant = null, _b: Variant = null) -> void: rim.refresh())  # sınır cepheyle kayar
 	World.selection_changed.connect(_on_selection_changed)
 	World.player_changed.connect(func(_t: String) -> void: _update_player())
 	_update_player()
@@ -308,8 +319,8 @@ func update_season() -> void:
 	_material.set_shader_parameter("winter_south", lerpf(a2, b2, absf(f)) * 0.7)
 
 func set_camera_distance(d: float) -> void:
-	# bulut yok: haritanın okunurluğunu bozuyor
-	var a := 0.0
+	# hava bulutları (ara ara geçen cepheler): kamera bulut yüksekliğine (CLOUD_HEIGHT) yaklaşınca solar, içinden geçilir
+	var a := smoothstep(260.0, 650.0, d) * 0.9
 	_cloud_material.set_shader_parameter("cloud_amount", a)
 	_material.set_shader_parameter("cloud_amount", a)
 
@@ -349,6 +360,39 @@ func set_hovered(id: int) -> void:
 		_material.set_shader_parameter("hovered_province", id)
 
 var _mark_texture: ImageTexture
+var _fog_texture: ImageTexture
+var _fog_version := -1
+
+## Savaş sisi: keşfedilmemiş yerde hacimli bulut ve nötr sis tabanı (CloudFog). Bölge başına sis
+## düzeyi (Military.fog_levels: 0 bulut, 2 keşfedilmiş) dokuya yazılır, CloudFog ondan bulut maskesini çizer.
+var _fog_volume: CloudFog
+
+func set_fog(levels: PackedByteArray, version: int) -> void:
+	if _fog_volume == null:
+		_fog_volume = CloudFog.new()
+		add_child(_fog_volume)
+		_fog_volume.setup(_province_texture, map_size, World.wraps)
+	if levels.is_empty():
+		_fog_volume.clear()
+		_material.set_shader_parameter("fog_enabled", false)
+		_fog_version = -1
+		return
+	if version == _fog_version:
+		return
+	_fog_version = version
+	var rows := int(ceil(levels.size() / 256.0))
+	var bytes := PackedByteArray()
+	bytes.resize(256 * rows)
+	for i in levels.size():
+		bytes[i] = 255 if levels[i] > 0 else 0
+	var img := Image.create_from_data(256, rows, false, Image.FORMAT_R8, bytes)
+	if _fog_texture == null or _fog_texture.get_height() != rows:
+		_fog_texture = ImageTexture.create_from_image(img)
+	else:
+		_fog_texture.update(img)
+	_fog_volume.set_fog(_fog_texture)
+	_material.set_shader_parameter("fog_mask", _fog_volume.mask_texture())
+	_material.set_shader_parameter("fog_enabled", true)
 
 ## Eyalet işaretleri (inşaat uygunluğu gibi): sid -> true/false; boş sözlük kapatır
 func set_marked_states(marks: Dictionary) -> void:
@@ -370,6 +414,28 @@ func set_marked_states(marks: Dictionary) -> void:
 		_mark_texture.update(img)
 	_material.set_shader_parameter("marks_enabled", true)
 
+## Bölge işaretleri (yürüme menzili gibi): pid -> 0..255 (200-255 yeşil, değer büyüdükçe parlak); rest > 0: öbür
+## bölgeler bu değerde (128 = karart). Boş sözlük kapatır.
+func set_marked_provinces(vals: Dictionary, rest: int = 128) -> void:
+	if vals.is_empty():
+		_material.set_shader_parameter("marks_enabled", false)
+		return
+	var count := World.provinces.size()
+	var rows := int(ceil(count / 256.0))
+	var bytes := PackedByteArray()
+	bytes.resize(256 * rows)
+	bytes.fill(rest)
+	for pid: int in vals:
+		if pid >= 0 and pid < bytes.size():
+			bytes[pid] = clampi(int(vals[pid]), 0, 255)
+	var img := Image.create_from_data(256, rows, false, Image.FORMAT_R8, bytes)
+	if _mark_texture == null:
+		_mark_texture = ImageTexture.create_from_image(img)
+		_material.set_shader_parameter("mark_tex", _mark_texture)
+	else:
+		_mark_texture.update(img)
+	_material.set_shader_parameter("marks_enabled", true)
+
 func set_highlight_country(tag: String) -> void:
 	var c: Country = World.countries.get(tag)
 	_material.set_shader_parameter("highlight_country", c.index if c else 0)
@@ -379,10 +445,25 @@ func set_map_mode(mode: MapMode) -> void:
 	_material.set_shader_parameter("map_mode", int(mode))
 
 # ------------------------------------------------------------------ veri dokuları
+## Ülke renginin siyasi haritadaki tonu (algısal OKHSL uzayında): açıklık 0,55..0,78 aralığına sıkıştırılır — koyu ülke
+## kararıp sınırı ve adı yutmasın, çok açık ülke kâğıt beyazına kaçmasın; sıra korunur (koyu ülke yine komşusundan
+## koyu). Doygunluk 0,25..0,62 aralığına çekilir: soluk ülke canlanır, çok doygun ülke (kırmızı, yeşil) büyük alanda göz
+## yormasın; gri ülke gri kalır (doygunluğu 0,12'nin altındakine dokunulmaz). Ton (renk açısı) hiç değişmez.
+const TONE_L := Vector2(0.55, 0.78)        ## haritadaki açıklık aralığı
+const TONE_L_IN := Vector2(0.3, 0.9)       ## veri renklerinin açıklık aralığı (bunun dışı uçlara sıkışır)
+const TONE_S := Vector2(0.25, 0.62)        ## haritadaki doygunluk aralığı
+static func map_tone(c: Color) -> Color:
+	var t := clampf((c.ok_hsl_l - TONE_L_IN.x) / (TONE_L_IN.y - TONE_L_IN.x), 0.0, 1.0)
+	var l := lerpf(TONE_L.x, TONE_L.y, t)
+	var sat := c.ok_hsl_s
+	if sat >= 0.12:
+		sat = clampf(sat, TONE_S.x, TONE_S.y)
+	return Color.from_ok_hsl(c.ok_hsl_h, sat, l, c.a)
+
 func rebuild_palette() -> void:
 	var img := Image.create(256, 1, false, Image.FORMAT_RGBA8)
 	for i in range(1, World.country_by_index.size()):
-		img.set_pixel(i, 0, World.country_by_index[i].color)
+		img.set_pixel(i, 0, map_tone(World.country_by_index[i].color))
 	if _palette_texture == null:
 		_palette_texture = ImageTexture.create_from_image(img)
 		_material.set_shader_parameter("palette_tex", _palette_texture)
@@ -409,6 +490,8 @@ func rebuild_province_data() -> void:
 	if _data_texture == null or _data_texture.get_height() != rows:
 		_data_texture = ImageTexture.create_from_image(img)
 		_material.set_shader_parameter("data_tex", _data_texture)
+		if rim:
+			rim.set_data_texture(_data_texture)
 	else:
 		_data_texture.update(img)
 

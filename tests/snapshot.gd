@@ -46,7 +46,8 @@ func take(include_derived := false) -> Dictionary:
 	for w in Air.wings:
 		s["kanat/%d" % w.id] = _obj(w)
 	for st: StateRegion in World.states.values():
-		s["eyalet/%d" % st.id] = {"owner": st.owner, "buildings": _plain(st.buildings), "resources": _plain(st.resources)}
+		s["eyalet/%d" % st.id] = {"owner": st.owner, "buildings": _plain(st.buildings), "resources": _plain(st.resources),
+			"damage": snappedf(st.damage, 0.0001)}
 	s["savaşlar"] = _plain(Diplomacy.wars)
 	s["katılmayı bekleyen"] = _plain(Diplomacy.waiting_to_join)
 	s["başlangıç ZP"] = _plain(Diplomacy._start_vp)

@@ -153,12 +153,12 @@ func _spawn_start_fleets(c: Country) -> void:
 			if share > 0:
 				ships[t] = share
 		if not ships.is_empty():
-			_create(c.tag, ships, bases[i % bases.size()], tr("FLEET_NAME") % (i + 1))
+			_create(c.tag, ships, bases[i % bases.size()], UnitNames.name_of(c.tag, "fleet", i + 1))
 	var subs := int(have.get("submarine", 0))
 	var k := 1
 	while subs > 0:
 		var n := mini(subs, SUB_PACK)
-		_create(c.tag, {"submarine": n}, main, tr("SUB_FLEET_NAME") % k)
+		_create(c.tag, {"submarine": n}, main, UnitNames.name_of(c.tag, "sub_fleet", k))
 		subs -= n
 		k += 1
 
@@ -848,10 +848,11 @@ func _on_day() -> void:
 			_ai(c)
 	GameClock.timed("navy_day", t0)
 
-## Tersanelerden çıkan gemiler stoktan ana üsteki yedek filoya katılır
+## Tersanelerden çıkan gemiler stoktan ana üsteki yedek filoya katılır. Oyuncunun gemileri stokta bekler: limanı
+## oyuncu seçer (Donanma paneli → Konuşlandır → haritada liman; deploy_ships)
 func _absorb_new_ships() -> void:
 	for c: Country in World.countries.values():
-		if not c.exists():
+		if not c.exists() or (World.in_game and c.tag == World.player_tag and not Game.observer):
 			continue
 		for t: String in SHIP_TYPES:
 			var n := int(c.stockpile.get(t, 0.0))
@@ -867,11 +868,50 @@ func _absorb_new_ships() -> void:
 				var port := _main_port(c.tag)
 				if port == 0:
 					continue
-				target = _create(c.tag, {}, port, tr("RESERVE_SUB_FLEET" if sub else "RESERVE_FLEET"))
+				target = _create(c.tag, {}, port, UnitNames.name_of(c.tag, "reserve_sub_fleet" if sub else "reserve_fleet"))
 				target.reserve = true
 			c.stockpile[t] = float(c.stockpile.get(t, 0.0)) - n
 			target.ships[t] = int(target.ships.get(t, 0)) + n
 			_dirty = true
+
+## Stokta bekleyen yeni gemiler (tür -> sayı)
+func new_ships(c: Country) -> Dictionary:
+	var out := {}
+	for t: String in SHIP_TYPES:
+		var n := int(c.stockpile.get(t, 0.0))
+		if n > 0:
+			out[t] = n
+	return out
+
+## Oyuncu: stokta bekleyen yeni gemileri seçtiği limana konuşlandırır — o limandaki yedek filoya (yoksa yeni yedek filo);
+## denizaltılar ayrı yedek filoya. Kendi limanı değilse null.
+func deploy_ships(c: Country, port: int) -> Fleet:
+	if not port in ports_of(c.tag):
+		return null
+	var first: Fleet = null
+	for sub: bool in [false, true]:
+		var ships := {}
+		for t: String in SHIP_TYPES:
+			var n := int(c.stockpile.get(t, 0.0))
+			if n > 0 and (t == "submarine") == sub:
+				ships[t] = n
+		if ships.is_empty():
+			continue
+		var target: Fleet = null
+		for f in fleets:
+			if f.owner == c.tag and f.reserve and f.is_sub_fleet() == sub and f.location == port and f.home == port:
+				target = f
+				break
+		if target == null:
+			target = _create(c.tag, {}, port, UnitNames.name_of(c.tag, "reserve_sub_fleet" if sub else "reserve_fleet"))
+			target.reserve = true
+		for t: String in ships:
+			c.stockpile[t] = float(c.stockpile.get(t, 0.0)) - int(ships[t])
+			target.ships[t] = int(target.ships.get(t, 0)) + int(ships[t])
+		if first == null:
+			first = target
+		_dirty = true
+	return first
 
 ## Yapay zekâ ülkesinin en çok filosu, tarihî akıştan sonra: su üstü tersane sayısının üçte biri (6–24), denizaltı sekizde
 ## biri (2–8) — filoları onaran tersaneler kadar. Uzun oyunda filo sayısı sınırsız artıyordu (fazla gemiler artık
@@ -898,7 +938,7 @@ func _promote_reserves(c: Country) -> void:
 			                               # birleşiyor, Fransa'nın düşüşü gecikebiliyordu)
 		if same.size() < cap or (r.total() >= 12 and same.size() < hard):
 			r.reserve = false
-			r.name = tr("SUB_FLEET_NAME" if r.is_sub_fleet() else "FLEET_NAME") % (same.size() + 1)
+			r.name = UnitNames.name_of(r.owner, "sub_fleet" if r.is_sub_fleet() else "fleet", same.size() + 1)
 			_dirty = true
 			continue
 		var weakest: Fleet = same[0]

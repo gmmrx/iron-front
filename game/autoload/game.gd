@@ -1,19 +1,29 @@
 extends Node
-## Oyun yaşam döngüsü: yeni oyun, kaydet/yükle (JSON), oyun sonu kontrolü.
-## Oyunun bitiş tarihi yok: oyuncu dünyayı alınca (oyuncunun tarafı dışında ayakta ülke kalmayınca) kazanır, ülkesi
+## Oyun yaşam döngüsü: yeni oyun, senaryo, kaydet/yükle (JSON), oyun sonu kontrolü.
+## Serbest oyunun bitiş tarihi yok: oyuncu dünyayı alınca (oyuncunun tarafı dışında ayakta ülke kalmayınca) kazanır, ülkesi
 ## yok olunca (son eyaletini kaybedince ya da ilhak edilince) kaybeder. Teslim olup elinde toprak kalan ülke oynamayı sürdürür.
+## Senaryo (data/scenarios/scenarios.json): hazır bir başlangıç kaydı, taraflar ve anahtar şehirler. Süre yok: savaş iki
+## taraftan biri teslim olana ya da yok olana kadar sürer; anahtar şehirler yapay zekânın öncelikli hedefidir.
 
 signal game_over(victory: bool, reason: String)
 
 const SAVE_DIR := "user://saves/"
+const SCENARIOS_PATH := "res://data/scenarios/scenarios.json"
 
 var loaded := false            ## sahne yeniden yüklendiğinde doğrudan oyuna gir
+## Geliştirici izleyici modu (ana menü "Geliştirici: Savaş izle"): oyuncunun ülkesini de yapay zekâ yönetir, oyuncuya
+## gelen olaylar pencere açmadan seçilir, zaman akar. Kayda yazılmaz; yeni oyunda kapanır.
+var observer := false
 ## Dil değişince sahne yeniden kurulur: Ayarlar yeniden açılır, oyun içindeysek kamera ve duraklatma durumu korunur
 var reopen_settings := false
 var resume_view := Vector3.ZERO   ## x, z, uzaklık (0 = başkente odaklan)
 var resume_was_paused := false
 var over := false
 var won := false               ## dünya alındı ve oyuncu "oynamaya devam et" dedi: zafer ekranı yeniden gelmez
+var scenario: Dictionary = {}  ## süren senaryonun tanımı (boş: serbest oyun)
+var scenario_end := 0          ## senaryonun bittiği gün (World.day_count)
+var fresh_start := false       ## sahne yeniden kurulunca oyuncuya yeni oyun varsayılanları kurulsun (senaryo başlangıcı)
+var _scenario_defs: Array = []
 
 func _ready() -> void:
 	Research.grant_start_equipment()
@@ -21,11 +31,13 @@ func _ready() -> void:
 	Navy.reset()
 	Air.reset()
 	World.daily_update.connect(_check_end)
+	World.daily_update.connect(_scenario_tick)
 	World.country_removed.connect(func(tag: String) -> void:
 		if World.in_game and tag == World.player_tag:
 			_end(false, "GAMEOVER_DEFEAT"))
 
 func new_game() -> void:
+	observer = false
 	GameClock.reset()
 	World.reset()
 	Politics.reset()
@@ -40,6 +52,8 @@ func new_game() -> void:
 	loaded = false
 	over = false
 	won = false
+	scenario = {}
+	scenario_end = 0
 
 func _check_end() -> void:
 	if not World.in_game or over:
@@ -65,6 +79,81 @@ func _end(victory: bool, reason: String) -> void:
 	GameClock.set_paused(true)
 	game_over.emit(victory, reason)
 
+# ------------------------------------------------------------------ senaryolar
+func scenarios() -> Array:
+	if _scenario_defs.is_empty():
+		var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(SCENARIOS_PATH))
+		_scenario_defs = (d as Dictionary).get("scenarios", []) if d is Dictionary else []
+	return _scenario_defs
+
+func scenario_def(id: String) -> Dictionary:
+	for sc: Dictionary in scenarios():
+		if str(sc["id"]) == id:
+			return sc
+	return {}
+
+## Senaryoyu başlat: başlangıç kaydı yüklenir, oyuncu seçtiği taraf olur (yeni oyun varsayılanlarıyla). Çağıran sahneyi
+## yeniden yüklemeli (load_game gibi).
+func start_scenario(id: String, tag: String) -> bool:
+	var sc := scenario_def(id)
+	if sc.is_empty() or not load_file("res://data/scenarios/%s.json" % str(sc["start"])):
+		return false
+	scenario = sc
+	scenario_end = 0                       # süre yok (eski kayıtlarla uyum için alan duruyor)
+	World.player_tag = tag
+	fresh_start = true
+	return true
+
+## Senaryonun saldıran tarafı (sides[0])
+func scenario_attacker() -> String:
+	return str((scenario["sides"] as Array)[0]["tag"]) if not scenario.is_empty() else ""
+
+## Anahtar şehir puanları: {"att": saldıranın tuttuğu, "total": toplam, "need": kazanmak için gereken, "days": kalan gün}
+func scenario_score() -> Dictionary:
+	if scenario.is_empty():
+		return {}
+	var att := scenario_attacker()
+	var held := 0
+	var total := 0
+	for cid in scenario["key_cities"]:
+		var city := World.city_by_id(int(cid))
+		if city == null:
+			continue
+		total += city.victory_points
+		var ctl := World.controller_tag(city.province_id)
+		if ctl == att or (Diplomacy.are_allies(ctl, att) and ctl != ""):
+			held += city.victory_points
+	return {"att": held, "total": total, "need": ceili(total * float(scenario.get("win_share", 0.5))),
+		"days": maxi(scenario_end - World.day_count, 0)}
+
+## Bu şehir senaryonun anahtar şehri mi (kart ve harita için)
+func is_key_city(city_id: int) -> bool:
+	return not scenario.is_empty() and float(city_id) in (scenario["key_cities"] as Array)
+
+## Günlük: iki taraf arasındaki savaş bitince (teslim, barış, bir tarafın yok olması) senaryo biter: yok olan taraf
+## kaybeder; barışta anahtar şehirlerin daha çoğunu tutan taraf kazanmış sayılır
+func _scenario_tick() -> void:
+	if scenario.is_empty() or not World.in_game or over:
+		return
+	var att := scenario_attacker()
+	var dfn := str((scenario["sides"] as Array)[1]["tag"])
+	var ac: Country = World.countries.get(att)
+	var dc: Country = World.countries.get(dfn)
+	var gone_att := ac == null or not ac.exists()
+	var gone_def := dc == null or not dc.exists()
+	var war_over := gone_att or gone_def or not Diplomacy.are_enemies(att, dfn)
+	if not war_over:
+		return
+	var sc := scenario_score()
+	var att_wins := int(sc["att"]) >= int(sc["need"])
+	if gone_def:
+		att_wins = true
+	elif gone_att:
+		att_wins = false
+	var me := World.player_tag
+	var mine := me == att or Diplomacy.are_allies(me, att)
+	_end(att_wins == mine, "GAMEOVER_SCENARIO_WIN" if att_wins == mine else "GAMEOVER_SCENARIO_LOSS")
+
 ## Skor: zafer puanı toplamı (şehirlerin mevcut sahibine göre)
 func score(tag: String) -> int:
 	var c: Country = World.countries.get(tag)
@@ -82,6 +171,8 @@ func save_game(slot: String) -> bool:
 		"version": 1, "player": World.player_tag,
 		"date": [GameClock.year, GameClock.month, GameClock.day, GameClock.hour],
 		"day_count": World.day_count, "tension": World.world_tension, "won": won, "world_log": World.world_log,
+		"scenario": {"id": str(scenario.get("id", "")), "end": scenario_end} if not scenario.is_empty() else {},
+		"explored": Military.explored_b64(),
 		"controller": Array(World.controller),
 		"states": {}, "countries": {}, "divisions": [], "wars": Diplomacy.wars, "war_id": Diplomacy._next_id, "waiting_to_join": Diplomacy.waiting_to_join,
 		"factions": Politics.factions, "fired_events": Politics.fired_events, "pending_events": Politics.pending_events, "div_id": Military._next_id, "start_vp": Diplomacy._start_vp,
@@ -89,6 +180,8 @@ func save_game(slot: String) -> bool:
 	}
 	for st: StateRegion in World.states.values():
 		data["states"][str(st.id)] = {"owner": st.owner, "buildings": st.buildings, "resources": st.resources}
+		if st.damage > 0.0:
+			data["states"][str(st.id)]["damage"] = st.damage
 	for c: Country in World.countries.values():
 		var lines := []
 		for l in c.production_lines:
@@ -101,8 +194,8 @@ func save_game(slot: String) -> bool:
 			"capital": c.capital_state, "laws": c.laws, "spirits": Array(c.spirits), "advisors": Array(c.advisors),
 			"focus_done": Array(c.focus_done), "focus_current": c.focus_current, "focus_progress": c.focus_progress,
 			"leader": c.leader, "next_election": c.next_election, "cp": c.command_power, "axp": c.army_xp, "nxp": c.navy_xp, "airxp": c.air_xp,
-			"research_slots": c.research_slots, "fuel": c.fuel, "rstore": c.research_stored, "research_current": c.research_current, "research_done": Array(c.research_done),
-			"research_bonus": c.research_bonus, "decisions": c.decisions_active, "manpower_used": c.manpower_used,
+			"research_slots": c.research_slots, "fuel": c.fuel, "fuel_cap": c.fuel_cap, "rstore": c.research_stored, "research_current": c.research_current, "research_done": Array(c.research_done),
+			"research_bonus": c.research_bonus, "decisions": c.decisions_active, "manpower_used": c.manpower_used, "sp": c.sp,
 			"templates": c.templates, "faction": c.faction, "war_goals": c.war_goals, "justify": c.justify_progress,
 			"guarantees": Array(c.guarantees), "access": Array(c.access), "capitulated": c.capitulated, "truce": c.truce_until,
 			"auto_trade": c.auto_trade, "trade_orders": c.trade_orders,
@@ -144,12 +237,22 @@ func list_saves() -> Array[String]:
 	return out
 
 ## Yükle: dünyayı sıfırla, kaydı uygula. Çağıran sahneyi yeniden yüklemeli.
+## (Eski kayıtlardaki tümen "spots" alanı — bölge içi duruş noktası — artık yok sayılır: hareket bölgeden bölgeye.)
+
 func load_game(slot: String) -> bool:
-	var txt := FileAccess.get_file_as_string(SAVE_DIR + slot + ".json")
+	return load_file(SAVE_DIR + slot + ".json")
+
+## Kayıt dosyasını yükle (oyuncu kaydı ya da senaryonun başlangıç kaydı)
+func load_file(path: String) -> bool:
+	var txt := FileAccess.get_file_as_string(path)
 	if txt == "":
 		return false
 	var data: Dictionary = JSON.parse_string(txt)
 	new_game()
+	var scd: Dictionary = data.get("scenario", {})
+	if not scd.is_empty():
+		scenario = scenario_def(str(scd["id"]))
+		scenario_end = int(scd["end"])
 	var dt: Array = data["date"]
 	GameClock.year = int(dt[0]); GameClock.month = int(dt[1]); GameClock.day = int(dt[2]); GameClock.hour = int(dt[3])
 	World.day_count = int(data["day_count"])
@@ -165,6 +268,7 @@ func load_game(slot: String) -> bool:
 			World.transfer_state(st.id, sd["owner"])
 		st.buildings = sd["buildings"]
 		st.resources = sd["resources"]
+		st.damage = float(sd.get("damage", 0.0))
 	var ctl: Array = data["controller"]
 	for i in mini(ctl.size(), World.controller.size()):
 		World.controller[i] = int(ctl[i])
@@ -190,7 +294,7 @@ func load_game(slot: String) -> bool:
 		c.leader = str(cd.get("leader", c.leader)); c.next_election = int(cd.get("next_election", c.next_election))
 		c.auto_trade = bool(cd.get("auto_trade", true)); c.trade_orders = cd.get("trade_orders", [])
 		c.command_power = float(cd.get("cp", 0.0)); c.army_xp = float(cd.get("axp", 0.0)); c.navy_xp = float(cd.get("nxp", 0.0)); c.air_xp = float(cd.get("airxp", 0.0))
-		c.research_slots = int(cd["research_slots"]); c.fuel = float(cd.get("fuel", -1.0)); c.research_stored = float(cd.get("rstore", 0.0)); c.research_current = cd["research_current"]
+		c.research_slots = int(cd["research_slots"]); c.fuel = float(cd.get("fuel", -1.0)); c.fuel_cap = float(cd.get("fuel_cap", 0.0)); c.research_stored = float(cd.get("rstore", 0.0)); c.research_current = cd["research_current"]
 		c.research_done.clear()
 		c.tech_mods.clear()
 		for t: String in cd["research_done"]:
@@ -199,6 +303,7 @@ func load_game(slot: String) -> bool:
 			Research.ensure(String(r["tech"]))          # sürmekte olan iyileştirme seviyesinin tanımı
 		c.research_bonus = cd["research_bonus"]; c.decisions_active = cd["decisions"]
 		c.manpower_used = int(cd["manpower_used"]); c.templates = cd["templates"]; c.faction = cd["faction"]
+		c.sp = float(cd.get("sp", Military.recruit_def()["start_sp"]))
 		c.war_goals = cd["war_goals"]; c.justify_progress = cd["justify"]
 		c.guarantees.assign(cd["guarantees"]); c.access.assign(cd["access"]); c.capitulated = cd["capitulated"]; c.truce_until = int(cd.get("truce", 0))
 		c.popularity = cd["popularity"]; c.stockpile = cd["stockpile"]
@@ -262,6 +367,7 @@ func load_game(slot: String) -> bool:
 	Military._rebuild_index()
 	World.flush_ownership()
 	World.player_tag = data["player"]
+	Military.set_explored(str(data.get("explored", "")))     # keşif kalıcı: kayıttaki keşfedilmiş bölgeler
 	# kayıttan türeyen durum hemen yeniden hesaplanır (yoksa bir sonraki ay başına kadar 1936 ticareti kalır)
 	Economy._run_trade()
 	Military._compute_supply()

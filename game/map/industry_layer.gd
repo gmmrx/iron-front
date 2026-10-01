@@ -274,8 +274,8 @@ func refresh() -> void:
 			if not queued.has(pr.state_id):
 				queued[pr.state_id] = {}
 			queued[pr.state_id][pr.building] = int(queued[pr.state_id].get(pr.building, 0)) + 1
+	var old_plots := active_plots.duplicate()
 	active_plots.clear()
-	version += 1
 	for sid: int in _slots:
 		var st: StateRegion = World.states[sid]
 		var slots: Dictionary = _slots[sid]
@@ -313,6 +313,10 @@ func refresh() -> void:
 				for part: Array in _parts.get("ind_site", []):
 					for pv: Transform3D in part[2]:
 						_push(lists, part[0], sxf * pv)
+	# birim yerleri önbelleği (CityLayer3D.unit_spot) yalnız dolu parseller değişince yenilenir: yapay zekâ inşaat
+	# kuyruğunu sık değiştirir, her yenilemede bütün tümenlerin yeri baştan aranıyordu (~20 ms)
+	if active_plots != old_plots:
+		version += 1
 	if OS.has_environment("INDDBG"):          # hata ayıklama: INDDBG=1 → örnek ve şantiye sayısı
 		var sites := 0
 		var total := 0

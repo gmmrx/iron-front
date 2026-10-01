@@ -52,6 +52,7 @@ func test_save_load_roundtrip() -> void:
 	days(200)
 	player().auto_trade = true              # oyuncu otomatik ticareti açtı
 	Economy._run_trade()
+	World.states[player().capital_state].damage = 0.37      # bombardıman hasarı kayda girer
 	var before: Dictionary = _snap.take()
 	if not check(Game.save_game(SLOT), "kaydet"):
 		return

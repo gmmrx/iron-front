@@ -31,6 +31,8 @@ GEOJSON = {
     "ne_10m_rivers_europe.geojson": "ne_10m_rivers_europe.geojson",
     "ne_10m_lakes.geojson": "ne_10m_lakes.geojson",
     "ne_10m_populated_places.geojson": "ne_10m_populated_places.geojson",
+    "ne_10m_roads.geojson": "ne_10m_roads.geojson",                 # tools/build_roads.py
+    "ne_10m_railroads.geojson": "ne_10m_railroads.geojson",
 }
 
 # 1936 bayrakları (Commons dosya adları). GER bilinçli olarak yok: prosedürel siyah-beyaz-kırmızı kullanılır.

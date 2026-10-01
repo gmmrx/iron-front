@@ -19,7 +19,7 @@ const BUILDINGS_PATH := "res://assets/models/buildings.glb"
 ## kamera mesafesi (dünya birimi) üst sınırları
 const MODEL_RANGE := {"capital": 1450.0, "large": 1000.0, "medium": 700.0, "town": 480.0, "port": 700.0}
 const AIRBASE_RANGE := 900.0
-const LABEL_RANGE: Array[float] = [2600.0, 1100.0, 700.0, 450.0, 280.0]  ## tier 0..4
+const LABEL_RANGE: Array[float] = [1600.0, 1000.0, 700.0, 450.0, 280.0]  ## tier 0..4 (başkent adı yıldızıyla birlikte)
 
 var map: MapView3D
 var _font: Font
@@ -27,11 +27,16 @@ var _bold: Font
 var _mesh_cache := {}
 var _lib := {}                      ## düğüm adı -> Mesh (buildings.glb)
 var _occupied := {}                 ## Vector2i hücre -> true (şehirler/limanlar çakışmasın)
-## İğne tasarımı: şehir, liman ve hava üssü modelleri kurulmaz (konum, doluluk, ad ve ağaç hesapları sürer).
+## İğne tasarımı: şehir, liman ve hava üssü modelleri kurulmaz (konum, doluluk ve ad hesapları sürer).
 ## Modelleri geri açmak için true.
 const SHOW_MODELS := false
 var _visual_positions := {}         ## city id -> kıyıyı taşırmayan model merkezi
 var labels := {}                    ## city id -> ad etiketi (iğne haritası adları iğne başına taşır)
+var label_plates := {}              ## city id -> adın arkasındaki koyu kutu (etiketin çocuğu, aynı ofset)
+var far_labels := {}                ## city id -> uzak zoom adı (sade beyaz, küçük; iğne çıkınca yerini kutulu ada bırakır)
+const LABEL_PX := 0.0005            ## etiket ve kutusunun piksel boyu
+const PLATE_PAD := 12.0             ## kutunun yazıdan taşması (etiket pikseli)
+static var _plate_cache := {}
 const CONFORM_SHADER := preload("res://assets/shaders/conform.gdshader")
 const BUILDING_SHADER := preload("res://assets/shaders/building.gdshader")
 
@@ -256,14 +261,6 @@ func _build_straits_and_airbases() -> void:
 	var icons := MapIconLayer.new()
 	icons.map = map
 	add_child(icons)
-	var trees := TreeLayer.new()
-	trees.map = map
-	var zones: Array[Vector2] = []
-	if _industry and IndustryLayer.SHOW_MODELS:
-		zones = _industry.plot_positions()      # tesis modelleri varsa parsellerde ağaç yok
-	trees.clear_zones = zones
-	trees.clear_radius = IndustryLayer.FLAT_RADIUS * 1.1
-	add_child(trees)
 	for sid: int in map.airbase_sites:
 		_add_airbase(sid)
 
@@ -297,7 +294,8 @@ func _mark_airbase(sid: int) -> void:
 	_unit_spots.clear()
 
 ## Tümen modelinin durduğu yer: şehir modelinin, hava üssünün, limanın ve dolu sanayi parsellerinin dışında,
-## bölge merkezine en yakın boş kara noktası (modeller üst üste binmesin). Önbellekli; sanayi değişince yenilenir.
+## bölge merkezine en yakın boş nokta, bölgenin kendi içinde (komşu bölgeye taşarsa figür sınırın ötesinde düşmanın
+## dibinde duruyordu; hiç yer yoksa merkez). Önbellekli; sanayi değişince yenilenir.
 var _unit_spots := {}
 var _unit_spots_version := -1
 func unit_spot(pid: int, p: Vector2) -> Vector2:
@@ -313,7 +311,7 @@ func unit_spot(pid: int, p: Vector2) -> Vector2:
 			for k in 12:
 				var a := TAU * float(k) / 12.0 + float(ring) * 0.37
 				var q := p + Vector2(cos(a), sin(a)) * float(ring) * 3.5
-				if _is_land(q) and not _blocked(q):
+				if map.province_at(q) == pid and not _blocked(q):
 					best = q
 					found = true
 					break
@@ -389,29 +387,100 @@ func _walk_to_coast(start: Vector2, dir: Vector2) -> Variant:
 		pos = nxt
 	return null
 
+## Şehir adları: uzakta sade beyaz, küçük ad (harita ikonlarının yanında). İğnesi olan büyük şehirde (PinLayer.has_pin)
+## iğne çıkınca yerini koyu, ince çerçeveli kutuda serifli ada bırakır; küçük şehirler her zoom'da yalnız sade adla kalır.
 func _build_labels() -> void:
+	var f := UiTheme.title_font()
 	for c in World.cities:
 		var tier := CityLayer.tier_of(c)
+		# iğnesiz şehir (küçük): sade ad en yakına kadar kalır; iğneli şehirde iğne çıkınca kutulu ada döner
+		var pinned := PinLayer.has_pin(c)
+		var near_d := minf(PinLayer.city_range(c), LABEL_RANGE[tier]) if pinned else 0.0
+		var fl := Label3D.new()
+		fl.text = c.display_name()
+		fl.font = _bold if c.is_capital else _font
+		fl.font_size = 24 if c.is_capital else 20
+		fl.outline_size = 8
+		fl.outline_modulate = Color(0.03, 0.03, 0.02, 0.9)
+		fl.modulate = CityLayer.CAPITAL_COLOR if c.is_capital else CityLayer.TEXT_COLOR
+		fl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		fl.fixed_size = true
+		fl.pixel_size = LABEL_PX
+		fl.no_depth_test = true
+		fl.render_priority = 5
+		fl.outline_render_priority = 4
+		fl.position = Vector3(c.position.x, map.height_at(c.position) + (12.0 if c.is_capital else 7.0), c.position.y)
+		fl.offset = Vector2(0, 16)
+		fl.visibility_range_begin = near_d
+		fl.visibility_range_begin_margin = near_d * 0.1
+		fl.visibility_range_end = LABEL_RANGE[tier]
+		fl.visibility_range_end_margin = LABEL_RANGE[tier] * 0.1
+		fl.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		add_child(fl)
+		far_labels[c.id] = fl
+		if not pinned:
+			continue
 		var l := Label3D.new()
 		l.text = c.display_name()
-		l.font = _bold if c.is_capital else _font
+		l.font = f
 		l.font_size = 30 if c.is_capital else 26
-		l.outline_size = 9
-		l.outline_modulate = Color(0.03, 0.03, 0.02, 0.9)
-		l.modulate = CityLayer.CAPITAL_COLOR if c.is_capital else CityLayer.TEXT_COLOR
+		l.outline_size = 3
+		l.outline_modulate = Color(0.02, 0.03, 0.03, 0.8)
+		l.modulate = Color("f4eedf")
 		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		l.fixed_size = true
-		l.pixel_size = 0.0005
+		l.pixel_size = LABEL_PX
 		l.no_depth_test = true
 		l.render_priority = 5
 		l.outline_render_priority = 4
 		l.position = Vector3(c.position.x, map.height_at(c.position) + (12.0 if c.is_capital else 7.0), c.position.y)
 		l.offset = Vector2(0, 16)
-		l.visibility_range_end = LABEL_RANGE[tier]
-		l.visibility_range_end_margin = LABEL_RANGE[tier] * 0.1
+		l.visibility_range_end = near_d
+		l.visibility_range_end_margin = near_d * 0.1
 		l.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(l)
 		labels[c.id] = l
+		var tw := f.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, l.font_size).x
+		var plate := Sprite3D.new()
+		plate.texture = label_plate(tw + PLATE_PAD * 2.0, float(l.font_size) * 1.55)
+		plate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		plate.fixed_size = true
+		plate.pixel_size = LABEL_PX
+		plate.no_depth_test = true
+		plate.render_priority = 3
+		plate.offset = l.offset
+		plate.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
+		plate.visibility_range_end = l.visibility_range_end
+		plate.visibility_range_end_margin = l.visibility_range_end_margin
+		plate.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		l.add_child(plate)
+		label_plates[c.id] = plate
+
+## Ad kutusu dokusu: koyu yarı saydam zemin, ince açık çerçeve, hafif yuvarlak köşe. Genişlik 8 piksellik kademelerle
+## önbellekte (bütün şehirler için birkaç düzine doku).
+static func label_plate(w: float, h: float) -> Texture2D:
+	var wi := int(ceil(w / 8.0)) * 8
+	var hi := int(ceil(h))
+	var key := wi * 1000 + hi
+	if _plate_cache.has(key):
+		return _plate_cache[key]
+	var img := Image.create(wi, hi, false, Image.FORMAT_RGBA8)
+	var r := 5.0
+	var fill := Color(0.055, 0.065, 0.075, 0.9)
+	var edge := Color(0.62, 0.58, 0.48, 0.95)
+	for y in hi:
+		for x in wi:
+			var qx := absf(float(x) + 0.5 - wi * 0.5) - (wi * 0.5 - r)
+			var qy := absf(float(y) + 0.5 - hi * 0.5) - (hi * 0.5 - r)
+			var sd := Vector2(maxf(qx, 0.0), maxf(qy, 0.0)).length() + minf(maxf(qx, qy), 0.0) - r
+			if sd > 0.5:
+				continue
+			var col := edge if sd > -1.8 else fill
+			col.a *= clampf(0.5 - sd, 0.0, 1.0)
+			img.set_pixel(x, y, col)
+	var tex := ImageTexture.create_from_image(img)
+	_plate_cache[key] = tex
+	return tex
 
 ## İnşaat binaları (fabrika, rafineri, tersane, deniz üssü, uçaksavar, demiryolu, şantiye): IndustryLayer
 var _industry: IndustryLayer

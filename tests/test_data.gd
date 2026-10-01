@@ -370,6 +370,9 @@ func test_strings_rows() -> void:
 		if r.size() < 3 or r[1].strip_edges() == "" or r[2].strip_edges() == "":
 			p.append("'%s': en ya da tr boş" % key)
 			continue
+		if r.size() > 3:
+			# tırnaksız virgül satırı böler: Türkçe sütuna İngilizcenin devamı düşer
+			p.append("'%s': %d sütun (virgüllü metin tırnak içinde olmalı)" % [key, r.size()])
 		var a := _placeholders(r[1])
 		var b := _placeholders(r[2])
 		if a.size() != b.size():
@@ -441,12 +444,14 @@ func _families() -> Dictionary:
 		"SHIP_": Navy.SHIP_TYPES,
 		"SHIPS_": Navy.SHIP_TYPES,
 		"WING_TYPE_": Air.TYPES.keys(),
-		"WING_NAME_": Air.TYPES.keys(),
 		"MOD_": mods.keys(),
 		"EFFECT_": law_effects,
 		"TIP_": map_modes,
 		"MUSIC_": _const_array("res://game/ui/settings_panel.gd", "TRACKS"),
 		"WORLD_KIND_": _regex_set("world_event\\(\"([a-z]+)\""),
+		"PLACE_": ["DIVISION", "WING", "SHIPS"],          # main._begin_place: tr("PLACE_" + kind.to_upper())
+		"ODDS_F_": Military.ESTIMATE_FACTORS,            # map_tooltip._odds_rows: saldırı tahmininin etkenleri
+		"RECRUIT_UNIT_": Military.recruit_def()["units"].keys(),   # state_panel: asker alınabilen birlikler
 	}
 
 ## Son ekli anahtar aileleri: tr(x + "SONEK") biçimindeki kullanımların alabileceği değerler

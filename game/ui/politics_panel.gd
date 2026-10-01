@@ -69,6 +69,7 @@ func refresh() -> void:
 	_leader_block(c)
 	_gauges(c)
 	_body = cols[1]
+	_body.add_theme_constant_override("separation", 14)     # orta sütun: ulusal durumlar ve yasalar arası nefes
 	_spirits(c)
 	_laws(c)
 	_body = cols[2]
@@ -284,8 +285,8 @@ func _gauge(parent: Container, icon: String, title: String, value: String, sub: 
 func _spirits(c: Country) -> void:
 	PanelLayout.section(_body, tr("POL_SPIRITS"))
 	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 6)
-	flow.add_theme_constant_override("v_separation", 6)
+	flow.add_theme_constant_override("h_separation", 16)
+	flow.add_theme_constant_override("v_separation", 14)
 	_body.add_child(flow)
 	for sp in c.spirits:
 		var def: Dictionary = Politics.spirits.get(sp, Politics.decisions.get(sp, {}))
@@ -343,10 +344,11 @@ func _law_reqs(d: Dictionary) -> String:
 
 func _laws(c: Country) -> void:
 	PanelLayout.section(_body, tr("POL_LAWS") % int(Economy.law_change_cost))
-	var cols := PanelLayout.columns(_body, [1.0, 1.0, 1.0], 8)
+	var cols := PanelLayout.columns(_body, [1.0, 1.0, 1.0], 18)
 	var k := 0
 	for g: String in Economy.law_groups:
 		var list := cols[k]
+		list.add_theme_constant_override("separation", 10)
 		k += 1
 		var gh := UiTheme.make_label(Economy.group_name(g), 15, UiTheme.ACCENT)
 		gh.add_theme_font_override("font", UiTheme.bold_font())

@@ -2008,6 +2008,57 @@
     }
    },
    "target_stability": 0.5
+  },
+  "DNZ": {
+   "name": {
+    "en": "Danzig",
+    "tr": "Danzig"
+   },
+   "color": "#b5654a",
+   "ideology": "fascism",
+   "leader": "Arthur Greiser",
+   "capital_hint": "Gdańsk",
+   "stability": 0.511,
+   "war_support": 0.3,
+   "flag": {
+    "dir": "h",
+    "colors": [
+     "#d21034"
+    ],
+    "emblem": {
+     "type": "canton_cross",
+     "bg": "#d21034",
+     "color": "#ffffff"
+    }
+   },
+   "target_stability": 0.6,
+   "party": {
+    "en": "NSDAP",
+    "tr": "NSDAP"
+   }
+  },
+  "TNG": {
+   "name": {
+    "en": "Tangier",
+    "tr": "Tanca"
+   },
+   "color": "#6f9f8a",
+   "ideology": "neutrality",
+   "leader": "Joseph Le Fur",
+   "capital_hint": "Tangier",
+   "stability": 0.61,
+   "war_support": 0.05,
+   "flag": {
+    "dir": "h",
+    "colors": [
+     "#c1272d"
+    ],
+    "emblem": {
+     "type": "canton_star",
+     "color": "#006233"
+    }
+   },
+   "target_stability": 0.7
   }
  }
 }

@@ -3,8 +3,11 @@ extends Node3D
 ## Uzak zoom'da stratejik şehir, liman ve hava üssü ikonları.
 ## Yaklaşınca ikonlar söner, ayrıntılı 3D dioramalar belirir.
 
-const PORT_RANGE := Vector2(560.0, 2300.0)      ## (başlangıç, bitiş) kamera mesafesi
-const AIR_RANGE := Vector2(760.0, 2300.0)
+## (başlangıç, bitiş) kamera mesafesi. Yaklaşırken önce birlik bayrakları (UnitLayer.HIDE_ALL), sonra başkent yıldızı ve
+## şehir, en son liman ve hava üssü ikonları belirir; kıta görünümünde hiçbiri yok (sade)
+const PORT_RANGE := Vector2(560.0, 1000.0)
+const AIR_RANGE := Vector2(760.0, 1000.0)
+const CAPITAL_END := 1600.0                    ## başkent yıldızı bu uzaklığın içinde (birlik bayraklarından sonra)
 
 var map: MapView3D
 var _port_tex: Texture2D
@@ -12,6 +15,8 @@ var _air_tex: Texture2D
 var _city_tex: Texture2D
 var _capital_tex: Texture2D
 var _air_nodes := {}   ## eyalet -> düğüm
+var _port_nodes := {}  ## eyalet -> düğüm
+var _fog_seen := -1
 
 func _ready() -> void:
 	_port_tex = UiTheme.icon("map_port")
@@ -22,18 +27,28 @@ func _ready() -> void:
 	for c: City in World.cities:
 		if c.is_capital or c.victory_points >= 3:
 			_add_city(c)
-		if c.is_port and not seen.has(c.state_id):
+		if c.is_port and not seen.has(c.state_id) and Economy.SHOW_BUILDINGS:
 			seen[c.state_id] = true
 			var st: StateRegion = World.states.get(c.state_id)
 			var lvl := st.building_level("naval_base") if st else 0
-			_add_icon(_port_tex, c.position + Vector2(0, 7), lvl, PORT_RANGE, tr("MAPICON_PORT") % [c.display_name(), lvl])
-	for sid: int in map.airbase_sites:
-		_add_airbase(sid)
+			_port_nodes[c.state_id] = _add_icon(_port_tex, c.position + Vector2(0, 7), lvl, PORT_RANGE, tr("MAPICON_PORT") % [c.display_name(), lvl])
+	if Economy.SHOW_BUILDINGS:
+		for sid: int in map.airbase_sites:
+			_add_airbase(sid)
 	Economy.building_completed.connect(func(_t: String, sid: int, b: String) -> void:
-		if b == "air_base" and map.airbase_sites.has(sid):
+		if b == "air_base" and map.airbase_sites.has(sid) and Economy.SHOW_BUILDINGS:
 			if _air_nodes.has(sid):
 				_air_nodes[sid].queue_free()
 			_add_airbase(sid))
+
+## Savaş sisi: bulutun altındaki eyaletin liman ve hava üssü ikonları gizli (şehir işaretleri kalır)
+func _process(_d: float) -> void:
+	if _fog_seen == Military.fog_version:
+		return
+	_fog_seen = Military.fog_version
+	for nodes: Dictionary in [_port_nodes, _air_nodes]:
+		for sid: int in nodes:
+			(nodes[sid] as Node3D).visible = not Military.state_fogged(World.states.get(sid))
 
 func _add_airbase(sid: int) -> void:
 	var st: StateRegion = World.states[sid]
@@ -43,8 +58,8 @@ func _add_airbase(sid: int) -> void:
 func _add_city(c: City) -> void:
 	var begin := 1300.0 if c.is_capital else (900.0 if c.victory_points >= 10 else 640.0)
 	var tex := _capital_tex if c.is_capital else _city_tex
-	# uzaktan yalnız önemli şehirler (dünya haritasında binlerce şehir var)
-	var end := 7000.0 if c.is_capital else (3200.0 if c.victory_points >= 10 else 1900.0)
+	# uzaktan yalnız önemli şehirler (dünya haritasında binlerce şehir var); hepsi birlik bayraklarından sonra belirir
+	var end := CAPITAL_END if c.is_capital else (1300.0 if c.victory_points >= 10 else 1000.0)
 	var root := _add_icon(tex, c.position, 0, Vector2(begin, end), c.display_name())
 	var sprite := root.get_child(0) as Sprite3D
 	sprite.pixel_size = (0.00022 if c.is_capital else 0.00016) * UiTheme.px_scale(tex, 154.0)

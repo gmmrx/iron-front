@@ -2,7 +2,29 @@
 
 # How to play
 
-## Getting started
+## Scenarios
+In the main menu choose **Scenarios**, then a side of a scenario. A scenario starts from a prepared moment of the war.
+There is no time limit: the war goes on until one side gives up (surrenders or is destroyed). If the two sides make
+peace, the side holding more of the key city points counts as the winner.
+- **Key cities** are what both sides fight for; the computer gives them extra weight when it picks what to attack, and
+  the card of a key city says it is one.
+- You play your side with the defaults of a new game (manual trade, manual wings, "to the last man"); every other
+  country is run by the computer.
+- **Eastern Front, 1941**: 22 June 1941, Germany against the Soviet Union. Key cities: Moscow 50, Leningrad 15, Kiev 15,
+  Minsk 10, Kharkov 10, Odessa, Dnipropetrovsk, Stalino and Rostov 5 each.
+
+## The game loop
+1. **Scout**: beyond your land and one region past the border the map is dark. Press **K** (or the Recon button) and
+   click a region: an idle air wing flies over it for a day and reveals 350 km around it for good. A flight costs
+   15 industry points (SP).
+2. **Recruit**: click one of your cities: the state panel lists what you can buy there (infantry, armour, fighter,
+   close support and bomber wings) with its SP cost, manpower and training days. The unit appears in that city.
+3. **Fight**: select your figures and order them on the map; the card of an enemy region estimates the attack.
+4. **Grow**: every day the factories of the states whose main city you hold give SP (military factory 1, civilian
+   0.4; the top bar shows SP and the daily income). Take a city and its factories work for you; bombed factories give
+   nothing.
+
+## Getting started (free game)
 1. In the main menu choose **New game** → pick a country on the map or from the list → **Play**.
 2. The game starts **paused** (1 January 1936). Space starts/pauses, 1–5 set the speed.
 3. The game starts in English; switch to Turkish in **Settings → Language** (main menu or Esc menu).
@@ -34,7 +56,7 @@
 | Move or attack order | Right click (on the web and on Mac: Ctrl + left click while divisions are selected) |
 | A country's overall situation | Hold Ctrl over the map |
 | That country's politics screen (read-only) | Ctrl + left click (no divisions selected) |
-| Camera | Middle-button drag, wheel, two fingers |
+| Camera | Middle-button drag (glides on when you let go), wheel, two fingers, arrow keys / WASD; every move eases in and out |
 
 Movement arrows are drawn **green** (move) or **red** (attack into enemy land). At far zoom small country flags replace
 division counts; further out unit markers are hidden to keep the map clean.

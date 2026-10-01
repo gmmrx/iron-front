@@ -30,12 +30,12 @@ func _last(key: String) -> Dictionary:
 # ------------------------------------------------------------------ kayıt ve bildirim akışı
 func test_world_wars_logged_feed_only_when_relevant() -> void:
 	_listen()
-	check(_declare("BOL", "PAR"), "Bolivya Paraguay'a savaş açar")
+	check(_declare("LIT", "LAT"), "Litvanya Letonya'ya savaş açar")
 	var e := _last("NOTE_WAR_DECLARED")
 	if check(not e.is_empty(), "savaş ilanı kayıtta"):
-		eq(e["tags"], ["BOL", "PAR"], "kaydın ülkeleri")
+		eq(e["tags"], ["LIT", "LAT"], "kaydın ülkeleri")
 		eq(String(e["kind"]), "war", "kaydın türü")
-		check(World.world_text(e).contains(World.countries["BOL"].display_name()), "metin ülke adını taşır: " + World.world_text(e))
+		check(World.world_text(e).contains(World.countries["LIT"].display_name()), "metin ülke adını taşır: " + World.world_text(e))
 	eq(_feed.size(), 0, "küçük ülkelerin savaşı bildirim akışına düşmez")
 	check(_declare("GER", "POL"), "Almanya Polonya'ya savaş açar")
 	check(_feed.any(func(t: String) -> bool: return t.contains(World.countries["GER"].display_name())), "büyük gücün savaşı akışta")
@@ -67,7 +67,7 @@ func test_program_and_election_entries() -> void:
 # ------------------------------------------------------------------ tepkiler
 func test_react_to_foreign_war() -> void:
 	var me := player()
-	_declare("BOL", "PAR")
+	_declare("LIT", "LAT")
 	var e := _last("NOTE_WAR_DECLARED")
 	check(WorldReact.is_open(e), "oyuncu taraf değil: tepki verilebilir")
 	eq(WorldReact.options(e).size(), 3, "üç seçenek")
@@ -77,7 +77,7 @@ func test_react_to_foreign_war() -> void:
 	check(WorldReact.block(me, e, arms) != "", "stok yetmezse tüfek gönderilemez")
 	check(not WorldReact.choose(e, "arms"), "şart tutmazsa seçim olmaz")
 	me.stockpile["infantry_equipment"] = 1000.0
-	var par: Country = World.countries["PAR"]
+	var par: Country = World.countries["LAT"]
 	var par_before := float(par.stockpile.get("infantry_equipment", 0.0))
 	var pp := me.political_power
 	check(WorldReact.choose(e, "arms"), "tüfek gönderilir")
@@ -90,7 +90,7 @@ func test_react_to_foreign_war() -> void:
 	var news := _last("REACT_NEWS_ARMS")
 	check(not news.is_empty() and news["tags"][0] == me.tag, "oyuncunun cevabı da kayıt olur")
 	# başka bir savaş: kınamak
-	check(_declare("URU", "CHL"), "Uruguay Şili'ye savaş açar")
+	check(_declare("EST", "ALB"), "Estonya Arnavutluk'a savaş açar")
 	var e2 := _last("NOTE_WAR_DECLARED")
 	var ws := me.war_support
 	pp = me.political_power
@@ -99,7 +99,7 @@ func test_react_to_foreign_war() -> void:
 	near(me.war_support, minf(ws + 0.02, 1.0), 0.0001, "kınama savaş desteği +%2")
 
 func test_react_window_expires() -> void:
-	_declare("BOL", "PAR")
+	_declare("LIT", "LAT")
 	var e := _last("NOTE_WAR_DECLARED")
 	check(WorldReact.is_open(e), "yeni kayıt açık")
 	World.day_count += 31
@@ -157,7 +157,7 @@ func test_world_panel_filters() -> void:
 	var near: Dictionary = wp.neighbours()
 	check(near.has("SYR") or near.has("IRQ") or near.has("GRE") or near.has("BUL") or near.has("SOV") or near.has("PER"),
 		"Türkiye'nin komşuları: " + str(near.keys()))
-	var far := World.world_event("war", "NOTE_WAR_DECLARED", ["@BOL", "@PAR"], ["BOL", "PAR"])
+	var far := World.world_event("war", "NOTE_WAR_DECLARED", ["@LIT", "@LAT"], ["LIT", "LAT"])
 	var mine := World.world_event("war", "NOTE_WAR_DECLARED", ["@" + me, "@IRQ"], [me, "IRQ"])
 	var neighbour := World.world_event("politics", "NEWS_NEW_LEADER", ["@" + str(near.keys()[0]), "X"], [str(near.keys()[0])])
 	wp.filter = WorldPanel.FILTER_ALL
@@ -171,6 +171,6 @@ func test_world_panel_filters() -> void:
 	wp.filter = WorldPanel.FILTER_ALL
 	wp.refresh()                            # görünür yapmadan (açılış ertelenmiş yerleşim çağırır)
 	gt(wp._list.get_child_count(), 2, "menüde satırlar")
-	eq(WorldPanel.place(far), World.capital_position("BOL"), "yeri olmayan kayıt: ilk ülkenin başkenti")
+	eq(WorldPanel.place(far), World.capital_position("LIT"), "yeri olmayan kayıt: ilk ülkenin başkenti")
 	wp.get_parent().remove_child(wp)
 	wp.free()

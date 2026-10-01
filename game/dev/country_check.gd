@@ -21,7 +21,7 @@ func _init() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--days="): days = int(a.substr(7))
 		if a.begins_with("--tags="): only = a.substr(7).split(",")
-	var tags: Array = only if not only.is_empty() else W.countries.keys()
+	var tags: Array = only if not only.is_empty() else W.countries.keys().filter(func(t: String) -> bool: return W.is_active(t))
 	var fails := 0
 	var t0 := Time.get_ticks_msec()
 	for tag: String in tags:

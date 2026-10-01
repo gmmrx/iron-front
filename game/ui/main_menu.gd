@@ -5,6 +5,8 @@ extends Control
 signal new_game_pressed
 signal quit_pressed
 signal load_pressed(slot: String)
+signal dev_war_pressed
+signal scenarios_pressed
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -61,10 +63,18 @@ func _ready() -> void:
 	spacer2.custom_minimum_size.y = 18
 	col.add_child(spacer2)
 
+	col.add_child(_menu_button(tr("MENU_SCENARIOS"), not Game.scenarios().is_empty(), func() -> void: scenarios_pressed.emit()))
 	col.add_child(_menu_button(tr("MENU_NEW_GAME"), true, func() -> void: new_game_pressed.emit()))
 	var saves := Game.list_saves()
 	col.add_child(_menu_button(tr("MENU_CONTINUE"), not saves.is_empty(), func() -> void: load_pressed.emit(saves[0])))
 	col.add_child(_menu_button(tr("MENU_SETTINGS"), true, open_settings))
+	if OS.is_debug_build():
+		# yalnız geliştirici sürümünde (editör / yerel çalıştırma; web yayını release): savaş demosu kaydıyla doğrudan
+		# cephenin ortasına (game/dev/war_demo.gd yazar)
+		var has_demo := FileAccess.file_exists(Game.SAVE_DIR + "war_demo_watch.json") or FileAccess.file_exists(Game.SAVE_DIR + "war_demo.json")
+		var dev := _menu_button(tr("MENU_DEV_WAR"), has_demo, func() -> void: dev_war_pressed.emit())
+		dev.tooltip_text = tr("TIP_DEV_WAR") if has_demo else tr("TIP_DEV_WAR_MISSING")
+		col.add_child(dev)
 	col.add_child(_menu_button(tr("MENU_QUIT"), true, func() -> void: quit_pressed.emit()))
 
 	var ver := UiTheme.make_label("v0.3 — Faz 1-9", 15, UiTheme.TEXT_DIM)

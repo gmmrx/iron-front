@@ -1,8 +1,9 @@
 class_name BattleTicker
 extends Node3D
 ## Muharebe durum okları: süren bir muharebede taraflardan birinin durumu düzeldikçe onun yanında küçük yeşil ▲,
-## kötüleştikçe kırmızı ▼ belirir, yukarı kayarak söner. Saldıranın oku saldırının geldiği yanda, savunanınki muharebe
-## bölgesinde durur. Durum: iki tarafın organizasyon payı (Military.battles att_ratio / def_ratio); gerçek zamanda en
+## kötüleştikçe kırmızı ▼ belirir, yukarı kayarak söner. Ok o tarafın sayacının hemen sağında çıkar ve sayacın çocuğudur:
+## tümen yürürse ok da onunla gider. Sayaç görünmüyorsa (uzakta birleşik) saldıranın oku saldırının geldiği yanda,
+## savunanınki muharebe bölgesinde durur. Durum: iki tarafın organizasyon payı (Military.battles att_ratio / def_ratio); gerçek zamanda en
 ## çok saniyede bir bakılır (5× hızda ok yağmasın). Yalnız görüş alanındaki muharebeler; oyun mantığına dokunmaz.
 
 const PIXEL := 0.00042
@@ -16,11 +17,11 @@ const PX := 1766.0                  ## sabit boy sprite: doku pikseli * pixel_si
 
 var map: MapView3D
 var camera: MapCamera3D
+var units: UnitLayer                ## okları sayaçların yanına bağlamak için (yoksa dünya konumunda)
 var _up: Texture2D
 var _down: Texture2D
 var _last := {}                     ## pid -> [saldıranın payı, son bakış (sn)]
-var _live: Array = []               ## [Sprite3D, yaş]
-var _free: Array[Sprite3D] = []
+var _live: Array = []               ## [Sprite3D, yaş, taban ofset]
 var _t := 0.0
 
 func _ready() -> void:
@@ -56,45 +57,57 @@ func _process(delta: float) -> void:
 		if absf(change) < MIN_CHANGE:
 			continue
 		var from := World.unwrap_near(to, World.province(int(b.get("from", pid))).center)
-		_spawn(from.lerp(to, 0.25), change > 0.0)       # saldıran
-		_spawn(from.lerp(to, 0.85), change < 0.0)       # savunan
+		_spawn_side(b.get("attackers", []), from.lerp(to, 0.25), change > 0.0)       # saldıran
+		_spawn_side(b.get("defenders", []), from.lerp(to, 0.85), change < 0.0)       # savunan
 
-## Bir ok: yükselen (yeşil ▲) ya da düşen (kırmızı ▼)
-func _spawn(p: Vector2, good: bool) -> void:
-	var s: Sprite3D
-	if _free.is_empty():
-		s = Sprite3D.new()
-		s.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		s.fixed_size = true
-		s.no_depth_test = true
-		s.render_priority = 32
-		s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		add_child(s)
-	else:
-		s = _free.pop_back()
+## Bir tarafın okları: görünen sayaçlarının yanında (sayaçla birlikte gider); sayaç yoksa dünya konumunda
+func _spawn_side(divs: Array, fallback: Vector2, good: bool) -> void:
+	var roots: Array = units.battle_roots(divs) if units else []
+	if roots.is_empty():
+		_spawn(fallback, good)
+		return
+	for r: Node3D in roots:
+		var s := _arrow_sprite(good)
+		r.add_child(s)
+		var base := Vector2(units.side_px(r) + ARROW_PX * 0.5, 0.0) / (s.pixel_size * PX)
+		s.offset = base
+		_live.append([s, 0.0, base])
+
+func _arrow_sprite(good: bool) -> Sprite3D:
+	var s := Sprite3D.new()
+	s.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	s.fixed_size = true
+	s.no_depth_test = true
+	s.render_priority = 32
+	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	s.texture = _up if good else _down
 	s.pixel_size = ARROW_PX / (float(s.texture.get_height()) * PX)
+	return s
+
+## Bir ok (dünya konumunda): yükselen (yeşil ▲) ya da düşen (kırmızı ▼)
+func _spawn(p: Vector2, good: bool) -> void:
+	var s := _arrow_sprite(good)
+	add_child(s)
 	s.position = Vector3(p.x, maxf(map.height_at(p), 0.0) + 3.0, p.y)
-	s.offset = Vector2.ZERO
-	s.modulate = Color(1, 1, 1, 1)
-	s.visible = true
-	_live.append([s, 0.0])
+	_live.append([s, 0.0, Vector2.ZERO])
 
 ## Oklar yukarı kayar, son yarısında söner
 func _age(delta: float) -> void:
 	var i := 0
 	while i < _live.size():
 		var e: Array = _live[i]
+		if not is_instance_valid(e[0]):
+			_live.remove_at(i)                     # sayacı silindi (ok onunla gitti)
+			continue
 		var s: Sprite3D = e[0]
 		var age: float = float(e[1]) + delta
 		e[1] = age
 		if age >= LIFE:
-			s.visible = false
-			_free.append(s)
+			s.queue_free()
 			_live.remove_at(i)
 			continue
 		var k := age / LIFE
-		s.offset = Vector2(0.0, RISE_PX * k) / (s.pixel_size * PX)
+		s.offset = (e[2] as Vector2) + Vector2(0.0, RISE_PX * k) / (s.pixel_size * PX)
 		s.modulate.a = 1.0 - smoothstep(0.45, 1.0, k)
 		i += 1
 

@@ -22,6 +22,10 @@ var country_by_index: Array = [null]    ## indeks -> Country
 var states: Dictionary = {}             ## id -> StateRegion
 var provinces: Array = []               ## id -> Province (boşluklar null)
 var cities: Array[City] = []            ## nüfusa göre azalan
+var _city_by_id: Dictionary = {}         ## şehir id -> City
+
+func city_by_id(id: int) -> City:
+	return _city_by_id.get(id)
 var straits: Array = []                 ## {name, provinces[2], from[2], to[2]}
 var map_width := 0
 var map_height := 0
@@ -47,6 +51,7 @@ func reset() -> void:
 	states.clear()
 	provinces.clear()
 	cities.clear()
+	_city_by_id.clear()
 	straits.clear()
 	world_tension = 0.0
 	day_count = 0
@@ -164,6 +169,7 @@ func _load_map() -> void:
 		city.is_port = c["port"]
 		city.style = c.get("style", "west")
 		cities.append(city)
+		_city_by_id[city.id] = city
 		if states.has(city.state_id):
 			states[city.state_id].cities.append(city)
 		var pr := province(city.province_id)
@@ -458,6 +464,7 @@ func start_game(tag: String) -> void:
 		for d in Military.divisions:
 			if d.owner == tag:
 				d.hold = true                 # tümenler emir olmadan geri çekilmez
+	_retire_bystanders()
 	resume_game(tag)
 
 ## Kayıttan devam: oyuncunun kayıttaki tercihleri (otomatik ticaret, kanat, "son askere kadar") korunur
@@ -467,11 +474,30 @@ func resume_game(tag: String) -> void:
 	player_changed.emit(tag)
 	game_started.emit()
 
-## Oynanabilir ülkeler (haritada eyaleti olanlar), nüfusa göre
+## İkinci Dünya Savaşı'na katılan ülke mi (data/common/participants.json): yalnız bunlar oynanabilir ve hareket eder;
+## öbürleri tarafsız ve birliksizdir
+const PARTICIPANTS_PATH := "res://data/common/participants.json"
+var _active: Dictionary = {}
+func is_active(tag: String) -> bool:
+	if _active.is_empty():
+		for t in _read_json(PARTICIPANTS_PATH)["active"]:
+			_active[str(t)] = true
+	return _active.has(tag)
+
+## Savaşa katılmayan ülkeler haritada kalır ama birliksizdir: tümen, filo ve kanatları kaldırılır (yeni oyunda ve senaryo
+## başında; kayıttan devamda kayıttaki gibi kalır, yapay zekâları yine hareket etmez)
+func _retire_bystanders() -> void:
+	for c: Country in countries.values():
+		if not is_active(c.tag):
+			Military.remove_all(c.tag)
+			Navy.remove_all(c.tag)
+			Air.remove_all(c.tag)
+
+## Oynanabilir ülkeler (haritada eyaleti olan savaş katılımcıları), nüfusa göre
 func playable_countries() -> Array[Country]:
 	var out: Array[Country] = []
 	for c: Country in countries.values():
-		if not c.states.is_empty():
+		if not c.states.is_empty() and is_active(c.tag):
 			out.append(c)
 	out.sort_custom(func(a: Country, b: Country) -> bool: return a.population > b.population)
 	return out

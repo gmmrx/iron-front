@@ -15,6 +15,12 @@ const HISTORY_PATH := "res://data/history/states_1936.json"
 const EQUIPMENT_PATH := "res://data/common/equipment.json"
 const LAWS_PATH := "res://data/common/laws.json"
 
+## İnşaat yok (docs/DESIGN.md): yapılar harita verisindeki gibi sabittir; oyuncu da yapay zekâ da inşa etmez, haritada
+## yapı gösterilmez (hava üsleri, limanlar, fabrikalar arka planda çalışır). Kod duruyor: bu bayrak kapatır.
+const CONSTRUCTION := false
+## Yapılar haritada ve kartlarda görünür (sabit; sisin altındaki yabancı eyaletin yapıları keşfedilene kadar gizli: sisin
+## anlamı keşfedilecek bir şey olması)
+const SHOW_BUILDINGS := true
 var defs: Dictionary = {}          ## bina -> tanım
 var params: Dictionary = {}
 var resource_names: Array = []
@@ -104,6 +110,20 @@ func count(c: Country, building: String) -> int:
 	_count_cache[key] = n
 	return n
 
+## Bombardımanla durmuş fabrika sayısı (kesirli): eyalet başına seviye × hasar
+func damaged(c: Country, building: String) -> float:
+	var n := 0.0
+	for sid in c.states:
+		var st: StateRegion = World.states[sid]
+		if st.damage > 0.0:
+			n += st.building_level(building) * st.damage
+	return n
+
+## Bombardımanla durmuş fabrikaların payı (0..1)
+func damaged_share(c: Country, building: String) -> float:
+	var total := count(c, building)
+	return damaged(c, building) / float(total) if total > 0 else 0.0
+
 func invalidate_counts() -> void:
 	_count_cache.clear()
 
@@ -129,6 +149,7 @@ func consumer_goods_factories(c: Country) -> int:
 ## devletin bir fabrikalık kamu inşaat gücü kalır — küçük ülkeler de inşaat yapabilir. Oyuncu ödeyemeyeceği ithalatı yapamaz.
 func available_civilian(c: Country) -> int:
 	var n := count(c, "civilian_factory") - consumer_goods_factories(c) - c.trade_factories_paid + c.trade_factories_earned
+	n -= roundi(damaged(c, "civilian_factory"))          # bombalanmış sivil fabrikalar inşaata çalışamaz
 	return maxi(n, 1)
 
 ## Elle anlaşmalar için ödenebilir mi: toplam sipariş (+ek) karşılığı fabrika, tüketim malından arta kalan + ihracat kazancını aşamaz
@@ -534,6 +555,9 @@ func _produce(c: Country) -> void:
 	c.resource_use = {}
 	var output_mod := maxf(1.0 + c.mod("factory_output") + Politics.stability_factory_mod(c), 0.1)
 	var cap := float(prod["efficiency_cap"]) + c.mod("production_efficiency_cap")
+	# bombardıman: hasarlı fabrika payı kadar çıktı düşer (askerî fabrika / tersane ayrı)
+	var bombed_mil := 1.0 - damaged_share(c, "military_factory")
+	var bombed_yard := 1.0 - damaged_share(c, "dockyard")
 	for l in c.production_lines:
 		if l.factories <= 0:
 			l.last_output = 0.0
@@ -552,7 +576,8 @@ func _produce(c: Country) -> void:
 		l.resource_fraction = frac
 		var floor_ := float(prod["resource_shortage_floor"])
 		var per: float = float(prod["dockyard_output"]) if is_naval(l.equipment) else float(prod["mil_factory_output"])
-		var ic: float = l.factories * per * l.efficiency * output_mod * (floor_ + (1.0 - floor_) * frac)
+		var ic: float = l.factories * per * l.efficiency * output_mod * (floor_ + (1.0 - floor_) * frac) \
+				* (bombed_yard if is_naval(l.equipment) else bombed_mil)
 		var unit_cost := float(equipment[l.equipment]["cost"])
 		l.progress_ic += ic
 		var units := floorf(l.progress_ic / unit_cost)
