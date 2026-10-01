@@ -253,9 +253,14 @@ func test_army_commander_portrait_on_counter() -> void:
 	var mine := Military.country_divisions(tag).slice(0, 4)
 	if not check(mine.size() == 4, "oyuncunun 4 tümeni"):
 		return
-	for d: Division in mine.slice(1):
+	# bir bölgedeki bir ülkenin tümenleri tek figür: portre, hepsi aynı ordudaysa (ordunun ana sayacı). Ordunun üç tümeni
+	# aynı bölgeye, dördüncüsü yerinde
+	for d: Division in mine.slice(1, 3):
 		d.province = mine[0].province
 		d.path.clear()
+	for d: Division in Military.divisions:
+		if d.province == mine[0].province and not d in mine.slice(0, 3):
+			d.province = mine[3].province if d.owner == tag else d.province
 	var army := Military.create_army(tag, mine.slice(0, 3))
 	var cms := Military.commanders_of(tag)
 	if not check(not cms.is_empty(), "oyuncunun komutanı"):
@@ -381,7 +386,11 @@ func test_battle_arrows_follow_counter_and_glow() -> void:
 		for f: Array in ca.get("flashes", []):
 			if (f[0] as Sprite3D).visible:
 				lit += 1
-	gt(lit, 0, "saldıranda ateş çakmaları")
+	if UnitLayer.FIGURES and ca.get("fig") != null:
+		# figürde kart çakmaları yok: çatışmayı figür canlandırır (_combat_fx: nişan, namlu alevi, mermi izi)
+		check(ul._glowing.has(ul._div_key[att.id]), "saldıran figür çatışma canlandırmasında")
+	else:
+		gt(lit, 0, "saldıranda ateş çakmaları")
 	check((cd["glow"] as Sprite3D).visible == glow_on and (cd["glow"] as Sprite3D).modulate.r > 0.8 and (cd["glow"] as Sprite3D).modulate.g < 0.5, "savunanın çevresi kırmızı yanar")
 	var bt := BattleTicker.new()
 	bt.map = pm

@@ -367,6 +367,48 @@ class SpotCities extends CityLayer3D:
 	func unit_spot(_pid: int, p: Vector2) -> Vector2:
 		return p + Vector2(10.0, 0.0)
 
+## Sayaçlar bölgenin olağan noktasında durur (UnitLayer._tile_spot): yığın testlerinde seçilen bölgelerin noktası tek yer
+class SameSpotCities extends CityLayer3D:
+	var spot := Vector2.INF
+	var pids := {}
+	var at := {}                                  ## bölge -> elle verilen nokta (yürüyüş testleri)
+	func unit_spot(pid: int, p: Vector2) -> Vector2:
+		if at.has(pid):
+			return at[pid]
+		return spot if pids.has(pid) and spot != Vector2.INF else p + Vector2(10.0, 0.0)
+
+## Kontrollü yürüyüş: tümen kendi bölgesinden "to" bölgesine yürür (gerçek yol: d.path, ilerleme km); iki bölgenin olağan
+## noktası elle (a çıkış, b varış). Figür bu iki nokta arasında düz yürür (UnitLayer._walk_pos). Dönen: yürüyüşün km'si
+func _walk_setup(ul: UnitLayer, um: UnitModels, sc: SameSpotCities, d: Division, to: int, a: Vector2, b: Vector2) -> float:
+	sc.at[d.province] = a
+	sc.at[to] = b
+	d.path = [to] as Array[int]
+	d.progress = 0.0
+	ul._walk.erase(d.id)
+	ul._dirty = true
+	ul._timer = 1.0
+	ul._process(0.05)
+	um._update_anchors()
+	return World.distance_km(d.province, to)
+
+## Yürüyüşün f'si (0..1) kadarı yürünmüş: bir kare
+func _walk_step(ul: UnitLayer, um: UnitModels, ds: Array, km: Array, f: float) -> void:
+	for i in ds.size():
+		(ds[i] as Division).progress = float(km[i]) * f
+	um.static_epoch += 1
+	ul._follow_anchors(0.05)
+
+## Yürüyüşün varışı: tümeni olmayan bir Türk kara bölgesi (noktası elle verilince orada duran figür yürümesin)
+func _other_land(avoid: Array) -> int:
+	var occupied := {}
+	for d in Military.divisions:
+		occupied[d.province] = true
+	for d in Military.country_divisions("TUR"):
+		for n in World.land_neighbors(d.province):
+			if World.controller_tag(n) == "TUR" and not occupied.has(n) and not n in avoid:
+				return n
+	return 0
+
 func test_order_keeps_counter_in_place() -> void:
 	Probe.ensure()
 	var m := _mover("TUR", 1)
@@ -431,7 +473,9 @@ func test_counters_do_not_overlap() -> void:
 	var pm := ProbeMap.new()
 	var cam := MapCamera3D.new()
 	var um := UnitModels.new()
-	var sc := SpotCities.new()
+	var sc := SameSpotCities.new()
+	sc.spot = World.province(d1.province).center + Vector2(10.0, 0.0)
+	sc.pids = {d1.province: true, d2.province: true}         # iki yığın (içindeki bütün tümenler) aynı noktada
 	um.cities = sc
 	ul.map = pm
 	ul.camera = cam
@@ -536,7 +580,7 @@ func test_figures_collide_stay_put_and_sit_on_terrain() -> void:
 	var pm := HillMap.new()
 	var cam := MapCamera3D.new()
 	var um := UnitModels.new()
-	var sc := SpotCities.new()
+	var sc := SameSpotCities.new()
 	um.cities = sc
 	ul.map = pm
 	ul.camera = cam
@@ -560,32 +604,24 @@ func test_figures_collide_stay_put_and_sit_on_terrain() -> void:
 	var c1: Dictionary = ul._counters[key_of.call(d1)]
 	var n1: Node3D = c1["root"]
 	var at1 := Vector2(n1.position.x, n1.position.z)
-	# yürüyen: d1'in bölgesinden geçip evine dönen yol (varışı d1'in yeri değil: birleşmez); görsel yeri elle sürülür
-	d2.path = [d1.province, d2.province] as Array[int]
-	d2.progress = 0.0
-	ul._dirty = true
-	ul._timer = 1.0
-	ul._process(0.05)
+	# yürüyen: d1'in batısından doğusundaki başka bir bölgeye, d1'in tam üstünden geçen düz yol (varışı d1'in yeri değil:
+	# birleşmez)
+	var to := _other_land([d1.province, d2.province])
+	var km := _walk_setup(ul, um, sc, d2, to, at1 - Vector2(40.0, 0.0), at1 + Vector2(60.0, 0.0))
 	var c2: Dictionary = ul._counters[key_of.call(d2)]
 	var n2: Node3D = c2["root"]
 	var r := UnitLayer.FIG_SIZE * UnitFigures.BASE_R
 	var min_d := INF
 	var moved1 := 0.0
-	var start := at1 - Vector2(40.0, 0.0)
 	for i in 160:
-		var pos := start + Vector2(0.5 * i, 0.0)
-		um.anchors[d2.id] = [pos, Vector2.RIGHT, 0.5, 10.0]
-		um.static_epoch += 1                  # yerler elle yazıldı
-		ul._follow_anchors(0.05)
+		_walk_step(ul, um, [d2], [km], float(i) / 200.0)
 		if i > 20:
 			min_d = minf(min_d, Vector2(n2.position.x, n2.position.z).distance_to(Vector2(n1.position.x, n1.position.z)))
 		moved1 = maxf(moved1, Vector2(n1.position.x, n1.position.z).distance_to(at1))
 	lt(min_d, 1.0, "yürüyen yolundan sapmaz, duranın üstünden geçer (en yakın %.2f)" % min_d)
 	lt(moved1, 0.05, "duran figür itilmez")
 	for i in 60:
-		um.anchors[d2.id] = [start + Vector2(80.0 + 0.5 * i, 0.0), Vector2.RIGHT, 0.5, 10.0]
-		um.static_epoch += 1                  # yerler elle yazıldı
-		ul._follow_anchors(0.05)
+		_walk_step(ul, um, [d2], [km], 0.8 + 0.15 * float(i) / 60.0)
 	lt(absf(n2.position.z - at1.y), 0.3, "geçince yoluna döner")
 	# zoom: yakın kipte yer değişmez (önce en geniş yakın görüşte hepsi yerleşir; görüş dışındakilere dokunulmaz)
 	cam.distance = UnitLayer.CARD_DIST - 20.0
@@ -754,7 +790,7 @@ func test_crowded_stack_is_a_deck() -> void:
 	var pm := ProbeMap.new()
 	var cam := MapCamera3D.new()
 	var um := UnitModels.new()
-	var sc := SpotCities.new()
+	var sc := SameSpotCities.new()
 	um.cities = sc
 	ul.map = pm
 	ul.camera = cam
@@ -764,6 +800,9 @@ func test_crowded_stack_is_a_deck() -> void:
 	cam.current = true
 	var mine := Military.country_divisions("TUR")
 	var p0 := World.province(mine[0].province).center
+	sc.spot = p0                                  # bütün Türk yığınları aynı noktada
+	for d in mine:
+		sc.pids[d.province] = true
 	cam.distance = 200.0
 	cam.target = Vector3(p0.x, 0.0, p0.y)
 	cam._apply()
@@ -964,7 +1003,7 @@ func _figure_rig(n_movers: int) -> Array:
 	var pm := ProbeMap.new()
 	var cam := MapCamera3D.new()
 	var um := UnitModels.new()
-	var sc := SpotCities.new()
+	var sc := SameSpotCities.new()
 	um.cities = sc
 	ul.map = pm
 	ul.camera = cam
@@ -1014,24 +1053,18 @@ func test_figures_turn_and_keep_depth() -> void:
 	var c1: Dictionary = ul._counters[_key_of(ul, d1)]
 	var n1: Node3D = c1["root"]
 	var at1 := Vector2(n1.position.x, n1.position.z)
-	d2.path = [d1.province, d2.province] as Array[int]
-	d2.progress = 0.0
-	ul._dirty = true
-	ul._timer = 1.0
-	ul._process(0.05)
+	var sc: SameSpotCities = r[4]
+	var to := _other_land([d1.province, d2.province])
+	var km := _walk_setup(ul, um, sc, d2, to, at1 - Vector2(60.0, 0.0), at1 + Vector2(80.0, 0.0))
 	var c2: Dictionary = ul._counters[_key_of(ul, d2)]
 	var n2: Node3D = c2["root"]
 	var fig2: Node3D = c2["fig"]
 	var min_d := INF
-	var start := at1 - Vector2(60.0, 0.0)
 	var aligned := 0
 	var steps := 0
 	var prev := Vector2.INF
 	for i in 240:
-		var pos := start + Vector2(0.5 * i, 0.0)
-		um.anchors[d2.id] = [pos, Vector2.RIGHT, 0.5, 10.0]
-		um.static_epoch += 1
-		ul._follow_anchors(0.05)
+		_walk_step(ul, um, [d2], [km], float(i) / 280.0)
 		var now := Vector2(n2.position.x, n2.position.z)
 		if i > 20:
 			min_d = minf(min_d, now.distance_to(Vector2(n1.position.x, n1.position.z)))
@@ -1063,20 +1096,18 @@ func test_movers_walk_straight() -> void:
 	var d1: Division = r[5]
 	var d2: Division = r[6]
 	var d3: Division = r[7]
+	var sc: SameSpotCities = r[4]
 	var base := World.province(d1.province).center + Vector2(0.0, 40.0)
-	d2.path = [d1.province, d2.province] as Array[int]
-	d3.path = [d1.province, d3.province] as Array[int]
-	ul._dirty = true
-	ul._timer = 1.0
-	ul._process(0.05)
+	# karşılaşan iki figür: biri doğuya, öbürü batıya aynı düz çizgide
+	var to2 := _other_land([d1.province, d2.province, d3.province])
+	var to3 := _other_land([d1.province, d2.province, d3.province, to2])
+	var km2 := _walk_setup(ul, um, sc, d2, to2, base, base + Vector2(100.0, 0.0))
+	var km3 := _walk_setup(ul, um, sc, d3, to3, base + Vector2(100.0, 0.0), base)
 	var n2: Node3D = ul._counters[_key_of(ul, d2)]["root"]
 	var n3: Node3D = ul._counters[_key_of(ul, d3)]["root"]
 	var off := 0.0
 	for i in 200:
-		um.anchors[d2.id] = [base + Vector2(0.5 * i, 0.0), Vector2.RIGHT, 0.5, 10.0]
-		um.anchors[d3.id] = [base + Vector2(100.0 - 0.5 * i, 0.0), Vector2.LEFT, 0.5, 10.0]
-		um.static_epoch += 1
-		ul._follow_anchors(0.05)
+		_walk_step(ul, um, [d2, d3], [km2, km3], float(i) / 220.0)
 		off = maxf(off, maxf(absf(n2.position.z - base.y), absf(n3.position.z - base.y)))
 	lt(off, 0.3, "karşılaşan figürler yollarından sapmaz (%.2f)" % off)
 	d2.path.clear()
@@ -1099,7 +1130,7 @@ func test_figure_ranks_staggered() -> void:
 	var pm := ProbeMap.new()
 	var cam := MapCamera3D.new()
 	var um := UnitModels.new()
-	var sc := SpotCities.new()
+	var sc := SameSpotCities.new()
 	um.cities = sc
 	ul.map = pm
 	ul.camera = cam
@@ -1116,6 +1147,9 @@ func test_figure_ranks_staggered() -> void:
 		if picked.size() == 5:
 			break
 	var p0 := World.province(picked[0].province).center + Vector2(300.0, 300.0)   # başka yığınlardan uzak bir nokta
+	sc.spot = p0                                  # beşinin bölgesi aynı noktada
+	for d in picked:
+		sc.pids[d.province] = true
 	cam.distance = 150.0
 	cam.target = Vector3(p0.x, 0.0, p0.y)
 	cam._apply()
@@ -1306,15 +1340,20 @@ func test_figure_faces_enemy_neighbour() -> void:
 	um._update_anchors()
 	ul._rebuild()
 	var c: Dictionary = ul._counters[_key_of(ul, d)]
-	var face: Vector2 = c.get("face", Vector2.ZERO)
+	var face: Vector2 = ul._face_of(c, _key_of(ul, d))      # bakış görünen figür için, gerektiğinde hesaplanır
 	var here := World.province(from).center
 	var want := Vector2.ZERO
 	var best := INF
+	# askeri olan düşman komşu önce (askersiz komşu 16 kat uzak sayılır)
 	for n in World.land_neighbors(from):
-		if World.controller_tag(n) == "POL" and here.distance_squared_to(World.province(n).center) < best:
-			best = here.distance_squared_to(World.province(n).center)
+		if World.controller_tag(n) != "POL":
+			continue
+		var manned := Military.divisions.any(func(x: Division) -> bool: return x.province == n and x.owner == "POL")
+		var dd := here.distance_squared_to(World.province(n).center) * (1.0 if manned else 16.0)
+		if dd < best:
+			best = dd
 			want = (World.province(n).center - here).normalized()
-	gt(face.dot(want), 0.9, "bakış en yakın düşman komşuya (%s ~ %s)" % [face, want])
+	gt(face.dot(want), 0.9, "bakış askeri olan en yakın düşman komşuya (%s ~ %s)" % [face, want])
 	for k: String in ul._counters:
 		ul._counters[k]["root"].free()
 	ul.free()
@@ -1435,6 +1474,9 @@ func test_country_rim_refresh() -> void:
 	eq(rim._dist.render_target_update_mode, SubViewport.UPDATE_ONCE, "uzaklık geçişi")
 	eq(rim._step, 0, "bitti")
 	rim.refresh()
-	eq(rim._step, 1, "sahiplik değişince yeniden")
+	eq(rim._step, 0, "sahiplik değişince hemen değil (en çok REFRESH_GAP saniyede bir)")
+	rim._process(CountryRim.REFRESH_GAP)
+	eq(rim._step, 2, "sahiplik değişince yeniden: kenar geçişi")
+	eq(rim._edge.render_target_update_mode, SubViewport.UPDATE_ONCE, "yeniden kenar geçişi")
 	_tree().root.remove_child(rim)
 	rim.free()

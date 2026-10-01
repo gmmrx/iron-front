@@ -255,12 +255,10 @@ func _follow_anchors(delta := 1.0) -> void:
 		if culled and root.position != Vector3.ZERO:
 			# duran sayaç: yerinden (ucuz); yürüyen: tümenin şimdiki yerinden (dışarıdan yürüyüp gelen sayaç eski yerinde
 			# takılı kalıyordu)
-			if not c.get("dyn", true):
-				if not view.has_point(Vector2(root.position.x, root.position.z)):
-					continue
+			# (yeri yeniden dizilip görüşe giren duran sayaç da: yeri ya da çapası görüşteyse güncellenir)
 			var a0: Array = models.anchors.get((divs[0] as Division).id, []) if not divs.is_empty() else []
 			var at: Vector2 = a0[0] if not a0.is_empty() else Vector2(root.position.x, root.position.z)
-			if not view.has_point(at):
+			if not view.has_point(at) and (c.get("dyn", true) or not view.has_point(Vector2(root.position.x, root.position.z))):
 				continue
 		# oturmuş duran sayaç (tümenleri yürümüyor, yerine varmış, payı hedefinde; duranların yerleri de değişmedi):
 		# hesaplanacak bir şey yok. Uzak görüşte ~900 sayacın çoğu böyle; her karede yeniden hesaplamak ~2 ms tutuyordu.
@@ -2720,7 +2718,9 @@ func _declutter() -> void:
 			c["dk_t"] = Vector3.ZERO
 			c["stack_of"] = ""                        # uzakta rozetler yerinde
 			continue
-		if not (c["root"] as Node3D).visible or not c.has("lp") or not c.has("h0"):
+		# kapalı destede gizlenen kart da düzene girer (yoksa deste her düzenlemede üyelerini yitirir; desteden çıkan kart
+		# gizli kalırdı)
+		if not ((c["root"] as Node3D).visible or c.get("deck_hidden", false)) or not c.has("lp") or not c.has("h0"):
 			c["dk_t"] = Vector3.ZERO
 			continue
 		var lp: Vector2 = c["lp"]

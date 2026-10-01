@@ -45,10 +45,12 @@ func test_diplomacy_search() -> void:
 				out.append(e[2])
 		return out
 	gt((shown.call() as Array).size(), 20, "arama boşken bütün ülkeler")
-	dp._search.text = "letonya"
+	# görünen ad oyunun dilinde (ayarsız açılış İngilizce): aranan da o dilde, büyük/küçük harf ve Türkçe harf farkı yok
+	var lat_name: String = World.countries["LAT"].display_name()
+	dp._search.text = lat_name.substr(0, 5).to_upper()
 	dp._filter()
-	check("LAT" in shown.call(), "'letonya' Letonya'yı bulur: %s" % str(shown.call()))
-	dp._search.text = "isvec"
+	check("LAT" in shown.call(), "'%s' %s'yı bulur: %s" % [dp._search.text, lat_name, str(shown.call())])
+	dp._search.text = World.countries["SWE"].display_name()
 	dp._filter()
 	check(not "SWE" in shown.call(), "savaşa katılmayan İsveç listede yok")
 	dp._search.text = "SOV"
