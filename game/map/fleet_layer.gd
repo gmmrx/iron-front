@@ -25,7 +25,6 @@ var _meshes := {}
 var _mmi := {}
 var _wake: MultiMeshInstance3D
 var _counters := {}                    ## fleet id -> {root, bg, label, key}
-var _tex := {}
 var _fx := {}                          ## deniz pid -> Node3D
 var _timer := 0.0
 var _zs := ZS
@@ -35,8 +34,13 @@ var _dock := {}                        ## liman pid -> [su noktası, denize dön
 var _groups := {}                      ## filo id -> {pos, yaw, rate, v, depth, last}
 var _trails := {}                      ## filo id -> geçilen noktalar (yeniden eskiye), pruva hattı için
 var _anchor := {}                      ## filo id -> akıcı konum (sayaç)
+var _gkey := {}                        ## filo id -> [yer, sıradaki, grup anahtarı] (her karede yazı kurulmasın)
 
 func _ready() -> void:
+	var owners := {}
+	for f in Navy.fleets:
+		owners[f.owner] = true
+	UnitLayer.prewarm_glyphs(["ship", "submarine"], owners.keys())
 	var scene: Node = (load("res://assets/models/units.glb") as PackedScene).instantiate()
 	var stack: Array[Node] = [scene]
 	while not stack.is_empty():
@@ -110,6 +114,8 @@ func _update_positions(dt: float) -> void:
 	_positions.clear()
 	var slot := {}
 	for f in Navy.fleets:
+		if Military.hidden_at(f.owner, f.location):
+			continue                               # savaş sisi: bulutun altındaki yabancı filo çizilmez
 		var here := World.province(f.location)
 		var base := SeaLanes.node(f.location) if not here.is_land() else here.center
 		var heading := Vector2(0, 1)
@@ -123,7 +129,12 @@ func _update_positions(dt: float) -> void:
 		if m[2]:
 			heading = m[1]
 		# aynı yerde (ve aynı rotada) duran/giden filolar tek grup: modeller bir kez, sayaçlar yan yana
-		var k := "%d:%d:%s" % [f.location, f.path[0] if not f.path.is_empty() else -1, f.owner]
+		var nx := f.path[0] if not f.path.is_empty() else -1
+		var gke: Array = _gkey.get(f.id, [])
+		if gke.is_empty() or gke[0] != f.location or gke[1] != nx:
+			gke = [f.location, nx, "%d:%d:%s" % [f.location, nx, f.owner]]     # anahtar yazısı yalnız yer değişince
+			_gkey[f.id] = gke
+		var k: String = gke[2]
 		var i := int(slot.get(k, 0))
 		slot[k] = i + 1
 		_positions[f.id] = [pos, heading, m[2], float(m[3]), i, k]
@@ -137,6 +148,7 @@ func _update_positions(dt: float) -> void:
 	for id: int in _trails.keys():
 		if not _positions.has(id):
 			_trails.erase(id)
+			_gkey.erase(id)
 
 ## İz üzerinde, baştan geriye doğru `back` birim gerideki nokta ve yön
 func _trail_point(id: int, back: float) -> Array:
@@ -220,16 +232,23 @@ func _update_counters() -> void:
 		if _positions.has(f.id):
 			var gk: String = _positions[f.id][5]
 			_group_ships[gk] = int(_group_ships.get(gk, 0)) + f.total()
-	var far := camera.distance > UnitLayer.FLAG_MODE     # uzak: sayı yok, küçük ülke bayrağı
 	var hidden := camera.distance > UnitLayer.HIDE_ALL   # çok uzak: hiç işaret yok (harita okunur, kare hızı korunur)
 	for f in Navy.fleets:
 		var c: Dictionary = _counters.get(f.id, {})
 		if c.is_empty():
 			continue
+		if not _positions.has(f.id):
+			(c["root"] as Node3D).visible = false  # bulutun altında
+			continue
 		var pos: Vector2 = _positions[f.id][0]
 		var root: Node3D = c["root"]
 		var idx: int = _positions[f.id][4]
-		root.position = Vector3(pos.x, PinLayer.lift(camera.distance, PinLayer.SEA_LIFT) if PinLayer.active() else 6.0, pos.y)
+		# yakında yuvarlak iğne başı (iğnenin ucunda), uzakta "gemi | sayı" rozeti (iğnesiz, denizin hemen üstünde)
+		var close := camera.distance <= UnitLayer.CARD_DIST
+		var lift := PinLayer.lift(camera.distance, PinLayer.SEA_LIFT) if close else camera.distance * UnitLayer.CARD_LIFT
+		var at := Vector3(pos.x, lift if PinLayer.active() else 6.0, pos.y)
+		if root.position != at:
+			root.position = at                     # yalnız değişince (her yazış alt düğümlerin dönüşümünü yeniler)
 		# aynı yer + rota + sahip: tek sayaç (ilk filo gösterir, toplam gemi); diğerleri gizli — kayan yan yana sayaç yok
 		if idx > 0:
 			root.visible = false
@@ -237,22 +256,39 @@ func _update_counters() -> void:
 		root.visible = not hidden
 		if hidden:
 			continue
-		c["bg"].visible = not far
-		c["label"].visible = not far
-		c["flag"].visible = far
+		# "gemi | sayı" rozeti her zoom'da (ülke renginin koyusu zemin, degrade çerçeve)
+		c["bg"].visible = true
+		c["label"].visible = true
+		c["flag"].visible = false
 		var sel := f == selected
-		c["flag"].texture = UnitLayer.flag_marker(f.owner, sel)
-		var key := "%s:%d:%s:%s" % [f.owner, roundi(f.org * 10.0), sel, f.is_sub_fleet()]
+		var key := (1 if sel else 0) + (2 if f.is_sub_fleet() else 0) + (4 if close else 0)     # sahip sayaçta sabit
 		if c["key"] != key:
 			c["key"] = key
-			c["bg"].texture = _tex_for(f.owner, roundi(f.org * 10.0), sel, f.is_sub_fleet())
+			var gl := "submarine" if f.is_sub_fleet() else "ship"
+			var bg: Sprite3D = c["bg"]
+			bg.texture = UnitLayer.plate_tex(f.owner, sel, gl) if close else UnitLayer.flag_marker(f.owner, sel, true, gl)
+			bg.pixel_size = UnitLayer.CARD_PX * UnitLayer.GLYPH_PLATE_K if close else UnitLayer.CHIP_GPX
+			c["label"].offset = UnitLayer.plate_label_off(0.0, UnitLayer.GLYPH_PLATE_K) if close else UnitLayer.chip_label_off(true)
+			c["label"].set_meta("base", 42 if close else 30)
+			c["label"].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if close else HORIZONTAL_ALIGNMENT_CENTER
+			c["label"].vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM if close else VERTICAL_ALIGNMENT_CENTER
+			var nm: Label3D = c["name"]
+			var want := ""                          # haritada ad yok (ipucunda ve Donanma panelinde)
+			if nm.text != want:
+				nm.text = want
+				UnitLayer._name_plate(nm)
+			nm.visible = want != ""
 		var gk: String = _positions[f.id][5]
-		c["label"].text = str(int(_group_ships.get(gk, f.total())))
-		root.scale = Vector3.ONE * ((1.0 + 0.07 * sin(_pulse * 5.0)) if sel else 1.0)
+		UnitLayer.set_count(c["label"], int(_group_ships.get(gk, f.total())), int(c["label"].get_meta("base", 30)))
+		var sc := Vector3.ONE * ((1.0 + 0.07 * sin(_pulse * 5.0)) if sel else 1.0)
+		if root.scale != sc:
+			root.scale = sc                        # yalnız değişince (seçili filo nabız gibi atar)
 
 ## İğne haritası: görünen filo sayaçlarının kökleri
 func pin_roots() -> Array[Node3D]:
 	var out: Array[Node3D] = []
+	if camera.distance > UnitLayer.CARD_DIST:
+		return out                          # uzakta rozetler iğnesiz
 	for id: int in _counters:
 		var root: Node3D = _counters[id]["root"]
 		if root.visible:
@@ -265,27 +301,27 @@ func _make_counter(tag: String) -> Dictionary:
 	var bg := Sprite3D.new()
 	bg.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	bg.fixed_size = true
-	bg.pixel_size = PIXEL * 0.6
+	bg.pixel_size = UnitLayer.CHIP_GPX
 	bg.no_depth_test = true
 	bg.render_priority = 10
 	bg.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	root.add_child(bg)
 	var lbl := Label3D.new()
 	lbl.font = UiTheme.bold_font()
-	lbl.font_size = 40
-	lbl.outline_size = 8
-	lbl.outline_modulate = Color(0, 0, 0, 0.9)
-	lbl.modulate = Color(1, 0.97, 0.9)
+	lbl.font_size = 30
+	lbl.outline_size = 3
+	lbl.outline_modulate = Color(0.04, 0.04, 0.04, 0.9)
+	lbl.modulate = Color("ece3c6")
 	lbl.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	lbl.fixed_size = true
-	lbl.pixel_size = PIXEL * 0.8
+	lbl.pixel_size = UnitLayer.PIXEL * 0.8
 	lbl.no_depth_test = true
 	lbl.render_priority = 12
 	lbl.outline_render_priority = 11
-	lbl.offset = Vector2(22, 7)
+	lbl.offset = UnitLayer.chip_label_off(true)
 	root.add_child(lbl)
 	var flag := Sprite3D.new()
-	flag.texture = UnitLayer.flag_marker(tag)
+	flag.texture = UnitLayer.flag_marker(tag, false, false)
 	flag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	flag.fixed_size = true
 	flag.pixel_size = PIXEL * 0.74
@@ -294,48 +330,22 @@ func _make_counter(tag: String) -> Dictionary:
 	flag.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	flag.visible = false
 	root.add_child(flag)
-	return {"root": root, "bg": bg, "label": lbl, "flag": flag, "key": ""}
-
-## Deniz sayacı: ülke renginde plaka, lacivert şerit, gemi silueti (denizaltıda periskop), org çubuğu
-func _tex_for(tag: String, ob: int, selected_: bool, sub: bool) -> Texture2D:
-	var ck := "%s:%d:%s:%s" % [tag, ob, selected_, sub]
-	if _tex.has(ck):
-		return _tex[ck]
-	var c: Country = World.countries[tag]
-	var w := 132
-	var h := 64
-	var bh := 52
-	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	img.fill_rect(Rect2i(0, 0, w, h), Color(0.05, 0.07, 0.1, 0.95))
-	img.fill_rect(Rect2i(3, 3, w - 6, bh - 6), c.color.darkened(0.15))
-	img.fill_rect(Rect2i(3, 3, 44, bh - 6), Color(0.08, 0.13, 0.22))
-	var ink := Color(0.88, 0.9, 0.95)
-	# gövde (yamuk) + köprü + baca / kule
-	for y in 6:
-		var inset := y
-		img.fill_rect(Rect2i(8 + inset, 30 + y, 32 - inset * 2 + (4 if y < 2 else 0), 1), ink)
-	if sub:
-		img.fill_rect(Rect2i(21, 22, 7, 8), ink)
-		img.fill_rect(Rect2i(24, 14, 2, 8), ink)
-		img.fill_rect(Rect2i(8, 36, 32, 2), Color(0.3, 0.5, 0.8))
-	else:
-		img.fill_rect(Rect2i(16, 24, 14, 6), ink)
-		img.fill_rect(Rect2i(20, 18, 5, 6), ink)
-		img.fill_rect(Rect2i(12, 27, 3, 3), ink)
-		img.fill_rect(Rect2i(33, 27, 3, 3), ink)
-		img.fill_rect(Rect2i(8, 38, 34, 2), Color(0.3, 0.5, 0.8))
-	img.fill_rect(Rect2i(3, bh, int((w - 6) * ob / 10.0), 5), Color(0.45, 0.85, 0.35))
-	var brass := Color(1.0, 0.84, 0.36) if selected_ else Color(0.55, 0.68, 0.85)
-	var bw := 4 if selected_ else 1
-	for k in bw:
-		for x in w:
-			img.set_pixel(x, k, brass); img.set_pixel(x, bh - 1 - k, brass)
-		for y in bh:
-			img.set_pixel(k, y, brass); img.set_pixel(w - 1 - k, y, brass)
-	var tex := ImageTexture.create_from_image(img)
-	_tex[ck] = tex
-	return tex
+	# oyuncunun filosunun adı (yakında, iğne başının altında; şehir adlarıyla aynı kutu)
+	var nm := Label3D.new()
+	nm.font = load("res://assets/fonts/BarlowCondensed-Medium.ttf")
+	nm.font_size = 28
+	nm.outline_size = 0
+	nm.modulate = UnitLayer.NAME_COLOR
+	nm.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	nm.fixed_size = true
+	nm.pixel_size = UnitLayer.PIXEL * 0.8
+	nm.no_depth_test = true
+	nm.render_priority = 12
+	nm.outline_render_priority = 11
+	nm.offset = Vector2(0.0, -UnitLayer._card_half().y * UnitLayer.GLYPH_PLATE_K - 18.0) / (UnitLayer.PIXEL * 0.8 * UnitLayer.PX)
+	nm.visible = false
+	root.add_child(nm)
+	return {"root": root, "bg": bg, "label": lbl, "flag": flag, "key": -1, "name": nm}
 
 ## Ekran noktasındaki filo (sayaç üzerinde)
 func pick(screen: Vector2) -> Fleet:
@@ -365,7 +375,7 @@ func select(f: Fleet) -> void:
 		Audio.play("select_fleet", 150)
 	selected = f
 	for id: int in _counters:
-		_counters[id]["key"] = ""
+		_counters[id]["key"] = -1
 
 # ------------------------------------------------------------------ 3D gemiler
 func _view_rect() -> Rect2:

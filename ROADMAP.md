@@ -6,11 +6,11 @@ A World War II grand strategy game made with Godot 4.7.
 Start: **1 January 1936**. Map: the whole world (it began with Europe, North Africa, the Middle East and the western USSR).
 
 Principle: **data-driven architecture** — content lives in JSON/CSV under `data/`; engine code is independent of content.
-Goal: **AAA visuals even at the closest zoom, 60 FPS**, deep gameplay with its own character.
+Goal: **a good-looking map at every zoom, 60 FPS**, deep gameplay with its own character.
 Language: the game and the documentation are in **English first**; Turkish is complete and chosen in Settings → Language.
 
 Status: ✔ done · ◐ basic version exists, to be deepened · ☐ not done
-Last update: **28 September 2026**
+Last update: **29 September 2026**
 
 > ### ⚠ READ FIRST — ORIGINALITY AND INTELLECTUAL PROPERTY (for all agents)
 > The first versions of the game were modelled on the best-known commercial game of the genre; the names, number tables,
@@ -27,6 +27,31 @@ Last update: **28 September 2026**
 > - **"Iron Front" is a working title**: a commercial World War II game with the same name is on the market. A name
 >   change is recommended; since the game will be moddable (WWII, alternative history, zombies…) the new name should be
 >   generic, not tied to WWII. A new name is not used before a trademark search.
+
+### New direction: the war game (29 September 2026)
+The game becomes shorter and simpler: one scenario takes 30–45 minutes, alone or online with 2–4 players. The rules are
+on [docs/DESIGN.md](docs/DESIGN.md); what does not fit that page is not built. The sections below describe the code as
+it is today and stay as a record; the stages remove what the design page drops. Nice small details come later, spread
+across the stages.
+
+0. ✔ **Design page**: [docs/DESIGN.md](docs/DESIGN.md)
+1. ◐ **Land war commands**: ✔ halt and dig in, withdraw, stance, split (1 / half / all); ✔ attack estimate on the map
+   card before an order; ✔ artillery supports neighbouring battles; ◐ armies, army groups and commanders go (✔ out of the interface: no Army screen, selection panel on the right; ☐ out of the code)
+2. ◐ **Air**: ✔ click a region, pick a mission (superiority, close support, bombing); ✔ bombing stops factories and
+   wears war support; ✔ a wing forms at the base nearest the capital and moves to a base in range; ✔ reconnaissance
+   (reveals the zone through the fog)
+3. ◐ **Economy and politics cut down**: ✔ left menu down to six buttons (plus Recon); ✔ only WWII participants play
+   and move (`data/common/participants.json`); ✔ no construction, buildings fixed and hidden; ☐ only manpower, industry and morale;
+   ✔ units bought directly in cities with industry points (SP, `data/common/recruit.json`), paid recon flights; ☐ event and discovery cards
+4. ◐ **Scenarios and victory**: ✔ scenario file (start save, duration, sides, key cities), main menu Scenarios screen,
+   no time limit (the war ends when a side gives up), AI weighs key cities; ✔ first
+   scenario the 1941 Eastern Front; ☐ 1939 West, 1941 Pacific
+5. ◐ **Fog of war**: ✔ clouds over everything beyond sight (our land, our divisions and recon zones clear, a strip
+   across the border), foreign divisions, fleets and wings hidden under them, region card and attack estimate respect
+   it; ✔ only city markers under the clouds, buildings hidden
+6. ☐ **Navy**: sea control and landings only
+7. ☐ **Multiplayer**: deterministic simulation, 2 players first
+8. ☐ **Zombie scenario** on the same engine
 
 ### Where are we? (summary)
 - The whole world map, **80 playable countries**, the 1936 economy and the historical flow (Poland → France →
@@ -70,9 +95,9 @@ Last update: **28 September 2026**
    missing port–sea 12 → 0), node corner curves with a radius that stays on water, a fleet group that falls on land is
    moved to the nearest water; `tests/test_sea_lanes.gd`, `tests/test_fleet_motion.gd` check this with numbers
 2. ◐ **New icon set and portraits** (made by the user): ✔ icon set in the game; portraits arriving → visual check as they come
-3. **An open-ended game (PART OPEN)**: no end date — the game goes on until the player takes the whole world or is
-   destroyed; research without an end (repeatable levels); a world events menu on the left to follow and answer what
-   happens in the world (PART EV)
+3. ◐ **An open-ended game (PART OPEN)**: ✔ no end date — the game goes on until the player takes the whole world or is
+   destroyed; ✔ research without an end (refinement levels); ✔ a world events menu on the left to follow and answer
+   what happens in the world (PART EV)
 3b. **An end-to-end game with Turkey**: the path to conquering the world / being defeated is checked visually
 4. **Content**: ◐ 1936 events with choices added: Japan (26 February), Italy (League sanctions), Britain (the Defence White
    Paper), France (the Popular Front), Germany (the Berlin Olympics), Poland (the Rambouillet loan), USSR (the 1936
@@ -129,9 +154,18 @@ Details and rules: [docs/ORIGINALITY.md](docs/ORIGINALITY.md). Every PR goes thr
 - [x] Variable region density: Europe detailed; East Asia/India 2–2.5x, Siberia/Africa/ocean 5x
       → 13,414 regions (8,812 land, 1,901 islands, 2,134 sea, 567 lakes), 1,652 states, 1,847 cities
 - [x] World elevation (Terrarium z5 + Europe z6), snow line by latitude, southern hemisphere biomes
-- [x] 1936 political situation: 80 countries, all colonial empires, dominions, Manchukuo, the Chinese warlords
+- [x] 1936 political situation: 82 countries, all colonial empires, dominions, Manchukuo, the Chinese warlords
+- [x] Exact 1 January 1936 borders where they cut through modern regions (`tools/fix_borders_1936.py`, pixel level):
+      German Upper Silesia/Pomerania/West Prussia, the Free City of Danzig (own country), Poland's Riga border,
+      the Dniester and the Budjak, Finnish Karelia/Salla/Petsamo, Petseri/Abrene, Fiume/Zara/Dodecanese/Tenda, Karafuto
+      and the Kurils, Kwantung, Jehol and eastern Inner Mongolia, Spanish Morocco's southern border, Ifni, Cape Juby,
+      the Tangier International Zone (own country), Gibraltar and Macau as their own states, Newfoundland, Goa,
+      Pondichéry, Kwangchowan, British Cameroons, the Canal Zone; ~270 border towns checked by `test_borders_1936.gd`
+      → 13,548 regions, 1,687 states
 - [x] World economy (USA, Japan, China, India…), real deposits (Malayan rubber, Texas oil…)
 - [x] Movement by geographic distance (great circle), pathfinding, sea regions, air range
+- [x] Realistic marching (a third of road speed over the day: infantry ~33 km/day, armour ~84) and march fatigue
+  (cohesion drops on the march, recovers when stopped); Ctrl shows the selected divisions' march reach (1 / 3 / 7 days)
 - [x] Memory budget (~750 MB): 16-bit region texture, half-resolution SDF/terrain, a map mesh in 128 pieces
 - [x] Camera: the view never leaves the map at any zoom (no margin); the farthest zoom shows the whole world; no clouds
 - [x] Asian programs: Japan (Marco Polo 1937, the Tripartite Pact, Strike South 1941), USA, China
@@ -216,6 +250,14 @@ The player must **see** the war: soldiers, tanks, ships, submarines, aircraft as
 - [x] Buildings as pins: one pin per state with its buildings side by side as pictures (civilian/military factory,
       dockyard, refinery, anti-air, naval base) and their level; a construction in progress is an orange-framed picture
       with "+n"; the air base has its own pin
+- [x] Building badges come only up close (28 Sep 2026): from camera distance ~215 small icons on the map (72% size),
+      full size with the pin rising under them from ~130 in; further out the map shows no buildings. The size follows
+      the pin's node scale (resizing every label while zooming stalled frames for 150+ ms). Hovering a badge makes it grow, plays that building's sound (`map_<building>.wav`, a nearby action sound
+      until the file exists) and the card describes it (level / maximum, construction, country total, air wings based);
+      clicking opens its state
+- [x] The player's army shows its commander's portrait above its main counter up close (initials if there is no picture)
+- [x] Battle status arrows: a small green ▲ on the side that has just improved, a red ▼ on the side losing ground; they
+      rise and fade (`game/map/battle_ticker.gd`)
 - [x] Aircraft: one small plane model in the country's colour, parked at the air base or flying its mission
 - [x] State borders as clear lines at every zoom (thicker up close) and province borders (the unit the mouse highlights)
       as thinner, lighter lines inside the states
@@ -276,14 +318,23 @@ The game must go from "watchable" to **playable**: a balanced historical flow, c
       dates (Danzig 1 Sep 1939, West May 1940)
 - [x] With commanders (27 Sep 2026, 6 runs): all 12 checks ≥5/6; Germany/Italy fell early in one run and France late in
       another — to be watched
-- [ ] The fall of France in Feb–Jun 1941 (historical: Jun 1940): concentration and encirclement through Belgium/the
-      Netherlands to be sped up
-- [ ] The wars and lands of a surrendering country should pass on consistently (a surrendered country cannot declare war)
+- [x] The fall of France in June–July 1940 (6/6 runs, 28 Sep 2026): the historical timeline (Case Yellow on 10 May 1940)
+      and the "Collapse of the Front" condition of May–October 1940
+- [x] A surrendering country passes on consistently: its occupied states go to the occupiers, it leaves every war and its
+      alliance (unless it leads it), its guarantees lapse and it cannot declare war for two years (`Diplomacy.TRUCE_DAYS`),
+      so it is not pulled back into its old allies' wars
 - [ ] Peace conference (simple): the winning side shares the states
 
 ### P2. Feedback to the player
 - [ ] Combat detail window (both sides, strength, losses, terrain/river penalties)
-- [ ] Path preview and arrival time when a division/fleet is selected
+- [x] Arrival time: with divisions selected the card of the region under the mouse shows the estimated arrival (the
+      slowest of the first three, without battles; `Military.eta`, the same speed as the march); with a fleet selected
+      likewise (`Navy.eta_hours`). No route is drawn before the order: a path following the mouse looked like the
+      units choosing their own way
+- [x] Movement arrows: a chain of faint marks flowing to the destination, as if under the map, in the country's colour
+      (red when attacking); an ordered division keeps its place instead of jumping to the region's centre; the arrow ends
+      where the counter will stand, and right-clicking a counter orders to that counter's region (joining a stack)
+- [x] "No route" says why: no military access to a named country, sea-only destination with the sea closed, in training
 - [◐] "Why?" tooltips: breakdown of stability and home front, surrender limit, law requirements, the reason a
       diplomacy action is closed, resource shortfall rows, naval control by sea region ✔; remaining: supply shortfall
 - [x] Country card with Ctrl (leader, relation, indicators coloured against ours), other countries' politics read-only
@@ -479,6 +530,35 @@ The backbone of the economy and of war: supply, movement speed, industry and res
 - [ ] Fires in besieged cities, ruined building variants, trenches and crater marks along the front
 
 ### D4. Map atmosphere
+- [x] Painted map (28 Sep 2026): farmland as a patchwork of fields with dark edges, earthy mountains with fine ridges and
+      valleys (fixed north-west hillshade + warped ridged noise), turquoise shallows and a thin foam line; the political
+      colours as a wash over the ground (the Terrain mode without it); no tree models (the layer, its data and the tree
+      model builder are gone)
+- [x] Pins in the map design: city names in dark framed boxes (serif), ivory heads, capital medallion (gold ring and
+      star), buildings on dark square tiles with gold pictograms and the level in the corner
+- [x] Land cover (28 Sep 2026): forests dark green with canopy clumps up close, steppe khaki with dry grass, desert
+      sand; mountains earthy on plateaus and grey-brown rock on steep and high slopes, snow above the snow line (lower
+      in winter), fine ridges and gullies along the slope direction
+- [x] Pin animation: city pins spring up when they enter the view range and shrink away when they leave; pins far from
+      the screen centre stay small (all full size up close), the pin under the mouse grows; a soft shadow where the pin
+      enters the map. Far away plain white city names; buildings only at the closest zoom steps; aircraft only up close
+- [x] Roads and railways (Natural Earth, `tools/build_roads.py`) in the Routes map mode, hidden behind mountains; a
+      darker map overall; pin with a polished steel shaft and brass collar; city pin icons (5 tiers x 4 styles, prompts in
+      `docs/art/CITY_PIN_PROMPTS.md`) — the pictures are still to be made
+- [x] City pins only for big cities (capitals, 10+ victory points); the rest are plain names at every zoom
+- [x] Unit names in each country's own language (`data/common/unit_names.json`, 24 languages, English fallback)
+- [x] Units as plates (28 Sep 2026, `art/soldier-pins.png`): far away tags, closer a dark plate with the flag strip,
+      unit picture, map symbol and number on an iron pin (the round heads tried first were dropped)
+- [x] Units as round pins (superseded by the plates above): far away "flag | number", "ship | number", "plane | number" tags without pins;
+      closer a round pin head after `art/soldier-pins.png` (metal rim, flag dome, ivory unit picture, number tab, name
+      plate) on an iron
+      pin, the same for divisions, fleets and air wings; very close a stack spreads into equal-size heads per battalion;
+      matte iron pins; building pins at different heights and from farther away
+- [x] Deploy on the map: the panel closes, the map darkens all but the valid places, the player clicks where the
+      division / air wing / new ships go (new ships no longer join a fleet by themselves)
+- [x] Division cards (superseded by the round pins above):
+      up close the battalions inside as small cards; pictures from `docs/art/UNIT_CARD_PROMPTS.md` (until then the
+      equipment icons in ivory); no hover growth on pins
 - [x] Winter snow cover (by season and latitude, patchy)
 - [ ] Day/night cycle (city lights), seasonal colours
 - [x] Rain/snow particles (regional, by season, at close zoom; FPS-friendly)
@@ -610,7 +690,18 @@ outbreak).
 
 ## PART G — PERFORMANCE (ongoing) ◐
 Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
-- [x] Simulation profiling tools (`game/dev/sim.gd`, `--fps` measurement)
+- [x] Simulation profiling tools (`game/dev/sim.gd`, `--fps` measurement; `--prof_every=365` prints the costliest systems
+      every year)
+- [x] Long-war navy cost (28 Sep 2026): every fleet on a mission scanned every enemy fleet each hour (quadratic as fleets
+      multiplied: navy missions 12 → 22 → 37 → 51 s per game year in 1941–44) → a per-hour location index and a zone
+      scan (1944: 7 s); naval control rebuilt every 6 hours (transports 22 → 8 s up to 1942); a stranded fleet looks
+      for a port once a day. 1936–44 headless: 560 → 436 s
+- [x] Air combat compared every wing on a mission with every other wing each day (quadratic): wings are summed per mission
+      zone and nearby zone pairs measured once, the same result. After the historical flow the AI's fleets and air
+      wings are capped by industry (surface fleets = dockyards / 3 within 6–24, submarine fleets dockyards / 8 within
+      2–8, wings = military factories / 3 within 12–40; extra ships make fleets bigger, extra planes stay in stock) —
+      they grew by ~60 fleets and ~55 wings a year without end. Not applied before 2 Sep 1945: in 1940–41 the cap merged
+      British fleets and delayed the fall of France
 - [x] AI/supply/statistics caches; tree shadows off; FXAA instead of MSAA; half-resolution SSAO
 - [ ] Batched drawing of counters and labels in one draw call (currently ~2,600 draw calls)
 - [ ] LOD: city model → icon at far zoom
@@ -619,33 +710,45 @@ Goal: 1080p, **60 FPS** on a mid-range system; no stutter at speed 5.
 
 ---
 
-## PART OPEN — AN OPEN-ENDED GAME ☐ ← needed before the end-to-end game
-Today the game ends on 1 January 1948 (`Game.END_DATE`) and the research tree stops around 1942. A strategy game does not
-end on a date: it goes on until **the player has taken the whole world** or **the player's country is completely
-destroyed**. How many years that takes cannot be known in advance, so nothing may assume an end year.
-- [ ] No end date: victory = the player controls every state (or every other country has surrendered to the player's
-      side); defeat = the player's country no longer exists (last state lost or annexed). Remove `END_DATE`; the game-over
-      screen shows the reason and the date
-- [ ] Research without an end: after the last historical technology, research goes on — repeatable levels per branch
-      (e.g. "Infantry weapons IV, V, …") with rising cost and a smaller gain each level, so no branch runs out
+## PART OPEN — AN OPEN-ENDED GAME ◐ ← needed before the end-to-end game
+A strategy game does not end on a date: it goes on until **the player has taken the whole world** or **the player's
+country is completely destroyed**. How many years that takes cannot be known in advance, so nothing may assume an end year.
+- [x] No end date (`END_DATE` removed): victory = no country is left standing outside the player's side (the player and
+      the alliance); defeat = the player's country no longer exists (last state lost or annexed). A surrendered player who
+      still holds land plays on. The game-over screen shows the reason and the date; after a victory the player can keep
+      playing (the victory is saved and does not come back). `tests/test_open_game.gd`
+- [x] Research without an end: once a branch's historical technologies are done it goes on with refinement levels
+      ("Infantry Refinement I, II, …", `rep_<branch>_<n>`): cost 180 days +15% per level, gain −15% per level (bounded
+      total), dated one year after the previous level (from 1943) so the year penalty keeps them after the historical
+      tree; the last column of the research timeline; the AI researches them too, only once a level's year has come (a
+      level taken years early would lock a research slot for years) (formula and reasons in
+      `data/common/technologies.json` → `repeatable`)
 - [ ] Production and units after the war years: later equipment generations follow the repeatable research levels
-- [ ] Events and AI after the historical flow: when the dated historical events run out, the world keeps moving —
-      rules-based events (crises, border incidents, uprisings, coups, economic shocks) and AI that plans new wars
+- [x] Events and AI after the historical flow: from 2 Sep 1945 rule-based recurring events come to every country (`"recur"`
+      in `events.json`: after, average period, pause, requirements, a neighbour as the other side) — Clash on the Border
+      (a casus belli: the AI finds new wars this way), Run on the Banks, Officers' Plot (low stability), The Soldiers Come
+      Home (great powers at peace); no random number is drawn before that date, so the historical flow is unchanged
+- [ ] More rule-based events: uprisings in occupied lands, real coups (a change of regime), disasters, colonial crises
 - [ ] Laws, programs and decisions that stay useful in a long game (post-war reconstruction, occupation policy, the
       economy of a large empire)
 - [ ] Performance and save size stay stable over decades of game time (long-run test: 30+ game years)
 - [ ] Engine texts without fixed years (also part of PART MOD: the scenario gives the start date, not an end date)
 
-## PART EV — WORLD EVENTS MENU ☐
+## PART EV — WORLD EVENTS MENU ◐
 Things happen in the world all the time (wars declared, alliances, coups, disasters, other countries' decisions). They
 should come to the player as a feed, and some of them can be answered.
-- [ ] A world events menu on the left: a list of what is happening in the world (newest on top), with the country's flag,
-      date and a short text; filters (my neighbours, my alliance, the whole world); click → the map goes there
-- [ ] Reacting to events: some entries carry 2–3 real options (condemn / support / stay out, send volunteers, offer a
-      guarantee, sanctions…) with costs and effects from the existing effect dictionary; the AI reacts to the player's
-      events the same way
-- [ ] Every AI country's important decisions and wars become entries (not only the player's own events)
-- [ ] The alert bar and the notification feed stay for the player's own matters; the world menu is the rest of the world
+- [x] A world events menu on the left (E, `game/ui/world_panel.gd`): what happens in the world, newest on top, with the
+      country's flag, date, kind and a short text; filters (neighbours, my alliance, the whole world); click → the map
+      goes there. The log (`World.world_log`, last 400) is saved; texts are rebuilt in the current language
+- [x] Reacting to events: a declaration of war (30 days) or an annexation (60 days) where the player is on neither side
+      carries options — condemn / send rifles / stay out, refuse to recognise (casus belli) / recognise — with costs,
+      requirements and effects from the existing effect dictionary (`data/common/world_reactions.json`,
+      `game/core/world_react.gd`); democratic great powers condemn the player's own aggression the same way
+- [x] AI countries' wars, alliances, guarantees, surrenders, annexations, peace, elections, new leaders and the great
+      powers' state programs become entries
+- [x] The notification feed keeps to the player's matters (and the great powers' wars and annexations); the world menu is
+      the rest of the world. `tests/test_world_events.gd`
+- [ ] More answers: volunteers, sanctions, guarantees offered from the entry; coups, uprisings, disasters as entries
 
 ## PART H — CONTENT DEPTH (ongoing) ◐
 - [ ] A wide state program tree for every great power, country trees for the middle powers
@@ -679,7 +782,7 @@ data/            → content (JSON/CSV), generated map files
 tools/           → map, texture, model (Blender), sound generation scripts
 game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
 game/core/       → pure simulation classes (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet…)
-game/map/        → 3D map, camera, city/tree/unit layers
+game/map/        → 3D map, camera, city/pin/unit layers
 game/ui/         → interface
 game/dev/        → headless tests and simulation
 tests/           → headless test suite (tests/run.gd runner, test_*.gd tests)
@@ -691,7 +794,8 @@ docs/            → wiki (docs/wiki, Turkish in docs/wiki/tr), originality, clo
 - Test suite: `tools/run_tests.sh` (import + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
   (on PRs and pushes to main; the balance test is a separate job triggered by hand)
 - Balance test: `tools/balance_parallel.sh 6` (6 parallel runs, ~15–20 min); a single run `game/dev/balance.gd`
-- Performance: `godot --path . -- --play=GER --run --fps=10`
+- Performance: `godot --path . -- --play=GER --run --fps=10` (`--fps_mouse`: the mouse circles over the map, `--fps_zoom`:
+  the camera zooms in and out; `--load=slot` measures a save)
 - Visual QA (frame series): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`
 - Video: `godot --path . --write-movie out.avi --fixed-fps 30 -- --play=DEN --war=GER,DEN --focus_battle=200 --speed=2
   --film=5 --dolly=320,120` (`--pan=dx,dz`, `--track`, `--hide_ui`); clips are joined with ffmpeg → `docs/media/`

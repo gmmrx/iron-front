@@ -1,0 +1,36 @@
+{
+ "_comment": "Senaryolar. start: başlangıç kaydı data/scenarios/<start>.json (game/dev/war_demo.gd --after=0 ile üretilen izleme kaydı: bütün ülkeler yapay zekâda, oyuncu seçtiği tarafı alır). sides: ilki saldıran. key_cities: data/map/cities.json id'leri; yapay zekânın öncelikli hedefleri ve senaryonun kalbi. Süre yok: savaş taraflardan biri teslim olana ya da yok olana kadar sürer.",
+ "scenarios": [
+  {
+   "id": "east_1941",
+   "start": "east_1941",
+   "name": {
+    "en": "Eastern Front, 1941",
+    "tr": "Doğu Cephesi, 1941"
+   },
+   "desc": {
+    "en": "22 June 1941: the German army crosses into the Soviet Union. The war goes on until one side gives up.",
+    "tr": "22 Haziran 1941: Alman ordusu Sovyetler Birliği'ne giriyor. Savaş, taraflardan biri teslim olana kadar sürer."
+   },
+   "sides": [
+    {
+     "tag": "GER"
+    },
+    {
+     "tag": "SOV"
+    }
+   ],
+   "key_cities": [
+    8,
+    29,
+    51,
+    126,
+    115,
+    205,
+    189,
+    208,
+    268
+   ]
+  }
+ ]
+}

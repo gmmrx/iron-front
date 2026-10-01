@@ -6,11 +6,11 @@ Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu.
 Başlangıç: **1 Ocak 1936**. Harita: tüm dünya (Avrupa, Kuzey Afrika, Orta Doğu ve Batı SSCB ile başladı).
 
 İlke: **veri güdümlü mimari** — içerik `data/` altında JSON/CSV; motor kodu içerikten bağımsız.
-Hedef: **en yakın zoom'da bile AAA görüntü, 60 FPS**, derin ve kendine özgü oynanış.
+Hedef: **her zoom'da güzel görünen harita, 60 FPS**, derin ve kendine özgü oynanış.
 Dil: oyun ve belgeler **önce İngilizce**; Türkçe eksiksiz, Ayarlar → Dil'den seçilir.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **28 Eylül 2026**
+Son güncelleme: **29 Eylül 2026**
 
 > ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
 > Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
@@ -24,6 +24,31 @@ Son güncelleme: **28 Eylül 2026**
 > - **"Iron Front" çalışma adıdır**: aynı adlı, 2. Dünya Savaşı konulu ticari bir oyun yayında. Ad değişikliği önerilir;
 >   oyun modlanabilir olacağından (2. Dünya Savaşı, alternatif tarih, zombi...) yeni ad 2. Dünya Savaşı'na bağlı olmayan
 >   genel bir ad olmalı. Yeni ad marka araştırması yapılmadan kullanılmaz.
+
+### Yeni yön: savaş oyunu (29 Eylül 2026)
+Oyun kısalıyor ve sadeleşiyor: bir senaryo 30–45 dakika sürer, tek başına ya da 2–4 kişi çevrim içi oynanır. Kurallar
+[docs/TASARIM.md](docs/TASARIM.md) sayfasında; o sayfaya uymayan yapılmaz. Aşağıdaki bölümler kodun bugünkü hâlini
+anlatır ve kayıt olarak kalır; aşamalar tasarım sayfasının kaldırdıklarını siler. Küçük güzel ayrıntılar sonra, aşamalara
+yayılarak eklenir.
+
+0. ✔ **Tasarım sayfası**: [docs/TASARIM.md](docs/TASARIM.md)
+1. ◐ **Kara savaşı komutları**: ✔ dur ve siper kaz, geri çekil, duruş, böl (1 / yarısı / hepsi); ✔ emirden önce
+   harita kartında saldırı tahmini; ✔ topçu komşu muharebeye destek verir; ◐ ordu, ordular grubu ve komutanlar kalkar (✔ arayüzden çıktı: Ordu ekranı yok, seçim paneli sağda; ☐ koddan çıkacak)
+2. ◐ **Hava**: ✔ bölgeye tıkla, görev seç (üstünlük, yakın destek, bombardıman); ✔ bombardıman fabrikaları durdurur ve
+   savaş desteğini yıpratır; ✔ kanat başkente en yakın üste kurulur, görevde menzili yeten üsse geçer; ✔ keşif (bölgeyi
+   sisten açar)
+3. ◐ **Ekonomi ve siyaset sadeleşir**: ✔ sol menü altı düğmeye indi (artı Keşif); ✔ yalnız savaşa katılan ülkeler
+   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit ve gizli; ☐ yalnız insan gücü, sanayi ve moral;
+   ✔ birlik şehirde sanayi puanıyla doğrudan alınır (SP, `data/common/recruit.json`), keşif uçuşu ücretli; ☐ olay ve buluş kartları
+4. ◐ **Senaryolar ve zafer**: ✔ senaryo dosyası (başlangıç kaydı, süre, taraflar, anahtar şehirler), ana menüde
+   Senaryolar ekranı, süre yok (savaş bir taraf teslim olunca biter), yapay zekâ anahtar şehirleri
+   tartar; ✔ ilk senaryo 1941 Doğu Cephesi; ☐ 1939 Batı, 1941 Pasifik
+5. ◐ **Savaş sisi**: ✔ görüş alanının ötesi bulutlu (toprağımız, tümenlerimiz ve keşif bölgeleri açık, sınırın öbür
+   yanında şerit), altındaki yabancı tümen, filo ve kanatlar gizli, bölge kartı ve saldırı tahmini buna uyar; ✔ bulutun
+   altında yalnız şehir işaretleri, yapılar gizli
+6. ☐ **Deniz**: yalnız hâkimiyet ve çıkarma
+7. ☐ **Çok oyunculu**: belirlenimci simülasyon, önce 2 oyuncu
+8. ☐ **Zombili senaryo**, aynı motorla
 
 ### Şu an nerede? (özet)
 - Tüm dünya haritası, **80 oynanabilir ülke**, 1936 ekonomisi ve tarihî akış (Polonya → Fransa → Barbarossa → Pasifik) çalışıyor;
@@ -66,9 +91,9 @@ Son güncelleme: **28 Eylül 2026**
    12 → 0), düğüm köşe kavisleri suda kalan yarıçapla, karaya düşen filo grubu en yakın suya; `tests/test_sea_lanes.gd`,
    `tests/test_fleet_motion.gd` bunu sayıyla denetler
 2. ◐ **Yeni ikon seti ve portreler** (kullanıcı üretiyor): ✔ ikon seti oyunda; portreler geliyor → geldikçe görsel kontrol
-3. **Açık uçlu oyun (BÖLÜM AÇIK)**: bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana kadar
-   sürer; bitmeyen araştırma (tekrarlanabilir seviyeler); dünyada olanları izlemek ve cevap vermek için solda bir dünya
-   olayları menüsü (BÖLÜM OL)
+3. ◐ **Açık uçlu oyun (BÖLÜM AÇIK)**: ✔ bitiş tarihi yok — oyun, oyuncu bütün dünyayı ele geçirene ya da yok olana
+   kadar sürer; ✔ bitmeyen araştırma (iyileştirme seviyeleri); ✔ dünyada olanları izlemek ve cevap vermek için solda
+   bir dünya olayları menüsü (BÖLÜM OL)
 3b. **Türkiye ile uçtan uca oyun**: dünyayı fethetme / yenilme yolu görsel olarak doğrulanır
 4. **İçerik**: ◐ 1936 seçenekli olayları eklendi: Japonya (26 Şubat), İtalya (Cemiyet yaptırımları), İngiltere (Savunma Beyaz
    Kitabı), Fransa (Halk Cephesi), Almanya (Berlin Olimpiyatları), Polonya (Rambouillet kredisi), SSCB (1936 Anayasası),
@@ -120,9 +145,17 @@ Ayrıntı ve kurallar: [docs/OZGUNLUK.md](docs/OZGUNLUK.md). Her PR bu sayfadaki
 - [x] Değişken bölge yoğunluğu: Avrupa ayrıntılı; Doğu Asya/Hindistan 2–2,5x, Sibirya/Afrika/okyanus 5x
       → 13.414 bölge (8.812 kara, 1.901 ada, 2.134 deniz, 567 göl), 1.652 eyalet, 1.847 şehir
 - [x] Dünya yükseltisi (Terrarium z5 + Avrupa z6), enleme göre kar çizgisi, güney yarıküre biyomları
-- [x] 1936 siyasi durumu: 80 ülke, bütün sömürge imparatorlukları, dominyonlar, Mançukuo, Çin savaş ağaları
+- [x] 1936 siyasi durumu: 82 ülke, bütün sömürge imparatorlukları, dominyonlar, Mançukuo, Çin savaş ağaları
+- [x] Modern bölgelerin ortasından geçen yerlerde kesin 1 Ocak 1936 sınırları (`tools/fix_borders_1936.py`, piksel
+      düzeyinde): Alman Yukarı Silezya/Pomeranya/Batı Prusya, Danzig Serbest Şehri (ayrı ülke), Polonya'nın Riga sınırı,
+      Dinyester ve Budjak, Fin Karelyası/Salla/Petsamo, Petseri/Abrene, Fiume/Zara/Onikiadalar/Tenda, Karafuto ve Kuriller,
+      Kwantung, Jehol ve Doğu İç Moğolistan, İspanyol Fas'ının güney sınırı, İfni, Cape Juby, Tanca Uluslararası Bölgesi
+      (ayrı ülke), kendi eyaletleriyle Cebelitarık ve Makao, Newfoundland, Goa, Pondichéry, Kwangchowan, İngiliz Kamerunu,
+      Kanal Bölgesi; ~270 sınır kasabasını `test_borders_1936.gd` denetler → 13.548 bölge, 1.687 eyalet
 - [x] Dünya ekonomisi (ABD, Japonya, Çin, Hindistan...), gerçek yataklar (Malaya kauçuğu, Teksas petrolü...)
 - [x] Coğrafi mesafe (büyük daire) ile hareket, yol bulma, deniz bölgeleri, hava menzili
+- [x] Gerçekçi yürüyüş (gün boyunca yol hızının üçte biri: piyade günde ~33 km, zırhlı ~84) ve yürüyüş yorgunluğu
+  (yürürken bütünlük düşer, durunca toparlanır); Ctrl seçili tümenlerin yürüme menzilini gösterir (1 / 3 / 7 gün)
 - [x] Bellek bütçesi (~750 MB): 16 bit bölge dokusu, yarım çözünürlük SDF/arazi, 128 parçalı harita ağı
 - [x] Kamera: görüş alanı hiçbir zoom'da haritadan taşmaz (kenar boşluğu yok); en uzak zoom tüm dünya; bulut yok
 - [x] Asya odakları: Japonya (Marco Polo 1937, Üçlü Pakt, Güneye Saldırı 1941), ABD, Çin
@@ -204,6 +237,14 @@ Oyuncu savaşı **görmeli**: asker, tank, gemi, denizaltı, uçak haritada ger�
       yaklaşınca her ikon yerden yükselen bir iğneye dönüşür
 - [x] İğne olarak yapılar: eyalet başına bir iğne, ucunda yapıları yan yana resim (sivil/askerî fabrika, tersane,
       rafineri, uçaksavar, deniz üssü) ve seviyesi; süren inşaat turuncu çerçeveli resim ve "+n"; hava üssünün kendi iğnesi
+- [x] Yapı rozetleri yalnız yakında (28 Eyl 2026): kamera ~215'ten itibaren haritanın üstünde küçük ikon (%72 boy),
+      ~130'dan içeride tam boy ve altlarından yükselen iğne; daha uzakta haritada bina görünmez. Boy iğne düğümünün
+      ölçeğiyle değişir (yakınlaştırırken her etiketi yeniden boyutlamak kareleri 150+ ms takıyordu). Farenin rozetin üstüne gelmesiyle rozet büyür, yapının sesi çalar (`map_<yapı>.wav`; dosya
+      gelene kadar yakın bir eylem sesi) ve kart yapıyı anlatır (seviye / en çok, inşaat, ülke toplamı, konuşlu kanatlar);
+      tıklamak eyaletini açar
+- [x] Oyuncunun ordusu yakında ana sayacının üstünde komutanının portresini taşır (resim yoksa baş harfleri)
+- [x] Muharebe durum okları: durumu az önce düzelen tarafta küçük yeşil ▲, zemin kaybedende kırmızı ▼; yükselip söner
+      (`game/map/battle_ticker.gd`)
 - [x] Uçaklar: ülke renginde tek küçük uçak modeli, üste park etmiş ya da görevinde uçarken
 - [x] Eyalet sınırları her zoom'da net çizgi (yakında daha kalın), province sınırları (farenin vurguladığı birim) eyaletlerin
       içinde daha ince ve açık çizgi
@@ -263,13 +304,22 @@ Oyun "izlenebilir" olmaktan çıkıp **oynanabilir** olmalı: dengeli tarih akı
       Büyük Terör −%30, hazırlıksız ordu), Alman program tarihleri tarihî (Danzig 1 Eyl 1939, Batı Mayıs 1940)
 - [x] Komutanlarla (27 Eyl 2026, 6 koşu): 12 kontrolün hepsi ≥5/6; bir koşuda Almanya/İtalya erken, bir koşuda Fransa geç
       düştü — izlenecek
-- [ ] Fransa'nın düşüşü Şub–Haz 1941'de (tarih: Haz 1940): Belçika/Hollanda üzerinden yığınak ve kuşatma hızlandırılacak
-- [ ] Teslim olan ülkenin savaşları ve toprakları tutarlı devredilsin (teslim olan ülke savaş ilan edemesin)
+- [x] Fransa Haziran–Temmuz 1940'ta düşer (6/6 koşu, 28 Eyl 2026): tarih çizelgesi (Sarı Plan, 10 Mayıs 1940) ve
+      Mayıs–Ekim 1940 "Cephenin Çöküşü" durumu
+- [x] Teslim olan ülke tutarlı devredilir: işgal edilen eyaletleri işgalcilere geçer, bütün savaşlardan ve (lideri
+      değilse) ittifakından çıkar, verdiği garantiler düşer, iki yıl savaş ilan edemez (`Diplomacy.TRUCE_DAYS`); eski
+      müttefiklerinin savaşlarına yeniden çekilmez
 - [ ] Barış konferansı (basit): kazanan taraf eyaletleri paylaşır
 
 ### P2. Oyuncuya geri bildirim
 - [ ] Muharebe ayrıntı penceresi (iki taraf, güç, kayıplar, arazi/nehir cezaları)
-- [ ] Tümen/filo seçilince yol önizlemesi ve varış süresi
+- [x] Varış süresi: tümen seçiliyken fare altındaki bölgenin kartı tahmini varışı gösterir (ilk üç tümenin en yavaşı,
+      muharebesiz; `Military.eta`, yürüyüşle aynı hız); filo seçiliyken de (`Navy.eta_hours`). Emirden önce yol
+      çizilmez: fareyi izleyen yol, birlikler kendi yolunu seçiyormuş gibi görünüyordu
+- [x] Hareket okları: hedefe akan soluk işaretler zinciri, haritanın altından akıyormuş gibi, ülkenin renginde (taarruzda
+      kırmızı); emir verilen tümen bölge merkezine sıçramaz, yerinde kalır; ok sayacın duracağı yerde biter, sayaca sağ
+      tık o sayacın bölgesine emir verir (yığına katılma)
+- [x] "Yol yok" nedenini söyler: adı verilen ülkeye geçiş izni yok, yalnız denizden gidilen hedefte deniz kapalı, eğitimde
 - [◐] "Neden?" ipuçları: istikrar ve iç cephe dökümü, teslim sınırı, yasa şartları, kapalı diplomasi eylemlerinin nedeni,
       kaynak açığı satırları, deniz bölgesine göre deniz hâkimiyeti ✔; kalan: ikmal açığı
 - [x] Ctrl ile ülke kartı (lider, ilişki, bizimkine göre renkli göstergeler), başka ülkelerin siyaseti salt okunur
@@ -453,6 +503,35 @@ Ekonominin ve savaşın omurgası: ikmal, hareket hızı, sanayi ve kaynak taş�
 - [ ] Kuşatılan şehirlerde yangın, yıkık bina varyantları, cephe hattında siperler ve krater izleri
 
 ### D4. Harita atmosferi
+- [x] Boyalı harita (28 Eyl 2026): tarlalar koyu kenarlı parsellerden yama işi, ince sırtlı ve dereli toprak tonunda
+      dağlar (sabit kuzeybatı ışığıyla kabartma + bükülmüş kırışık gürültü), turkuaz sığ su ve ince köpük çizgisi; siyasi
+      renkler zeminin üstünde boya örtüsü (Arazi kipinde yok); ağaç modeli yok (katman, verisi ve ağaç modeli üreticisi
+      kalktı)
+- [x] Şehir iğnesi yalnız büyük şehirlerde (başkentler, 10+ zafer puanı); öbürleri her zoom'da sade ad
+- [x] Birlik adları her ülkenin kendi dilinde (`data/common/unit_names.json`, 24 dil, yoksa İngilizce)
+- [x] Birlikler levha (28 Eyl 2026, `art/soldier-pins.png`): uzakta rozet, yaklaşınca demir iğnenin ucunda bayrak şeritli,
+      birlik resimli, harita işaretli, sayılı koyu levha (önce denenen yuvarlak başlar bırakıldı)
+- [x] Birlikler yuvarlak iğne (yerini yukarıdaki levhalar aldı): uzakta iğnesiz "bayrak | sayı", "gemi | sayı", "uçak | sayı" rozetleri;
+      yaklaşınca demir iğnenin ucunda `art/soldier-pins.png` tasarımında yuvarlak baş (metal çerçeve, kubbe bayrak,
+      fildişi birlik resmi, sayı sekmesi, ad kutusu),
+      tümende, filoda, hava kanadında aynı; çok yakında yığın taburlarına göre aynı boy başlara dağılır; mat demir
+      iğneler; yapı iğneleri farklı boylarda ve daha uzaktan
+- [x] Haritada konuşlandırma: panel kapanır, harita uygun yerler dışında kararır, oyuncu tümenin / hava kanadının / yeni
+      gemilerin yerini tıklar (yeni gemiler artık kendiliğinden filoya katılmaz)
+- [x] Tümen kartları (yerini yukarıdaki yuvarlak iğneler aldı):
+      çok yakında içindeki taburlar küçük kartlarla; resimler `docs/art/UNIT_CARD_PROMPTS.md`'den (gelene kadar
+      teçhizat ikonları fildişine boyanır); iğnelerde fare büyütmesi yok
+- [x] Kara yolları ve demiryolları (Natural Earth, `tools/build_roads.py`) Yollar harita kipinde, dağın arkasında
+      görünmez; genel olarak daha koyu harita; cilalı çelik gövdeli, pirinç yüksüklü iğne; şehir iğnesi ikonları
+      (5 kademe x 4 stil, promptlar `docs/art/CITY_PIN_PROMPTS.md`'de) — resimleri henüz yok
+- [x] Arazi örtüsü (28 Eyl 2026): ormanlar koyu yeşil, yakında taç kümeleri; bozkır haki ve kuru ot; çöl kum; dağlar
+      yaylada toprak tonunda, dik ve yüksek yamaçta gri-kahve kaya, kar çizgisinin üstünde kar (kışın iner), yamaç
+      yönünde ince sırt ve dereler
+- [x] İğne canlandırması: şehir iğneleri görüş menziline girince yaylanarak çıkar, çıkınca küçülüp kaybolur; ekranın
+      ortasından uzak iğneler küçük (çok yakında hepsi tam boy), farenin altındaki iğne büyür; iğnenin battığı yerde
+      yumuşak gölge. Uzakta sade beyaz şehir adları; yapılar yalnız en yakın zoom adımlarında; uçaklar yalnız yakında
+- [x] Harita tasarımında iğneler: şehir adları koyu çerçeveli kutuda (serifli), fildişi başlar, başkent madalyonu (altın
+      halka ve yıldız), yapılar altın piktogramlı koyu kare karolarda, seviye köşede
 - [x] Kış kar örtüsü (mevsime ve enleme göre, yamalı)
 - [ ] Gün/gece döngüsü (şehir ışıkları), mevsim renkleri
 - [x] Yağmur/kar parçacıkları (bölgesel, mevsime bağlı, yakın zoom'da; FPS dostu)
@@ -582,7 +661,17 @@ zombi salgını).
 
 ## BÖLÜM G — PERFORMANS (sürekli) ◐
 Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
-- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü)
+- [x] Simülasyon profil araçları (`game/dev/sim.gd`, `--fps` ölçümü; `--prof_every=365` her yıl en pahalı sistemleri yazar)
+- [x] Uzun savaşta donanma maliyeti (28 Eyl 2026): görevdeki her filo her saat bütün düşman filolarını tarıyordu (filolar
+      çoğaldıkça karesel: donanma görevleri 1941–44'te oyun yılı başına 12 → 22 → 37 → 51 sn) → saatlik konum dizini ve
+      görev bölgesi taraması (1944: 7 sn); deniz hâkimiyeti 6 saatte bir kurulur (nakliye 1942'ye kadar 22 → 8 sn);
+      mahsur filo günde bir liman arar. 1936–44 ekransız: 560 → 436 sn
+- [x] Hava çatışması görevdeki her kanadı her gün diğer bütün kanatlarla karşılaştırıyordu (karesel): kanatlar görev
+      bölgesine göre toplanır, yakın bölge çiftleri bir kez ölçülür, sonuç aynı. Tarihî akıştan sonra yapay zekânın filo
+      ve hava kanadı sayısına sanayiye bağlı tavan (su üstü filo = tersane / 3, 6–24 arası; denizaltı filosu tersane / 8,
+      2–8; kanat = askerî fabrika / 3, 12–40; fazla gemi filoları büyütür, fazla uçak stokta kalır) — yılda ~60 filo ve
+      ~55 kanat sınırsız artıyordu. 2 Eylül 1945'ten önce uygulanmaz: 1940–41'de tavan İngiliz filolarını birleştirip
+      Fransa'nın düşüşünü geciktiriyordu
 - [x] AI/ikmal/istatistik önbellekleri; ağaç gölgeleri kapalı; MSAA yerine FXAA; yarım çözünürlük SSAO
 - [ ] Sayaç ve etiketleri tek çizim çağrısında toplu çizim (şu an ~2.600 çizim çağrısı)
 - [ ] LOD: uzak zoom'da şehir modeli → ikon
@@ -591,33 +680,47 @@ Hedef: 1080p, orta sistemde **60 FPS**; 5. hızda takılmadan.
 
 ---
 
-## BÖLÜM AÇIK — AÇIK UÇLU OYUN ☐ ← uçtan uca oyundan önce gerekli
-Bugün oyun 1 Ocak 1948'de bitiyor (`Game.END_DATE`) ve araştırma ağacı 1942 civarında tükeniyor. Bir strateji oyunu bir
-tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok olana** kadar sürer. Bunun
-kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
-- [ ] Bitiş tarihi yok: zafer = oyuncu bütün eyaletleri kontrol eder (ya da diğer bütün ülkeler oyuncunun tarafına teslim
-      olmuştur); yenilgi = oyuncunun ülkesi artık yoktur (son eyaleti kaybedildi ya da ilhak edildi). `END_DATE` kalkar;
-      oyun sonu ekranı nedeni ve tarihi gösterir
-- [ ] Bitmeyen araştırma: son tarihî teknolojiden sonra araştırma sürer — her dalda tekrarlanabilir seviyeler (ör. "Piyade
-      silahları IV, V, ..."), her seviyede artan maliyet ve azalan kazanç; hiçbir dal tükenmez
+## BÖLÜM AÇIK — AÇIK UÇLU OYUN ◐ ← uçtan uca oyundan önce gerekli
+Bir strateji oyunu bir tarihte bitmez: **oyuncu bütün dünyayı ele geçirene** ya da **oyuncunun ülkesi tamamen yok
+olana** kadar sürer. Bunun kaç yıl süreceği önceden bilinemez; hiçbir şey bir bitiş yılı varsaymamalı.
+- [x] Bitiş tarihi yok (`END_DATE` kalktı): zafer = oyuncunun tarafının (oyuncu ve ittifakı) dışında ayakta ülke
+      kalmaması; yenilgi = oyuncunun ülkesinin artık olmaması (son eyaleti kaybedildi ya da ilhak edildi). Teslim olup
+      elinde toprak kalan oyuncu oynamayı sürdürür. Oyun sonu ekranı nedeni ve tarihi gösterir; zaferden sonra oyuncu
+      oynamayı sürdürebilir (zafer kayda geçer, yeniden gelmez). `tests/test_open_game.gd`
+- [x] Bitmeyen araştırma: bir dalın tarihî teknolojileri bitince dal iyileştirme seviyeleriyle sürer ("Piyade
+      İyileştirmesi I, II, ...", `rep_<dal>_<n>`): maliyet 180 gün, seviye başına +%15; kazanç seviye başına −%15
+      (toplamı sınırlı); her seviyenin yılı bir öncekinden bir yıl sonra (1943'ten), yıl cezası iyileştirmeleri tarihî
+      ağacın ardında tutar; araştırma çizelgesinin son sütunu; yapay zekâ da araştırır, yalnız seviyenin yılı gelince
+      (yıllar önce alınan seviye bir yuvayı yıllarca kilitlerdi) (formül ve gerekçeler
+      `data/common/technologies.json` → `repeatable`)
 - [ ] Savaş yıllarından sonra üretim ve birlikler: sonraki teçhizat kuşakları tekrarlanabilir araştırma seviyelerini izler
-- [ ] Tarihî akıştan sonra olaylar ve yapay zekâ: tarihli olaylar bitince dünya durmaz — kurala dayalı olaylar (krizler,
-      sınır olayları, ayaklanmalar, darbeler, ekonomik şoklar) ve yeni savaşlar planlayan yapay zekâ
+- [x] Tarihî akıştan sonra olaylar ve yapay zekâ: 2 Eylül 1945'ten sonra her ülkeye kurala dayalı, yinelenen olaylar
+      gelir (`events.json` içinde `"recur"`: başlangıç, ortalama süre, bekleme, şartlar, karşı taraf olarak komşu) —
+      Sınırda Çatışma (savaş gerekçesi: yapay zekâ yeni savaşları böyle bulur), Bankalara Hücum, Subay Komplosu (düşük
+      istikrar), Askerler Evine Dönüyor (barıştaki büyük güçler); bu tarihten önce rastgele sayı çekilmez, tarihî akış
+      değişmez
+- [ ] Daha çok kurala dayalı olay: işgal altındaki topraklarda ayaklanma, gerçek darbe (rejim değişikliği), felaketler,
+      sömürge krizleri
 - [ ] Uzun oyunda da işe yarayan yasalar, programlar ve kararlar (savaş sonrası yeniden inşa, işgal politikası, büyük bir
       imparatorluğun ekonomisi)
 - [ ] Performans ve kayıt boyutu onlarca oyun yılı boyunca kararlı (uzun koşu testi: 30+ oyun yılı)
 - [ ] Sabit yıl içermeyen motor metinleri (BÖLÜM MOD'un da parçası: senaryo başlangıç tarihini verir, bitiş tarihini değil)
 
-## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ☐
+## BÖLÜM OL — DÜNYA OLAYLARI MENÜSÜ ◐
 Dünyada sürekli bir şeyler olur (savaş ilanları, ittifaklar, darbeler, felaketler, başka ülkelerin kararları). Bunlar
 oyuncuya bir akış olarak gelmeli; bir kısmına cevap verilebilmeli.
-- [ ] Solda bir dünya olayları menüsü: dünyada olanların listesi (en yenisi üstte), ülke bayrağı, tarih ve kısa metin;
-      süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider
-- [ ] Olaylara tepki: bazı kayıtlar 2–3 gerçek seçenek taşır (kınamak / desteklemek / uzak durmak, gönüllü göndermek,
-      garanti vermek, yaptırım...); bedel ve etkiler var olan etki sözlüğünden; yapay zekâ da oyuncunun olaylarına aynı
-      şekilde tepki verir
-- [ ] Her yapay zekâ ülkesinin önemli kararları ve savaşları kayıt olur (yalnız oyuncunun kendi olayları değil)
-- [ ] Uyarı çubuğu ve bildirim akışı oyuncunun kendi işleri için kalır; dünya menüsü dünyanın geri kalanıdır
+- [x] Solda dünya olayları menüsü (E, `game/ui/world_panel.gd`): dünyada olanlar, en yenisi üstte; ülke bayrağı, tarih,
+      tür ve kısa metin; süzgeçler (komşularım, ittifakım, bütün dünya); tıklayınca harita oraya gider. Kayıt
+      (`World.world_log`, son 400) kayda geçer; metinler şimdiki dilde yeniden kurulur
+- [x] Olaylara tepki: oyuncunun taraf olmadığı bir savaş ilanı (30 gün) ya da ilhak (60 gün) seçenek taşır — kınamak /
+      tüfek göndermek / uzak durmak, tanımamak (savaş gerekçesi) / tanımak — bedel, şart ve etkiler var olan etki
+      sözlüğünden (`data/common/world_reactions.json`, `game/core/world_react.gd`); demokratik büyük güçler oyuncunun
+      saldırısını aynı şekilde kınar
+- [x] Yapay zekâ ülkelerinin savaşları, ittifakları, garantileri, teslimleri, ilhakları, barışları, seçimleri, yeni
+      liderleri ve büyük güçlerin devlet programları kayıt olur
+- [x] Bildirim akışı oyuncunun işlerine (ve büyük güçlerin savaş ve ilhaklarına) ayrılır; dünya menüsü dünyanın geri
+      kalanıdır. `tests/test_world_events.gd`
+- [ ] Daha çok cevap: gönüllüler, yaptırımlar, kayıttan garanti; darbeler, ayaklanmalar, felaketler kayıt olarak
 
 ## BÖLÜM H — İÇERİK DERİNLİĞİ (sürekli) ◐
 - [ ] Her büyük güç için geniş devlet programı ağacı, orta güçlere özel ağaçlar
@@ -651,7 +754,7 @@ data/            → içerik (JSON/CSV), üretilmiş harita dosyaları
 tools/           → harita, doku, model (Blender), ses üretim betikleri
 game/autoload/   → World, Economy, Politics, Research, Diplomacy, Military, Navy, Air, AI, Game, GameClock, Audio
 game/core/       → saf simülasyon sınıfları (Country, StateRegion, Province, Division, Army, ArmyGroup, Commander, Fleet...)
-game/map/        → 3D harita, kamera, şehir/ağaç/birim katmanları
+game/map/        → 3D harita, kamera, şehir/iğne/birim katmanları
 game/ui/         → arayüz
 game/dev/        → headless test ve simülasyon
 tests/           → ekransız test paketi (tests/run.gd koşucu, test_*.gd testler)
@@ -663,7 +766,8 @@ docs/            → wiki (docs/wiki İngilizce, docs/wiki/tr Türkçe), özgün
 - Test paketi: `tools/run_tests.sh` (içe aktarma + `tests/run.gd` + country_check); CI: `.github/workflows/tests.yml`
   (PR ve main push'ta; denge testi elle tetiklenen ayrı iş)
 - Denge testi: `tools/balance_parallel.sh 6` (6 paralel koşu, ~15–20 dk); tek koşu `game/dev/balance.gd`
-- Performans: `godot --path . -- --play=GER --run --fps=10`
+- Performans: `godot --path . -- --play=GER --run --fps=10` (`--fps_mouse`: fare haritada daire çizer, `--fps_zoom`:
+  kamera yakınlaşıp uzaklaşır; `--load=kayıt` bir kaydı ölçer)
 - Görsel QA (kare dizisi): `-- --play=DEN --war=GER,DEN --focus_battle=150 --speed=1 --shots=8 --every=30 --screenshot=out.png`
 - Video: `godot --path . --write-movie out.avi --fixed-fps 30 -- --play=DEN --war=GER,DEN --focus_battle=200 --speed=2
   --film=5 --dolly=320,120` (`--pan=dx,dz`, `--track`, `--hide_ui`); klipler ffmpeg ile birleştirilir → `docs/media/`

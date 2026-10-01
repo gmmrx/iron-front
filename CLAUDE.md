@@ -2,9 +2,11 @@
 
 # Iron Front — Claude Code working rules
 
-A World War II grand strategy game set in 1936–1948, playable as any of 80 countries. Godot 4.7.2, GDScript,
+A World War II grand strategy game set in 1936–1948, playable as any of 82 countries. Godot 4.7.2, GDScript,
 data-driven (`data/common/*.json`). Web version: https://gmmrx.github.io/iron-front/ (republished on every push to main).
 Game wiki: `docs/wiki/` (Turkish in `docs/wiki/tr/`), roadmap: `ROADMAP.md` (Turkish in `ROADMAP.tr.md`).
+**Game design rules: `docs/DESIGN.md`** (Turkish: `docs/TASARIM.md`). The game is being cut down to short scenarios;
+build nothing that page does not allow.
 **Talk to the user in Turkish.** The main language of the game and of the documentation is English.
 
 ## Setup (Linux, headless)
@@ -23,11 +25,12 @@ For the Python tools: `pip install pillow numpy scipy`.
 |---|---|
 | `GODOT=$GODOT tools/run_tests.sh` | import + `tests/run.gd` + country_check (60 days); this is the CI job |
 | `$GODOT --headless --path . -s tests/run.gd [-- --file=test_data]` | test suite (`tests/test_*.gd`, each test on a fresh game; how to write one: `docs/wiki/08_developer.md`) |
-| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | with each of the 80 countries: do player actions affect the game, is anything done automatically for the player (exit code 1 = problem) |
+| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | with each of the 82 countries: do player actions affect the game, is anything done automatically for the player (exit code 1 = problem) |
 | `GODOT=$GODOT tools/balance_parallel.sh 6` | 1936–1942 historical flow, 12 checks. Each check must pass at least 5/6 |
 | `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 stability/home front, dated events, elections |
 | `$GODOT --headless --path . -s game/dev/playtest.gd` | Turkey → Iraq war, orders, surrender, save/load |
 | `$GODOT --headless --path . -s game/dev/sim.gd` | simulation speed (profile) |
+| `$GODOT --headless --path . -s game/dev/fig_check.gd -- --load=war_demo_watch --battle --days=3` | figure layout at a battle (or `--war=GER,DEN --play=DEN`): overlapping figure pairs, sliding, jumps, enemies base to base; prints `--focus` for a screenshot |
 
 The balance test takes long (~15–20 min, 6 parallel processes); run it after any change to game logic.
 
@@ -69,6 +72,6 @@ The balance test takes long (~15–20 min, 6 parallel processes); run it after a
 - Commit messages in Turkish. If you added a new mechanic, update the relevant pages in `docs/wiki/` and `docs/wiki/tr/`,
   and the status in `ROADMAP.md` and `ROADMAP.tr.md`.
 - **Documentation is bilingual**: the main file is English (`README.md`, `ROADMAP.md`, `docs/wiki/*.md`,
-  `docs/ORIGINALITY.md`, `docs/cloud/TASKS.md`), the Turkish one sits next to it (`*.tr.md`, `docs/wiki/tr/`,
-  `docs/OZGUNLUK.md`, `docs/cloud/GOREVLER.md`). If you change one, update the other in the same task; every file links
-  to its other language at the top.
+  `docs/ORIGINALITY.md`, `docs/DESIGN.md`, `docs/cloud/TASKS.md`), the Turkish one sits next to it (`*.tr.md`,
+  `docs/wiki/tr/`, `docs/OZGUNLUK.md`, `docs/TASARIM.md`, `docs/cloud/GOREVLER.md`). If you change one, update the other
+  in the same task; every file links to its other language at the top.

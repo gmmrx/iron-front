@@ -99,6 +99,9 @@ func _refresh() -> void:
 	PanelLayout.stat(_body, tr("UI_TERRAIN"), "%s%s" % [tr("TERRAIN_" + p.terrain), ("  ·  " + tr("UI_COASTAL")) if p.coastal else ""])
 	if p.city:
 		PanelLayout.stat(_body, tr("UI_CITY"), p.city.display_name() + (" (%s)" % tr("UI_PORT") if p.city.is_port else ""))
+	_recruit_section(st, p)
+	if not Economy.SHOW_BUILDINGS or Military.state_fogged(st):
+		return                                   # sisin altındaki yabancı eyaletin yapıları keşfedilene kadar bilinmez
 	# ortak bina yuvaları
 	var mine := st.owner == World.player_tag and World.in_game
 	var player := World.player()
@@ -172,8 +175,8 @@ func _refresh() -> void:
 			cell.tooltip_text = "%s: %d" % [tr("RES_" + r), st.resources[r]]
 			cell.add_child(PanelLayout.icon_label(UiTheme.resource_icon(r), "%s %d" % [tr("RES_" + r), st.resources[r]], 32, 14))
 			rr.add_child(cell)
-	# doğrudan inşa (yalnız oyuncunun eyaleti)
-	if mine:
+	# doğrudan inşa (yalnız oyuncunun eyaleti; inşaat kapalıysa yok)
+	if mine and Economy.CONSTRUCTION:
 		PanelLayout.section(_body, tr("ST_BUILD_HERE"))
 		var g := PanelLayout.grid(4)
 		_body.add_child(g)
@@ -192,6 +195,38 @@ func _refresh() -> void:
 	_diplo_btn.visible = st.owner != World.player_tag and World.in_game
 
 ## Bina yuvası hücresi: sütun genişliğini doldurur, yüksek; içinde büyük bina ikonu
+## Asker al: oyuncunun elindeki şehirde (tıklanan bölge şehir değilse eyaletin en büyük şehri) birlik türleri, bedelleri ve
+## "Al" düğmesi; alınamıyorsa düğme kapalı, ipucu nedenini söyler (Military.recruit, data/common/recruit.json)
+func _recruit_section(st: StateRegion, p: Province) -> void:
+	var player := World.player()
+	if player == null or not World.in_game:
+		return
+	var city: City = p.city if p.city else st.largest_city()
+	if city == null or World.controller_tag(city.province_id) != player.tag:
+		return
+	PanelLayout.section(_body, tr("RECRUIT_HEAD") % city.display_name())
+	var units: Dictionary = Military.recruit_def()["units"]
+	for kind: String in units:
+		var u: Dictionary = units[kind]
+		var sub := ""
+		if u.has("template"):
+			var mp := int(Military.stats(player, int(u["template"]))["manpower"])
+			sub = tr("RECRUIT_COST_DIV") % [int(u["sp"]), UiTheme.format_number(mp), int(u["days"])]
+		else:
+			sub = tr("RECRUIT_COST_WING") % int(u["sp"])
+		var col := PanelLayout.row(_body, UiTheme.icon_or(String(u.get("icon", "army")), "army"), tr("RECRUIT_UNIT_" + kind), sub)
+		var err := Military.recruit_error(player, kind, city.province_id)
+		var pid := city.province_id
+		var cname := city.display_name()
+		PanelLayout.row_action(col, PanelLayout.small_button(tr("RECRUIT_BUY"), func() -> void:
+			var e := Military.recruit(player, kind, pid)
+			if e == "":
+				World.notify(tr("RECRUIT_OK") % [tr("RECRUIT_UNIT_" + kind), cname], "good")
+				Audio.play("order_move", 150)
+			else:
+				World.notify(tr(e), "bad")
+			_refresh(), err == "", tr(err) if err != "" else tr("TIP_RECRUIT")))
+
 func _slot_cell(tex: Texture2D, tip: String, variant: String) -> PanelContainer:
 	var pc := PanelLayout.slot(tex, 64, tip, variant)
 	pc.custom_minimum_size = Vector2(0, 64)

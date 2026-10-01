@@ -2,7 +2,7 @@
 
 # Oyun Wikisi
 
-1936–1945 arasında geçen, 80 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Tarayıcıda:
+1936–1945 arasında geçen, 82 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Tarayıcıda:
 <https://gmmrx.github.io/iron-front/>. Sayılar bu oyunun kodundan alınmıştır.
 
 **Temel ilke:** her kararı oyuncu verir. Oyun oyuncu adına ticaret yapmaz, uçak kanadı yönetmez, geri çekilme emri vermez;
@@ -16,7 +16,7 @@ tarihî baskılar seçenekli olay olarak gelir.
 | [Ekonomi](04_ekonomi.md) | İnşaat, üretim, ticaret, kaynaklar, tüketim malı |
 | [Savaş](05_savas.md) | Tümenler, şablonlar, emirler, muharebe, komuta zinciri, ikmal, hava, deniz |
 | [Diplomasi](06_diplomasi.md) | Savaş gerekçesi, kriz endeksi eşikleri, garantiler, ittifaklar, teslim |
-| [Ülkeler](07_ulkeler.md) | 80 ülke, 1936 liderleri, başlangıç durumu |
+| [Ülkeler](07_ulkeler.md) | 82 ülke, 1936 liderleri, başlangıç durumu |
 | [Geliştirici](08_gelistirici.md) | Testler, geliştirici argümanları, ikon/portre ekleme |
 
 Yol haritası ve eksikler: [ROADMAP.tr.md](../../../ROADMAP.tr.md).

@@ -479,6 +479,15 @@ static func _painted_icon(name: String) -> Texture2D:
 static func building_icon(building: String) -> Texture2D:
 	return icon("building_" + building)
 
+## Harita pinleri için uzaktan seçilen, menü resminden bağımsız yapı piktogramı.
+static func building_pin_icon(building: String) -> Texture2D:
+	var bitmap: Texture2D = icon("map_building_" + building)
+	if bitmap:
+		return bitmap
+	var path := "res://assets/ui/icons/map_building_%s.svg" % building
+	var pin: Texture2D = load(path) if ResourceLoader.exists(path) else null
+	return pin if pin else building_icon(building)
+
 static func resource_icon(resource: String) -> Texture2D:
 	return icon("resource_" + resource)
 
@@ -604,7 +613,7 @@ static func icon_button(icon_name: String, tip: String, action: Callable, size: 
 	b.focus_mode = Control.FOCUS_NONE
 	b.tooltip_text = tip
 	for st in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
-		var sb: StyleBoxTexture = get_theme().get_stylebox(st, "Button").duplicate()
+		var sb: StyleBox = get_theme().get_stylebox(st, "Button").duplicate()
 		sb.set_content_margin_all(5)
 		b.add_theme_stylebox_override(st, sb)
 	if action.is_valid():
@@ -624,12 +633,33 @@ static func _button_style(bg: Color, border: Color) -> StyleBoxFlat:
 	return sb
 
 ## Arayüz dokuları (assets/ui/skin, tools/make_ui_skin.py)
-static func skin(name: String, margin: int = 10, content: int = 8) -> StyleBoxTexture:
+static func skin(name: String, margin: int = 10, content: int = 8) -> StyleBox:
+	var style := preload("res://game/ui/panel_material_style.gd").new()
+	style.configure(legacy_skin(name, margin, content), load("res://assets/ui/materials/panel_gunmetal_v1.png"), name)
+	return style
+
+## Original border/state colour sources; also used by before/after art checks.
+static func legacy_skin(name: String, margin: int = 10, content: int = 8) -> StyleBoxTexture:
 	var sb := StyleBoxTexture.new()
 	sb.texture = load("res://assets/ui/skin/%s.png" % name)
 	sb.set_texture_margin_all(margin)
 	sb.set_content_margin_all(content)
+	# Büyük yüzeylerde 96px metal dokuyu panel boyuna germeyelim. Dokunun tanesi ve
+	# kenar kalınlığı sabit kalır; 9-dilim köşeleri/perçinleri zaten ayrı korur.
+	if name in ["panel", "panel_flat", "strip"]:
+		# Perçinin dış halkası 13. piksele ulaşır; tekrar alanına girmemeli.
+		if name == "strip":
+			sb.set_texture_margin_all(maxi(margin, 14))
+		sb.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+		sb.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+	elif name in ["header", "section"]:
+		# Başlığın dikey ışık geçişi korunur; yatay fırça dokusu genişlikle uzamaz.
+		sb.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
 	return sb
+
+## Ana ve iç panelin sabit içerik payları.
+static func material_panel(flat := false) -> StyleBox:
+	return skin("panel_flat" if flat else "panel", 14 if flat else 16, 12 if flat else 14)
 
 static func _build() -> Theme:
 	var t := Theme.new()
@@ -641,7 +671,7 @@ static func _build() -> Theme:
 	t.set_constant("shadow_offset_x", "Label", 1)
 	t.set_constant("shadow_offset_y", "Label", 1)
 
-	var pnl := skin("panel", 16, 14)
+	var pnl := material_panel()
 	t.set_stylebox("panel", "PanelContainer", pnl)
 	t.set_stylebox("panel", "Panel", pnl)
 	for pair: Array in [["normal", "button"], ["hover", "button_hover"], ["pressed", "button_pressed"],
@@ -668,6 +698,7 @@ static func _build() -> Theme:
 			["PanelFlat", "PanelContainer", "panel_flat", 14, 12]]:
 		t.set_type_variation(v[0], v[1])
 		t.set_stylebox("panel", v[0], skin(v[2], v[3], v[4]))
+	t.set_stylebox("panel", "PanelFlat", material_panel(true))
 	# liste satırı: koyu gömük zemin, ince kenar; tablo için kenarsız açık/koyu sıralar
 	var row_sb := StyleBoxFlat.new()
 	row_sb.bg_color = Color(0.085, 0.09, 0.092, 0.92)
@@ -700,7 +731,7 @@ static func _build() -> Theme:
 		var n := skin(v[1], 8, 9)
 		var h := skin(v[2], 8, 9)
 		var p2 := skin(v[3], 8, 9)
-		for sb: StyleBoxTexture in [n, h, p2]:
+		for sb: StyleBox in [n, h, p2]:
 			sb.content_margin_left = 14
 			sb.content_margin_right = 14
 		t.set_stylebox("normal", v[0], n)
@@ -709,6 +740,19 @@ static func _build() -> Theme:
 		t.set_stylebox("hover_pressed", v[0], p2)
 		t.set_stylebox("disabled", v[0], n)
 		t.set_stylebox("focus", v[0], StyleBoxEmpty.new())
+
+	# yazı kutusu (arama): gömük yuva dokusu, odakta altın yuva
+	var le_n := skin("slot", 6, 8)
+	le_n.content_margin_left = 12
+	var le_f := skin("slot_gold", 6, 8)
+	le_f.content_margin_left = 12
+	t.set_stylebox("normal", "LineEdit", le_n)
+	t.set_stylebox("read_only", "LineEdit", le_n)
+	t.set_stylebox("focus", "LineEdit", le_f)
+	t.set_color("font_color", "LineEdit", TEXT)
+	t.set_color("font_placeholder_color", "LineEdit", TEXT_DIM)
+	t.set_color("caret_color", "LineEdit", ACCENT)
+	t.set_color("selection_color", "LineEdit", Color(ACCENT, 0.35))
 
 	var tip := skin("tooltip", 8, 10)
 	t.set_stylebox("panel", "TooltipPanel", tip)

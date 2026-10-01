@@ -1721,6 +1721,10 @@
      {
       "declare_war": "POL",
       "ai_only": true
+     },
+     {
+      "event": "danzig_reunion",
+      "target": "DNZ"
      }
     ],
     "ai": 45

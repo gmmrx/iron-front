@@ -37,7 +37,8 @@ Godot 4.7 ile projeyi açın ve F5'e basın. Ya da:
    kur ve her birine general ile cephe ver.
 3. Bir ülkeye tıkla → **Diplomasi**: savaş gerekçesi hazırla (30 gün), savaş ilan et.
 4. Tümenleri seç (tıkla / sürükle), sağ tıkla düşman bölgesine gönder. Zafer puanlı şehirleri al; düşman teslim olunca işgal ettiğin eyaletler senin olur.
-5. Oyun 1 Ocak 1948'de biter (ya da teslim olursan).
+5. Bitiş tarihi yoktur: senin tarafının dışında ayakta ülke kalmayınca kazanırsın, ülken yok olunca kaybedersin.
+   Araştırma bitmez (her dalın sonunda iyileştirme seviyeleri).
 
 ## Test / geliştirici
 ```

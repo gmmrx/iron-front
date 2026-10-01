@@ -9,8 +9,8 @@ func _army(tag: String, n: int) -> Army:
 func test_every_country_has_a_roster() -> void:
 	var p: Array[String] = []
 	for c: Country in World.countries.values():
-		if not c.exists():
-			continue
+		if not c.exists() or not World.is_active(c.tag):
+			continue                          # savaşa katılmayan tarafsızların ordusu yok
 		var list := Military.commanders_of(c.tag)
 		if list.size() < 2:
 			p.append("%s: %d komutan" % [c.tag, list.size()])

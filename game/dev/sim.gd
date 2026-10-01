@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless simülasyon testi: godot --headless --path . -s game/dev/sim.gd -- --days=1200 [--player=TUR]
+## Headless simülasyon testi: godot --headless --path . -s game/dev/sim.gd -- --days=1200 [--player=TUR] [--prof_every=365]
 ## Sorun bulursa 1 ile çıkar: motor/betik hatası, gün sayacı kayması, tümen/ülke değerlerinde NaN/sonsuz ya da aralık dışı değer.
 func _init() -> void:
 	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
@@ -7,18 +7,22 @@ func _init() -> void:
 	await process_frame
 	var days := 1200
 	var player := ""
+	var prof_every := 0
+	var prof_last: Dictionary = {}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--days="): days = int(a.substr(7))
 		if a.begins_with("--player="): player = a.substr(9)
+		if a.begins_with("--prof_every="): prof_every = int(a.substr(13))
 	var W = root.get_node("World")
 	var clock = root.get_node("GameClock")
 	var mil = root.get_node("Military")
 	var dip = root.get_node("Diplomacy")
 	if player != "":
 		W.start_game(player)
-	W.notification.connect(func(t: String, k: String) -> void:
-		if k == "war" or t.contains("ilhak") or t.contains("teslim"):
-			print("  [%04d-%02d-%02d] %s" % [clock.year, clock.month, clock.day, t]))
+	# dünya olayları kaydı: savaş, teslim, ilhak (oyuncuyu ilgilendirmeyenler bildirim akışına düşmez)
+	W.world_logged.connect(func(e: Dictionary) -> void:
+		if String(e["kind"]) in ["war", "annex"]:
+			print("  [%04d-%02d-%02d] %s" % [clock.year, clock.month, clock.day, W.world_text(e)]))
 	var watch: Array = []
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--watch="): watch = a.substr(8).split(",")
@@ -47,9 +51,21 @@ func _init() -> void:
 					if W.controller[pid] == c.index: prov += 1
 				line += " | %s d=%d s=%.2f o=%.2f sup=%d cmb=%d prov=%d sur=%.2f" % [t, ds.size(), st / max(ds.size(), 1), og / max(ds.size(), 1), sup, fights, prov, c.surrender_progress]
 			print(line)
+		if prof_every > 0 and day % prof_every == 0 and day > 0:
+			# yıllık profil: bu dönemde en çok süre alan işler (uzun oyunda neyin büyüdüğünü görmek için)
+			var cur: Dictionary = clock.prof
+			var rows2: Array = []
+			for k in cur:
+				rows2.append([float(cur[k]) - float(prof_last.get(k, 0.0)), k])
+			rows2.sort_custom(func(a, b): return a[0] > b[0])
+			var parts: Array[String] = []
+			for r in rows2.slice(0, 6):
+				parts.append("%s %.1f" % [r[1], r[0] / 1e6])
+			print("  profil (sn): ", ", ".join(parts))
+			prof_last = cur.duplicate()
 		if day % 180 == 0:
 			var n: int = mil.divisions.size()
-			print("[%d-%02d] tümen=%d savaş=%d gerginlik=%.0f  (%.1f sn)" % [clock.year, clock.month, n, dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0])
+			print("[%d-%02d] tümen=%d filo=%d kanat=%d savaş=%d gerginlik=%.0f  (%.1f sn, bellek %.0f MB)" % [clock.year, clock.month, n, root.get_node("Navy").fleets.size(), root.get_node("Air").wings.size(), dip.wars.size(), W.world_tension, (Time.get_ticks_msec() - t0) / 1000.0, OS.get_static_memory_usage() / 1048576.0])
 	print("--- sonuç ---")
 	var rows := []
 	for c in W.countries.values():
@@ -62,6 +78,41 @@ func _init() -> void:
 	var prof: Dictionary = clock.prof
 	for k in prof: print("  profil %s: %.1f sn" % [k, prof[k] / 1e6])
 	print("toplam süre %.1f sn" % ((Time.get_ticks_msec() - t0) / 1000.0))
+	# uzun oyun: kayıt boyu, dünya olayları, iyileştirme seviyeleri (bitmeyen oyun onlarca yıl kararlı kalmalı)
+	var research = root.get_node("Research")
+	var top_rep := 0
+	for c in W.countries.values():
+		for cat: String in research.categories:
+			top_rep = maxi(top_rep, research.repeat_level(c, cat))
+	print("dünya olayları kaydı %d, tanımlı teknoloji %d, en yüksek iyileştirme seviyesi %d" % [W.world_log.size(), research.techs.size(), top_rep])
+	var navy = root.get_node("Navy")
+	var air = root.get_node("Air")
+	var ships := 0
+	for f in navy.fleets:
+		ships += f.total()
+	var planes := 0
+	for w in air.wings:
+		planes += w.planes
+	print("filo %d (gemi %d), hava kanadı %d (uçak %d), tümen %d" % [navy.fleets.size(), ships, air.wings.size(), planes, mil.divisions.size()])
+	var per := {}                            # ülke -> [filo (yedek hariç), kanat]
+	for f in navy.fleets:
+		if not f.reserve:
+			if not per.has(f.owner): per[f.owner] = [0, 0]
+			per[f.owner][0] += 1
+	for w in air.wings:
+		if not per.has(w.owner): per[w.owner] = [0, 0]
+		per[w.owner][1] += 1
+	var top: Array = per.keys()
+	top.sort_custom(func(a, b): return per[a][0] + per[a][1] > per[b][0] + per[b][1])
+	var line := ""
+	for t in top.slice(0, 10):
+		line += "%s f%d k%d  " % [t, per[t][0], per[t][1]]
+	print("ülke başına filo/kanat: ", line)
+	var game = root.get_node("Game")
+	if game.save_game("_uzun_kosu"):
+		var path: String = game.SAVE_DIR + "_uzun_kosu.json"
+		print("kayıt boyu %.0f KB" % (FileAccess.get_file_as_bytes(path).size() / 1024.0))
+		DirAccess.remove_absolute(path)
 	# --- denetimler
 	var problems: Array[String] = []
 	if W.day_count - day0 != days:

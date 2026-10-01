@@ -20,6 +20,7 @@ var _history_focus := {}            ## tag -> {odak: true}: çizelgenin odaklar�
 func _ready() -> void:
 	_load_history()
 	World.daily_update.connect(_on_day)
+	GameClock.hour_passed.connect(_on_hour)
 
 func _load_history() -> void:
 	var f := FileAccess.open("res://data/common/history.json", FileAccess.READ)
@@ -77,14 +78,19 @@ func reset() -> void:
 	_no_route.clear()
 
 func _is_ai(c: Country) -> bool:
-	return enabled and c.exists() and not (World.in_game and c.tag == World.player_tag)
+	return enabled and c.exists() and World.is_active(c.tag) and not (World.in_game and c.tag == World.player_tag and not Game.observer)
 
+## Tarih çizelgesi gün başında; ülkelerin günlük kararları günün saatlerine yayılır (her saat index % 24 == saat
+## olan ülkeler): her ülke yine günde bir kez karar verir, gün dönümü karesi donmaz
 func _on_day() -> void:
 	if enabled:
 		_run_history()
+
+func _on_hour() -> void:
 	var day := World.day_count
+	var h := GameClock.hour
 	for c: Country in World.countries.values():
-		if not _is_ai(c):
+		if c.index % 24 != h or not _is_ai(c):
 			continue
 		var t0 := Time.get_ticks_usec()
 		if (day + c.index) % 7 == 0:
@@ -103,7 +109,7 @@ func _strategic(c: Country) -> void:
 	_advisors(c)
 
 func _construction(c: Country) -> void:
-	if c.construction_queue.size() >= 3 or Economy.available_civilian(c) <= 0:
+	if not Economy.CONSTRUCTION or c.construction_queue.size() >= 3 or Economy.available_civilian(c) <= 0:
 		return
 	var war_soon := Diplomacy.at_war(c.tag) or World.world_tension > 50.0 or GameClock.year >= 1939
 	var want := "military_factory" if war_soon and randf() < 0.6 else "civilian_factory"
@@ -178,6 +184,10 @@ func _research(c: Country) -> void:
 		for id: String in Research.techs:
 			if not Research.can_research(c, id):
 				continue
+			# iyileştirme seviyesi yılı gelmeden seçilmez: yıl cezasıyla ~2000 günlük bir seviye yuvayı yıllarca kilitler,
+			# tarihî teknolojiler geri kalırdı (1942'de Almanya'yı zayıflatıyordu)
+			if Research.is_repeat(id) and int(Research.techs[id]["year"]) > GameClock.year:
+				continue
 			var cat: String = Research.techs[id]["cat"]
 			var score := Research.days_needed(c, id) * (1.0 + prio.find(cat) * 0.12)
 			if score < best_score:
@@ -247,7 +257,8 @@ func _military(c: Country) -> void:
 	_declare(c)
 	GameClock.timed("ai_recruit", t0); t0 = Time.get_ticks_usec()
 	var at_war := Diplomacy.at_war(c.tag)
-	if not at_war and (World.day_count + c.index) % 5 != 0:
+	var prep := not _upcoming_wars(c.tag).is_empty()     # yakında savaş: sınıra her gün yığınak
+	if not at_war and not prep and (World.day_count + c.index) % 5 != 0:
 		return
 	var fronts := _fronts(c)
 	GameClock.timed("ai_fronts", t0); t0 = Time.get_ticks_usec()
@@ -264,7 +275,7 @@ func _military(c: Country) -> void:
 			_assign(c, fronts)
 		return
 	_release_armies(c)
-	if (World.day_count + c.index) % 2 == 0:
+	if prep or (World.day_count + c.index) % 2 == 0:
 		_assign(c, fronts)
 	GameClock.timed("ai_assign", t0); t0 = Time.get_ticks_usec()
 	if at_war:
@@ -421,7 +432,7 @@ func _centroid(pids: Array) -> Vector2:
 
 ## Barışa dönen AI ülkesinin orduları kapanır (eski konuşlanma mantığı devralır)
 func _release_armies(c: Country) -> void:
-	if c.tag == World.player_tag:
+	if c.tag == World.player_tag and not Game.observer:
 		return
 	for a in Military.armies.duplicate():
 		if a.owner == c.tag:
@@ -445,18 +456,35 @@ func _invade(c: Country) -> void:
 		if dd < best_d:
 			best_d = dd
 			best = pid
-	if best == 0:
+	if best == 0 or int(_invade_block.get(c.tag + ":" + str(best), -1)) > World.day_count:
 		return
+	# aynı bölgedekiler öncünün yolunu paylaşır; çağrı başına en çok INVADE_SEARCHES yol aranır (deniz yolu araması
+	# pahalı: ordunun yarısını tek tek aramak kareyi ~180 ms donduruyordu)
 	var sent := 0
+	var searches := 0
 	var divs := Military.country_divisions(c.tag)
+	var leader := {}                    # bölge -> yolu bulunmuş öncü
 	for d in divs:
 		if sent >= maxi(divs.size() / 2, 1):
 			break
 		if d.is_moving() or d.training > 0 or d.in_combat:
 			continue
+		var ld: Division = leader.get(d.province)
+		if ld and Military.order_follow(d, ld):
+			sent += 1
+			continue
+		if searches >= INVADE_SEARCHES:
+			continue
+		searches += 1
 		if Military.order_move(d, best):
 			sent += 1
+			leader[d.province] = d
+		elif sent == 0:
+			_invade_block[c.tag + ":" + str(best)] = World.day_count + 10    # yol yok: bu hedef 10 gün denenmez
+			return
 
+const INVADE_SEARCHES := 2             ## çıkarma: çağrı başına en çok bu kadar deniz yolu araması (pahalı)
+var _invade_block := {}               ## "ülke:hedef" -> bu güne dek denenmez (yol bulunamadı)
 const ARMY_FOCUS := {"ENG": 0.5, "USA": 0.6}
 
 func _target_divisions(c: Country) -> int:
@@ -530,11 +558,14 @@ func _controlled(ci: int) -> PackedInt32Array:
 ## Cephe: kendimizin/müttefiklerin kontrolündeki, düşman (ya da gerekçe hedefi) bölgesine komşu kara bölgeleri
 func _fronts(c: Country) -> Dictionary:
 	var hostile := Diplomacy.enemies_of(c.tag)
-	var planned := false
-	if hostile.is_empty():
-		for t: String in c.war_goals:
+	var planned := hostile.is_empty()
+	# yaklaşan savaş (savaş hedefi ya da çizelgedeki yakın ilan) da cephedir: savaştaki ülke de yeni cepheye önceden
+	# yığınak yapar (eskiden yalnız hiç düşmanı yoksa: İngiltere'yle savaştaki Almanya Sovyet sınırına hiç
+	# dizilmiyordu, 1941'de iki taraf da sınırda boş, ordular yolda başladı)
+	for t: String in _upcoming_wars(c.tag):
+		var tc: Country = World.countries.get(t)
+		if tc and tc.exists() and not t in hostile:
 			hostile.append(t)
-			planned = true
 	if hostile.is_empty():
 		return {}
 	var hostile_idx := {}
@@ -577,6 +608,60 @@ func _fronts(c: Country) -> Dictionary:
 			fronts[pid] = float(fronts.get(pid, 1.0)) * 6.0
 	return fronts
 
+const PREP_DAYS := 60                 ## yaklaşan savaşa bu kadar gün kala sınıra yığınak başlar (iki taraf da)
+var _upcoming := {}                 ## ülke -> yakında savaşacağı ülkeler (günlük önbellek)
+var _upcoming_day := -1
+
+## Yakında savaşılacak ülkeler: savaş hedefleri ve tarih çizelgesinde PREP_DAYS içinde bu ülkenin açacağı ya da ona
+## açılacak savaşlar (doğrudan ilan ya da çizelgenin tamamlattığı odağın etkisiyle; ilanı atacak ülke yapay zekâ
+## olmalı: oyuncunun ülkesi çizelgeyi izlemez). Savunan da hazırlanır: çizelge yapay zekânın bildiği plandır, tarihte de
+## 1941'de iki taraf sınırda yığınak yapmıştı.
+func _upcoming_wars(tag: String) -> Array:
+	if _upcoming_day != World.day_count:
+		_upcoming.clear()
+		_upcoming_day = World.day_count
+		var today := World.date_value()
+		var limit := _date_ord(today) + PREP_DAYS
+		for e: Dictionary in history:
+			var day := int(e["day"])
+			if day < today:
+				continue
+			if _date_ord(day) > limit:
+				break
+			var c: Country = World.countries.get(e["tag"])
+			if c == null or not c.exists() or not _is_ai(c):
+				continue
+			var effs: Array = (e.get("effects", []) as Array).duplicate()
+			if e.has("focus") and not (e["focus"] in c.focus_done):
+				effs.append_array(Politics.focus_def(c, e["focus"]).get("effects", []))
+			for ef: Variant in effs:
+				if not ef is Dictionary:
+					continue
+				for k: String in ["declare_war", "war_goal"]:
+					var t := str((ef as Dictionary).get(k, ""))
+					if World.countries.has(t) and t != c.tag and not Diplomacy.are_enemies(c.tag, t):
+						_add_upcoming(c.tag, t)
+						_add_upcoming(t, c.tag)
+		# savaş hedefleri: sahibi hedefine, hedef de ona karşı hazırlanır (sınırdaki gerginlik görülür)
+		for o: Country in World.countries.values():
+			if not o.exists():
+				continue
+			for t: String in o.war_goals:
+				if World.countries.has(t) and not Diplomacy.are_enemies(o.tag, t):
+					_add_upcoming(o.tag, t)
+					_add_upcoming(t, o.tag)
+	return (_upcoming.get(tag, []) as Array).duplicate()
+
+func _add_upcoming(a: String, b: String) -> void:
+	if not _upcoming.has(a):
+		_upcoming[a] = []
+	if not b in _upcoming[a]:
+		(_upcoming[a] as Array).append(b)
+
+## Tarih değerinin (yyyymmdd) sıralı gün yaklaşığı: ay 31 gün sayılır (pencere karşılaştırması için yeter)
+static func _date_ord(v: int) -> int:
+	return (v / 10000) * 372 + ((v / 100) % 100) * 31 + v % 100
+
 ## Dost toprak (kendi/müttefik/geçiş izni) bağlı bileşen etiketleri: pid -> bileşen no (günlük önbellek)
 var _comp_cache := {}
 var _comp_day := -1
@@ -613,7 +698,13 @@ func _components(tag: String) -> Dictionary:
 	return comp
 
 const NO_ROUTE_DAYS := 10
+const ASSIGN_STACK_KM := 300.0        ## cephe bölgesindeki her tümen hedefi bu kadar km uzak gösterir (yığılmasın)
+const ASSIGN_EMPTY_KM := 500.0        ## boş cephe bölgesi (garnizonsuz sınır) bu kadar km daha uzaktan da seçilir
+const ASSIGN_SPEAR_KM := 400.0        ## ana taarruz noktası (tehdit ×6) bu kadar km daha uzaktan da seçilir
+const FRONT_SHIFT_KM := 250.0         ## cephe bölgesinden taşan tümen en çok bu kadar uzaktaki cephe bölgesine kayar
+const ASSIGN_PATH_BUDGET := 3000      ## çağrı başına en çok bu kadar A* adımı (fazlası ertesi gün; tek karede donma olmasın)
 var _no_route := {}                 ## tümen id -> bu güne kadar konuşlanma yolu aranmaz
+var debug_assign := false           ## geliştirici (war_check --assign_dbg): başarısız konuşlanma yollarını yaz
 
 func _assign(c: Country, fronts: Dictionary) -> void:
 	var own := {}
@@ -623,10 +714,13 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 	for d in Military.country_divisions(c.tag):
 		if d.training > 0 or d.attacking > 0 or d.in_combat or d.army > 0:
 			continue
+		if d.org < Military.div_stats(d)["org"] * 0.5 and not d.is_moving():
+			continue                    # yıpranmış: bulunduğu yerde toparlanır (hemen cepheye geri yollanmaz)
 		if fronts.has(d.province):
 			own[d.province] = int(own[d.province]) + 1
-			# ana taarruz noktasında (Schwerpunkt, tehdit ×6) 6 tümene kadar yığınak, diğer cephe bölgelerinde 3
-			if int(own[d.province]) <= (6 if float(fronts[d.province]) >= 6.0 else 3):
+			# ana taarruz noktasında (Schwerpunkt, tehdit ×6) 6 tümene kadar yığınak, diğer cephe bölgelerinde 3; bir
+			# fazlası da yerinde kalır (zaferle giren birlik hemen dağılıp cephe boyunca koşmasın)
+			if int(own[d.province]) <= (6 if float(fronts[d.province]) >= 6.0 else 3) + 1:
 				continue
 		if d.is_moving():
 			if fronts.has(d.path[d.path.size() - 1]):
@@ -645,15 +739,20 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 	var sea := Military.can_use_sea(c.tag)
 	# deniz yoluyla konuşlanma (sömürgeden cepheye) pahalı arama: ülke başına haftada bir tümen
 	var sea_tries := 0 if (World.day_count + c.index) % 7 < 2 else 1
+	var it0 := Military.path_iterations
+	var followed := {}                  # öncüsünü izleyen (bu çağrıda yola çıkmış) tümenler
 	for d in idle:
-		if orders >= MAX_ORDERS_PER_DAY or fails >= 3:
+		if orders >= MAX_ORDERS_PER_DAY or fails >= 3 or Military.path_iterations - it0 > ASSIGN_PATH_BUDGET:
 			break
+		if followed.has(d):
+			continue
 		if int(_no_route.get(d.id, -1)) > World.day_count:
 			continue                    # yakında yolu bulunamadı: birkaç gün yeniden aranmaz
 		var best := 0
 		var best_score := INF
 		var here := World.province(d.province).center
 		var my_comp: int = comp.get(d.province, -1)
+		var at_front := fronts.has(d.province)
 		var land := false
 		for pass_i in (2 if sea else 1):
 			if pass_i == 1:
@@ -664,10 +763,21 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 				# önce yalnız dost topraktan ulaşılabilen cepheler (aynı bileşen); yoksa deniz yolu
 				if pass_i == 0 and my_comp >= 0 and int(comp.get(pid, -2)) != my_comp:
 					continue
-				var score := (float(own[pid]) + 1.0) / float(fronts[pid]) + here.distance_to(World.province(pid).center) / 4000.0
-				# boş cephe bölgesi önce: her sınır bölgesinde en az bir tümen (garnizon)
+				if pid == d.province:
+					continue                    # zaten burada (dolu cephe bölgesinden taşan): başka bölgeye
+				# cephedeki tümen yalnız yakındaki bir cephe bölgesine kayar (mevzisini bırakıp cephe boyunca uzağa
+				# koşmaz); yakında yer yoksa yerinde kalır
+				if at_front and World.geo_km(here, World.province(pid).center) > FRONT_SHIFT_KM:
+					continue
+				# puan km cinsinden: en yakın cephe bölgesi, boş olan (garnizon) ASSIGN_EMPTY_KM, ana taarruz noktası
+				# ASSIGN_SPEAR_KM daha uzaktan da seçilir; oradaki her tümen ASSIGN_STACK_KM uzaklık sayılır. Eskiden
+				# uzaklığın ağırlığı yok denecek kadar azdı: tümenler biraz daha tehditli bir bölge için cephe boyunca
+				# ortalama ~1000 km yürüyordu (savaş demosunda tümenlerin %75'i sürekli yoldaydı)
+				var score := World.geo_km(here, World.province(pid).center) + ASSIGN_STACK_KM * float(own[pid])
 				if int(own[pid]) == 0:
-					score -= 10.0
+					score -= ASSIGN_EMPTY_KM
+				if float(fronts[pid]) >= 6.0:
+					score -= ASSIGN_SPEAR_KM
 				if score < best_score:
 					best_score = score
 					best = pid
@@ -678,7 +788,18 @@ func _assign(c: Country, fronts: Dictionary) -> void:
 		if best > 0 and best != d.province and Military.order_move(d, best, true, land):
 			own[best] = int(own[best]) + 1
 			orders += 1
+			# aynı bölgede boşta bekleyenler aynı yolu izler (yol bir kez aranır; birlikte yürürler): hedef bölge
+			# dolana dek (ana taarruz noktasında 6, öbür cephe bölgelerinde 3)
+			var cap_n := 6 if float(fronts[best]) >= 6.0 else 3
+			for d2 in idle:
+				if int(own[best]) >= cap_n:
+					break
+				if d2 != d and d2.province == d.province and not d2.is_moving() and Military.order_follow(d2, d):
+					own[best] = int(own[best]) + 1
+					followed[d2] = true
 		elif best > 0:
+			if debug_assign:
+				print("ASSIGN FAIL %s div %d il %d (sahip %s, bileşen %d) -> %d (tehdit %.1f, sahip %s, bileşen %d) land=%s it=%d" % [c.tag, d.id, d.province, World.controller_tag(d.province), my_comp, best, float(fronts[best]), World.controller_tag(best), int(comp.get(best, -2)), land, Military.path_iterations - it0])
 			fronts.erase(best)
 			fails += 1
 			_no_route[d.id] = World.day_count + NO_ROUTE_DAYS
@@ -771,6 +892,9 @@ func _attack(c: Country) -> void:
 			var city := World.province(n).city
 			if city:
 				ratio *= 1.0 + city.victory_points * 0.02
+				# senaryonun anahtar şehri: senaryo hedefi, belirgin öncelik (serbest oyunda yok)
+				if Game.is_key_city(city.id):
+					ratio *= 1.3
 			if ratio > best_ratio:
 				best_ratio = ratio
 				best = n

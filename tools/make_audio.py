@@ -387,18 +387,6 @@ def loco(level=1.0):
     return S(x) * level
 
 
-def phone_ring(d=0.32, f1=1900.0, f2=2300.0, level=1.0):
-    """Manyetolu sahra telefonu zili: çekiç iki gong arasında 20 Hz gidip gelir."""
-    x = np.zeros(1)
-    off = 0.0
-    k = 0
-    while off < d:
-        x = at(x, off, small_bell(f1 if k % 2 == 0 else f2, 0.09, 0.03, 0.6, k))
-        off += 0.025
-        k += 1
-    return S(lowpass(x, 6000) * env_ar(len(x) / SR, 0.01, 0.03)) * level
-
-
 def wind(d=2.0, level=1.0, seed=0):
     g = np.random.default_rng(seed)
     t = t_(d)
@@ -644,14 +632,11 @@ def deploy():
 
 # ------------------------------------------------------------------ muharebe durumu (harita işaretleri)
 def battle_start():
-    """Sahra telefonu bir kez çalar, hemen açılır; ahizeden uzak topçu baraj gürültüsü gelir."""
+    """Uzakta iki top gümbürtüsü (telefon zili yok: savaşta çok sık çalar)."""
     for i in range(1, 3):
-        x = phone_ring(0.3, 1800 + 150 * i, 2250 + 100 * i, 0.9)
-        x = at(x, 0.38, line_click(0.8))
-        rumble = mix(thump(44, 0.7, 0.28, 0.35), at(np.zeros(1), 0.22 * i, thump(40, 0.6, 0.25, 0.3) * 0.8),
-                     at(np.zeros(1), 0.4, thump(48, 0.5, 0.2, 0.3) * 0.7))
-        x = at(x, 0.42, S(radio(hall(rumble, 0.8, 0.5, 900, 70 + i), 2.2)) * 0.8)
-        w(f"battle_start_{i}", room(x, 0.2, 0.15, 4000, 72 + i), 0.6)
+        x = mix(hall(thump(46, 1.2, 0.5, 0.3), 1.2, 0.6, 900, 70 + i),
+                at(np.zeros(1), 0.35 + 0.2 * i, hall(thump(40, 1.4, 0.5, 0.25), 1.2, 0.6, 700, 72 + i) * 0.8))
+        w(f"battle_start_{i}", lowpass(x, 1200), 0.6)
 
 
 def capitulation():

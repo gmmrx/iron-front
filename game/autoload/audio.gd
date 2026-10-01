@@ -23,6 +23,12 @@ const SOUNDS := {
 	"map_dockyard": [-17.0, 1], "map_naval_base": [-17.0, 1], "map_air_base": [-17.0, 1], "map_anti_air": [-17.0, 1],
 	"map_infrastructure": [-17.0, 1],
 }
+## Haritada yapı rozetinin üstüne gelince: yapının kendi sesi (map_<yapı>.wav); dosyası yoksa yakın bir eylem sesi kısık
+## çalar. Ses listesi ve üretim tarifi: docs/art/SOUND_PROMPTS.md (yerel).
+const MAP_FALLBACK := {"civilian_factory": "build_queued", "military_factory": "production_line",
+	"synthetic_refinery": "production_line", "dockyard": "select_fleet", "naval_base": "select_fleet",
+	"air_base": "select_air", "anti_air": "order_attack", "infrastructure": "build_queued"}
+const MAP_FALLBACK_DB := -9.0
 ## bildirim ve bitiş sesleri üst üste binmez: kuyruğa girer, biri bitince sıradaki çalar (aynı ses kuyrukta tekrarlanmaz)
 const QUEUED := {"notify_good": true, "notify_bad": true, "event": true, "research_done": true, "focus_done": true,
 	"production_done": true, "capitulation": true, "battle_start": true}
@@ -163,6 +169,14 @@ func play(n: String, min_gap_ms: int = 60, extra_db: float = 0.0) -> void:
 		return
 	_play_now(n, extra_db)
 
+## Harita yapı rozeti sesi (aynı ses 250 ms içinde yinelenmez: fare rozetler üstünde gezinirken yığılmasın)
+func hover_building(building: String) -> void:
+	var n := "map_" + building
+	if not (_streams.get(n, []) as Array).is_empty():
+		play(n, 250)
+	elif MAP_FALLBACK.has(building):
+		play(String(MAP_FALLBACK[building]), 250, MAP_FALLBACK_DB)
+
 func _play_now(n: String, extra_db: float) -> float:
 	var arr: Array = _streams.get(n, [])
 	if arr.is_empty():
@@ -181,10 +195,6 @@ func _pump_queue() -> void:
 	var q: Array = _queue.pop_front()
 	var length := _play_now(q[0], q[1])
 	_queue_free_ms = Time.get_ticks_msec() + int((minf(length * 0.7, 1.2) + QUEUE_GAP) * 1000.0)   # yankı kuyruğu beklenmez
-
-## Harita yapı rozetinin üstüne gelindi: yapının sesi (map_<yapı>.wav, aynı ses 250 ms'de bir kez); dosyası yoksa sessiz
-func play_building(kind: String) -> void:
-	play("map_" + kind, 250)
 
 ## Yan panel açıldı / kapandı: aynı karede başka panel açılırsa kapanma sesi çalınmaz (panel değiştirme tek ses)
 func panel(opened: bool) -> void:

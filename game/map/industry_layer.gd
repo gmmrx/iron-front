@@ -60,6 +60,7 @@ var _dirty := false
 var _flat := {}                     ## düzleştirilmiş parseller ("sid:tür:i")
 var active_plots: Array[Vector2] = []  ## şu an bina ya da şantiye olan parseller (birimler bunlara oturmaz)
 var version := 0                    ## her yenilemede artar (birim yerleri önbelleği için)
+var _refresh_timer := 0.0
 const FLAT_RADIUS := SCALE * 0.68   ## avlunun köşelerine kadar düz
 ## İğne tasarımı: tesis modelleri ve parsel düzleştirmesi yok; parseller, dolu parseller ve sürüm (iğneler, birim yerleri)
 ## hesaplanmaya devam eder. Modelleri geri açmak için true.
@@ -75,8 +76,10 @@ func _ready() -> void:
 	World.ownership_changed.connect(func() -> void: _dirty = true)
 
 func _process(_delta: float) -> void:
-	if _dirty:
+	_refresh_timer -= _delta
+	if _dirty and _refresh_timer <= 0.0:
 		_dirty = false
+		_refresh_timer = 1.0            # en çok saniyede bir (yapay zekâ inşaatları 5× hızda her karede değiştiriyordu)
 		refresh()
 
 # ------------------------------------------------------------------ kütüphane
@@ -271,8 +274,8 @@ func refresh() -> void:
 			if not queued.has(pr.state_id):
 				queued[pr.state_id] = {}
 			queued[pr.state_id][pr.building] = int(queued[pr.state_id].get(pr.building, 0)) + 1
+	var old_plots := active_plots.duplicate()
 	active_plots.clear()
-	version += 1
 	for sid: int in _slots:
 		var st: StateRegion = World.states[sid]
 		var slots: Dictionary = _slots[sid]
@@ -310,6 +313,10 @@ func refresh() -> void:
 				for part: Array in _parts.get("ind_site", []):
 					for pv: Transform3D in part[2]:
 						_push(lists, part[0], sxf * pv)
+	# birim yerleri önbelleği (CityLayer3D.unit_spot) yalnız dolu parseller değişince yenilenir: yapay zekâ inşaat
+	# kuyruğunu sık değiştirir, her yenilemede bütün tümenlerin yeri baştan aranıyordu (~20 ms)
+	if active_plots != old_plots:
+		version += 1
 	if OS.has_environment("INDDBG"):          # hata ayıklama: INDDBG=1 → örnek ve şantiye sayısı
 		var sites := 0
 		var total := 0

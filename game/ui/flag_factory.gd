@@ -8,6 +8,7 @@ const H := 60
 const SS := 3  ## süper örnekleme (kenar yumuşatma)
 
 static var _cache: Dictionary = {}
+static var _uniform: Dictionary = {}
 
 static func get_flag(c: Country) -> Texture2D:
 	if c == null:
@@ -20,9 +21,22 @@ static func get_flag(c: Country) -> Texture2D:
 			_cache[c.tag] = ImageTexture.create_from_image(_render(c))
 	return _cache[c.tag]
 
-static func _render(c: Country) -> Image:
-	var w := W * SS
-	var h := H * SS
+## Listelerde tek boy bayrak (3:2): her ülkenin bayrağı aynı dikdörtgende, yan yana eşit görünür
+static func uniform(c: Country) -> Texture2D:
+	if c == null:
+		return null
+	if not _uniform.has(c.tag):
+		var img: Image = get_flag(c).get_image().duplicate()
+		if img.is_compressed():
+			img.decompress()
+		img.resize(W, H, Image.INTERPOLATE_LANCZOS)
+		_uniform[c.tag] = ImageTexture.create_from_image(img)
+	return _uniform[c.tag]
+
+static func _render(c: Country, out_w: int = W, out_h: int = H) -> Image:
+	var ss := SS if out_w <= W else 2
+	var w := out_w * ss
+	var h := out_h * ss
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	var def: Dictionary = c.flag_def
 	var cols: Array = def.get("colors", [c.color.to_html()])
@@ -36,8 +50,40 @@ static func _render(c: Country) -> Image:
 	var em: Dictionary = def.get("emblem", {})
 	if not em.is_empty():
 		_emblem(img, em)
-	img.resize(W, H, Image.INTERPOLATE_LANCZOS)
+	img.resize(out_w, out_h, Image.INTERPOLATE_LANCZOS)
 	return img
+
+## Haritadaki birlik levhası ve rozetleri için bayrak resmi: yüksek çözünürlük (SVG bayrak kendi boyunda, çizilen bayrak
+## 240x160) ve temaya uygun ton (bkz. themed). Önbellekli.
+static var _map_cache := {}
+static func map_flag(c: Country) -> Image:
+	if _map_cache.has(c.tag):
+		return _map_cache[c.tag]
+	var img: Image
+	if ResourceLoader.exists("res://assets/flags/%s.svg" % c.tag):
+		img = get_flag(c).get_image().duplicate()
+		if img.is_compressed():
+			img.decompress()
+	else:
+		img = _render(c, 240, 160)
+	img.convert(Image.FORMAT_RGBA8)
+	if img.get_width() > 240:
+		img.resize(240, maxi(int(240.0 * img.get_height() / img.get_width()), 1), Image.INTERPOLATE_LANCZOS)
+	themed(img)
+	_map_cache[c.tag] = img
+	return img
+
+## Bayrağı haritanın boyalı, loş tonuna uydurur (renkler ve desen korunur): doygunluk biraz düşer, çok açık renkler
+## (beyaz, açık sarı) sıkıştırılır, hafif sıcak ton
+static func themed(img: Image) -> void:
+	for y in img.get_height():
+		for x in img.get_width():
+			var p := img.get_pixel(x, y)
+			var lum := p.get_luminance()
+			var c := Color(lum, lum, lum).lerp(p, 0.86)
+			var k := 1.0 - clampf((lum - 0.5) * 0.42, 0.0, 0.21)          # beyaz ~%79
+			c = Color(c.r * k * 1.01, c.g * k, c.b * k * 0.95, p.a)
+			img.set_pixel(x, y, c)
 
 static func _star(center: Vector2, r_out: float, r_in: float, rot: float = -PI / 2) -> PackedVector2Array:
 	var pts := PackedVector2Array()

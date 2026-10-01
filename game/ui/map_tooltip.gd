@@ -6,6 +6,8 @@ extends PanelContainer
 
 const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"), "fascism": Color("8a6a3a"), "neutrality": Color("8a8a7a")}
 const WIDTH := 440.0
+const SEA_ART_DIR := "res://assets/ui/seascapes/"
+static var _sea_art_cache := {}
 
 var _flag: TextureRect
 var _title: Label
@@ -17,6 +19,8 @@ var _economy: RichTextLabel
 var _military: RichTextLabel
 var _hint: Label
 var _shown_key := ""               ## aynı ülke/deniz kartı yeniden kurulmasın (fare her kıpırdadığında)
+var order_eta := ""                 ## tümen seçiliyken: bu bölgeye tahmini varış (kartın altında)
+var order_odds: Dictionary = {}     ## tümen seçiliyken düşman bölgesinde: saldırı tahmini (Military.attack_estimate)
 var _shown_ms := 0
 var _reflow_pending := false
 
@@ -52,11 +56,11 @@ func _ready() -> void:
 	var rule := HSeparator.new()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(rule)
+	_political = _section(v, 17)                # sahiplik / kısa açıklama: başlığın hemen altında
 	_extra = VBoxContainer.new()
 	_extra.add_theme_constant_override("separation", 6)
 	_extra.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(_extra)
-	_political = _section(v, 17)
 	_facts = _section(v, 16)
 	_economy = _section(v, 16)
 	_military = _section(v, 16)
@@ -93,7 +97,7 @@ func show_province(pid: int, screen_pos: Vector2) -> void:
 	if p == null:
 		visible = false
 		return
-	var key := "p%d" % pid
+	var key := "p%d:%s:%s" % [pid, order_eta, _odds_key()]
 	if key == _shown_key and visible and Time.get_ticks_msec() - _shown_ms < 500:
 		_position_card(screen_pos)       # aynı bölge: kart yeniden kurulmaz
 		return
@@ -131,52 +135,195 @@ func _show_land(p: Province) -> void:
 	if controller and owner and controller.tag != owner.tag:
 		_political.text += "\n%s: %s" % [tr("TIPMAP_CONTROLLER"), _c(controller.display_name(), UiTheme.BAD if Diplomacy.are_enemies(World.player_tag, controller.tag) else UiTheme.ACCENT)]
 
-	var terrain := tr("TERRAIN_" + p.terrain)
-	var geography := terrain
+	# kıyı / liman / nehir: sahiplik satırının altında kısa etiketler
+	var tags: Array[String] = []
 	if p.coastal:
-		geography += "  ·  " + tr("TIPMAP_COASTAL")
+		tags.append(tr("TIPMAP_COASTAL"))
+	if p.city and p.city.is_port:
+		tags.append(tr("TIPMAP_PORT_CITY"))
 	if not p.river_adjacent.is_empty():
-		geography += "  ·  " + tr("TIPMAP_RIVER")
-	_facts.text = "%s\n%s: #%d  ·  %s km²\n%s: %s  ·  %s: %d" % [
-		geography, tr("UI_PROVINCE_ID"), p.id, UiTheme.format_number(p.area_km2),
-		tr("UI_POPULATION"), UiTheme.format_number(st.population), tr("TIPMAP_CONNECTIONS"), p.adjacent.size()]
-	if p.city:
-		_facts.text += "\n%s: %d" % [tr("TIPMAP_VICTORY_POINTS"), p.city.victory_points]
-		if p.city.is_port:
-			_facts.text += "  ·  " + tr("TIPMAP_PORT_CITY")
-
-	var build_lines: Array[String] = []
-	build_lines.append("%s: %d/%d  ·  %s: %d" % [tr("UI_SLOTS"), st.used_slots(), st.building_slots,
-			Economy.building_name("infrastructure"), st.building_level("infrastructure")])
-	var buildings: Array[String] = []
-	for b: String in ["civilian_factory", "military_factory", "dockyard", "air_base", "naval_base", "anti_air", "synthetic_refinery"]:
-		var level := st.building_level(b)
-		if level > 0:
-			buildings.append("%s %d" % [Economy.building_name(b), level])
-	if not buildings.is_empty():
-		build_lines.append("%s: %s" % [tr("TIPMAP_BUILDINGS"), ", ".join(buildings)])
-	var resources: Array[String] = []
-	for res: String in st.resources:
-		if int(st.resources[res]) > 0:
-			resources.append("%s %d" % [tr("RES_" + res), int(st.resources[res])])
-	if not resources.is_empty():
-		build_lines.append("%s: %s" % [tr("UI_RESOURCES"), ", ".join(resources)])
-	_economy.text = "\n".join(build_lines)
-
-	var forces: Dictionary = {}
-	for d: Division in Military.by_province.get(p.id, []):
-		forces[d.owner] = int(forces.get(d.owner, 0)) + 1
-	var force_parts: Array[String] = []
-	for tag: String in forces:
-		var country: Country = World.countries.get(tag)
-		force_parts.append("%s %d" % [country.display_name() if country else tag, int(forces[tag])])
-	_military.text = (tr("TIPMAP_DIVISIONS") + ": " + ", ".join(force_parts)) if not force_parts.is_empty() else tr("TIPMAP_NO_DIVISIONS")
+		tags.append(tr("TIPMAP_RIVER"))
+	if not tags.is_empty():
+		_political.text += "\n" + _c("  ·  ".join(tags), UiTheme.TEXT_DIM)
+	if p.city and Game.is_key_city(p.city.id):
+		_political.text += "\n" + _c(tr("TIPMAP_KEY_CITY") % p.city.victory_points, UiTheme.ACCENT)
+	_facts.text = ""
+	_economy.text = ""
+	_military.text = ""
+	_ground_cells(p, st)
+	_region_cells(p, st)
+	_force_rows(p)
 	if owner and owner.tag != World.player_tag:
 		_hint.text = tr("TIPMAP_LAND_HINT") + "\n" + tr("CTRY_HOLD_CTRL")
+		if order_eta != "":
+			_hint.text = order_eta + "\n" + _hint.text
 		_show_sections()
 		return
 	_hint.text = tr("TIPMAP_LAND_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
+
+## Arazi ve hava: askerin burada ne yaşayacağı — arazi, hava (çamur / kış), yürüyüş hızı, buraya saldırının cezası, cephe
+## genişliği, ikmal; altında nehir / çıkarma cezası ve hava üstünlüğü
+func _ground_cells(p: Province, st: StateRegion) -> void:
+	var me := World.player_tag
+	_heading(tr("TIPMAP_H_GROUND"))
+	var g := _grid(3)
+	var tinfo: Dictionary = Military.terrain.get(p.terrain, Military.terrain.get("plains", {"move": 1.0, "attack": 0.0, "width": 180}))
+	_cell(g, UiTheme.icon_or("tip_terrain", "army"), tr("TIPMAP_TERRAIN"), tr("TERRAIN_" + p.terrain), UiTheme.TEXT)
+	var winter := Military.winter_level(p.id)
+	var mud := Military.mud_level(p.id)
+	var wkey := "TIPMAP_W_CLEAR"
+	var wcol := UiTheme.GOOD
+	if winter >= 1.0:
+		wkey = "TIPMAP_W_HARD_WINTER"
+		wcol = UiTheme.BAD
+	elif winter > 0.0:
+		wkey = "TIPMAP_W_WINTER"
+		wcol = Color(0.93, 0.78, 0.4)
+	elif mud > 0.0:
+		wkey = "TIPMAP_W_MUD"
+		wcol = Color(0.93, 0.78, 0.4)
+	_cell(g, UiTheme.icon_or("tip_weather", "focus_sov_winter"), tr("TIPMAP_WEATHER"), tr(wkey), wcol)
+	# yürüyüş: arazi × altyapı × mevsim (hareketle aynı çarpanlar; yakıt, ikmal ve bütünlük tümene göre)
+	var move := float(tinfo["move"]) * (1.0 + st.building_level("infrastructure") * 0.05) * (1.0 - mud * 0.45 - winter * 0.25)
+	_cell(g, UiTheme.icon_or("tip_movement", "equipment_motorized_equipment"), tr("TIPMAP_MOVE"), "%d%%" % roundi(move * 100.0),
+		_ratio_color(move, 0.95, 0.7))
+	var atk := float(tinfo["attack"]) - Military.season_attack_malus(p.id)
+	_cell(g, UiTheme.icon_or("tip_attack", "battle"), tr("TIPMAP_ATTACK_IN"), ("%+d%%" % roundi(atk * 100.0)) if absf(atk) > 0.004 else "0%",
+		_ratio_color(1.0 + atk, 0.99, 0.8))
+	_cell(g, UiTheme.icon_or("tip_frontage", "equipment_infantry_equipment"), tr("TIPMAP_FRONTAGE"), str(int(tinfo["width"])), UiTheme.TEXT)
+	var sup_txt := tr("TIPMAP_SUPPLY_PEACE")
+	var sup_col := UiTheme.TEXT_DIM
+	if Military._supplied.has(me):
+		var ok: bool = (Military._supplied[me] as Dictionary).has(p.id)
+		sup_txt = tr("TIPMAP_SUPPLY_OK") if ok else tr("TIPMAP_SUPPLY_NO")
+		sup_col = UiTheme.GOOD if ok else UiTheme.BAD
+	_cell(g, UiTheme.icon("supply"), tr("TIPMAP_SUPPLY"), sup_txt, sup_col)
+	if not p.river_adjacent.is_empty():
+		_line(tr("TIPMAP_RIVER_NOTE") % absi(roundi(Military.river_attack * 100.0)), UiTheme.TEXT_DIM, 13)
+	if p.coastal:
+		_line(tr("TIPMAP_SEA_NOTE") % absi(roundi(Military.amphibious_attack * 100.0)), UiTheme.TEXT_DIM, 13)
+	if Diplomacy.at_war(me):
+		var air := Air.superiority(p.id, me)
+		_line(tr("TIPMAP_AIR") % roundi(air * 100.0), _ratio_color(air, 0.55, 0.45), 13)
+
+## Bölge: nüfus, zafer puanı, altyapı, yapı yuvası; yapılar ve kaynaklar ikonlu
+func _region_cells(p: Province, st: StateRegion) -> void:
+	_heading(tr("TIPMAP_H_REGION"))
+	var g := _grid(3)
+	_cell(g, UiTheme.icon("manpower"), tr("UI_POPULATION"), UiTheme.format_number(st.population), UiTheme.TEXT)
+	if p.city and p.city.victory_points > 0:
+		_cell(g, UiTheme.icon("map_capital" if p.city.is_capital else "map_city"), tr("TIPMAP_VICTORY_POINTS"), str(p.city.victory_points), UiTheme.ACCENT)
+	if Military.state_fogged(st) or not Economy.SHOW_BUILDINGS:
+		return                       # sisteyse keşfedilmeden yalnız şehir; altyapı, yapılar, kaynaklar bilinmez
+	var infra := st.building_level("infrastructure")
+	var imax := int((Economy.defs.get("infrastructure", {}) as Dictionary).get("max", 5))
+	_cell(g, UiTheme.building_icon("infrastructure"), Economy.building_name("infrastructure"), "%d / %d" % [infra, imax], _ratio_color(float(infra) / maxf(imax, 1), 0.6, 0.2))
+	_cell(g, UiTheme.icon("construction"), tr("UI_SLOTS"), "%d / %d" % [st.used_slots(), st.building_slots], UiTheme.TEXT)
+	var bg: GridContainer = null
+	for b: String in ["civilian_factory", "military_factory", "dockyard", "synthetic_refinery", "air_base", "naval_base", "anti_air"]:
+		var lv := st.building_level(b)
+		if lv <= 0:
+			continue
+		if bg == null:
+			bg = _grid(3)
+		_cell(bg, UiTheme.building_icon(b), Economy.building_name(b), str(lv), UiTheme.ACCENT)
+	if st.damage >= 0.01:
+		_line(tr("TIPMAP_BOMB_DAMAGE") % roundi(st.damage * 100.0), UiTheme.BAD, 14)
+	var rg: GridContainer = null
+	for res: String in st.resources:
+		if int(st.resources[res]) <= 0:
+			continue
+		if rg == null:
+			rg = _grid(3)
+		_cell(rg, UiTheme.resource_icon(res), tr("RES_" + res), str(int(st.resources[res])), UiTheme.TEXT)
+
+## Bölgedeki birlikler: ülke başına tümen (eğitimdekiler ayrıca), süren muharebe
+func _force_rows(p: Province) -> void:
+	var forces: Dictionary = {}
+	var training: Dictionary = {}
+	# savaş sisi: görünmeyen düşman bölgesinde düşman tümenleri sayılmaz, boş olup olmadığı da söylenmez
+	var pc := World.controller_tag(p.id)
+	var fog := not Military.is_visible(p.id) and pc != World.player_tag and not Diplomacy.are_allies(pc, World.player_tag)
+	for d: Division in Military.by_province.get(p.id, []):
+		if Military.hidden(d):
+			fog = true
+			continue
+		forces[d.owner] = int(forces.get(d.owner, 0)) + 1
+		if d.training > 0:
+			training[d.owner] = int(training.get(d.owner, 0)) + 1
+	_heading(tr("TIPMAP_DIVISIONS"))
+	if fog:
+		_line(tr("TIPMAP_FOG"), UiTheme.TEXT_DIM, 14)
+	elif forces.is_empty():
+		_line(tr("TIPMAP_NO_DIVISIONS"), UiTheme.TEXT_DIM, 14)
+	for tag: String in forces:
+		var c: Country = World.countries.get(tag)
+		if c == null:
+			continue
+		var text := "%s  %d" % [c.display_name(), int(forces[tag])]
+		if int(training.get(tag, 0)) > 0:
+			text += tr("TIPMAP_TRAINING") % int(training[tag])
+		_flag_row(c, text, _side_color(tag))
+	if Military.battles.has(p.id):
+		var b: Dictionary = Military.battles[p.id]
+		var ar: float = b.get("att_ratio", 0.5)
+		var dr: float = b.get("def_ratio", 0.5)
+		var share := ar / maxf(ar + dr, 0.001)
+		_line(tr("TIPMAP_BATTLE") % [roundi(share * 100.0), 100 - roundi(share * 100.0)], UiTheme.ACCENT, 14)
+	_odds_rows()
+
+func _odds_key() -> String:
+	if order_odds.is_empty():
+		return ""
+	if order_odds.has("empty"):
+		return "e"
+	if order_odds.has("unknown"):
+		return "u"
+	return "%d:%d" % [roundi(float(order_odds["ratio"]) * 100.0), roundi(float(order_odds["hours"]))]
+
+## Seçili tümenlerle bu bölgeye saldırı tahmini: karar (umutsuz … ezici), taraflar, önce çözülen tarafın süresi ve
+## tahmini en çok değiştiren etkenler (bizim için + iyi, − kötü)
+func _odds_rows() -> void:
+	if order_odds.is_empty():
+		return
+	_heading(tr("TIPMAP_ODDS"))
+	if order_odds.has("empty"):
+		_line(tr("ODDS_EMPTY"), UiTheme.GOOD, 14)
+		return
+	if order_odds.has("unknown"):
+		_line(tr("ODDS_UNKNOWN"), UiTheme.TEXT_DIM, 14)
+		return
+	var r: float = order_odds["ratio"]
+	var lvl := 0 if r < 0.5 else (1 if r < 0.8 else (2 if r < 1.25 else (3 if r < 2.0 else 4)))
+	var col := UiTheme.BAD if lvl <= 1 else (Color(0.93, 0.78, 0.4) if lvl == 2 else UiTheme.GOOD)
+	var verdict := UiTheme.make_label(tr("ODDS_%d" % lvl), 17, col)
+	verdict.add_theme_font_override("font", UiTheme.bold_font())
+	verdict.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_extra.add_child(verdict)
+	_line(tr("ODDS_SIDES") % [int(order_odds["att"]), int(order_odds["def"])], UiTheme.TEXT_DIM, 13)
+	var h: float = order_odds["hours"]
+	var when: String = tr("ODDS_HOURS") % maxi(1, roundi(h)) if h < 48.0 else tr("ODDS_DAYS") % roundi(h / 24.0)
+	_line((tr("ODDS_DEF_BREAKS") if r >= 1.0 else tr("ODDS_ATT_BREAKS")) % when, col, 14)
+	for f: Array in (order_odds["factors"] as Array).slice(0, 6):
+		var fk: String = f[0]
+		var v: float = f[1]
+		var label := tr("ODDS_F_" + fk)
+		if fk == "terrain":
+			label = label % tr("TERRAIN_" + String(order_odds.get("terrain_id", "plains")))
+		_line("%s  %s%d%%" % [label, "+" if v > 0.0 else "−", roundi(absf(v) * 100.0)], UiTheme.GOOD if v > 0.0 else UiTheme.BAD, 14)
+
+## Kartta 3 sütunlu ikonlu hücre ızgarası
+func _grid(columns: int) -> GridContainer:
+	var g := GridContainer.new()
+	g.columns = columns
+	g.add_theme_constant_override("h_separation", 10)
+	g.add_theme_constant_override("v_separation", 6)
+	g.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_extra.add_child(g)
+	return g
 
 func _show_water(p: Province) -> void:
 	_flag.texture = null
@@ -190,11 +337,86 @@ func _show_water(p: Province) -> void:
 		var neighbor := World.province(n)
 		if neighbor and neighbor.is_land():
 			land_edges += 1
-	_facts.text = "%s: #%d  ·  %s km²  ·  %s: %d" % [tr("UI_PROVINCE_ID"), p.id, UiTheme.format_number(p.area_km2), tr("TIPMAP_COASTS"), land_edges]
+	_facts.text = ""
+	var seascape := _sea_art(p) if p.type == Province.Type.SEA else null
+	if seascape:
+		var photo := TextureRect.new()
+		photo.texture = seascape
+		photo.custom_minimum_size = Vector2(WIDTH, 118)
+		photo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		photo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		photo.clip_contents = true
+		photo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_extra.add_child(photo)
+	var ports := 0
+	for n: int in p.adjacent:
+		var q := World.province(n)
+		if q and q.city and q.city.is_port:
+			ports += 1
+	var g := _grid(3)
+	var winter := Military.winter_level(p.id)
+	_cell(g, UiTheme.icon_or("tip_weather", "focus_sov_winter"), tr("TIPMAP_WEATHER"),
+		tr("TIPMAP_W_WINTER_SEA") if winter > 0.0 else tr("TIPMAP_W_CLEAR"), Color(0.93, 0.78, 0.4) if winter > 0.0 else UiTheme.GOOD)
+	_cell(g, UiTheme.icon_or("tip_coast", "map_port"), tr("TIPMAP_COASTS"), str(land_edges), UiTheme.TEXT)
+	_cell(g, UiTheme.icon("map_port"), tr("TIPMAP_PORTS"), str(ports), UiTheme.TEXT)
+	if p.type == Province.Type.SEA and Diplomacy.at_war(World.player_tag):
+		var air := Air.superiority(p.id, World.player_tag)
+		_line(tr("TIPMAP_AIR") % roundi(air * 100.0), _ratio_color(air, 0.55, 0.45), 13)
 	if p.type == Province.Type.SEA:
 		_sea_control(p.id)
 	_hint.text = tr("TIPMAP_WATER_HINT")
+	if order_eta != "":
+		_hint.text = order_eta + "\n" + _hint.text
 	_show_sections()
+
+## Önce ilgili su bölgesinin özel görseli; yoksa tarihî deniz havzası için ortak görsel.
+func _sea_art(p: Province) -> Texture2D:
+	var basin := _sea_basin(p.lonlat.x, p.lonlat.y)
+	var key := "%s:%d" % [basin, p.id]
+	if _sea_art_cache.has(key):
+		return _sea_art_cache[key]
+	var custom_path := SEA_ART_DIR + "sea_%05d.png" % p.id
+	var basin_path := SEA_ART_DIR + basin + ".png"
+	var path := custom_path if ResourceLoader.exists(custom_path) else (basin_path if ResourceLoader.exists(basin_path) else "")
+	if path == "":
+		_sea_art_cache[key] = null
+		return null
+	# büyük resim arka planda yüklenir (eşzamanlı yükleme ilk üzerine gelişte kareyi ~150 ms donduruyordu); hazır olana
+	# dek kart resimsiz, hazır olunca bir sonraki gösterimde
+	var st := ResourceLoader.load_threaded_get_status(path)
+	if st == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		ResourceLoader.load_threaded_request(path)
+		return null
+	if st == ResourceLoader.THREAD_LOAD_LOADED:
+		var tex: Texture2D = ResourceLoader.load_threaded_get(path)
+		_sea_art_cache[key] = tex
+		return tex
+	if st == ResourceLoader.THREAD_LOAD_FAILED:
+		_sea_art_cache[key] = null
+	return null
+
+static func _sea_basin(lon: float, lat: float) -> String:
+	if lat >= 66.0:
+		return "arctic"
+	if lat <= -48.0:
+		return "southern_ocean"
+	if lon >= 10.0 and lon <= 31.0 and lat >= 53.0 and lat <= 66.0:
+		return "baltic"
+	if lon >= -5.0 and lon <= 15.0 and lat >= 50.0 and lat <= 62.0:
+		return "north_sea"
+	if lon >= 27.0 and lon <= 42.0 and lat >= 40.0 and lat <= 47.0:
+		return "black_sea"
+	if lon >= -7.0 and lon <= 37.0 and lat >= 30.0 and lat <= 47.0:
+		return "mediterranean"
+	if lon >= 32.0 and lon <= 44.0 and lat >= 12.0 and lat <= 30.0:
+		return "red_sea"
+	if lon >= -90.0 and lon <= -58.0 and lat >= 8.0 and lat <= 30.0:
+		return "caribbean"
+	if lon >= -75.0 and lon <= 25.0:
+		return "atlantic"
+	if lon >= 25.0 and lon <= 130.0:
+		return "indian_ocean"
+	return "pacific"
 
 ## Deniz hâkimiyeti: bölgede görevli filoların gücüne göre ülke payları (renkli çubuk + satırlar), bizim tarafın payı,
 ## nakliye riski, bölgedeki filolar
@@ -529,6 +751,45 @@ func show_fleet(f: Fleet, screen_pos: Vector2) -> void:
 	_economy.text = "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)]
 	_military.text = tr("NAVY_IN_COMBAT") if f.in_combat else (tr("NAVY_RETURNING") if f.returning else "")
 	_hint.text = tr("TIPMAP_FLEET_HINT") if f.owner == World.player_tag else ""
+	_show_sections()
+	_position_card(screen_pos)
+
+## Haritada yapı rozetinin üstündeyken: yapının adı, eyaleti, seviyesi, süren inşaatı ve ülkedeki toplamı
+func show_building(sid: int, building: String, screen_pos: Vector2) -> void:
+	_shown_key = ""
+	_clear_extra()
+	var st: StateRegion = World.states[sid]
+	var owner: Country = World.countries.get(st.owner)
+	_flag.texture = FlagFactory.get_flag(owner) if owner else null
+	_title.text = Economy.building_name(building)
+	_subtitle.text = "%s · %s" % [st.display_name(), owner.display_name()] if owner else st.display_name()
+	_political.text = tr("BDESC_" + building)
+	var mx := int((Economy.defs.get(building, {}) as Dictionary).get("max", 0))
+	_facts.text = tr("TIPMAP_BUILD_LEVEL") % [st.building_level(building), mx]
+	var queued := 0
+	var first: ConstructionProject = null
+	if owner:
+		for pr: ConstructionProject in owner.construction_queue:
+			if pr.state_id == sid and pr.building == building:
+				queued += 1
+				if first == null:
+					first = pr
+	_economy.text = ""
+	if first:
+		_economy.text = tr("TIPMAP_BUILD_QUEUE") % [queued, roundi(first.fraction() * 100.0)]
+		if first.days_left() >= 0:
+			_economy.text += tr("TIPMAP_BUILD_DAYS") % first.days_left()
+	_military.text = ""
+	if building == "air_base":
+		var wings := 0
+		for w: AirWing in Air.wings:
+			if w.base == sid:
+				wings += 1
+		if wings > 0:
+			_military.text = tr("TIPMAP_BUILD_WINGS") % wings
+	elif owner:
+		_military.text = tr("TIPMAP_BUILD_TOTAL") % [owner.display_name(), Economy.count(owner, building)]
+	_hint.text = tr("TIPMAP_BUILD_HINT") if st.owner == World.player_tag else ""
 	_show_sections()
 	_position_card(screen_pos)
 

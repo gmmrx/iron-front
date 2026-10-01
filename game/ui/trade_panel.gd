@@ -6,7 +6,7 @@ extends PanelContainer
 const STEP := 8.0          ## bir sivil fabrikanın karşıladığı kaynak
 
 var _cells: Array[Label] = []
-var _auto: CheckButton
+var _auto: Button                 ## otomatik ticaret aç/kapat (özet hücresinde, durumun yanında)
 var _body: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
 var _root: VBoxContainer
 var _res := "steel"               ## pazarı gösterilen kaynak
@@ -20,17 +20,18 @@ func _ready() -> void:
 		["trade", tr("TRD_CELL_LAW"), tr("TRD_CELL_LAW_TIP")],
 		["building_civilian_factory", tr("TRD_CELL_PAID"), tr("TRD_CELL_PAID_TIP")],
 		["factory", tr("TRD_CELL_EARNED"), tr("TRD_CELL_EARNED_TIP")],
-		["equipment_convoy", tr("TRD_CELL_CONVOY"), tr("TRD_CELL_CONVOY_TIP")]])
-	_auto = CheckButton.new()
-	_auto.text = tr("TRD_AUTO")
-	_auto.tooltip_text = tr("TRD_AUTO_TIP")
-	_auto.focus_mode = Control.FOCUS_NONE
-	_auto.add_theme_font_size_override("font_size", UiTheme.fs(15))
-	_auto.toggled.connect(func(on: bool) -> void:
+		["equipment_convoy", tr("TRD_CELL_CONVOY"), tr("TRD_CELL_CONVOY_TIP")],
+		["production", tr("TRD_AUTO"), tr("TRD_AUTO_TIP")]])
+	# otomatik ticaret: öbür özetler gibi bir hücre — durumu ve yanında aç/kapat düğmesi
+	var auto_row := _cells[4].get_parent().get_parent() as HBoxContainer
+	_auto = PanelLayout.small_button("", func() -> void:
 		var c := World.player()
-		if c and c.auto_trade != on:
-			Economy.set_auto_trade(c, on))
-	top.add_child(_auto)
+		if c:
+			Economy.set_auto_trade(c, not c.auto_trade)
+			refresh(), true, tr("TRD_AUTO_TIP"))
+	_auto.custom_minimum_size = Vector2(92, 40)
+	_auto.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	auto_row.add_child(_auto)
 	Economy.trade_changed.connect(func() -> void:
 		if visible: refresh())
 	World.daily_update.connect(func() -> void:
@@ -53,7 +54,9 @@ func refresh() -> void:
 	var cf := Economy.convoy_factor(c)
 	_cells[3].text = "%d%%" % roundi(cf * 100)
 	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if cf >= 0.999 else UiTheme.BAD)
-	_auto.set_pressed_no_signal(c.auto_trade)
+	_cells[4].text = tr("TRD_AUTO_STATE_ON") if c.auto_trade else tr("TRD_AUTO_STATE_OFF")
+	_cells[4].add_theme_color_override("font_color", UiTheme.GOOD if c.auto_trade else UiTheme.TEXT)
+	_auto.text = tr("TRD_AUTO_TURN_OFF") if c.auto_trade else tr("TRD_AUTO_TURN_ON")
 	for ch in _root.get_children():
 		ch.queue_free()
 	var cols := PanelLayout.columns(_root, [1.25, 1.0, 1.0])

@@ -24,7 +24,7 @@ func _ready() -> void:
 		var names: Dictionary = s["name"]
 		var title: String = names.get(TranslationServer.get_locale().substr(0, 2), names["en"])
 		if a.distance_to(b) <= BRIDGE_MAX_LEN:
-			_bridge(a, b)
+			_bridge(a, b, str(names.get("en", "")) == "Bosporus")
 		else:
 			_ferry(a, b)
 		var l := Label3D.new()
@@ -44,15 +44,17 @@ func _ready() -> void:
 		add_child(l)
 
 ## Uçlar karada kalacak şekilde köprü: taş başlık + n açıklık + taş başlık
-func _bridge(a: Vector2, b: Vector2) -> void:
+func _bridge(a: Vector2, b: Vector2, illustrated := false) -> void:
 	var dir := (b - a).normalized()
 	# her iki ucu kıyıya doğru biraz uzat, karada otursun
 	a -= dir * 2.0
 	b += dir * 2.0
 	var L := a.distance_to(b)
+	var deck := maxf(maxf(map.height_at(a), map.height_at(b)), 0.0) + DECK_HEIGHT
+	if illustrated and _add_bosphorus_bridge(a, b, deck):
+		return
 	var n := maxi(1, int(ceil(L / SPAN_SCALE)))
 	var span := L / n
-	var deck := maxf(maxf(map.height_at(a), map.height_at(b)), 0.0) + DECK_HEIGHT
 	var yaw := -atan2(dir.y, dir.x)
 	var span_mesh: Mesh = building_mesh.call("bridge_span")
 	var end_mesh: Mesh = building_mesh.call("bridge_end")
@@ -85,6 +87,17 @@ func _bridge(a: Vector2, b: Vector2) -> void:
 			mi.visibility_range_end_margin = VISIBLE_RANGE * 0.12
 			mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 			add_child(mi)
+
+## Boğaz üzerindeki ana geçişi harita düzleminde döndürülmüş sade bir 3D yol köprüsüyle göster.
+func _add_bosphorus_bridge(a: Vector2, b: Vector2, deck: float) -> bool:
+	var direction := (b - a).normalized()
+	var mid := (a + b) * 0.5
+	var bridge := RoadBridge3D.new()
+	bridge.build(a.distance_to(b), 3.6)
+	bridge.position = Vector3(mid.x, deck, mid.y)
+	bridge.rotation.y = -atan2(direction.y, direction.x)
+	add_child(bridge)
+	return true
 
 func _ferry(a: Vector2, b: Vector2) -> void:
 	var mat := StandardMaterial3D.new()

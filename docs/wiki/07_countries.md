@@ -2,7 +2,7 @@
 
 # Countries
 
-80 countries are playable. Each starts with its leader, ideology and ruling party of early 1936. For every country the
+82 countries are playable. Each starts with its leader, ideology and ruling party of early 1936. For every country the
 `game/dev/country_check.gd` test starts the game with it and checks that laws, trade, production, construction, research,
 state programs and advisors affect the game.
 
@@ -101,3 +101,29 @@ state programs and advisors affect the game.
 | RAJ | British Raj | Lord Linlithgow | Non-Aligned |  |
 | AFG | Afghanistan | Mohammed Zahir Shah | Non-Aligned |  |
 | YEM | Yemen | Yahya Muhammad Hamid ed-Din | Non-Aligned |  |
+| DNZ | Danzig | Arthur Greiser | Fascist | NSDAP |
+| TNG | Tangier | Joseph Le Fur | Non-Aligned |  |
+
+## 1936 borders
+The map starts with the borders of 1 January 1936, not today's. Where a 1936 border runs through a modern
+administrative region, the map is corrected pixel by pixel (`tools/fix_borders_1936.py`), for example:
+- **Germany / Poland / Danzig:** German Pomerania up to the Polish Corridor (Stolp, Lauenburg, Bütow), the Grenzmark
+  (Schneidemühl), West Prussia east of the Vistula (Marienburg, Marienwerder), German Upper Silesia (Gleiwitz, Beuthen,
+  Hindenburg, Ratibor); Soldau and Lubawa are Polish. The **Free City of Danzig** is its own country.
+- **Poland's eastern border (Riga, 1921):** Wilno, Mołodeczno, Głębokie, Brasław, Nieśwież and Druskieniki are Polish.
+- **Romania / USSR:** the Dniester is the border (Bessarabia and the Budjak — Cetatea Albă, Ismail — are Romanian,
+  Tiraspol Soviet); Southern Dobruja is Romanian.
+- **Finland:** the Karelian Isthmus (Viipuri), Ladoga Karelia (Sortavala), Salla and Petsamo; the Gulf of Finland islands.
+- **Estonia / Latvia:** Jaanilinn beyond the Narva, Petseri; Abrene.
+- **Italy:** Fiume, Zara, Lagosta, the Carnaro islands, Tenda and the Dodecanese.
+- **Japan and Manchukuo:** Karafuto (south of the 50th parallel), the Kurils, the Kwantung Leased Territory (Dairen,
+  Port Arthur); Manchukuo includes Jehol and eastern Inner Mongolia (Chifeng, Hsingan, Hulunbuir).
+- **Colonies and small territories:** Gibraltar and Macau as their own states, Newfoundland (British), Portuguese Goa,
+  French Pondichéry and Kwangchowan, the southern British Cameroons, the Panama Canal Zone (US), Spanish Morocco with its
+  1936 southern border, Ifni and Cape Juby; the **Tangier International Zone** is its own country.
+
+Territories change hands in the historical flow: Danzig receives the "Danzig Returns to the Reich" event when Germany
+completes *The Danzig Crisis* (join the Reich or remain a Free City; a player playing Danzig chooses); Spain sends Tangier
+an occupation event on 14 June 1940; the Moscow Peace (1940) gives Viipuri and Sortavala to the USSR, the 1940 ultimatum
+Bessarabia (Chișinău, Bălți, the Budjak) and Northern Bukovina. `tests/test_borders_1936.gd` checks ~270 border towns
+(`tests/data/borders_1936.json`) against the map on every test run.

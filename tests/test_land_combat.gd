@@ -1,6 +1,6 @@
 extends "res://tests/test_case.gd"
 ## Kara savaşı: muharebe çözümü, çarpanlar (nehir, çıkarma, ikmal, yakıt, siper), son askere kadar, kuşatma,
-## ikmal hesabı ve ordu → cephe dağılımı. Oyuncu Almanya; Polonya ile savaşta.
+## ikmal hesabı, ordu → cephe dağılımı, topçu desteği, geri çekil ve saldırı tahmini. Oyuncu Almanya; Polonya ile savaşta.
 
 const INFANTRY := 0
 const ARMOR := 1
@@ -279,3 +279,102 @@ func test_army_spreads_to_front() -> void:
 	for pid in dest:
 		most = maxi(most, int(dest[pid]))
 	check(most <= ceili(float(divs.size()) / reach.size() * 3.0), "en kalabalık cephe bölgesinde %d tümen" % most)
+
+# ------------------------------------------------------------------ komutlar: topçu desteği, geri çekil, saldırı tahmini
+const GARRISON := 2
+
+func test_artillery_support_joins_battle() -> void:
+	_begin_war()
+	var b := _border()
+	if not check(not b.is_empty(), "sınır"):
+		return
+	var a := _div("GER", b[0])
+	a.attacking = b[1]
+	var d := _div("POL", b[1])
+	gt(float(Military.div_stats(a)["art_soft"]), 0.0, "piyade tümeninin topçusu var")
+	eq(float(Military.stats(country("GER"), GARRISON)["art_soft"]), 0.0, "garnizon tümeninin topçusu yok")
+	# destek yokken savunanın kaybı
+	Military._engaged = {a: true, d: true}
+	Military.supporting.clear()
+	seed(7)
+	Military._resolve_battle(b[1], [a], [d])
+	var loss_alone: float = Military.div_stats(d)["org"] - d.org
+	eq(int(Military.battles[b[1]]["att_support"]), 0, "komşuda destekçi yok")
+	# aynı bölgede yerinde duran ikinci tümen topçusuyla katılır; garnizon katılmaz
+	d.org = Military.div_stats(d)["org"]
+	a.org = Military.div_stats(a)["org"]
+	var s := _div("GER", b[0])
+	var g := _div("GER", b[0], GARRISON)
+	Military._engaged = {a: true, d: true}
+	Military.supporting.clear()
+	seed(7)
+	Military._resolve_battle(b[1], [a], [d])
+	var loss_sup: float = Military.div_stats(d)["org"] - d.org
+	check(Military.supporting.has(s), "yerinde duran tümen destek verdi")
+	check(not Military.supporting.has(g), "topçusuz garnizon destek vermez")
+	eq(int(Military.battles[b[1]]["att_support"]), 1, "bir destekçi")
+	gt(loss_sup, loss_alone * 1.05, "topçu desteği savunanın kaybını artırır")
+	lt(loss_sup, loss_alone * 1.6, "destek muharebeyi tek başına çevirmez")
+	# yürüyen tümen destek veremez
+	d.org = Military.div_stats(d)["org"]
+	s.path = PackedInt32Array([b[1]])
+	Military._engaged = {a: true, d: true}
+	Military.supporting.clear()
+	Military._resolve_battle(b[1], [a], [d])
+	check(not Military.supporting.has(s), "yürüyen tümen destek vermez")
+
+func test_withdraw_breaks_off_with_cost() -> void:
+	_begin_war()
+	var b := _border()
+	if not check(not b.is_empty(), "sınır"):
+		return
+	var a := _div("GER", b[0])
+	a.path = PackedInt32Array([b[1]])
+	a.attacking = b[1]
+	var d := _div("POL", b[1])
+	Military._combat()
+	check(Military.battles.has(b[1]), "muharebe başladı")
+	# saldırı altındaki tümen hemen kopar, bütünlüğünün dörtte biri gider
+	var org0 := d.org
+	check(Military.withdraw(d), "savunan geri çekilebilir")
+	check(d.province != b[1], "muharebe bölgesinden çıktı")
+	near(d.org, org0 * (1.0 - Military.WITHDRAW_ORG_COST), 0.001, "kopmanın bedeli")
+	eq(World.controller_tag(d.province), "POL", "dost bölgeye çekildi")
+	# saldıran geri çekilince saldırıyı bedelsiz keser
+	var aorg := a.org
+	check(Military.withdraw(a), "saldıran geri çekilebilir")
+	eq(a.attacking, 0, "saldırı kesildi")
+	near(a.org, aorg, 0.001, "saldırıyı kesmek bedelsiz")
+	# kuşatılmış tümenin gidecek yeri yok
+	var e := _div("POL", b[1])
+	for n in World.land_neighbors(b[1]):
+		World.set_controller(n, "GER")
+	check(not Military.withdraw(e), "kuşatılmış tümen çekilemez")
+	eq(e.province, b[1], "yerinde kaldı")
+
+func test_attack_estimate() -> void:
+	_begin_war()
+	var b := _border()
+	if not check(not b.is_empty(), "sınır"):
+		return
+	var d := _div("POL", b[1])
+	var three := [_div("GER", b[0]), _div("GER", b[0]), _div("GER", b[0])]
+	var strong := Military.attack_estimate(three, b[1])
+	gt(float(strong["ratio"]), 1.0, "üçe bir: saldıran üstün")
+	eq(int(strong["att"]), 3, "saldıran sayısı")
+	eq(int(strong["def"]), 1, "savunan sayısı")
+	var weak := Military.attack_estimate([three[0]], b[1])
+	lt(float(weak["ratio"]), float(strong["ratio"]), "tek tümenle tahmin daha kötü (komşular destek verse de)")
+	# siper: savunanın kazdığı siper tahmini düşürür ve etkenlerde görünür
+	d.idle_hours = 240
+	var dug := Military.attack_estimate(three, b[1])
+	lt(float(dug["ratio"]), float(strong["ratio"]), "siper tahmini düşürür")
+	var keys: Array = (dug["factors"] as Array).map(func(f: Array) -> String: return f[0])
+	check("entrench" in keys, "siper etkenlerde")
+	# boş düşman bölgesi: giren alır
+	Military._remove(d)
+	check(Military.attack_estimate(three, b[1]).has("empty"), "düşmansız bölge")
+	# eğitimdeki tümen saldıramaz: tahmin yok
+	var rookie := _div("GER", b[0])
+	rookie.training = 5
+	check(Military.attack_estimate([rookie], b[1]).is_empty(), "eğitimdeki tümenle tahmin yok")

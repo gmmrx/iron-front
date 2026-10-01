@@ -7,8 +7,15 @@ signal month_passed
 signal time_state_changed(speed: int, paused: bool)
 
 const MAX_SPEED := 5
-const HOURS_PER_SECOND: Array[float] = [0.0, 5.0, 12.0, 30.0, 80.0, 240.0]
+## Hız kademeleri (deneme): 1× = saniyede 5 oyun saati; kademeler 0,1× · 0,2× · 0,3× · 0,5× · 1× — savaş izlenerek
+## oynanır. Eski kademeler 1× · 2,4× · 6× · 16× · 48× idi (saniyede 240 saate kadar); gerçekçi yürüyüşle birlikte çok
+## hızlı bulundu. Kademeyi değiştirmek için yalnız SPEED_X.
+const BASE_HOURS_PER_SECOND := 5.0
+const SPEED_X: Array[float] = [0.0, 0.1, 0.2, 0.3, 0.5, 1.0]
+const HOURS_PER_SECOND: Array[float] = [0.0, 1.5, 3.0, 4.5, 7.5, 12.0]
 const MAX_TICKS_PER_FRAME := 48
+const FRAME_BUDGET_USEC := 8000         ## kare başına saat işleme bütçesi (µs): ağır savaşta oyun yavaşlar, kare hızı korunur
+const MAX_BACKLOG_HOURS := 24.0
 const DAYS_IN_MONTH: Array[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 var year := 1936
@@ -19,6 +26,7 @@ var speed := 1
 var paused := true
 
 var _accum := 0.0
+var _tick_avg := 1000.0             ## bir oyun saatinin ortalama işlem süresi (µs)
 var prof := {}        ## sistem -> mikrosaniye (profil)
 
 func timed(key: String, t0: int) -> void:
@@ -45,18 +53,28 @@ func hours_per_second() -> float:
 func advance_hours(n: int) -> void:
 	for i in n:
 		_advance_hour()
+		Military.flush_skirmish()        # kare akmıyor: yan yana ateş her saat hemen (oyunda bir sonraki karede)
 
 func _process(delta: float) -> void:
 	if paused:
 		return
+	var t0 := Time.get_ticks_usec()
 	_accum += delta * HOURS_PER_SECOND[speed]
 	var ticks := 0
+	# kare bütçesi: saatler bu süre dolana kadar işlenir, kalanı sonraki karelere kalır (biriken en çok 24 saat).
+	# Makine yetişemezse oyun gerçek hızından biraz yavaş akar ama kare hızı düşmez (5× hızda kareler donuyordu).
 	while _accum >= 1.0 and ticks < MAX_TICKS_PER_FRAME:
+		# bir sonraki saat bütçeyi aşacaksa (son saatlerin ortalamasına göre) sonraki kareye kalır; her karede en az bir saat
+		var el := Time.get_ticks_usec() - t0
+		if ticks > 0 and el + int(_tick_avg) > FRAME_BUDGET_USEC:
+			break
 		_accum -= 1.0
 		ticks += 1
+		var ts := Time.get_ticks_usec()
 		_advance_hour()
-	if ticks >= MAX_TICKS_PER_FRAME:
-		_accum = 0.0
+		_tick_avg = lerpf(_tick_avg, float(Time.get_ticks_usec() - ts), 0.1)
+	_accum = minf(_accum, MAX_BACKLOG_HOURS)
+	timed("clock_total", t0)
 
 func _advance_hour() -> void:
 	hour += 1

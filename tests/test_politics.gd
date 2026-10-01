@@ -219,3 +219,24 @@ func _prev_day(d: int) -> int:
 			y -= 1
 		day = GameClock.days_in_month(y, m)
 	return y * 10000 + m * 100 + day
+
+## Geliştirici izleyici modu: oyuncunun ülkesini de yapay zekâ yönetir, oyuncuya gelen olay pencere açmadan seçilir;
+## kapalıyken (her zamanki oyun) oyuncunun ülkesi oyuncudadır ve olay onu bekler
+func test_observer_mode() -> void:
+	var id := ""
+	for k: String in Politics.events:
+		if not (Politics.events[k]["options"] as Array).is_empty() and k != "faction_invite" and k != "call_to_arms":
+			id = k
+			break
+	if not check(id != "", "seçenekli bir olay"):
+		return
+	check(not AI._is_ai(player()), "olağan oyunda oyuncunun ülkesi oyuncuda")
+	Game.observer = true
+	check(AI._is_ai(player()), "izleyici modunda oyuncunun ülkesini yapay zekâ yönetir")
+	var before := Politics.pending_events.size()
+	Politics.fire_event(player(), id, World.player_tag)
+	eq(Politics.pending_events.size(), before, "olay pencere açmadan seçilir")
+	Game.observer = false
+	Politics.fire_event(player(), id, World.player_tag)
+	eq(Politics.pending_events.size(), before + 1, "olağan oyunda olay oyuncuyu bekler")
+	Politics.pending_events.clear()

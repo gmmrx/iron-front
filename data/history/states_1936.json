@@ -245,8 +245,8 @@
    "resources": {}
   },
   "30": {
-   "category": "town",
-   "slots": 4,
+   "category": "rural",
+   "slots": 2,
    "buildings": {
     "infrastructure": 4
    },
@@ -498,10 +498,10 @@
    "resources": {}
   },
   "60": {
-   "category": "megalopolis",
-   "slots": 12,
+   "category": "large_town",
+   "slots": 5,
    "buildings": {
-    "infrastructure": 2
+    "infrastructure": 1
    },
    "resources": {}
   },
@@ -766,8 +766,8 @@
    "resources": {}
   },
   "90": {
-   "category": "rural",
-   "slots": 2,
+   "category": "town",
+   "slots": 4,
    "buildings": {
     "infrastructure": 2
    },
@@ -990,8 +990,7 @@
    "category": "town",
    "slots": 4,
    "buildings": {
-    "infrastructure": 3,
-    "naval_base": 1
+    "infrastructure": 3
    },
    "resources": {}
   },
@@ -1206,19 +1205,18 @@
    "slots": 10,
    "buildings": {
     "civilian_factory": 2,
-    "military_factory": 2,
+    "military_factory": 1,
     "infrastructure": 3,
     "air_base": 1
    },
-   "resources": {
-    "steel": 28
-   }
+   "resources": {}
   },
   "139": {
    "category": "city",
    "slots": 6,
    "buildings": {
     "civilian_factory": 1,
+    "military_factory": 1,
     "infrastructure": 3
    },
    "resources": {}
@@ -1556,7 +1554,7 @@
    "category": "metropolis",
    "slots": 10,
    "buildings": {
-    "civilian_factory": 3,
+    "civilian_factory": 2,
     "military_factory": 1,
     "dockyard": 1,
     "infrastructure": 5,
@@ -1621,9 +1619,7 @@
    "buildings": {
     "infrastructure": 4
    },
-   "resources": {
-    "aluminium": 20
-   }
+   "resources": {}
   },
   "184": {
    "category": "metropolis",
@@ -1686,10 +1682,10 @@
    "resources": {}
   },
   "191": {
-   "category": "metropolis",
-   "slots": 10,
+   "category": "large_city",
+   "slots": 8,
    "buildings": {
-    "civilian_factory": 2,
+    "civilian_factory": 1,
     "military_factory": 1,
     "dockyard": 1,
     "infrastructure": 3,
@@ -2013,8 +2009,8 @@
    "resources": {}
   },
   "228": {
-   "category": "town",
-   "slots": 4,
+   "category": "rural",
+   "slots": 2,
    "buildings": {
     "infrastructure": 2,
     "naval_base": 1
@@ -2594,12 +2590,12 @@
    "resources": {}
   },
   "294": {
-   "category": "city",
-   "slots": 6,
+   "category": "large_town",
+   "slots": 5,
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "infrastructure": 3,
+    "infrastructure": 2,
     "naval_base": 2
    },
    "resources": {}
@@ -2652,6 +2648,7 @@
    "slots": 5,
    "buildings": {
     "civilian_factory": 1,
+    "military_factory": 1,
     "infrastructure": 2
    },
    "resources": {
@@ -2943,8 +2940,7 @@
     "civilian_factory": 1,
     "military_factory": 1,
     "infrastructure": 3,
-    "naval_base": 4,
-    "air_base": 1
+    "naval_base": 2
    },
    "resources": {}
   },
@@ -3527,8 +3523,8 @@
    "resources": {}
   },
   "403": {
-   "category": "large_town",
-   "slots": 5,
+   "category": "town",
+   "slots": 4,
    "buildings": {
     "civilian_factory": 1,
     "infrastructure": 4,
@@ -4403,14 +4399,12 @@
    "resources": {}
   },
   "501": {
-   "category": "large_city",
-   "slots": 8,
+   "category": "city",
+   "slots": 6,
    "buildings": {
-    "civilian_factory": 1,
-    "military_factory": 1,
     "dockyard": 1,
     "infrastructure": 3,
-    "naval_base": 3
+    "naval_base": 1
    },
    "resources": {}
   },
@@ -5597,7 +5591,7 @@
    "slots": 10,
    "buildings": {
     "infrastructure": 2,
-    "naval_base": 2
+    "naval_base": 1
    },
    "resources": {}
   },
@@ -5745,8 +5739,7 @@
    "category": "large_town",
    "slots": 5,
    "buildings": {
-    "infrastructure": 2,
-    "naval_base": 1
+    "infrastructure": 2
    },
    "resources": {}
   },
@@ -6505,8 +6498,8 @@
    "resources": {}
   },
   "746": {
-   "category": "town",
-   "slots": 4,
+   "category": "rural",
+   "slots": 2,
    "buildings": {
     "infrastructure": 3,
     "naval_base": 1
@@ -6954,7 +6947,7 @@
    "category": "metropolis",
    "slots": 10,
    "buildings": {
-    "civilian_factory": 2,
+    "civilian_factory": 1,
     "military_factory": 1,
     "infrastructure": 4,
     "naval_base": 5,
@@ -7018,6 +7011,7 @@
    "category": "large_city",
    "slots": 8,
    "buildings": {
+    "civilian_factory": 1,
     "infrastructure": 4,
     "naval_base": 2
    },
@@ -7056,7 +7050,7 @@
    "category": "rural",
    "slots": 2,
    "buildings": {
-    "infrastructure": 3
+    "infrastructure": 4
    },
    "resources": {}
   },
@@ -7236,8 +7230,8 @@
    "resources": {}
   },
   "821": {
-   "category": "town",
-   "slots": 4,
+   "category": "rural",
+   "slots": 2,
    "buildings": {
     "infrastructure": 2
    },
@@ -7349,8 +7343,7 @@
    "slots": 6,
    "buildings": {
     "infrastructure": 5,
-    "naval_base": 2,
-    "air_base": 3
+    "naval_base": 1
    },
    "resources": {}
   },
@@ -7833,7 +7826,9 @@
     "naval_base": 6,
     "air_base": 3
    },
-   "resources": {}
+   "resources": {
+    "aluminium": 20
+   }
   },
   "881": {
    "category": "town",
@@ -9987,8 +9982,7 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "infrastructure": 3,
-    "naval_base": 1
+    "infrastructure": 3
    },
    "resources": {}
   },
@@ -10241,9 +10235,7 @@
     "naval_base": 4,
     "air_base": 1
    },
-   "resources": {
-    "steel": 10
-   }
+   "resources": {}
   },
   "1156": {
    "category": "town",
@@ -10450,8 +10442,8 @@
    "resources": {}
   },
   "1179": {
-   "category": "large_city",
-   "slots": 8,
+   "category": "city",
+   "slots": 6,
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
@@ -11215,6 +11207,7 @@
    "category": "city",
    "slots": 6,
    "buildings": {
+    "civilian_factory": 1,
     "infrastructure": 3
    },
    "resources": {}
@@ -12099,10 +12092,10 @@
    "resources": {}
   },
   "1370": {
-   "category": "metropolis",
-   "slots": 10,
+   "category": "town",
+   "slots": 4,
    "buildings": {
-    "infrastructure": 2
+    "infrastructure": 1
    },
    "resources": {}
   },
@@ -12110,7 +12103,7 @@
    "category": "metropolis",
    "slots": 10,
    "buildings": {
-    "infrastructure": 2
+    "infrastructure": 3
    },
    "resources": {}
   },
@@ -12261,8 +12254,8 @@
    "resources": {}
   },
   "1389": {
-   "category": "town",
-   "slots": 4,
+   "category": "rural",
+   "slots": 2,
    "buildings": {
     "infrastructure": 2
    },
@@ -13627,7 +13620,7 @@
    "category": "rural",
    "slots": 2,
    "buildings": {
-    "infrastructure": 3
+    "infrastructure": 4
    },
    "resources": {}
   },
@@ -13635,7 +13628,7 @@
    "category": "rural",
    "slots": 2,
    "buildings": {
-    "infrastructure": 3
+    "infrastructure": 4
    },
    "resources": {}
   },
@@ -13669,13 +13662,15 @@
    "resources": {}
   },
   "1553": {
-   "category": "metropolis",
-   "slots": 10,
+   "category": "large_city",
+   "slots": 8,
    "buildings": {
     "infrastructure": 2,
     "naval_base": 1
    },
-   "resources": {}
+   "resources": {
+    "steel": 10
+   }
   },
   "1554": {
    "category": "megalopolis",
@@ -14325,6 +14320,7 @@
    "category": "large_town",
    "slots": 5,
    "buildings": {
+    "civilian_factory": 1,
     "infrastructure": 2
    },
    "resources": {}
@@ -14497,6 +14493,304 @@
     "military_factory": 1,
     "infrastructure": 5,
     "air_base": 1
+   },
+   "resources": {}
+  },
+  "1653": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1654": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1655": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "civilian_factory": 1,
+    "dockyard": 1,
+    "infrastructure": 4,
+    "naval_base": 2,
+    "air_base": 3
+   },
+   "resources": {}
+  },
+  "1656": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1657": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1658": {
+   "category": "large_town",
+   "slots": 5,
+   "buildings": {
+    "civilian_factory": 1,
+    "infrastructure": 4,
+    "air_base": 1
+   },
+   "resources": {
+    "steel": 28
+   }
+  },
+  "1659": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1660": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1661": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 1
+   },
+   "resources": {}
+  },
+  "1662": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2,
+    "naval_base": 1
+   },
+   "resources": {}
+  },
+  "1663": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1664": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 3,
+    "naval_base": 1
+   },
+   "resources": {}
+  },
+  "1665": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1666": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1667": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2,
+    "naval_base": 1
+   },
+   "resources": {}
+  },
+  "1668": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1669": {
+   "category": "wasteland",
+   "slots": 0,
+   "buildings": {
+    "infrastructure": 1
+   },
+   "resources": {}
+  },
+  "1670": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1671": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1672": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1673": {
+   "category": "wasteland",
+   "slots": 0,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1674": {
+   "category": "large_town",
+   "slots": 5,
+   "buildings": {
+    "infrastructure": 3,
+    "naval_base": 2
+   },
+   "resources": {}
+  },
+  "1675": {
+   "category": "megalopolis",
+   "slots": 12,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1676": {
+   "category": "large_city",
+   "slots": 8,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1677": {
+   "category": "city",
+   "slots": 6,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1678": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 4,
+    "naval_base": 1
+   },
+   "resources": {}
+  },
+  "1679": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1680": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1681": {
+   "category": "town",
+   "slots": 4,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1682": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 4
+   },
+   "resources": {}
+  },
+  "1683": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "civilian_factory": 1,
+    "infrastructure": 3,
+    "naval_base": 1,
+    "air_base": 3
+   },
+   "resources": {}
+  },
+  "1684": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 2
+   },
+   "resources": {}
+  },
+  "1685": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 3
+   },
+   "resources": {}
+  },
+  "1686": {
+   "category": "pastoral",
+   "slots": 1,
+   "buildings": {
+    "infrastructure": 3,
+    "naval_base": 1
+   },
+   "resources": {}
+  },
+  "1687": {
+   "category": "rural",
+   "slots": 2,
+   "buildings": {
+    "infrastructure": 2,
+    "naval_base": 1
    },
    "resources": {}
   }

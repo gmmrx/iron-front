@@ -1,6 +1,6 @@
 class_name GameOverScreen
 extends Control
-## Oyun sonu: zafer/yenilgi, zafer puanı sıralaması.
+## Oyun sonu: zafer (dünya oyuncunun tarafında) ya da yenilgi (ülke yok oldu), nedeni ve tarihi, zafer puanı sıralaması.
 
 signal to_main_menu
 signal continue_pressed
@@ -36,6 +36,9 @@ func _show(victory: bool, reason: String) -> void:
 	var r := UiTheme.make_label(tr(reason), 19)
 	r.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(r)
+	var when := UiTheme.make_label(tr("GAMEOVER_DATE") % GameClock.date_string(), 15, UiTheme.TEXT_DIM)
+	when.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(when)
 	PanelLayout.section(v, tr("GAMEOVER_RANKING"))
 	var rows := []
 	for c: Country in World.countries.values():

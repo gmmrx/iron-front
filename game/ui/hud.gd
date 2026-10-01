@@ -4,6 +4,7 @@ extends CanvasLayer
 
 signal construction_toggled(open: bool)
 
+signal recon_requested                  ## keşif: haritada bölge seçilecek (main._begin_recon)
 var root: Control
 var top_bar: TopBar
 var state_panel: StatePanel
@@ -20,6 +21,7 @@ var diplomacy: DiplomacyPanel
 var navy: NavyPanel
 var air: AirPanel
 var logistics: LogisticsPanel
+var world: WorldPanel
 var focus: FocusPanel
 var divisions: DivisionPanel
 var events: EventPopup
@@ -54,7 +56,8 @@ func _ready() -> void:
 	navy = NavyPanel.new()
 	air = AirPanel.new()
 	logistics = LogisticsPanel.new()
-	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]:
+	world = WorldPanel.new()
+	for p in [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics, world]:
 		root.add_child(p)
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
@@ -72,13 +75,14 @@ func _ready() -> void:
 	feed.hud = self
 	root.add_child(feed)
 	task_bar = top_bar.task_row
+	# sade oyun (docs/DESIGN.md): sol menüde ülke, diplomasi, üretim, donanma, hava ve keşif. Ordu ekranı (komuta zinciri,
+	# şablonlar) yok: oyuncu tümenleri seçip oynar, asker şehirden alınır. Program, araştırma, dünya olayları, ticaret,
+	# inşaat ve lojistik ekranları menüde yok (kısayolları çalışır; yol haritası 3. aşamada sadeleşip kalkacaklar)
 	var tasks := [
-		["TASK_POLITICS", "politics", toggle_politics, "menu_politics"], ["TASK_FOCUS", "focus_g_unity", toggle_focus, "menu_focus"],
-		["TASK_RESEARCH_KEY", "research", toggle_research, "menu_research"], ["TASK_DIPLOMACY_KEY", "diplomacy", toggle_diplomacy, "menu_diplomacy"],
-		["TASK_TRADE", "trade", toggle_trade, "menu_trade"], ["CONSTRUCTION_BUTTON", "construction", toggle_construction, "menu_construction"],
-		["TASK_PRODUCTION", "production", toggle_production, "menu_production"], ["TASK_ARMY", "army", toggle_army, "menu_army"],
+		["TASK_POLITICS", "politics", toggle_politics, "menu_politics"], ["TASK_DIPLOMACY_KEY", "diplomacy", toggle_diplomacy, "menu_diplomacy"],
+		["TASK_PRODUCTION", "production", toggle_production, "menu_production"],
 		["TASK_NAVY", "navy", toggle_navy, "menu_navy"], ["TASK_AIR", "air", toggle_air, "menu_air"],
-		["TASK_LOGISTICS_KEY", "equipment_motorized_equipment", toggle_logistics, "menu_logistics"]]
+		["TASK_RECON", "tech_radar_1", func() -> void: recon_requested.emit(), "menu_recon"]]
 	# kare simge düğmeleri: ad ipucunda, kısayol harfi köşede
 	for t: Array in tasks:
 		var b := Button.new()
@@ -192,7 +196,7 @@ func fullscreen_open() -> bool:
 	return false
 
 func _left_panels() -> Array:
-	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics]
+	return [construction, production, politics, trade, army, navy, air, research, diplomacy, logistics, world]
 
 func _close_all() -> void:
 	for p in _left_panels():
@@ -233,6 +237,7 @@ func toggle_army() -> void: _open_only(army)
 func toggle_navy() -> void: _open_only(navy)
 func toggle_air() -> void: _open_only(air)
 func toggle_logistics() -> void: _open_only(logistics)
+func toggle_world() -> void: _open_only(world)
 ## Donanma panelini açık tut (filo seçilince)
 func show_navy() -> void:
 	if not navy.visible:

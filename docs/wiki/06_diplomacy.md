@@ -19,6 +19,18 @@ The timeline is data (`data/common/history.json`).
   Poland, Vyborg is no longer Finnish…) the step is skipped and the world goes its own way from there.
 - **Until 2 September 1945** the AI starts no war on its own and does not join an ally's war of aggression when called
   (defending an ally or a guaranteed country still happens at once). After that date the AI acts freely.
+- **After the historical flow the world keeps moving**: from 2 September 1945, rule-based events come to every country
+  (the player decides, the AI picks by weight), each on average once in its period and not again before its pause:
+  | Event | Comes to | On average | Pause | Options |
+  |---|---|---|---|---|
+  | Clash on the Border | a country at peace, with a non-allied neighbour | 1,800 days | 720 days | demand reparations (−20 influence, casus belli against the neighbour, crisis +2) / settle it (+2% stability, −2% home front) |
+  | Run on the Banks | any country | 2,600 days | 1,100 days | rescue the banks (−40 influence, +2% stability) / let them fail (−6% stability, +15 influence) |
+  | Officers' Plot | a country with stability under 35% | 1,500 days | 1,500 days | arrest them (+4% stability, −3% home front) / give the army a voice (fascism +10%, +3% stability, +3% home front) / early elections (democracy +10%, −2% stability) |
+  | The Soldiers Come Home | a great power at peace | 400 days | 10 years | demobilise (2 civilian factories, −8% home front, +3% stability) / keep the army (+4% home front, −4% stability) |
+
+  The border clash is how the AI finds new wars: a country that demands reparations gets a casus belli, and a
+  non-democratic AI with a casus belli declares war when its army is strong enough. The events are data (`"recur"` in
+  `data/common/events.json`).
 
 ## Crisis index
 How close the world is to general war. It rises with aggression (preparing a casus belli, annexations, war). It strengthens
@@ -40,9 +52,27 @@ everyone's home front (+0.4% per 1%, at most +40%).
   everyone; if one side is an alliance member, only that member leaves the war and the leader keeps fighting the rest.
 - The reason an action is closed is written in orange under its row.
 
+## Answering the world (World events, E)
+When a country declares war on another, or annexes it, and you are on neither side (nor allied to either), the entry in
+the world events menu carries options for a while:
+| Event | Option | Effect |
+|---|---|---|
+| War declared (30 days) | Condemn the aggression | −10 influence, +2% home front (the public rallies) |
+| | Send rifles to the victim | −500 rifles from your stock, −5 influence; the victim gets 500 rifles (needs 500 in stock) |
+| | Stay out of it | +1% stability |
+| Annexation (60 days) | Refuse to recognise it | −25 influence, a casus belli against the annexer |
+| | Recognise it | crisis index −1 |
+
+When **you** start a war, the democratic great powers that are not on either side condemn a non-democratic aggressor
+(the same option, with its cost to them); their condemnation appears in the menu and in your feed. Options and numbers
+are data (`data/common/world_reactions.json`).
+
 ## Surrender
 - Surrender progress = the share of your cities' victory points held by the enemy (colonies count ¼) + 10% if the capital
   has fallen.
 - The limit is 80%; when the home front is below 50% it drops by (0.5 − home front) × 0.6; some national conditions change
   it (e.g. France's Revolving-Door Cabinets −30%). The lowest is 20%.
 - The occupied states of a surrendering country pass to the occupier.
+- A surrendering country leaves every war and its alliance (unless it leads it), the guarantees it gave lapse, and it
+  cannot declare war for **two years** (a truce: time to rebuild an army that has been disbanded). If it still holds land
+  it plays on — the player too.

@@ -51,6 +51,7 @@ var decisions_active: Dictionary = {}      ## karar -> bitiş günü (gün sayac
 
 # --- askeri / diplomatik
 var manpower_used := 0                     ## tümenlerde ve kayıplarda kullanılan insan gücü
+var sp := 0.0                              ## sanayi puanı: asker alma ve keşif parası (Military.recruit, data/common/recruit.json)
 var templates: Array = []                  ## [{name, battalions: {tür: adet}}]
 var faction := ""                          ## ittifak adı
 var war_goals: Dictionary = {}             ## hedef tag -> "justifying:gün" | "ready"
@@ -58,6 +59,7 @@ var justify_progress: Dictionary = {}      ## hedef tag -> kalan gün
 var guarantees: Array[String] = []         ## garanti verilen ülkeler
 var access: Array[String] = []             ## askeri geçiş hakkı olan ülkeler (bize geçiş verenler)
 var capitulated := false
+var truce_until := 0                       ## teslimden sonra bu güne (gün sayacı) kadar savaş ilan edemez
 var surrender_progress := 0.0
 var air_losses := 0.0
 var command_power := 0.0                    ## komuta gücü (0..200): general/doktrin/özel emirler için

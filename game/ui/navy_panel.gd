@@ -4,6 +4,8 @@ extends PanelContainer
 
 signal fleet_selected(fleet: Fleet)
 signal pick_zone_requested(fleet: Fleet)
+## Yeni gemileri konuşlandır: panel kapanır, haritada limanlı eyaletler vurgulanır, oyuncu limanı seçer
+signal deploy_requested
 
 const MISSION_ICONS := ["building_naval_base", "equipment_battleship", "equipment_submarine", "equipment_convoy"]
 
@@ -59,6 +61,17 @@ func refresh() -> void:
 	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if cf >= 0.999 else UiTheme.BAD)
 	for ch in _list.get_children():
 		ch.queue_free()
+	# tersaneden çıkıp limanı bekleyen gemiler
+	var fresh := Navy.new_ships(c)
+	if not fresh.is_empty():
+		PanelLayout.section(_list, tr("NAVY_NEW_SHIPS"))
+		var parts: Array[String] = []
+		for t: String in fresh:
+			parts.append("%d %s" % [int(fresh[t]), Economy.equipment_name(t)])
+		var col := PanelLayout.row(_list, UiTheme.icon("equipment_destroyer"), tr("NAVY_NEW_SHIPS_ROW"), ", ".join(parts),
+			tr("TIP_NAVY_DEPLOY_SHIPS"))
+		PanelLayout.row_action(col, PanelLayout.small_button(tr("NAVY_DEPLOY_SHIPS"), func() -> void:
+			deploy_requested.emit(), not Navy.ports_of(c.tag).is_empty(), tr("TIP_NAVY_DEPLOY_SHIPS")))
 	PanelLayout.section(_list, tr("NAV_FLEETS") % own.size())
 	if own.is_empty():
 		PanelLayout.empty(_list, tr("NAVY_NO_FLEETS"))
@@ -66,10 +79,13 @@ func refresh() -> void:
 	for f in own:
 		_list.add_child(_card(f))
 
+## Filo kartı: başlık (yuva, ad, durum; sağda bileşim), bütünlük çubuğu, görev şeridi, görev bölgesi. Seçili kart altın
+## çerçeveli, adı altın; tıklayınca seçilir (haritada da)
 func _card(f: Fleet) -> Control:
 	var sel := f.id == selected_id
 	var panel := PanelContainer.new()
 	panel.theme_type_variation = "SlotGold" if sel else "Row"
+	UiTheme.pad(panel, 14, 12)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.tooltip_text = tr("TIP_FLEET_CARD")
 	panel.gui_input.connect(func(e: InputEvent) -> void:
@@ -78,24 +94,16 @@ func _card(f: Fleet) -> Control:
 			fleet_selected.emit(f)
 			refresh())
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 5)
+	v.add_theme_constant_override("separation", 9)
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(v)
 
-	# başlık: ad + durum
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 8)
-	head.add_child(UiTheme.icon_texture(UiTheme.icon("navy"), 26))
-	var name := UiTheme.make_label(f.name, 18, UiTheme.ACCENT)
-	name.add_theme_font_override("font", UiTheme.bold_font())
-	name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(name)
-	var status := UiTheme.make_label(_status(f), 14, UiTheme.BAD if f.in_combat or f.returning else UiTheme.TEXT_DIM)
-	head.add_child(status)
-	v.add_child(head)
-
-	# bileşim
+	# başlık: yuva + ad + durum; sağda bileşim (gemi türü ve sayısı)
+	var head := PanelLayout.card_head(v, UiTheme.icon("navy"), f.name, _status(f), sel,
+		UiTheme.BAD if f.in_combat or f.returning else UiTheme.TEXT_DIM)
 	var comp := HBoxContainer.new()
-	comp.add_theme_constant_override("separation", 12)
+	comp.add_theme_constant_override("separation", 10)
+	comp.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for t: String in Navy.SHIP_TYPES:
 		var n := int(f.ships.get(t, 0))
 		if n <= 0:
@@ -105,67 +113,44 @@ func _card(f: Fleet) -> Control:
 		box.mouse_filter = Control.MOUSE_FILTER_STOP
 		var st: Dictionary = Navy.SHIPS[t]
 		box.tooltip_text = tr("TIP_SHIP_TYPE") % [tr("SHIPS_" + t), n, st["atk"], st["hp"], roundi(st["speed"])]
-		var ic := UiTheme.icon_texture(UiTheme.equipment_icon(t), 26)
+		var ic := UiTheme.icon_texture(UiTheme.equipment_icon(t), 30)
 		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(ic)
-		var l := UiTheme.make_label("%d" % n, 16)
+		var l := UiTheme.make_label("%d" % n, 17)
+		l.add_theme_font_override("font", UiTheme.bold_font())
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(l)
 		comp.add_child(box)
-	v.add_child(comp)
+	head.add_child(comp)
 
-	# organizasyon
-	var orow := HBoxContainer.new()
-	orow.add_child(UiTheme.make_label(tr("NAVY_ORG"), 13, UiTheme.TEXT_DIM))
-	var bar := PanelLayout.progress(f.org, Color(0.45, 0.85, 0.35) if f.org > 0.5 else UiTheme.BAD, 7.0)
-	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	orow.add_child(bar)
-	orow.add_child(UiTheme.make_label("%d%%" % roundi(f.org * 100.0), 13, UiTheme.TEXT))
-	orow.tooltip_text = "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)]
-	v.add_child(orow)
+	PanelLayout.bar_row(v, tr("NAVY_ORG"), f.org, "%d%%" % roundi(f.org * 100.0),
+		Color(0.45, 0.85, 0.35) if f.org > 0.5 else UiTheme.BAD, "%s: %d%%" % [tr("NAVY_ORG"), roundi(f.org * 100.0)])
 
-	# görevler
-	var missions := HBoxContainer.new()
-	missions.add_theme_constant_override("separation", 4)
-	var group := ButtonGroup.new()
+	# görev
+	var items: Array = []
 	for m in 4:
-		var b := Button.new()
-		b.toggle_mode = true
-		b.theme_type_variation = "Tab"
-		b.button_group = group
-		b.focus_mode = Control.FOCUS_NONE
-		b.icon = UiTheme.trimmed(UiTheme.icon(MISSION_ICONS[m]))
-		b.add_theme_constant_override("icon_max_width", 20)
-		b.clip_text = true
-		b.text = tr("MISSION_%d" % m)
-		b.add_theme_font_size_override("font_size", UiTheme.fs(13))
-		b.tooltip_text = tr("TIP_MISSION_%d" % m)
-		b.button_pressed = int(f.mission) == m
-		b.custom_minimum_size = Vector2(0, 32)
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.pressed.connect(func() -> void:
-			f.returning = false
-			Navy.set_mission(f, m as Fleet.Mission)
-			selected_id = f.id
-			fleet_selected.emit(f)
-			refresh())
-		missions.add_child(b)
-	v.add_child(missions)
+		items.append([MISSION_ICONS[m], tr("MISSION_%d" % m), tr("TIP_MISSION_%d" % m)])
+	PanelLayout.choice_row(v, items, int(f.mission), func(m: int) -> void:
+		f.returning = false
+		Navy.set_mission(f, m as Fleet.Mission)
+		selected_id = f.id
+		fleet_selected.emit(f)
+		refresh())
 
 	# görev bölgesi
 	var zrow := HBoxContainer.new()
+	zrow.add_theme_constant_override("separation", 10)
 	var zl := UiTheme.make_label(tr("NAVY_ZONE") % Navy.zone_name(f.zone_center), 15, UiTheme.TEXT)
 	zl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	zl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	zl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	zl.custom_minimum_size.x = 1
 	zrow.add_child(zl)
-	var pick := Button.new()
-	pick.text = tr("NAVY_PICK_ZONE")
-	pick.focus_mode = Control.FOCUS_NONE
-	pick.tooltip_text = tr("TIP_NAVY_PICK_ZONE")
-	pick.add_theme_font_size_override("font_size", UiTheme.fs(14))
-	pick.pressed.connect(func() -> void:
+	var pick := PanelLayout.small_button(tr("NAVY_PICK_ZONE"), func() -> void:
 		selected_id = f.id
 		fleet_selected.emit(f)
-		pick_zone_requested.emit(f))
+		pick_zone_requested.emit(f), true, tr("TIP_NAVY_PICK_ZONE"))
+	pick.custom_minimum_size = Vector2(120, 36)
 	zrow.add_child(pick)
 	v.add_child(zrow)
 	return panel

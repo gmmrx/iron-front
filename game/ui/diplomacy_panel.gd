@@ -8,11 +8,31 @@ const IDEO_COLORS := {"democratic": Color("4a78c8"), "communism": Color("b83a2e"
 var target := ""
 var _v: VBoxContainer          ## bölümlerin eklendiği sütun (refresh sırasında değişir)
 var _root: VBoxContainer
+var _search: LineEdit          ## ülke arama (sabit alanda: yenilemede kaybolmaz, yazarken odak kalır)
+var _list: Array = []          ## [düğme, aranan metin, ülke kodu]
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
 	_root = PanelLayout.frame(self, tr("DIPLO_TITLE"), "diplomacy", -1.0)     # tam ekran: ülkeler · seçili ülke · dünya
+	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 10)
+	PanelLayout.fixed(self).add_child(bar)
+	_search = LineEdit.new()
+	_search.placeholder_text = tr("DIP_SEARCH")
+	_search.tooltip_text = tr("TIP_DIP_SEARCH")
+	_search.clear_button_enabled = true
+	_search.custom_minimum_size = Vector2(380, 40)
+	_search.add_theme_font_size_override("font_size", UiTheme.fs(17))
+	_search.text_changed.connect(func(_t: String) -> void: _filter())
+	_search.text_submitted.connect(func(_t: String) -> void:
+		# Enter: listede görünen ilk ülke seçilir
+		for e: Array in _list:
+			if (e[0] as Button).visible:
+				target = e[2]
+				refresh()
+				return)
+	bar.add_child(_search)
 	Diplomacy.wars_changed.connect(func() -> void:
 		if visible: refresh())
 	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void:
@@ -31,6 +51,20 @@ func open_for(tag: String) -> void:
 func close() -> void:
 	visible = false
 	target = ""
+	_search.text = ""
+
+## Aramada Türkçe harfler ve büyük/küçük harf fark etmez ("isvec" İsveç'i bulur)
+static func _fold(s: String) -> String:
+	var t := s.to_lower().replace("\u0307", "")
+	for pair: Array in [["ç", "c"], ["ğ", "g"], ["ı", "i"], ["ö", "o"], ["ş", "s"], ["ü", "u"], ["â", "a"], ["î", "i"], ["û", "u"]]:
+		t = t.replace(pair[0], pair[1])
+	return t
+
+## Ülke listesini arama kutusuna göre süz (ad ya da ülke kodu)
+func _filter() -> void:
+	var q := _fold(_search.text.strip_edges())
+	for e: Array in _list:
+		(e[0] as Button).visible = q == "" or String(e[1]).contains(q)
 
 func refresh() -> void:
 	for ch in _root.get_children():
@@ -147,7 +181,8 @@ func refresh() -> void:
 ## Ülke listesi: büyük güçler üstte (sanayiye göre), sonra ada göre; ideoloji rengi, ilişki; tıklayınca seçilir
 func _country_list(me: Country) -> void:
 	PanelLayout.section(_v, tr("DIP_COUNTRIES"))
-	var all: Array = World.countries.values().filter(func(c: Country) -> bool: return c.exists() and c != me)
+	_list.clear()
+	var all: Array = World.countries.values().filter(func(c: Country) -> bool: return c.exists() and c != me and World.is_active(c.tag))
 	all.sort_custom(func(a: Country, b: Country) -> bool:
 		if a.is_major() != b.is_major():
 			return a.is_major()
@@ -161,9 +196,10 @@ func _country_list(me: Country) -> void:
 		b.toggle_mode = true
 		b.set_pressed_no_signal(c.tag == target)
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.icon = FlagFactory.get_flag(c)
+		b.icon = FlagFactory.uniform(c)                  # her bayrak aynı boyda
 		b.expand_icon = true
 		b.add_theme_constant_override("icon_max_width", 42)
+		b.add_theme_constant_override("h_separation", 10)
 		b.custom_minimum_size = Vector2(0, 40)
 		b.add_theme_font_size_override("font_size", UiTheme.fs(15))
 		var rel := ""
@@ -188,6 +224,8 @@ func _country_list(me: Country) -> void:
 			target = c.tag
 			refresh())
 		_v.add_child(b)
+		_list.append([b, _fold(c.display_name()) + " " + c.tag.to_lower(), c.tag])
+	_filter()
 
 func _action(icon: String, text: String, tip: String, err: String, fn: Callable) -> void:
 	var col := PanelLayout.row(_v, UiTheme.icon(icon), text, tip if err == "" else "⚠ " + tr(err), tip + ("" if err == "" else "\n\n" + tr(err)))
@@ -206,7 +244,7 @@ func _flags(tags: Array, side := 26) -> HFlowContainer:
 		if c == null:
 			continue
 		var tr_ := TextureRect.new()
-		tr_.texture = FlagFactory.get_flag(c)
+		tr_.texture = FlagFactory.uniform(c)
 		tr_.custom_minimum_size = Vector2(side * 1.5, side)
 		tr_.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr_.stretch_mode = TextureRect.STRETCH_SCALE

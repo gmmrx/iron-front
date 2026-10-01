@@ -8,9 +8,9 @@ extends Node3D
 ## yakında devleşmez. Yalnız görünüm değişir; oyun mantığı, seçim ve paneller aynıdır.
 
 const SHADER := preload("res://assets/shaders/pin.gdshader")
-const NEEDLE_R := 0.0017                                               ## gövde yarıçapı (kamera uzaklığı katı)
-const CITY_LEN: Array[float] = [0.075, 0.062, 0.054, 0.047, 0.042]     ## şehir önem kademesi 0..4 (CityLayer.tier_of)
-const CITY_HEAD: Array[float] = [0.0135, 0.0108, 0.0092, 0.008, 0.007]
+const NEEDLE_R := 0.0033                                               ## gövde yarıçapı (kamera uzaklığı katı)
+const CITY_LEN: Array[float] = [0.098, 0.082, 0.071, 0.062, 0.055]     ## şehir önem kademesi 0..4 (CityLayer.tier_of)
+const CITY_HEAD: Array[float] = [0.017, 0.0135, 0.0115, 0.01, 0.0088]
 const UNIT_LIFT := 0.058                                               ## tümen sayacının yerden yüksekliği
 const AIR_LIFT := 0.072
 const SEA_LIFT := 0.05
@@ -18,9 +18,14 @@ const SEA_LIFT := 0.05
 static func active() -> bool:
 	return World.in_game
 
-## Sayaç yüksekliği (iğnenin boyu): kamera uzaklığının katı → ekranda sabit
+## Sayaç yüksekliği (iğnenin boyu): kamera uzaklığının katı → ekranda sabit. Uzakta (sayaç yerine yalnız bayrak,
+## UnitLayer.FLAG_MODE) iğne yok: bayrak haritanın hemen üstünde durur.
 static func lift(cam_d: float, k: float = UNIT_LIFT) -> float:
-	return cam_d * k
+	return cam_d * (FLAG_LIFT if flags_only(cam_d) else k)
+
+const FLAG_LIFT := 0.006
+static func flags_only(cam_d: float) -> bool:
+	return cam_d > UnitLayer.FLAG_MODE
 
 var map: MapView3D
 var camera: MapCamera3D
@@ -33,8 +38,12 @@ var _city_needles: MultiMeshInstance3D
 var _heads: MultiMeshInstance3D
 var _counter_needles: MultiMeshInstance3D
 var _build_needles: MultiMeshInstance3D
-var _bpins: Array = []               ## yapı iğneleri: [kök Node3D, konum Vector2, zemin yüksekliği, rozetler [tür, yazı, inşaat mı]]
+var _bpins: Array = []               ## yapı iğneleri: [kök Node3D, konum Vector2, zemin, rozetler [tür, yazı, inşaat mı], rozet düğümleri]
 var _build_sig := -1
+var _bstate := {}                    ## anahtar ("sid" / "air:sid") -> [imza, iğne kaydı] — yalnız değişen eyalet yenilenir
+var _build_timer := 0.0
+var _hover_key := ""                 ## fare altındaki rozet: "anahtar#sıra"
+var _badge_k := 1.0                  ## uzaklığa göre rozet boyu (FAR_BADGE..1)
 var _plates := {}
 var _needle_mat: ShaderMaterial
 var _head_mat: ShaderMaterial
@@ -45,12 +54,61 @@ var _last_label_d := -1.0
 var _recheck := 0.0
 
 const BUILD_LIFT := 0.045                                             ## yapı iğnesinin boyu
-const BUILD_RANGE := 560.0                                            ## yapı iğneleri bu uzaklığın içinde
+const BUILD_RANGE := 260.0                                            ## yapı rozetleri bu uzaklığın içinde (önce ikon)
+const BUILD_PIN_RANGE := 170.0                                        ## iğne bu kadar yakında yerden yükselir
+## Yapı iğnelerinin boyu eyaletten eyalete farklı (BUILD_LIFT'in bu katları): komşu eyaletlerin rozetleri üst üste
+## binmez, hepsi görülür
+const BUILD_LIFT_STEPS: Array[float] = [0.7, 1.0, 1.35, 1.7]
+const HOVER_SCALE := 1.3                                              ## fare altındaki rozet büyür
+const FAR_BADGE := 0.72                                               ## rozetin en uzaktaki boyu (iğne çıkınca tam boy)
 ## iğnesi olan yapılar (altyapı her eyalette olduğundan iğnesi yok: haritayı doldururdu; bölge panelinde görünür)
 const BUILDINGS := ["civilian_factory", "military_factory", "synthetic_refinery", "anti_air", "dockyard", "naval_base",
 	"air_base"]
-const PLATE_GOLD := Color(0.78, 0.64, 0.36)
-const PLATE_BUILD := Color(0.98, 0.56, 0.16)
+const PLATE_GOLD := Color("b8995a")
+const PLATE_BUILD := Color("d0692f")
+const GLYPH_GOLD := Color("e0c27a")                                   ## rozet piktogramı ve sayısı (koyu zeminde altın)
+const TOWN_HEAD := Color("efe6cf")                                    ## kasaba iğnesinin başı (fildişi)
+const MEDAL_PX := 46.0                                                ## başkent madalyonu ekran boyu
+const TOWN_LABEL_UP := 36.0                                           ## kasaba adı iğne başının üstünde (etiket pikseli)
+var _tops := {}                      ## iğne sırası -> iğnenin tepesindeki şehir ikonu (ya da başkent madalyonu)
+
+## Şehir modeli (assets/models/city-hall.glb): iğnenin ve tepe ikonunun yerine haritada duran belediye binası minyatürü;
+## model ve dokusu olduğu gibi kullanılır (yalnız metalliği düşük: bkz. _ready). Ön yüzü (giriş) modelde +x'te: kameraya (+z) döner. Boy
+## iğneler gibi ekranda sabit (kamera uzaklığının katı, şehrin kademesine göre; başkent ~tepe ikonu boyu); kaidenin altı
+## (model y −0,473) zemine oturur. Başkentin tepesi (0,046 × 0,947 = 0,044) tümen sayacının altında kalır (UNIT_LIFT 0,058):
+## şehirde duran tümenin sayacı binanın üstünde görünür. Ad kaidenin önünde, altta (sayaçla çakışmaz). CITY_MODEL boşsa
+## eski iğne ve ikon döner.
+const CITY_MODEL := "res://assets/models/city-hall.glb"
+const HALL_SIZE: Array[float] = [0.046, 0.04, 0.035, 0.03, 0.026]     ## modelin eni (kamera uzaklığı katı), kademe 0..4
+const HALL_BOTTOM := 0.473                                              ## modelin merkezinden kaidenin altına
+const HALL_HEIGHT := 0.947                                              ## modelin boyu (eni 1)
+var _hall_mesh: Mesh
+var _hall_mat: StandardMaterial3D
+var _halls := {}                     ## iğne sırası -> şehir modeli
+## Şehir ikonu iğnenin ucunda (assets/ui/city_pins/city_<stil>_<kademe>.png; docs/art/CITY_PIN_PROMPTS.md): stil
+## west/east/orient/nordic, kademe şehrin önemine göre (CityLayer.tier_of). Stilin dosyası yoksa west, o da yoksa
+## başkentte madalyon, öbürlerinde fildişi toplu iğne başı.
+const TOP_TIERS := ["capital", "major", "city", "town", "village"]
+const TOP_PX: Array[float] = [60.0, 52.0, 45.0, 38.0, 32.0]           ## ikonun ekran boyu (kademe)
+const TOP_DIR := "res://assets/ui/city_pins/"
+const CITY_ART_DIR := "res://assets/ui/city_pins/by_city/" ## şehir başına hazırlanmış görsel varsa tür/kademe ikonunu geçersiz kılar
+static var _top_cache := {}
+## Şehir iğnesi canlandırması: belirirken yaylanarak büyür, giderken küçülüp kaybolur; ekranın ortasından uzak iğne küçük
+## durur (çok yakında hepsi tam boy); farenin altındaki iğne büyür. Boy iğneye, başa, ada ve madalyona birlikte uygulanır.
+const POP_K := 150.0                  ## yay sertliği
+const POP_DAMP := 14.0                ## sönüm (hafif aşma: yaylanarak oturur)
+const FOCUS_MIN := 1.0                ## ekranın köşesindeki iğnenin boyu (1: küçülmez — kaydırırken iğneler yerinde, sabit durur)
+const FOCUS_NEAR := 90.0              ## bu kamera uzaklığından yakında odak küçültmesi yok
+const HOVER_GROW := 1.0               ## fare altındaki iğne büyümez
+const FAR_Z := 60000.0                ## shader'ın uzaklıkla büyütmesi kapalı (boy işlemcide; web'de yarım duyarlılık sınırı altında)
+var _anim_s := PackedFloat32Array()   ## iğne sırası -> şimdiki boy
+var _anim_v := PackedFloat32Array()   ## yay hızı
+var _packed := PackedFloat32Array()   ## iğne sırası -> paketli baş rengi
+var _live := {}                       ## canlandırılan (görünen ya da sönmekte olan) iğneler
+var hovered_city := -1                ## farenin altındaki şehir iğnesi (sıra)
+var _shadows: MultiMeshInstance3D     ## iğnenin haritaya battığı yerde yumuşak gölge noktası
+var _medal_tex: Texture2D
+var _glyphs := {}                    ## yapı -> altına çevrilmiş piktogram
 
 ## İğneler: [konum (Vector2), boy katı, baş katı, görünme uzaklığı, şehir (ya da null), sabit renk]
 var _pins: Array = []
@@ -62,7 +120,7 @@ func _ready() -> void:
 	needle.top_radius = 1.0
 	needle.bottom_radius = 1.0
 	needle.height = 1.0
-	needle.radial_segments = 8
+	needle.radial_segments = 12
 	needle.rings = 1
 	var ball := SphereMesh.new()
 	ball.radius = 1.0
@@ -71,6 +129,22 @@ func _ready() -> void:
 	ball.rings = 8
 	_city_needles = _mmi(needle, _needle_mat)
 	_heads = _mmi(ball, _head_mat)
+	if CITY_MODEL != "" and ResourceLoader.exists(CITY_MODEL):
+		var scene: Node = (load(CITY_MODEL) as PackedScene).instantiate()
+		_hall_mesh = (scene.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D).mesh
+		scene.free()
+		# metal haritası kaidede ~0,86, binada ~0,49: haritada yansıyacak gök yok, metal yüzey kara görünür (kaide kapkara);
+		# uçak gibi boyalı yüzey sayılır, doku değişmez
+		_hall_mat = (_hall_mesh.surface_get_material(0) as StandardMaterial3D).duplicate() as StandardMaterial3D
+		_hall_mat.metallic = 0.08
+	var dot := QuadMesh.new()
+	dot.size = Vector2(1.0, 1.0)
+	dot.orientation = PlaneMesh.FACE_Y
+	var sm := ShaderMaterial.new()
+	sm.shader = preload("res://assets/shaders/pin_shadow.gdshader")
+	UnitModels.compat_material(sm)
+	_shadows = _mmi(dot, sm)
+	_shadows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_counter_needles = _mmi(needle, _needle_mat)
 	_rebuild()
 	World.ownership_changed.connect(func() -> void: _colors_dirty = true)
@@ -82,7 +156,11 @@ func _ready() -> void:
 ## uzaklık buna uydurulur (_sync_icon_ranges): ikon ile iğne arasında boşluk kalmaz.
 const CITY_SWITCH := {1300: 820.0, 900: 560.0, 640: 420.0}     ## ikon katmanının eski geçişi -> iğnenin gelişi
 
-static func _city_range(c: City) -> float:
+## İğnesi olan şehirler: yalnız büyükler (başkentler ve 10+ zafer puanlı şehirler); öbürleri haritada yalnız adıyla
+static func has_pin(c: City) -> bool:
+	return c.is_capital or c.victory_points >= 10
+
+static func city_range(c: City) -> float:
 	if c.is_capital:
 		return CITY_SWITCH[1300]
 	if c.victory_points >= 10:
@@ -111,13 +189,23 @@ func _sync_icon_ranges() -> void:
 func _rebuild() -> void:
 	_pins.clear()
 	for c: City in World.cities:
+		if not has_pin(c):
+			continue
 		var tier := CityLayer.tier_of(c)
-		_pins.append([c.position, CITY_LEN[tier], CITY_HEAD[tier], _city_range(c), c, Color.WHITE])
+		_pins.append([c.position, CITY_LEN[tier], CITY_HEAD[tier], city_range(c), c, Color.WHITE])
 	_ground.resize(_pins.size())
+	_anim_s.resize(_pins.size())
+	_anim_v.resize(_pins.size())
+	_packed.resize(_pins.size())
+	_anim_s.fill(0.0)
+	_anim_v.fill(0.0)
+	_live.clear()
 	var cmm := _city_needles.multimesh
 	var hmm := _heads.multimesh
+	var smm := _shadows.multimesh
 	cmm.instance_count = _pins.size()
 	hmm.instance_count = _pins.size()
+	smm.instance_count = _pins.size()
 	for i in _pins.size():
 		var pin: Array = _pins[i]
 		var p: Vector2 = pin[0]
@@ -125,9 +213,18 @@ func _rebuild() -> void:
 		_ground[i] = g
 		var xf := Transform3D(Basis(), Vector3(p.x, g, p.y))
 		cmm.set_instance_transform(i, xf)
-		cmm.set_instance_custom_data(i, Color(pin[1], NEEDLE_R, pin[3], 0.0))
+		cmm.set_instance_custom_data(i, Color(0.0, NEEDLE_R, FAR_Z, 0.0))
 		cmm.set_instance_color(i, Color.WHITE)
 		hmm.set_instance_transform(i, xf)
+		smm.set_instance_transform(i, Transform3D(Basis(), Vector3(p.x, g + 0.05, p.y)))
+		smm.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, 0.0))
+		smm.set_instance_color(i, Color.WHITE)
+	for m: Sprite3D in _tops.values():
+		m.queue_free()
+	_tops.clear()
+	for h: MeshInstance3D in _halls.values():
+		h.queue_free()
+	_halls.clear()
 	_colors_dirty = true
 	_last_label_d = -1.0
 
@@ -172,28 +269,55 @@ func _process(delta: float) -> void:
 		_set_models_hidden(true)
 	var d := camera.distance
 	_needle_mat.set_shader_parameter("cam_dist", d)
+	(_shadows.material_override as ShaderMaterial).set_shader_parameter("cam_dist", d)
 	_head_mat.set_shader_parameter("cam_dist", d)
 	if _colors_dirty:
 		_colors_dirty = false
 		_update_colors()
+	# yapı iğneleri: en çok saniyede bir, yalnız görünürken (uzakta gizliler; yakına gelince güncellenir).
+	# Yapay zekâ ülkeleri durmadan inşaat başlattığından her karede yenilemek 5× hızda kareyi yiyordu.
 	var ind := cities.industry() if cities else null
-	var sig := (ind.version if ind else 0) * 4096 + map.airbase_sites.size()
-	if sig != _build_sig:
-		_build_sig = sig
+	_build_timer -= delta
+	var sig := (ind.version if ind else 0) * 4096 + map.airbase_sites.size() + Military.fog_version * 7919   # sis: bulutun altındaki yapılar
+	if _build_sig < 0:
+		_build_sig = sig                  # ilk kurulum tek seferde
 		_rebuild_buildings(ind)
 		_last_label_d = -1.0
+	elif _rb_list.is_empty() and sig != _build_sig and _build_timer <= 0.0 and d < BUILD_RANGE * 1.1:
+		# sonraki kurulumlar karelere yayılır: kare başına RB_CHUNK eyalet, değişiklikler sonda bir kez
+		_build_sig = sig
+		_build_timer = 1.0
+		_rb_queued = _collect_queued()
+		_rb_want = {}
+		_rb_list = World.states.keys()
+		_rb_i = 0
+	if not _rb_list.is_empty():
+		var __b := Time.get_ticks_usec()
+		var end := mini(_rb_i + RB_CHUNK, _rb_list.size())
+		for i in range(_rb_i, end):
+			_want_state(int(_rb_list[i]), _rb_queued, ind, _rb_want)
+		_rb_i = end
+		if _rb_i >= _rb_list.size():
+			_rb_list = []
+			_apply_want(_rb_want)
+			_last_label_d = -1.0
+		GameClock.timed("pins_build", __b)
 	if _last_label_d < 0.0 or absf(d - _last_label_d) > _last_label_d * 0.02:
 		_last_label_d = d
-		_update_labels(d)
+		var __h := Time.get_ticks_usec()
 		_update_building_heights(d)
+		GameClock.timed("pins_heights", __h)
+	var __a := Time.get_ticks_usec()
+	_animate_cities(delta, d)
+	GameClock.timed("pins_anim", __a)
 	_update_counter_needles(d)
 
-## Şehir, sanayi, liman ve hava üssü modelleri gizlenir; adlar, ağaçlar, boğazlar ve uzak zoom harita ikonları kalır
+## Şehir, sanayi, liman ve hava üssü modelleri gizlenir; adlar, boğazlar ve uzak zoom harita ikonları kalır
 func _set_models_hidden(hidden: bool) -> void:
 	if cities == null:
 		return
 	for ch: Node in cities.get_children():
-		if ch is Label3D or ch is TreeLayer or ch is StraitLayer or ch is MapIconLayer:
+		if ch is Label3D or ch is StraitLayer or ch is MapIconLayer:
 			continue
 		if ch is Node3D:
 			(ch as Node3D).visible = not hidden
@@ -206,26 +330,182 @@ func _update_colors() -> void:
 		var col: Color = pin[5]
 		var c: City = pin[4]
 		if c != null:
-			var owner := World.controller_tag(c.province_id)
-			col = World.countries[owner].color if World.countries.has(owner) else Color(0.6, 0.6, 0.6)
-			col = col.lightened(0.1)
-		var packed := float(col.r8 * 65536 + col.g8 * 256 + col.b8)
-		hmm.set_instance_custom_data(i, Color(pin[1], pin[2], pin[3], packed))
+			col = TOWN_HEAD
+		_packed[i] = float(col.r8 * 65536 + col.g8 * 256 + col.b8)
 		hmm.set_instance_color(i, col)        # web (Compatibility) yolu
+		_write_pin(i)
 
-## Şehir adları: iğne görünürken başın üstünde (kamera uzaklığıyla yükselir), uzakta her zamanki yerinde
-func _update_labels(d: float) -> void:
+## Şehir iğnesinin boyunu (s) ağlara yaz: gövde, baş (başkentte küre yok, madalyon), taban gölgesi; ad başın üstünde,
+## kutusu ve madalyon aynı boyda
+func _write_pin(i: int) -> void:
+	var pin: Array = _pins[i]
+	var c: City = pin[4]
+	var s := _anim_s[i]
+	if c != null and _hall_mesh != null:
+		_write_hall(i, c, s)
+		return
+	var ln := float(pin[1]) * s
+	var top_tex := _top_tex(c)
+	var head := 0.0 if top_tex != null else float(pin[2]) * s        # ikonlu iğnede küre yok
+	_city_needles.multimesh.set_instance_custom_data(i, Color(ln, NEEDLE_R * minf(s, 1.0), FAR_Z, 0.0))
+	_heads.multimesh.set_instance_custom_data(i, Color(ln, head, FAR_Z, _packed[i]))
+	_shadows.multimesh.set_instance_custom_data(i, Color(0.0, 0.009 * minf(s, 1.2), FAR_Z, 0.0))
+	if c == null or cities == null:
+		return
+	var d := camera.distance
+	var l: Label3D = cities.labels.get(c.id)
+	if l:
+		# ad iğneyle birlikte doğar ve söner (yakın adın görünme uzaklığı iğneninkiyle aynı): başın hemen üstünde
+		var up := TOWN_LABEL_UP
+		if top_tex != null:
+			# ad ikonun üstünde: ikon iğnenin ucuna ortalı, ad yarı boyu kadar yukarıda (etiket pikseli = 0.883 ekran pikseli)
+			l.position.y = _ground[i] + d * s * float(pin[1])
+			up = (_top_px(c, top_tex) * 0.5 + 12.0) / 0.883
+		else:
+			l.position.y = _ground[i] + d * s * (float(pin[1]) + float(pin[2]) * 1.4)
+		l.offset.y = lerpf(16.0, up, clampf(s, 0.0, 1.0))
+		l.scale = Vector3.ONE * clampf(s, 0.001, 2.0)
+		var plate: Sprite3D = cities.label_plates.get(c.id)
+		if plate:
+			plate.offset = l.offset
+	if top_tex == null:
+		return
+	var m: Sprite3D = _tops.get(i)
+	if m == null:
+		if s <= 0.001:
+			return
+		m = _sprite(top_tex, _top_px(c, top_tex), 6)
+		# ikon iğnenin ucuna ortalı (toplu iğne başı gibi): iğne yuvarlağın ortasına girer, kamera açısıyla kaymaz
+		m.offset = Vector2.ZERO
+		var p2: Vector2 = pin[0]
+		m.position = Vector3(p2.x, _ground[i], p2.y)
+		add_child(m)
+		_tops[i] = m
+	m.visible = s > 0.001
+	m.position.y = _ground[i] + d * s * float(pin[1])
+	m.scale = Vector3.ONE * clampf(s, 0.001, 2.0)
+
+## Şehir modeli: iğne, baş ve gölge noktası sıfır boyda; model zemine oturur, ad tepesinin üstünde
+func _write_hall(i: int, c: City, s: float) -> void:
+	_city_needles.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, 0.0))
+	_heads.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, _packed[i]))
+	_shadows.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, 0.0))
+	var d := camera.distance
+	var size := d * s * HALL_SIZE[CityLayer.tier_of(c)]
+	var h: MeshInstance3D = _halls.get(i)
+	if h == null:
+		if s <= 0.001:
+			return
+		h = MeshInstance3D.new()
+		h.mesh = _hall_mesh
+		h.material_override = _hall_mat
+		h.rotation.y = -PI * 0.5
+		add_child(h)
+		_halls[i] = h
+	h.visible = s > 0.001
+	var p: Vector2 = _pins[i][0]
+	h.position = Vector3(p.x, _ground[i] + HALL_BOTTOM * size, p.y)
+	h.scale = Vector3.ONE * maxf(size, 0.001)
+	var l: Label3D = cities.labels.get(c.id) if cities else null
+	if l:
+		# kaidenin ön kenarı ekranda zeminin altına iner (yarıçapı kadar): ad onun altında (etiket pikseli = 0.883 ekran pikseli)
+		var px_per := get_viewport().get_visible_rect().size.y / (2.0 * tan(deg_to_rad(camera.fov) * 0.5))
+		var r_px := HALL_SIZE[CityLayer.tier_of(c)] * 0.5 * s * px_per
+		l.position.y = _ground[i]
+		l.offset.y = -(r_px + 14.0) / 0.883
+		l.scale = Vector3.ONE * clampf(s, 0.001, 2.0)
+		var plate: Sprite3D = cities.label_plates.get(c.id)
+		if plate:
+			plate.offset = l.offset
+
+## Şehrin tepe ikonu: stilinin kademe dosyası, yoksa west'inki; başkentte o da yoksa madalyon; yoksa null
+func _top_tex(c: City) -> Texture2D:
+	if c == null:
+		return null
+	var tier: String = TOP_TIERS[CityLayer.tier_of(c)]
+	var key := "city:%d" % c.id
+	if not _top_cache.has(key):
+		var tex: Texture2D = null
+		var city_path := CITY_ART_DIR + "city_%05d.png" % c.id
+		if ResourceLoader.exists(city_path):
+			tex = UiTheme.trimmed(load(city_path))
+		else:
+			for st: String in [c.style, "west"]:
+				var path := TOP_DIR + "city_%s_%s.png" % [st, tier]
+				if ResourceLoader.exists(path):
+					tex = UiTheme.trimmed(load(path))
+					break
+		_top_cache[key] = tex
+	var t: Texture2D = _top_cache[key]
+	if t == null and c.is_capital:
+		return _medal()
+	return t
+
+func _top_px(c: City, tex: Texture2D) -> float:
+	return MEDAL_PX if tex == _medal_tex else TOP_PX[CityLayer.tier_of(c)]
+
+## Her kare: görünüş alanındaki şehir iğnelerinin hedef boyu (menzilde mi, ekranın ortasına uzaklık, fare altı) ve yay
+func _animate_cities(delta: float, d: float) -> void:
+	var dt := minf(delta, 0.033)
+	var vp := get_viewport()
+	var vs := vp.get_visible_rect().size
+	var center := vs * 0.5
+	var half_diag := center.length()
+	var mouse := vp.get_mouse_position()
+	var t := Vector2(camera.target.x, camera.target.z)
+	var r := d * 1.8
+	var view := Rect2(t - Vector2(r, r), Vector2(r, r) * 2.0)
 	for i in _pins.size():
+		if _pins[i][4] != null and (_anim_s[i] > 0.001 or (d < float(_pins[i][3]) and view.has_point(_pins[i][0]))):
+			_live[i] = true
+	if _live.is_empty():
+		return
+	# fare altındaki iğne: başın ekrandaki yeri ve yarıçapı (boy kamera uzaklığının katı: ekranda sabit)
+	var px_per := vs.y / (2.0 * tan(deg_to_rad(camera.fov) * 0.5))
+	var best := -1
+	var best_d := INF
+	var screens := {}
+	for i: int in _live.keys():
 		var pin: Array = _pins[i]
-		var c: City = pin[4]
-		if c == null:
+		var p: Vector2 = pin[0]
+		var base := Vector3(p.x, _ground[i], p.y)
+		if camera.is_position_behind(base):
 			continue
-		var l: Label3D = cities.labels.get(c.id)
-		if l == null or d > CityLayer3D.LABEL_RANGE[CityLayer.tier_of(c)]:
-			continue
-		var grow := 1.0 - smoothstep(float(pin[3]) * 0.8, float(pin[3]), d)
-		var normal := _ground[i] + (12.0 if c.is_capital else 7.0)
-		l.position.y = lerpf(normal, _ground[i] + d * (float(pin[1]) + float(pin[2]) * 1.4), grow)
+		var s := _anim_s[i]
+		var sp := camera.unproject_position(base)
+		screens[i] = sp
+		if s > 0.3:
+			var hy := d * s * (float(pin[1]) + float(pin[2]) * 0.55)
+			var hr := float(pin[2]) * s * px_per + 5.0
+			if _hall_mesh != null and pin[4] != null:
+				var hk := HALL_SIZE[CityLayer.tier_of(pin[4])]
+				hy = d * s * hk * HALL_HEIGHT * 0.5         # modelin ortası, yarı eni kadar
+				hr = hk * 0.5 * s * px_per + 5.0
+			var hp := camera.unproject_position(base + Vector3(0.0, hy, 0.0))
+			var md := hp.distance_to(mouse)
+			if md < hr and md < best_d:
+				best_d = md
+				best = i
+	hovered_city = best
+	var focus_on := smoothstep(FOCUS_NEAR, FOCUS_NEAR * 1.6, d)
+	for i: int in _live.keys():
+		var pin: Array = _pins[i]
+		var target := 0.0
+		if d < float(pin[3]) and view.has_point(pin[0]) and screens.has(i):
+			var sp: Vector2 = screens[i]
+			var edge := smoothstep(0.3, 0.95, sp.distance_to(center) / half_diag)
+			target = lerpf(1.0, FOCUS_MIN, edge * focus_on) * (HOVER_GROW if i == best else 1.0)
+		var s := _anim_s[i]
+		var v := _anim_v[i]
+		v += ((target - s) * POP_K - v * POP_DAMP) * dt
+		s = maxf(s + v * dt, 0.0)
+		if target == 0.0 and s < 0.01:
+			s = 0.0
+			v = 0.0
+			_live.erase(i)
+		_anim_s[i] = s
+		_anim_v[i] = v
+		_write_pin(i)
 
 func _restore_labels() -> void:
 	for i in _pins.size():
@@ -235,19 +515,25 @@ func _restore_labels() -> void:
 		var l: Label3D = cities.labels.get(c.id)
 		if l:
 			l.position.y = _ground[i] + (12.0 if c.is_capital else 7.0)
+			l.offset.y = 16.0
+			var plate: Sprite3D = cities.label_plates.get(c.id)
+			if plate:
+				plate.offset = l.offset
 
 ## Sayaçların (tümen, filo, hava kanadı) altına yere inen iğne gövdesi
 func _update_counter_needles(d: float) -> void:
 	var items: Array = []        # [Vector3 sayaç konumu, boy katı]
+	if flags_only(d):
+		_counter_needles.multimesh.visible_instance_count = 0    # bayrak kipinde iğne yok
+		return
+	# tümen kartı iğnenin ucunda (UnitLayer.pin_roots: yalnız kart kipinde; rozet kipinde iğne yok)
 	if units:
 		for root: Node3D in units.pin_roots():
 			items.append([root.position, UNIT_LIFT])
 	if fleets:
 		for root: Node3D in fleets.pin_roots():
 			items.append([root.position, SEA_LIFT])
-	if air and air.visible:
-		for root: Node3D in air.pin_roots():
-			items.append([root.position, AIR_LIFT])
+	# hava kanatlarında iğne yok: levha üssün üstünde durur, uçaklar modelleriyle uçar
 	var mm := _counter_needles.multimesh
 	if mm.instance_count < items.size():
 		mm.instance_count = items.size() + 64
@@ -267,89 +553,267 @@ func _update_counter_needles(d: float) -> void:
 ## Eyalet başına bir sanayi iğnesi (şehrin güneyindeki sanayi parselinde: şerit ekranda şehir adının altında kalır):
 ## ucunda eyaletin yapıları yan yana — her biri resmi ve köşesinde seviyesi; kuyruktaki inşaat turuncu çerçeve ve "+n".
 ## Hava üssü kendi yerinde ayrı iğne (hava kanadı sayacının altında kalmasın diye biraz yana).
-const BADGE_PX := 46.0               ## rozet (plaka) ekran boyu
-const BADGE_GAP := 50.0              ## rozetler arası
+## Orta uzaklıkta rozetler yalnız ikon olarak haritanın üstünde durur; iğne ancak çok yaklaşınca (BUILD_PIN_RANGE) çıkar.
+## Fare bir rozetin üstüne gelince rozet büyür, yapının sesi çalar ve ipucu kartı o yapıyı anlatır (pick_building).
+const BADGE_PX := 54.0               ## rozet (plaka) ekran boyu
+const BADGE_GAP := 58.0              ## rozetler arası
 const PX := 1766.0                   ## sabit boy sprite: doku pikseli * pixel_size * PX = ekran pikseli (34° görüş açısı, 1080p)
 
+const RB_CHUNK := 250                 ## karelere yayılan kurulumda kare başına eyalet
+var _rb_list: Array = []
+var _rb_i := 0
+var _rb_want := {}
+var _rb_queued := {}
+
 func _rebuild_buildings(ind: IndustryLayer) -> void:
-	for b: Array in _bpins:
-		(b[0] as Node3D).queue_free()
-	_bpins.clear()
-	var queued := {}
+	var queued := _collect_queued()
+	var want := {}
+	for sid: int in World.states:
+		_want_state(sid, queued, ind, want)
+	_apply_want(want)
+
+## Kuyruktaki inşaatlar eyalete göre (metin anahtarı biçimlendirmek her saniye binlerce kez pahalıydı)
+func _collect_queued() -> Dictionary:
+	var queued := {}                # eyalet -> {tür: adet}
 	for c: Country in World.countries.values():
 		for pr: ConstructionProject in c.construction_queue:
-			var key := "%d:%s" % [pr.state_id, pr.building]
-			queued[key] = int(queued.get(key, 0)) + 1
-	for sid: int in World.states:
-		var st: StateRegion = World.states[sid]
-		var items: Array = []           # [tür, yazı, inşaat mı]
-		var pos := Vector2.INF
-		for t: String in BUILDINGS:
-			var lv := st.building_level(t)
-			var q := int(queued.get("%d:%s" % [sid, t], 0))
-			if t == "air_base":
-				if lv > 0 and map.airbase_sites.has(sid):
-					_add_pin(map.airbase_sites[sid][0] + Vector2(7.0, 5.0), [[t, str(lv), false]])
-				if q > 0:
-					items.append([t, "+%d" % q, true])
+			if not queued.has(pr.state_id):
+				queued[pr.state_id] = {}
+			var qd: Dictionary = queued[pr.state_id]
+			qd[pr.building] = int(qd.get(pr.building, 0)) + 1
+	return queued
+
+const _NONE := {}
+
+## Eyaletin istenen iğneleri: want[anahtar] = [konum, rozetler, rozetlerin özeti]
+func _want_state(sid: int, queued: Dictionary, ind: IndustryLayer, want: Dictionary) -> void:
+	if not Economy.SHOW_BUILDINGS:
+		return                                   # yapılar haritada gösterilmez
+	var st: StateRegion = World.states.get(sid)
+	if st == null or Military.state_fogged(st):
+		return                                   # savaş sisi: bulutun altındaki eyaletin yapıları gösterilmez
+	var q: Dictionary = queued.get(sid, _NONE)
+	var items: Array = []           # [tür, sayı, inşaat mı] — yazı rozet kurulurken
+	for t: String in BUILDINGS:
+		var lv := int(st.buildings.get(t, 0))
+		var n := int(q.get(t, 0)) if not q.is_empty() else 0
+		if lv == 0 and n == 0:
+			continue
+		if t == "air_base":
+			if lv > 0 and map.airbase_sites.has(sid):
+				var air: Array = [[t, lv, false]]
+				want[_key(sid, true)] = [map.airbase_sites[sid][0] + Vector2(7.0, 5.0), air, hash(air)]
+			if n > 0:
+				items.append([t, n, true])
+			continue
+		if lv > 0:
+			items.append([t, lv, false])
+		if n > 0:
+			items.append([t, n, true])
+	if items.is_empty():
+		return
+	var key := _key(sid, false)
+	var ih := hash(items)
+	# rozetler aynıysa yer de aynı (sanayi parseli yalnız rozet değişince yeniden aranır)
+	if _bstate.has(key) and int(_bstate[key][2]) == ih:
+		want[key] = [_bstate[key][1][1], items, ih]
+		return
+	var pos := Vector2.INF
+	if ind:
+		for sp: Vector2 in ind.state_slots(sid):
+			if pos == Vector2.INF or sp.y > pos.y:
+				pos = sp
+	if pos == Vector2.INF:
+		var city := st.largest_city()
+		pos = (city.position if city else st.center) + Vector2(6.0, 6.0)
+	want[key] = [pos, items, ih]
+
+## İstenen iğnelerle var olanları eşle: değişmeyenler kalır, değişen ya da kalkanlar yenilenir
+func _apply_want(want: Dictionary) -> void:
+	# değişmeyenler kalır; değişen ya da kalkanlar yenilenir. Hiçbir şey değişmediyse liste ve iğne gövdeleri yeniden
+	# yazılmaz; yalnız rozet içeriği değiştiyse (seviye, inşaat) gövdeler aynı kalır.
+	var changed := false
+	var moved := false
+	for key: String in _bstate.keys():
+		if not want.has(key):
+			(_bstate[key][1][0] as Node3D).queue_free()
+			_bstate.erase(key)
+			changed = true
+			moved = true
+	for key: String in want:
+		var w: Array = want[key]
+		var sig := hash([w[0], w[2]])
+		if _bstate.has(key):
+			if _bstate[key][0] == sig:
 				continue
-			if lv > 0:
-				items.append([t, str(lv), false])
-			if q > 0:
-				items.append([t, "+%d" % q, true])
-		if not items.is_empty() and ind:
-			for sp: Vector2 in ind.state_slots(sid):
-				if pos == Vector2.INF or sp.y > pos.y:
-					pos = sp
-		if not items.is_empty():
-			if pos == Vector2.INF:
-				var city := st.largest_city()
-				pos = (city.position if city else st.center) + Vector2(6.0, 6.0)
-			_add_pin(pos, items)
+			if _bstate[key][1][1] != w[0]:
+				moved = true
+			(_bstate[key][1][0] as Node3D).queue_free()
+		else:
+			moved = true
+		_bstate[key] = [sig, _add_pin(w[0], w[1]), w[2]]
+		changed = true
+	if not changed:
+		return
+	_bpins.clear()
+	for key: String in _bstate:
+		_bpins.append(_bstate[key][1])
+	if moved:
+		_write_needles()
+	# yenilenen iğnede fare altındaki rozet yine büyük dursun
+	var hk := _hover_key
+	_hover_key = ""
+	if hk != "" and _apply_hover(hk, true):
+		_hover_key = hk
+
+## Yapı iğnelerinin gövdeleri (her iğnenin yerinde bir örnek)
+func _write_needles() -> void:
 	var mm := _build_needles.multimesh
 	mm.instance_count = _bpins.size()
 	for i in _bpins.size():
 		var p: Vector2 = _bpins[i][1]
 		mm.set_instance_transform(i, Transform3D(Basis(), Vector3(p.x, float(_bpins[i][2]), p.y)))
-		mm.set_instance_custom_data(i, Color(BUILD_LIFT, NEEDLE_R * 0.9, BUILD_RANGE, 0.0))
+		mm.set_instance_custom_data(i, Color(BUILD_LIFT * float(_bpins[i][5]), NEEDLE_R * 0.9, BUILD_PIN_RANGE, 0.0))
 		mm.set_instance_color(i, Color.WHITE)
 
-## Bir iğne ve ucunda yan yana rozetler: [tür, yazı, inşaat mı]
-func _add_pin(p: Vector2, items: Array) -> void:
+## Eyalet iğnesinin anahtarı (eyalet ya da hava üssü); metin her seferinde kurulmasın diye saklanır
+var _keys := {}
+
+func _key(sid: int, air: bool) -> String:
+	var k := -sid if air else sid
+	if not _keys.has(k):
+		_keys[k] = ("air:%d" % sid) if air else str(sid)
+	return _keys[k]
+
+## Bir iğne ve ucunda yan yana rozetler: [tür, sayı, inşaat mı]
+func _add_pin(p: Vector2, items: Array) -> Array:
 	var root := Node3D.new()
 	add_child(root)
 	var n := items.size()
+	var badges: Array = []          # [plaka, resim (ya da null), seviye yazısı, x]
 	for k in n:
 		var it: Array = items[k]
 		var building: bool = it[2]
-		var x := (float(k) - float(n - 1) * 0.5) * BADGE_GAP     # ekran pikseli, iğnenin iki yanına
+		var x := _badge_x(k, n)
 		var plate := _sprite(_plate(building), BADGE_PX, 9)
-		plate.offset = Vector2(x, BADGE_PX * 0.5) / (plate.pixel_size * PX)
 		root.add_child(plate)
-		var tex := UiTheme.trimmed(UiTheme.building_icon(it[0]))
+		var tex := _glyph(it[0])
+		var icon: Sprite3D = null
 		if tex:
-			var icon := _sprite(tex, BADGE_PX - 8.0, 10)
-			icon.offset = Vector2(x, BADGE_PX * 0.5) / (icon.pixel_size * PX)
+			icon = _sprite(tex, BADGE_PX - 4.0, 10)
 			root.add_child(icon)
 		var l := Label3D.new()
-		l.text = it[1]
+		l.text = ("+%d" if building else "%d") % int(it[1])
 		l.font = UiTheme.bold_font()
 		l.font_size = 30
-		l.outline_size = 10
-		l.outline_modulate = Color(0, 0, 0, 1)
-		l.modulate = PLATE_BUILD.lightened(0.25) if building else Color(1, 0.96, 0.85)
+		l.outline_size = 8
+		l.outline_modulate = Color(0.04, 0.05, 0.06, 1)
+		l.modulate = PLATE_BUILD.lightened(0.2) if building else GLYPH_GOLD
 		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		l.fixed_size = true
-		l.pixel_size = 0.00034
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		l.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		# sayı rozetin sağ alt köşesinde (menü kısayol harfi gibi)
-		l.offset = Vector2(x + BADGE_PX * 0.5 - 1.0, 2.0) / (l.pixel_size * PX)
 		l.no_depth_test = true
-		l.render_priority = 12
-		l.outline_render_priority = 11
 		root.add_child(l)
-	_bpins.append([root, p, maxf(map.height_at(p), 0.0), items])
+		var b := [plate, icon, l, x]
+		_layout_badge(b, 1.0)
+		badges.append(b)
+	root.scale = Vector3.ONE * _badge_k
+	# boy katı: konumdan belirlenimci (aynı eyaletin iğnesi hep aynı boyda); komşular farklı katlarda
+	var hk := BUILD_LIFT_STEPS[posmod(floori(p.x / 23.0) * 3 + floori(p.y / 23.0) * 5, BUILD_LIFT_STEPS.size())]
+	return [root, p, maxf(map.height_at(p), 0.0), items, badges, hk]
+
+## Rozetin iğneye göre yatay yeri (ekran pikseli): rozetler iğnenin iki yanına dizilir
+static func _badge_x(k: int, n: int) -> float:
+	return (float(k) - float(n - 1) * 0.5) * BADGE_GAP
+
+## Rozeti k katı boyda yerleştir (alt kenarı iğnenin ucunda kalır); büyütülen (fare altındaki) rozet komşularının önüne
+## geçer. Uzaklıkla küçülme kökün ölçeğiyle (_badge_k): etiket boyunu değiştirmek her Label3D'nin metnini yeniden
+## kurduruyordu (yakınlaştırırken 150+ ms takılma).
+func _layout_badge(b: Array, k: float) -> void:
+	var x: float = b[3]
+	var top := 6 if k > 1.0 else 0
+	var size := BADGE_PX * k
+	var plate: Sprite3D = b[0]
+	plate.pixel_size = size / (maxf(float(plate.texture.get_height()), 1.0) * PX)
+	plate.offset = Vector2(x, size * 0.5) / (plate.pixel_size * PX)
+	plate.render_priority = 9 + top
+	var icon: Sprite3D = b[1]
+	if icon:
+		icon.pixel_size = (size * 0.7) / (maxf(float(icon.texture.get_height()), 1.0) * PX)
+		icon.offset = Vector2(x, size * 0.5) / (icon.pixel_size * PX)
+		icon.render_priority = 10 + top
+	var l: Label3D = b[2]
+	l.pixel_size = 0.00034 * k
+	# sayı rozetin sağ alt köşesinde (menü kısayol harfi gibi)
+	l.offset = Vector2(x + size * 0.5 - 1.0, 2.0) / (l.pixel_size * PX)
+	l.render_priority = 12 + top
+	l.outline_render_priority = 11 + top
+
+## Ekran konumundaki yapı rozeti: {sid, building, construction, pid, hk} (yoksa boş). Rozetler sabit ekran boyunda
+## olduğundan kutu ekranda hesaplanır: iğne ucunun izdüşümü + rozetin piksel yeri.
+func pick_building(screen: Vector2) -> Dictionary:
+	if not visible or _bstate.is_empty():
+		return {}
+	var s := camera.get_viewport().get_visible_rect().size.y / 1080.0
+	var best := {}
+	var bd := INF
+	for key: String in _bstate:
+		var rec: Array = _bstate[key][1]
+		var root: Node3D = rec[0]
+		if not root.visible or camera.is_position_behind(root.global_position):
+			continue
+		var tip := camera.unproject_position(root.global_position)
+		var items: Array = rec[3]
+		var n := items.size()
+		if absf(screen.x - tip.x) > (float(n) * BADGE_GAP * 0.5 + BADGE_PX) * _badge_k * s or screen.y > tip.y + 4.0 \
+				or screen.y < tip.y - BADGE_PX * HOVER_SCALE * _badge_k * s - 4.0:
+			continue
+		for k in n:
+			var hk := "%s#%d" % [key, k]
+			var size := BADGE_PX * (HOVER_SCALE if hk == _hover_key else 1.0) * _badge_k * s
+			var c := tip + Vector2(_badge_x(k, n) * _badge_k * s, -size * 0.5)
+			var dx := absf(screen.x - c.x)
+			var dy := absf(screen.y - c.y)
+			if dx > size * 0.5 or dy > size * 0.5:
+				continue
+			var dist := dx + dy
+			if dist < bd:
+				bd = dist
+				var it: Array = items[k]
+				var p: Vector2 = rec[1]
+				var sid := int(key.substr(4)) if key.begins_with("air:") else int(key)
+				best = {"sid": sid, "building": String(it[0]), "construction": bool(it[2]), "hk": hk,
+					"pid": map.province_at(p)}
+	return best
+
+## Fare altındaki rozet: büyüt, öncekini küçült; yeni rozete gelince yapının sesi çalar
+func set_hovered_building(hit: Dictionary) -> void:
+	var hk: String = hit.get("hk", "")
+	if hk == _hover_key:
+		return
+	_apply_hover(_hover_key, false)
+	_hover_key = hk
+	if hk != "":
+		_apply_hover(hk, true)
+		Audio.hover_building(String(hit["building"]))
+
+func hovered_building() -> String:
+	return _hover_key
+
+func _apply_hover(hk: String, on: bool) -> bool:
+	var cut := hk.rfind("#")
+	if cut < 0:
+		return false
+	var key := hk.substr(0, cut)
+	var k := int(hk.substr(cut + 1))
+	if not _bstate.has(key):
+		return false
+	var badges: Array = _bstate[key][1][4]
+	if k >= badges.size():
+		return false
+	_layout_badge(badges[k], HOVER_SCALE if on else 1.0)
+	return true
 
 func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
 	var sp := Sprite3D.new()
@@ -362,7 +826,7 @@ func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
 	sp.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	return sp
 
-## Yapı iğnesinin ucu: koyu zemin, altın (yapı) ya da turuncu (inşaat) çerçeve
+## Yapı iğnesinin ucu (boyalı harita tasarımı): koyu kare karo, altın (yapı) ya da turuncu (inşaat) ince çerçeve
 func _plate(building: bool) -> Texture2D:
 	if _plates.has(building):
 		return _plates[building]
@@ -370,7 +834,7 @@ func _plate(building: bool) -> Texture2D:
 	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
 	var border: Color = PLATE_BUILD if building else PLATE_GOLD
 	var half := n * 0.5
-	var r := 12.0
+	var r := 7.0
 	for y in n:
 		for x in n:
 			# yuvarlatılmış karenin işaretli uzaklığı (içeride negatif)
@@ -379,41 +843,86 @@ func _plate(building: bool) -> Texture2D:
 			var sd := Vector2(maxf(qx, 0.0), maxf(qy, 0.0)).length() + minf(maxf(qx, qy), 0.0) - r
 			if sd > 0.5:
 				continue
-			var col: Color = Color(0.07, 0.08, 0.075, 0.93) if sd < -4.0 else border
+			var col: Color = Color(0.07, 0.08, 0.09, 0.94)
+			if sd > -1.2:
+				col = Color("0b0d0e")
+			elif sd > -4.0:
+				col = border
 			col.a *= clampf(0.5 - sd, 0.0, 1.0)
 			img.set_pixel(x, y, col)
 	var tex := ImageTexture.create_from_image(img)
 	_plates[building] = tex
 	return tex
 
-## Ekran noktasının altındaki yapı rozetinin türü ("civilian_factory"...) ya da "": rozet üstüne gelme sesi (main.gd →
-## Audio.play_building). Rozet ölçüleri 1080p ekran pikseli (PX): başka çözünürlükte yükseklik oranıyla ölçeklenir.
-func badge_at(screen: Vector2) -> String:
-	if not _on or camera == null:
-		return ""
-	var k := get_viewport().get_visible_rect().size.y / 1080.0
-	var half := BADGE_PX * 0.55 * k
-	for b: Array in _bpins:
-		var root: Node3D = b[0]
-		if not root.visible or camera.is_position_behind(root.global_position):
-			continue
-		var sp := camera.unproject_position(root.global_position)
-		if absf(screen.y - (sp.y - BADGE_PX * 0.5 * k)) > half:
-			continue
-		var items: Array = b[3]
-		var n := items.size()
-		for i in n:
-			var cx := sp.x + (float(i) - float(n - 1) * 0.5) * BADGE_GAP * k
-			if absf(screen.x - cx) <= half:
-				return str(items[i][0])
-	return ""
+## Yapı piktogramı koyu karoda altın: SVG piktogramın koyu mürekkebi altın olur, açık "kâğıt" pencereler saydam (karonun
+## koyu zemini görünür). Piktogram yoksa oyunun yapı ikonu olduğu gibi.
+func _glyph(building: String) -> Texture2D:
+	if _glyphs.has(building):
+		return _glyphs[building]
+	var path := "res://assets/ui/icons/map_building_%s.svg" % building
+	var src: Texture2D = load(path) if ResourceLoader.exists(path) else null
+	var tex: Texture2D = null
+	if src:
+		var img := src.get_image()
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_RGBA8)
+		for y in img.get_height():
+			for x in img.get_width():
+				var c := img.get_pixel(x, y)
+				if c.a <= 0.0:
+					continue
+				var lum := c.r * 0.299 + c.g * 0.587 + c.b * 0.114
+				var a := c.a * (1.0 - smoothstep(0.55, 0.8, lum))
+				img.set_pixel(x, y, Color(GLYPH_GOLD.r, GLYPH_GOLD.g, GLYPH_GOLD.b, a))
+		tex = UiTheme.trimmed(ImageTexture.create_from_image(img))
+	else:
+		tex = UiTheme.trimmed(UiTheme.building_pin_icon(building))
+	_glyphs[building] = tex
+	return tex
 
-## Resimli uçların yüksekliği iğne boyuyla birlikte (kamera uzaklığı katı); menzil dışındakiler gizli
+## Başkent madalyonu: koyu disk, altın halka, iç ince halka ve altın yıldız
+func _medal() -> Texture2D:
+	if _medal_tex:
+		return _medal_tex
+	var n := 96
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var c := Vector2(n, n) * 0.5
+	var gold := Color("d7b565")
+	for y in n:
+		for x in n:
+			var d := Vector2(x + 0.5, y + 0.5).distance_to(c)
+			if d > 46.5:
+				continue
+			var col := Color(0.08, 0.10, 0.12, 1.0)
+			if d > 44.0:
+				col = Color("0b0d0e")
+			elif d > 38.5:
+				col = gold.darkened(0.15 * (d - 38.5) / 5.5)
+			elif d > 36.5:
+				col = Color(0.05, 0.06, 0.07, 1.0)
+			elif d > 34.5 and d < 35.7:
+				col = gold.darkened(0.35)
+			col.a *= clampf(46.5 - d, 0.0, 1.0)
+			img.set_pixel(x, y, col)
+	FlagFactory._fill_poly(img, FlagFactory._star(c, 26.0, 10.5), gold)
+	_medal_tex = ImageTexture.create_from_image(img)
+	return _medal_tex
+
+## Rozetler BUILD_RANGE içinde önce ikon olarak haritanın üstünde durur; BUILD_PIN_RANGE içinde iğneyle yükselir
 func _update_building_heights(d: float) -> void:
-	var grow := 1.0 - smoothstep(BUILD_RANGE * 0.8, BUILD_RANGE, d)
+	var show := 1.0 - smoothstep(BUILD_RANGE * 0.8, BUILD_RANGE, d)
+	var grow := 1.0 - smoothstep(BUILD_PIN_RANGE * 0.8, BUILD_PIN_RANGE, d)
+	# uzakta rozetler küçük (harita dolmasın), iğne çıkarken tam boy
+	var k := lerpf(1.0, FAR_BADGE, smoothstep(BUILD_PIN_RANGE, BUILD_RANGE * 0.8, d))
+	if absf(k - _badge_k) > 0.01:
+		_badge_k = k
+	var sc := Vector3.ONE * _badge_k
 	for b: Array in _bpins:
 		var root: Node3D = b[0]
-		root.visible = grow > 0.45
+		root.visible = show > 0.45
 		if root.visible:
 			var p: Vector2 = b[1]
-			root.position = Vector3(p.x, float(b[2]) + d * BUILD_LIFT * grow, p.y)
+			root.position = Vector3(p.x, float(b[2]) + d * (0.004 + BUILD_LIFT * float(b[5]) * grow), p.y)
+			if root.scale != sc:
+				root.scale = sc

@@ -17,6 +17,7 @@ var category: String = "rural"
 var building_slots: int = 2               ## ortak bina slotu (fabrika, tersane, rafineri)
 var buildings: Dictionary = {}            ## bina -> seviye
 var resources: Dictionary = {}            ## kaynak -> miktar
+var damage := 0.0                         ## bombardıman hasarı: çalışmayan fabrika payı (0..Air.BOMB_MAX), her gün onarılır
 var coastal := false
 
 func building_level(b: String) -> int:

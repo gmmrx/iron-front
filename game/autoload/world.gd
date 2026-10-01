@@ -9,6 +9,7 @@ signal game_started
 signal control_changed                  ## bölge kontrolü (işgal) değişti
 signal country_removed(tag: String)
 signal notification(text: String, kind: String)   ## kind: info | war | good | bad
+signal world_logged(entry: Dictionary)            ## dünya olayları menüsüne yeni kayıt
 
 const COUNTRIES_PATH := "res://data/common/countries.json"
 const PROVINCES_PATH := "res://data/map/provinces.json"
@@ -21,6 +22,10 @@ var country_by_index: Array = [null]    ## indeks -> Country
 var states: Dictionary = {}             ## id -> StateRegion
 var provinces: Array = []               ## id -> Province (boşluklar null)
 var cities: Array[City] = []            ## nüfusa göre azalan
+var _city_by_id: Dictionary = {}         ## şehir id -> City
+
+func city_by_id(id: int) -> City:
+	return _city_by_id.get(id)
 var straits: Array = []                 ## {name, provinces[2], from[2], to[2]}
 var map_width := 0
 var map_height := 0
@@ -40,11 +45,13 @@ func _ready() -> void:
 
 ## Başlangıç durumunu (1936) diskten yeniden kur
 func reset() -> void:
+	world_log.clear()
 	countries.clear()
 	country_by_index = [null]
 	states.clear()
 	provinces.clear()
 	cities.clear()
+	_city_by_id.clear()
 	straits.clear()
 	world_tension = 0.0
 	day_count = 0
@@ -162,6 +169,7 @@ func _load_map() -> void:
 		city.is_port = c["port"]
 		city.style = c.get("style", "west")
 		cities.append(city)
+		_city_by_id[city.id] = city
 		if states.has(city.state_id):
 			states[city.state_id].cities.append(city)
 		var pr := province(city.province_id)
@@ -322,10 +330,61 @@ func _remove_country(c: Country) -> void:
 	Navy.remove_all(c.tag)
 	Air.remove_all(c.tag)
 	country_removed.emit(c.tag)
-	notify(tr("NOTE_COUNTRY_GONE") % c.display_name(), "war")
+	world_event("annex", "NOTE_COUNTRY_GONE", ["@" + c.tag], [c.tag], 0, "war")
 
 func notify(text: String, kind: String = "info") -> void:
 	notification.emit(text, kind)
+
+# ------------------------------------------------------------------ dünya olayları
+## Dünyada olanlar (savaş, ittifak, teslim, ilhak, seçim, lider, program...): dünya olayları menüsü (sol menü, E).
+## Kayıt: {day, date, kind, key, args, tags, pid, react?, choice?}. args: "@TAG" ülke adı, "#KEY" çevrilen metin,
+## "!ID" ittifak adı, diğerleri olduğu gibi — metin gösterilirken kurulur, dil değişince kayıtlar yeni dilde okunur.
+## Bildirim akışı oyuncunun işleri içindir: kayıt oyuncuyu ya da müttefikini ilgilendiriyorsa (ya da büyük bir gücün
+## savaşı, teslimi, ilhakı ise) akışa da düşer; gerisi yalnız menüde.
+const WORLD_LOG_MAX := 400
+var world_log: Array = []
+
+func world_event(kind: String, key: String, args: Array, tags: Array, pid: int = 0, notify_kind: String = "info") -> Dictionary:
+	var e := {"day": day_count, "date": date_value(), "kind": kind, "key": key, "args": args, "tags": tags, "pid": pid}
+	world_log.append(e)
+	if world_log.size() > WORLD_LOG_MAX:
+		world_log.pop_front()
+	if _feed_worthy(kind, tags):
+		notify(world_text(e), notify_kind)
+	world_logged.emit(e)
+	return e
+
+func _feed_worthy(kind: String, tags: Array) -> bool:
+	if not in_game or player_tag == "":
+		return true
+	for t: String in tags:
+		if t == player_tag or Diplomacy.are_allies(t, player_tag):
+			return true
+		if (kind == "war" or kind == "annex") and countries.has(t) and (countries[t] as Country).is_major():
+			return true
+	return false
+
+## Kaydın metni (şimdiki dilde)
+func world_text(e: Dictionary) -> String:
+	var args: Array = []
+	for a: Variant in e.get("args", []):
+		var s := str(a)
+		if s.begins_with("@"):
+			var c: Country = countries.get(s.substr(1))
+			args.append(c.display_name() if c else s.substr(1))
+		elif s.begins_with("#"):
+			args.append(tr(s.substr(1)))
+		elif s.begins_with("!"):
+			args.append(Politics.faction_display(s.substr(1)))
+		else:
+			args.append(s)
+	var text := tr(String(e.get("key", "")))
+	var n := text.count("%s")
+	if n == 0:
+		return text
+	while args.size() < n:
+		args.append("?")
+	return text % args.slice(0, n)
 
 ## Kara bölgesi komşuları (boğaz geçişleri dahil)
 var _ln_cache := {}
@@ -405,6 +464,7 @@ func start_game(tag: String) -> void:
 		for d in Military.divisions:
 			if d.owner == tag:
 				d.hold = true                 # tümenler emir olmadan geri çekilmez
+	_retire_bystanders()
 	resume_game(tag)
 
 ## Kayıttan devam: oyuncunun kayıttaki tercihleri (otomatik ticaret, kanat, "son askere kadar") korunur
@@ -414,11 +474,30 @@ func resume_game(tag: String) -> void:
 	player_changed.emit(tag)
 	game_started.emit()
 
-## Oynanabilir ülkeler (haritada eyaleti olanlar), nüfusa göre
+## İkinci Dünya Savaşı'na katılan ülke mi (data/common/participants.json): yalnız bunlar oynanabilir ve hareket eder;
+## öbürleri tarafsız ve birliksizdir
+const PARTICIPANTS_PATH := "res://data/common/participants.json"
+var _active: Dictionary = {}
+func is_active(tag: String) -> bool:
+	if _active.is_empty():
+		for t in _read_json(PARTICIPANTS_PATH)["active"]:
+			_active[str(t)] = true
+	return _active.has(tag)
+
+## Savaşa katılmayan ülkeler haritada kalır ama birliksizdir: tümen, filo ve kanatları kaldırılır (yeni oyunda ve senaryo
+## başında; kayıttan devamda kayıttaki gibi kalır, yapay zekâları yine hareket etmez)
+func _retire_bystanders() -> void:
+	for c: Country in countries.values():
+		if not is_active(c.tag):
+			Military.remove_all(c.tag)
+			Navy.remove_all(c.tag)
+			Air.remove_all(c.tag)
+
+## Oynanabilir ülkeler (haritada eyaleti olan savaş katılımcıları), nüfusa göre
 func playable_countries() -> Array[Country]:
 	var out: Array[Country] = []
 	for c: Country in countries.values():
-		if not c.states.is_empty():
+		if not c.states.is_empty() and is_active(c.tag):
 			out.append(c)
 	out.sort_custom(func(a: Country, b: Country) -> bool: return a.population > b.population)
 	return out

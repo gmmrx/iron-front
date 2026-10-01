@@ -10,9 +10,11 @@ Hepsi ekransız çalışır ve sorun bulunca 1 ile çıkar. Pull request'lerde v
 |---|---|
 | `GODOT=godot tools/run_tests.sh` | İçe aktarma + `tests/run.gd` + `country_check` (60 gün); adım adım ve toplam sonuç |
 | `godot --headless --path . -s tests/run.gd [-- --file=test_data] [--filter=hatay]` | Test paketi: `tests/test_*.gd` içindeki her `test_*` fonksiyonu temiz bir oyunla koşar |
-| `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyunu başlatır; oyuncu eylemlerinin oyunu etkilediğini ve oyuncu adına otomatik iş yapılmadığını ölçer |
+| `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | 82 ülkenin her biriyle oyunu başlatır; oyuncu eylemlerinin oyunu etkilediğini ve oyuncu adına otomatik iş yapılmadığını ölçer |
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 etkin istikrar/iç cephe, tarihli olaylar, seçimler |
 | `godot --headless --path . -s game/dev/war_check.gd -- --player=GER --target=DEN --army [--start=19390828 --save=x \| --load=x] [--observe] [--prof]` | Oyuncu savaşı: savaş ilanı, bütün tümenler tek orduda hedefin cephesinde (ya da hepsi `--goal=Şehir`'e), 5 günde bir rapor (alınan bölge, boşta/saldıran tümen, teslim, ms/gün); `--observe` yalnız yapay zekâyı izler; `--prof` sistem başına süreyi yazar |
+| `godot --headless --path . -s game/dev/war_demo.gd -- [--player=GER] [--enemy=SOV] [--after=10] [--until=19411101] [--slot=war_demo]` | Savaş demosu kaydı: dünyayı denge testindeki gibi 1936'dan ileri sarar, seçilen ülke `--enemy` ile savaşa girdikten `--after` gün sonra onu oyuncuya verir (yeni oyun oyuncu varsayılanları) ve kaydeder; `godot --path . -- --load=war_demo` ile ya da Yükle'den açılır |
+| `godot --path . -- --dev_war` | Savaş izle: savaş demosunun izleme kaydını (`war_demo_watch`; `war_demo.gd` devretmeden hemen önce yazar) izleyici modunda açar — bütün ülkeleri yapay zekâ yönetir (oyuncununkini de; olaylar pencere açmadan seçilir), zaman 2. hızda akar, kamera en kalabalık cepheye iner. Ana menüdeki **Geliştirici: Savaş izle** düğmesiyle aynı; düğme yalnız geliştirici sürümünde görünür (web yayınında yok). `Game.observer` kayda yazılmaz, yeni oyunda kapanır |
 | `tools/balance_parallel.sh 6` | 1936–1942 tarihî akış denge testi (12 kontrol; her biri en az 5/6, değilse çıkış 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
 
@@ -36,16 +38,33 @@ eklenince `apply_effects` ve `describe_effects`'e eklenmediyse test kırmızı o
 | `test_land_combat.gd` | Muharebe çarpanları ve hasarı, siper, son askere kadar, geri çekilme, kuşatma, ikmal, ordu → cephe |
 | `test_commanders.gd` | Komutan kadroları, atama/terfi/yeni general bedelleri, muharebe katkısı, tecrübe, oyuncuya kendiliğinden atama yok, doğrudan emir |
 | `test_navy_air.gd` | Filo görevi/dönüşü, deniz muharebesi, konvoy baskını, kanatlar, hava üstünlüğü |
-| `test_military.gd` | Eğitim süresi (askerlik yasası) |
+| `test_military.gd` | Eğitim süresi (askerlik yasası); tahmini varış gerçek yürüyüşle uyuşur (filonunki `test_navy_air.gd`'de); yürümeyen emir nedenini söyler (izin olmayan ülkenin adıyla) |
+| `test_borders_1936.gd` | ~270 sınır kasabası 1 Ocak 1936 sahibinde (`tests/data/borders_1936.json`); Danzig ve Tanca başkentleriyle var; Danzig olayı şehri Almanya'ya verir |
 | `test_save_load.gd` | 200 gün → kaydet → yükle: tüm alanlar aynı (fark eden alan adıyla yazılır) |
 | `test_determinism.gd` | Aynı tohumla iki koşu aynı dünya |
 | `test_sea_lanes.gd` | Deniz yolları yalnız denizden geçer; her liman–deniz / deniz–deniz komşuluğunun rotası ve rıhtımı var |
 | `test_fleet_motion.gd` | Filo görsel konumu (köşe kavisleri, limandan çıkış, seyir) denizde; FleetLayer düzeni karaya taşmaz |
 | `test_map_logic.gd` | Tümen yolu sürekliliği, hareket okları, hava durumu, zoom kiplerinde sayaç/bayrak/gizli |
+| `test_open_game.gd` | Bitiş tarihi yok; oyuncunun tarafı dışında ülke kalmayınca zafer, ülke yok olunca yenilgi, teslim olup toprağı kalan oyuncu sürer; iyileştirme seviyeleri (dal bitince açılır, maliyet artar, kazanç azalır, kayıtta kalır, yapay zekâ da araştırır, yeni oyunda sıfırlanır) |
+| `test_world_events.gd` | Dünya olayları kaydı (savaş, program, seçim), haber akışında yalnız oyuncunun işleri ve büyük güçlerin savaşları, yabancı savaş ve ilhaklara cevap (bedel, şart, etki, tek cevap, süre), demokrasilerin oyuncunun saldırısını kınaması, menü süzgeçleri |
+| `test_map_pins.gd` | Yapı rozetleri (orta uzaklıkta ikon, yakında iğne), fare altındaki rozetin seçimi, büyümesi, yapı kartı, yapı seslerinin tanımı, ordu sayacında komutan portresi, muharebe durum okları |
 
 Harita görüntüsü gereken testler `tests/map_probe.gd` ile bölge görüntüsünü (`data/map/provinces.png`) bir kez yükler;
 katman testleri ağır dokuları yüklemeyen `ProbeMap` (MapView3D alt sınıfı) kullanır. Deniz yolları değişirse
 `python3 tools/build_sea_lanes.py` (~1 dk, `pip install pillow numpy scipy`) ağı yeniden üretir ve kara temasını onarır.
+
+### Yollar ve şehir iğnesi ikonları
+`python3 tools/fetch_data.py` Natural Earth kara yollarını ve demiryollarını da indirir; `python3 tools/build_roads.py`
+`data/map/roads.json`'u yazar (feribot hatları alınmaz, suyun üstündeki parçalar kesilir, uç uca parçalar birleşir).
+Şehir iğnesi ikonları promptlarıyla `docs/art/CITY_PIN_PROMPTS.md`'dedir (`tools/make_icon_prompts.py` yazar); dosyalar
+`assets/ui/city_pins/city_<stil>_<kademe>.png`.
+
+### 1936 sınırları
+Harita modern idari bölgelerden üretilir (`tools/generate_map.py`); ardından `python3 tools/fix_borders_1936.py` her 1936
+sınır çokgeninin içindeki pikselleri taşır (kaynak ülke → hedef) ve sınırın kestiği bölgeleri böler (var olan bölge ve
+eyalet kimlikleri korunur, yeniler sona eklenir; tekrar çalıştırmak bir şey değiştirmez). Sonrasında
+`python3 tools/assign_economy.py` (yeni eyaletlerin binaları ve kaynakları) ve `python3 tools/build_sea_lanes.py` (bölgesi
+değişen limanlar). `python3 tools/audit_1936.py` sahibi yanlış sınır kasabalarını listeler.
 
 Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıttaki tercihleri korunur);
 `World.start_game(tag)` yalnız yeni oyunda oyuncu varsayılanlarını kurar. Yeni bir ülke/tümen alanı eklerken kayda da ekle:
@@ -58,13 +77,24 @@ Kayıttan devam eden oyun `World.resume_game(tag)` ile başlar (oyuncunun kayıt
 `--pause_menu`, `--settings` (oyun içi ayarlar), `--menu_settings` (ana menü ayarları), `--lang_test=en|tr`,
 `--gameover=win|lose`, `--politics_of=TAG` (başka ülkenin siyaseti), `--ctrl_hover=x,y` (ülke kartı),
 `--hover_at=x,y` (ekran konumundaki bölge kartı), `--army=TAG [--army_select --army_cmd]` (bütün tümenler TAG'e karşı tek
-ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim).
+ordu), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (örnek komuta zinciri / karışık seçim),
+`--split_demo=UZAKLIK` (aynı bölgede başka sayacın yanında komutanlı yeni ordu), `--hover_building` (ekranın ortasına en
+yakın yapı rozetinin üstüne gel), `--scroll_end` (açık yan panel en alta kaydırılır, yeri yazılır), `--fps=N [--fps_mouse]
+[--fps_zoom]` (fare daire çizerken / kamera yakınlaşıp uzaklaşırken kare süreleri), `--scenarios` (Senaryolar ekranı),
+`--scenario=KİMLİK:TAG` (senaryoyu o tarafla başlat), `--front_sel[=TAG][:UZAKLIK]` (cephedeki yığını seç, saldırı tahmini
+kartını göster; `--dev_war` ile o ülkenin gözünden), `--air_demo[=TAG]` (hava paneli açık, hedef cephedeki bir bölge).
 Web renderer'ını masaüstünde denemek için: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3B varlıklar (Blender, ekransız)
 Harita iğne tasarımını kullanır (`game/map/pin_layer.gd`); şehir, sanayi ve tümen modelleri kapalıdır
 (`city_layer_3d.gd`, `industry_layer.gd`, `unit_models.gd` içinde `SHOW_MODELS`), yalnız tek küçük uçak modeli çizilir
-(`AirLayer.SINGLE_MODEL`). Aşağıdaki model hattı ileride kullanılmak üzere duruyor.
+(`assets/models/plane-model.glb`, `game/map/plane_model.gd`: açılışta gövde, pervane ve bayrak çıkartmasına ayrılır; modele
+boyalı bayrak temiz boyaya eşlenir, ülkenin bayrağı kanatlara ve kuyruğa konur). Yakında tümen sayacı `assets/models/soldier-model.glb` asker minyatürüdür
+(`game/map/unit_figures.gd`, `UnitLayer.FIGURES` ile açılır): açılışta modelin kaidesine gömülü bayrak ve sayı kodda
+kaide rengiyle örtülür (doku ve normal haritası, mip seviyeleri yeniden üretilir; yeni resim dosyası yok), kaideye
+ülkenin bayrağını taşıyan eğri bir kuşak ve `Label3D` sayı konur. Figürün haritada sabit boyu vardır
+(`UnitLayer.FIG_SIZE`); `UnitLayer._place_figures` figürleri birbirinden ayrı tutar (`FIG_GAP`, `FIG_AHEAD`) ve her
+kaideyi araziye oturtur (`FIG_TILT`). Aşağıdaki model hattı ileride kullanılmak üzere duruyor.
 ```
 python3 tools/blender/make_textures.py && python3 tools/blender/make_industry_textures.py   # döşenebilir dokular
 Blender --background --factory-startup --python tools/blender/build_cities.py   -- [--render KLASÖR] [--only city_west_capital]
@@ -95,6 +125,14 @@ Blender --background --factory-startup --python tools/blender/build_industry.py 
 İçerik `data/common/*.json` (ülkeler, yasalar, ulusal durumlar ve danışmanlar `spirits.json`, olaylar, devlet programları `focuses.json`, teknolojiler, birimler, binalar, ekipman, komutanlar `commanders.json`, yapay zekânın izlediği tarih çizelgesi `history.json`: tarih,
 adımı atan ülke, tamamlanacak odak ya da etkiler, koşullar).
 Olay seçeneğine `"require": [koşullar]` eklenirse şart sağlanmadıkça seçenek kilitli görünür; yapay zekâ da seçmez.
+
+**Senaryolar** `data/scenarios/scenarios.json` içindedir (kimlik, iki dilde ad ve anlatım, başlangıç kaydı, gün, önce
+saldıran olmak üzere iki taraf, `data/map/cities.json` kimlikleriyle anahtar şehirler, `win_share`). Başlangıç kaydı
+`data/scenarios/<start>.json`, savaş demosu üretecinin savaşın başladığı gün yazdığı izleme kaydıdır (oyuncu yer tutucu
+ülke), örneğin:
+`godot --headless --path . -s game/dev/war_demo.gd -- --player=GER --enemy=SOV --after=0 --slot=east_1941 --hold=TUR --seed=1941`
+sonra `user://saves/east_1941_watch.json` dosyası `data/scenarios/east_1941.json` olarak kopyalanır. Testler:
+`tests/test_scenario.gd`.
 
 ## Dil
 Oyunun ana dili İngilizcedir; bütün metinler `game/localization/strings.csv` içinde İngilizce ve Türkçe. Kayıtlı ayar yoksa

@@ -15,6 +15,12 @@ const HISTORY_PATH := "res://data/history/states_1936.json"
 const EQUIPMENT_PATH := "res://data/common/equipment.json"
 const LAWS_PATH := "res://data/common/laws.json"
 
+## İnşaat yok (docs/DESIGN.md): yapılar harita verisindeki gibi sabittir; oyuncu da yapay zekâ da inşa etmez, haritada
+## yapı gösterilmez (hava üsleri, limanlar, fabrikalar arka planda çalışır). Kod duruyor: bu bayrak kapatır.
+const CONSTRUCTION := false
+## Yapılar haritada ve kartlarda görünür (sabit; sisin altındaki yabancı eyaletin yapıları keşfedilene kadar gizli: sisin
+## anlamı keşfedilecek bir şey olması)
+const SHOW_BUILDINGS := true
 var defs: Dictionary = {}          ## bina -> tanım
 var params: Dictionary = {}
 var resource_names: Array = []
@@ -37,6 +43,7 @@ func _ready() -> void:
 	law_change_cost = float(lw["change_cost"])
 	_law_start = lw["start"]
 	World.daily_update.connect(_on_day)
+	GameClock.hour_passed.connect(_on_hour)
 	building_completed.connect(func(_t: String, _s: int, _b: String) -> void: invalidate_counts())
 	World.ownership_changed.connect(invalidate_counts)
 	reset()
@@ -103,6 +110,20 @@ func count(c: Country, building: String) -> int:
 	_count_cache[key] = n
 	return n
 
+## Bombardımanla durmuş fabrika sayısı (kesirli): eyalet başına seviye × hasar
+func damaged(c: Country, building: String) -> float:
+	var n := 0.0
+	for sid in c.states:
+		var st: StateRegion = World.states[sid]
+		if st.damage > 0.0:
+			n += st.building_level(building) * st.damage
+	return n
+
+## Bombardımanla durmuş fabrikaların payı (0..1)
+func damaged_share(c: Country, building: String) -> float:
+	var total := count(c, building)
+	return damaged(c, building) / float(total) if total > 0 else 0.0
+
 func invalidate_counts() -> void:
 	_count_cache.clear()
 
@@ -128,6 +149,7 @@ func consumer_goods_factories(c: Country) -> int:
 ## devletin bir fabrikalık kamu inşaat gücü kalır — küçük ülkeler de inşaat yapabilir. Oyuncu ödeyemeyeceği ithalatı yapamaz.
 func available_civilian(c: Country) -> int:
 	var n := count(c, "civilian_factory") - consumer_goods_factories(c) - c.trade_factories_paid + c.trade_factories_earned
+	n -= roundi(damaged(c, "civilian_factory"))          # bombalanmış sivil fabrikalar inşaata çalışamaz
 	return maxi(n, 1)
 
 ## Elle anlaşmalar için ödenebilir mi: toplam sipariş (+ek) karşılığı fabrika, tüketim malından arta kalan + ihracat kazancını aşamaz
@@ -197,37 +219,54 @@ func _assign(c: Country) -> void:
 		p.assigned_factories = mini(free, cap)
 		free -= p.assigned_factories
 
+## Günlük ticaret gün başında; ülke başına günlük iş (üretim, inşaat) günün saatlerine yayılır: her saat
+## index % 24 == saat olan ülkeler (her ülke yine günde bir kez; gün dönümü karesi donmasın).
 func _on_day() -> void:
 	var __t := Time.get_ticks_usec()
-	_on_day_impl()
+	_trade_day()
 	GameClock.timed("economy", __t)
 
-func _on_day_impl() -> void:
+func _on_hour() -> void:
+	var __t := Time.get_ticks_usec()
+	var h := GameClock.hour
+	for c: Country in World.countries.values():
+		if c.index % 24 == h:
+			_country_day(c)
+	GameClock.timed("economy", __t)
+
+func _trade_day() -> void:
 	if GameClock.day == 1 or (_trade_dirty and World.day_count % 7 == 0):
 		_run_trade()
+
+## Bütün günlük ekonomi bir kerede (testler ve hızlı simülasyon)
+func _on_day_impl() -> void:
+	_trade_day()
 	for c: Country in World.countries.values():
-		_produce(c)
-		if c.construction_queue.is_empty():
-			continue
+		_country_day(c)
+
+func _country_day(c: Country) -> void:
+	_produce(c)
+	if c.construction_queue.is_empty():
+		return
+	_assign(c)
+	var done: Array[ConstructionProject] = []
+	for p in c.construction_queue:
+		var st: StateRegion = World.states[p.state_id]
+		var infra_bonus := 1.0 + st.building_level("infrastructure") * float(params["infrastructure_speed_bonus"])
+		var mil_b := p.building in ["military_factory", "dockyard"]
+		var speed := maxf(1.0 + c.mod("construction_speed") + (c.mod("mil_construction_speed") if mil_b else 0.0) + Politics.stability_output_penalty(c), 0.1)
+		p.last_daily = p.assigned_factories * float(params["civ_factory_output"]) * infra_bonus * speed
+		p.progress += p.last_daily
+		if p.progress >= p.cost:
+			done.append(p)
+	for p in done:
+		c.construction_queue.erase(p)
+		var st: StateRegion = World.states[p.state_id]
+		st.buildings[p.building] = st.building_level(p.building) + 1
+		building_completed.emit(c.tag, p.state_id, p.building)
+	if not done.is_empty():
 		_assign(c)
-		var done: Array[ConstructionProject] = []
-		for p in c.construction_queue:
-			var st: StateRegion = World.states[p.state_id]
-			var infra_bonus := 1.0 + st.building_level("infrastructure") * float(params["infrastructure_speed_bonus"])
-			var mil_b := p.building in ["military_factory", "dockyard"]
-			var speed := maxf(1.0 + c.mod("construction_speed") + (c.mod("mil_construction_speed") if mil_b else 0.0) + Politics.stability_output_penalty(c), 0.1)
-			p.last_daily = p.assigned_factories * float(params["civ_factory_output"]) * infra_bonus * speed
-			p.progress += p.last_daily
-			if p.progress >= p.cost:
-				done.append(p)
-		for p in done:
-			c.construction_queue.erase(p)
-			var st: StateRegion = World.states[p.state_id]
-			st.buildings[p.building] = st.building_level(p.building) + 1
-			building_completed.emit(c.tag, p.state_id, p.building)
-		if not done.is_empty():
-			_assign(c)
-		construction_changed.emit(c.tag)
+	construction_changed.emit(c.tag)
 
 # ------------------------------------------------------------------ yasalar
 func law_def(group: String, law: String) -> Dictionary:
@@ -516,6 +555,9 @@ func _produce(c: Country) -> void:
 	c.resource_use = {}
 	var output_mod := maxf(1.0 + c.mod("factory_output") + Politics.stability_factory_mod(c), 0.1)
 	var cap := float(prod["efficiency_cap"]) + c.mod("production_efficiency_cap")
+	# bombardıman: hasarlı fabrika payı kadar çıktı düşer (askerî fabrika / tersane ayrı)
+	var bombed_mil := 1.0 - damaged_share(c, "military_factory")
+	var bombed_yard := 1.0 - damaged_share(c, "dockyard")
 	for l in c.production_lines:
 		if l.factories <= 0:
 			l.last_output = 0.0
@@ -534,7 +576,8 @@ func _produce(c: Country) -> void:
 		l.resource_fraction = frac
 		var floor_ := float(prod["resource_shortage_floor"])
 		var per: float = float(prod["dockyard_output"]) if is_naval(l.equipment) else float(prod["mil_factory_output"])
-		var ic: float = l.factories * per * l.efficiency * output_mod * (floor_ + (1.0 - floor_) * frac)
+		var ic: float = l.factories * per * l.efficiency * output_mod * (floor_ + (1.0 - floor_) * frac) \
+				* (bombed_yard if is_naval(l.equipment) else bombed_mil)
 		var unit_cost := float(equipment[l.equipment]["cost"])
 		l.progress_ic += ic
 		var units := floorf(l.progress_ic / unit_cost)

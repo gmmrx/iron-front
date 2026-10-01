@@ -2,9 +2,11 @@
 
 # Iron Front — Claude Code çalışma kuralları
 
-1936–1948 arası geçen, 80 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Godot 4.7.2, GDScript,
+1936–1948 arası geçen, 82 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Godot 4.7.2, GDScript,
 veri güdümlü (`data/common/*.json`). Web sürümü: https://gmmrx.github.io/iron-front/ (main'e her push'ta yeniden yayınlanır).
 Oyun wikisi: `docs/wiki/` (Türkçesi `docs/wiki/tr/`), yol haritası: `ROADMAP.md` (Türkçesi `ROADMAP.tr.md`).
+**Oyun tasarımı kuralları: `docs/DESIGN.md`** (Türkçesi `docs/TASARIM.md`). Oyun kısa senaryolara indiriliyor; o sayfanın
+izin vermediği hiçbir şey yapılmaz.
 Kullanıcıyla Türkçe konuş. Oyunun ve belgelerin ana dili İngilizcedir.
 
 ## Kurulum (Linux, ekransız)
@@ -23,11 +25,12 @@ Python araçları için: `pip install pillow numpy scipy`.
 |---|---|
 | `GODOT=$GODOT tools/run_tests.sh` | içe aktarma + `tests/run.gd` + country_check (60 gün); CI'daki iş budur |
 | `$GODOT --headless --path . -s tests/run.gd [-- --file=test_data]` | test paketi (`tests/test_*.gd`, her test temiz oyunla; yazım: `docs/wiki/08_developer.md`) |
-| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | 80 ülkenin her biriyle oyuncu eylemleri oyunu etkiliyor mu, oyuncu adına otomatik iş var mı (çıkış kodu 1 = sorun) |
+| `$GODOT --headless --path . -s game/dev/country_check.gd -- --days=150` | 82 ülkenin her biriyle oyuncu eylemleri oyunu etkiliyor mu, oyuncu adına otomatik iş var mı (çıkış kodu 1 = sorun) |
 | `GODOT=$GODOT tools/balance_parallel.sh 6` | 1936–1942 tarihî akış, 12 kontrol. Her kontrol en az 5/6 geçmeli |
 | `$GODOT --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 istikrar/savaş desteği, tarihli olaylar, seçimler |
 | `$GODOT --headless --path . -s game/dev/playtest.gd` | Türkiye → Irak savaşı, emirler, teslim, kayıt/yükleme |
 | `$GODOT --headless --path . -s game/dev/sim.gd` | simülasyon hızı (profil) |
+| `$GODOT --headless --path . -s game/dev/fig_check.gd -- --load=war_demo_watch --battle --days=3` | muharebede (ya da `--war=GER,DEN --play=DEN`) figür yerleşimi: üst üste binen figür çiftleri, kayma, sıçrama, dip dibe düşmanlar; ekran görüntüsü için `--focus` yazar |
 
 Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değiştiren her işten sonra koş.
 
@@ -62,5 +65,6 @@ Denge testi uzun sürer (~15 dk, 6 paralel süreç); oyun mantığını değişt
 - Commit mesajları Türkçe. Yeni mekanik eklediysen `docs/wiki/` ve `docs/wiki/tr/` ilgili sayfalarını, `ROADMAP.md` ve
   `ROADMAP.tr.md` durumunu güncelle.
 - **Belgeler iki dilde**: asıl dosya İngilizce (`README.md`, `ROADMAP.md`, `docs/wiki/*.md`, `docs/ORIGINALITY.md`,
-  `docs/cloud/TASKS.md`), Türkçesi yanında (`*.tr.md`, `docs/wiki/tr/`, `docs/OZGUNLUK.md`, `docs/cloud/GOREVLER.md`).
+  `docs/DESIGN.md`, `docs/cloud/TASKS.md`), Türkçesi yanında (`*.tr.md`, `docs/wiki/tr/`, `docs/OZGUNLUK.md`,
+  `docs/TASARIM.md`, `docs/cloud/GOREVLER.md`).
   Birini değiştirirsen ötekini de aynı işte güncelle; her dosyanın başında karşı dile bağlantı var.

@@ -1,13 +1,14 @@
 class_name CountrySelect
 extends Control
-## Ülke seçim ekranı: üstte büyük güç kartları, sağda seçili ülkenin detayları.
-## Haritadan herhangi bir ülkeye tıklayarak da seçim yapılır (main.gd yönlendirir).
+## Ülke seçim ekranı: üstte büyük güç kartları, sağda seçili ülkenin detayları. Açılışta ülke seçili gelmez: oyuncu
+## kartlardan ya da haritadan seçer (main.gd yönlendirir); seçilene kadar Başla kapalı. Haritadan seçince üstteki kart
+## paneli yukarı kayıp kapanır (harita görünsün), altındaki düğmeyle yeniden açılır.
 
 signal start_pressed(tag: String)
 signal back_pressed
 signal selection_changed(tag: String)
 
-const FEATURED := ["GER", "ENG", "FRA", "ITA", "SOV", "TUR", "POL", "SPR"]
+const FEATURED := ["GER", "ENG", "FRA", "ITA", "SOV", "TUR", "POL", "JAP"]
 
 var selected := ""
 var _cards := {}
@@ -15,20 +16,35 @@ var _flag: TextureRect
 var _name: Label
 var _leader: Label
 var _rows := {}
+var _top_box: VBoxContainer          ## kart paneli + aç/kapa düğmesi (kapanınca yukarı kayar, düğme görünür kalır)
+var _top: PanelContainer
+var _toggle: Button
+var _top_open := true
+var _start: Button
+var _none: Label                     ## seçim yokken yönerge
+var _detail: Array[Control] = []     ## seçim yokken gizlenen detay parçaları
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# --- üst: öne çıkan ülkeler
+	# --- üst: öne çıkan ülkeler (kapanabilir)
+	_top_box = VBoxContainer.new()
+	_top_box.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_top_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_top_box.offset_top = 18
+	_top_box.add_theme_constant_override("separation", 4)
+	_top_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_top_box)
 	var top := PanelContainer.new()
-	top.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	top.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	top.offset_top = 18
+	_top = top
 	var tsb := UiTheme.panel_style(Color(0.05, 0.06, 0.06, 0.88), UiTheme.BORDER)
 	tsb.set_content_margin_all(14)
 	top.add_theme_stylebox_override("panel", tsb)
-	add_child(top)
+	_top_box.add_child(top)
+	_toggle = PanelLayout.small_button(tr("SELECT_HIDE_FEATURED"), func() -> void: set_featured_open(not _top_open))
+	_toggle.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_top_box.add_child(_toggle)
 	var tv := VBoxContainer.new()
 	tv.add_theme_constant_override("separation", 10)
 	top.add_child(tv)
@@ -73,6 +89,10 @@ func _ready() -> void:
 	_flag.stretch_mode = TextureRect.STRETCH_SCALE
 	frame.add_child(_flag)
 	v.add_child(frame)
+	_none = UiTheme.make_label(tr("SELECT_NONE"), 20, UiTheme.TEXT_DIM)
+	_none.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_none.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(_none)
 	_name = UiTheme.make_label("", 32, UiTheme.ACCENT)
 	_name.add_theme_font_override("font", UiTheme.title_font())
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -94,6 +114,7 @@ func _ready() -> void:
 		grid.add_child(val)
 		_rows[key] = val
 	v.add_child(grid)
+	_detail = [frame, _name, _leader, grid]
 	var fill := Control.new()
 	fill.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(fill)
@@ -112,14 +133,36 @@ func _ready() -> void:
 	start.add_theme_color_override("font_color", Color("f5e6c0"))
 	start.pressed.connect(func() -> void: start_pressed.emit(selected))
 	v.add_child(start)
+	_start = start
 	var back := Button.new()
 	back.text = tr("SELECT_BACK")
 	back.focus_mode = Control.FOCUS_NONE
 	back.pressed.connect(func() -> void: back_pressed.emit())
 	v.add_child(back)
 
+	_show_detail(false)
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+
+## Seçim yokken detay yerine yönerge, Başla kapalı
+func _show_detail(on: bool) -> void:
+	for n: Control in _detail:
+		n.visible = on
+	_none.visible = not on
+	_start.disabled = not on
+
+## Kart paneli: açık ya da yukarı kaymış (yalnız aç/kapa düğmesi görünür)
+func set_featured_open(open: bool) -> void:
+	_top_open = open
+	_toggle.text = tr("SELECT_HIDE_FEATURED") if open else tr("SELECT_SHOW_FEATURED")
+	var target := 18.0 if open else -_top.size.y - 4.0
+	create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).tween_property(_top_box, "offset_top", target, 0.25)
+
+## Haritadan seçim: kart paneli kapanır (harita görünsün)
+func select_from_map(tag: String) -> void:
+	select(tag)
+	if selected == tag and _top_open:
+		set_featured_open(false)
 
 func _card(c: Country) -> Button:
 	var b := Button.new()
@@ -153,6 +196,7 @@ func select(tag: String) -> void:
 	if c == null or c.states.is_empty():
 		return
 	selected = tag
+	_show_detail(true)
 	for t: String in _cards:
 		_cards[t].set_pressed_no_signal(t == tag)
 	_flag.texture = FlagFactory.get_flag(c)

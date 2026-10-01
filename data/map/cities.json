@@ -4510,15 +4510,15 @@
 "en": "Danzig",
 "tr": "Danzig"
 },
-"province": 2549,
-"state": 501,
+"province": 13445,
+"state": 1655,
 "pos": [
 8516,
 2431
 ],
 "pop": 407000,
-"vp": 5,
-"capital": false,
+"vp": 20,
+"capital": true,
 "port": true,
 "style": "west"
 },
@@ -4909,8 +4909,8 @@
 "en": "Dalian",
 "tr": "Dalian"
 },
-"province": 1677,
-"state": 333,
+"province": 13516,
+"state": 1674,
 "pos": [
 13204,
 3318
@@ -5175,8 +5175,8 @@
 "en": "Bytom",
 "tr": "Bytom"
 },
-"province": 730,
-"state": 138,
+"province": 13452,
+"state": 1658,
 "pos": [
 8529,
 2676
@@ -6904,8 +6904,8 @@
 "en": "Gliwice",
 "tr": "Gliwice"
 },
-"province": 730,
-"state": 138,
+"province": 13452,
+"state": 1658,
 "pos": [
 8518,
 2677
@@ -9982,8 +9982,8 @@
 "en": "Zhanjiang",
 "tr": "Zhanjiang"
 },
-"province": 3297,
-"state": 644,
+"province": 13533,
+"state": 1678,
 "pos": [
 12692,
 4205
@@ -12491,7 +12491,7 @@
 "tr": "Chifeng"
 },
 "province": 349,
-"state": 60,
+"state": 1675,
 "pos": [
 13082,
 3137
@@ -13668,8 +13668,8 @@
 "en": "Macau",
 "tr": "Makao"
 },
-"province": 1110,
-"state": 228,
+"province": 13579,
+"state": 1687,
 "pos": [
 12836,
 4157
@@ -17183,15 +17183,15 @@
 "en": "Tangier",
 "tr": "Tanca"
 },
-"province": 607,
-"state": 113,
+"province": 13558,
+"state": 1683,
 "pos": [
 7403,
 3485
 ],
 "pop": 112509,
-"vp": 1,
-"capital": false,
+"vp": 20,
+"capital": true,
 "port": true,
 "style": "orient"
 },
@@ -17469,7 +17469,7 @@
 "tr": "Bamenda"
 },
 "province": 1926,
-"state": 403,
+"state": 1681,
 "pos": [
 8130,
 4912
@@ -18096,7 +18096,7 @@
 "tr": "Tongliao"
 },
 "province": 348,
-"state": 60,
+"state": 1675,
 "pos": [
 13233,
 3063
@@ -18913,7 +18913,7 @@
 "tr": "Cebelitarık"
 },
 "province": 4328,
-"state": 831,
+"state": 1686,
 "pos": [
 7424,
 3464
@@ -20603,8 +20603,8 @@
 "en": "Fiume",
 "tr": "Fiume"
 },
-"province": 3367,
-"state": 661,
+"province": 13481,
+"state": 1664,
 "pos": [
 8326,
 2967
@@ -25182,7 +25182,7 @@
 "en": "Melilla",
 "tr": "Melilla"
 },
-"province": 3817,
+"province": 13552,
 "state": 746,
 "pos": [
 7534,
@@ -26664,8 +26664,8 @@
 "en": "Tiraspol",
 "tr": "Tiraspol"
 },
-"province": 5210,
-"state": 1130,
+"province": 13480,
+"state": 1662,
 "pos": [
 9017,
 2881
@@ -26855,7 +26855,7 @@
 "tr": "Yujno-Sahalinsk"
 },
 "province": 4256,
-"state": 821,
+"state": 1672,
 "pos": [
 14164,
 2874
@@ -28621,8 +28621,8 @@
 "en": "Chengde",
 "tr": "Chengde"
 },
-"province": 8099,
-"state": 1553,
+"province": 13530,
+"state": 1677,
 "pos": [
 13035,
 3209
@@ -31111,7 +31111,7 @@
 "tr": "Vıborg"
 },
 "province": 945,
-"state": 191,
+"state": 1667,
 "pos": [
 8977,
 2015
@@ -31433,8 +31433,8 @@
 "en": "Zadar",
 "tr": "Zadar"
 },
-"province": 1326,
-"state": 272,
+"province": 13483,
+"state": 1665,
 "pos": [
 8363,
 3035
@@ -31909,7 +31909,7 @@
 "tr": "İzmail"
 },
 "province": 1428,
-"state": 294,
+"state": 1663,
 "pos": [
 8981,
 2966
@@ -32231,8 +32231,8 @@
 "en": "Maladziečna",
 "tr": "Maladzyechna"
 },
-"province": 5511,
-"state": 1179,
+"province": 13461,
+"state": 1659,
 "pos": [
 8891,
 2434
@@ -33485,8 +33485,8 @@
 "en": "Taza",
 "tr": "Taza"
 },
-"province": 3815,
-"state": 746,
+"province": 13556,
+"state": 1682,
 "pos": [
 7485,
 3564

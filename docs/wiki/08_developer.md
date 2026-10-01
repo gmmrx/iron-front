@@ -11,9 +11,11 @@ triggered by hand.
 |---|---|
 | `GODOT=godot tools/run_tests.sh` | Import + `tests/run.gd` + `country_check` (60 days); step by step and an overall result |
 | `godot --headless --path . -s tests/run.gd [-- --file=test_data] [--filter=hatay]` | Test suite: every `test_*` function in `tests/test_*.gd` runs on a fresh game |
-| `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | Starts the game with each of the 80 countries; checks that player actions affect the game and that nothing is done automatically for the player |
+| `godot --headless --path . -s game/dev/country_check.gd -- --days=150` | Starts the game with each of the 82 countries; checks that player actions affect the game and that nothing is done automatically for the player |
 | `godot --headless --path . -s game/dev/gov_check.gd -- --player=TUR` | 1936 effective stability/home front, dated events, elections |
 | `godot --headless --path . -s game/dev/war_check.gd -- --player=GER --target=DEN --army [--start=19390828 --save=x \| --load=x] [--observe] [--prof]` | A player war: declare, one army with every division on the target's front (or all to `--goal=City`), report every 5 days (regions taken, idle/attacking divisions, surrender, ms/day); `--observe` only watches the AI; `--prof` lists time per system |
+| `godot --headless --path . -s game/dev/war_demo.gd -- [--player=GER] [--enemy=SOV] [--after=10] [--until=19411101] [--slot=war_demo]` | War demo save: runs the world from 1936 as in the balance test, hands the chosen country to the player `--after` days after its war with `--enemy` starts (new-game player defaults) and saves; open it with `godot --path . -- --load=war_demo` or from Load |
+| `godot --path . -- --dev_war` | Watch a war: opens the war demo's watch save (`war_demo_watch`, written by `war_demo.gd` just before the hand-over) in observer mode — the AI runs every country (the player's too, events are chosen without a window), time runs at speed 2 and the camera drops onto the busiest front. The same as the **Dev: Watch a war** button on the main menu, shown only in a developer build (never in the web release). `Game.observer` is not saved and a new game turns it off |
 | `tools/balance_parallel.sh 6` | 1936–1942 historical flow balance test (12 checks; each must pass at least 5/6, otherwise exit 1) |
 | `godot --headless --path . -s game/dev/playtest.gd` | Turkey → Iraq war, orders, surrender, save/load |
 
@@ -37,16 +39,33 @@ that is not added to `apply_effects` and `describe_effects` turns the test red.
 | `test_land_combat.gd` | Combat multipliers and damage, entrenchment, hold to the last man, retreat, encirclement, supply, army → front |
 | `test_commanders.gd` | Commander rosters, assignment/promotion/new general costs, combat bonus, experience, no automatic assignment for the player, direct orders |
 | `test_navy_air.gd` | Fleet missions/return, naval combat, convoy raiding, wings, air superiority |
-| `test_military.gd` | Training time (conscription law) |
+| `test_military.gd` | Training time (conscription law); the estimated arrival matches the real march (the fleet's in `test_navy_air.gd`); a failed order names the reason (no military access to a named country) |
+| `test_borders_1936.gd` | ~270 border towns have their 1 January 1936 owner (`tests/data/borders_1936.json`); Danzig and Tangier exist with capitals; the Danzig event hands the city to Germany |
 | `test_save_load.gd` | 200 days → save → load: every field identical (a differing field is named) |
 | `test_determinism.gd` | Two runs with the same seed give the same world |
 | `test_sea_lanes.gd` | Sea lanes only cross water; every port–sea / sea–sea neighbour has a route and a quay |
 | `test_fleet_motion.gd` | The fleet's visual position (corner curves, leaving port, sailing) stays at sea; the FleetLayer formation never spills onto land |
 | `test_map_logic.gd` | Division path continuity, movement arrows, weather, counter/flag/hidden modes by zoom |
+| `test_open_game.gd` | No end date; victory when no country is left outside the player's side, defeat when the country is gone, a surrendered player with land plays on; refinement levels (open after the branch, rising cost, falling gain, saved, AI researches them, reset in a new game) |
+| `test_world_events.gd` | World events log (wars, programs, elections), the news feed only for the player's matters and great powers' wars, answers to foreign wars and annexations (cost, requirement, effect, one answer, expiry), democracies condemning the player's aggression, menu filters |
+| `test_map_pins.gd` | Building badges (icon at middle distance, pin up close), badge picking under the mouse, hover growth, building card, hover sounds defined, commander portrait on the army counter, battle status arrows |
 
 Tests that need the map image load the region image (`data/map/provinces.png`) once through `tests/map_probe.gd`; layer
 tests use `ProbeMap` (a MapView3D subclass that skips the heavy textures). If the sea lanes change,
 `python3 tools/build_sea_lanes.py` (~1 min, `pip install pillow numpy scipy`) rebuilds the network and repairs land contact.
+
+### Roads and city pin icons
+`python3 tools/fetch_data.py` also downloads Natural Earth roads and railways; `python3 tools/build_roads.py` writes
+`data/map/roads.json` (ferry lines dropped, parts over water cut, chains joined). City pin icons are listed with their
+prompts in `docs/art/CITY_PIN_PROMPTS.md` (written by `tools/make_icon_prompts.py`); put the files in
+`assets/ui/city_pins/city_<style>_<tier>.png`.
+
+### 1936 borders
+The map is generated from modern administrative regions (`tools/generate_map.py`); `python3 tools/fix_borders_1936.py`
+then moves the pixels inside each 1936 border polygon (source country → target) and splits the regions a border cuts
+(existing region and state ids stay, new ones are appended; running it again changes nothing). After it:
+`python3 tools/assign_economy.py` (buildings and resources of the new states) and `python3 tools/build_sea_lanes.py`
+(ports whose region changed). `python3 tools/audit_1936.py` lists the border towns with the wrong owner.
 
 A game continued from a save starts with `World.resume_game(tag)` (the player's saved preferences are kept);
 `World.start_game(tag)` sets the player defaults only for a new game. When you add a country/division field, add it to the
@@ -60,13 +79,25 @@ save as well: `test_save_load.gd` catches an unsaved field by name (fields recom
 `--pause_menu`, `--settings` (in-game settings), `--menu_settings` (main menu settings), `--lang_test=en|tr`,
 `--gameover=win|lose`, `--politics_of=TAG` (another country's politics), `--ctrl_hover=x,y` (country card),
 `--hover_at=x,y` (region card at a screen position), `--army=TAG [--army_select --army_cmd]` (all divisions in one army
-facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection).
+facing TAG), `--army_demo=TAG [--army_sel=a:1|g:1] [--sel_demo]` (sample chain of command / mixed selection),
+`--split_demo=DIST` (a new army with a commander next to another counter in the same region), `--hover_building`
+(hover the building badge nearest the screen centre), `--scroll_end` (the open side panel scrolled to the bottom, its
+rect printed), `--fps=N [--fps_mouse] [--fps_zoom]` (frame times while the mouse circles / the camera zooms),
+`--scenarios` (the Scenarios screen), `--scenario=ID:TAG` (start a scenario as that side), `--front_sel[=TAG][:DIST]`
+(select a front stack and show the attack estimate card; with `--dev_war` as that country), `--air_demo[=TAG]` (air
+panel open with a front region as the target).
 To try the web renderer on desktop: `godot --path . --rendering-method gl_compatibility -- ...`
 
 ## 3D assets (Blender, headless)
 The map uses the pin design (`game/map/pin_layer.gd`); city, industry and division models are switched off
 (`SHOW_MODELS` in `city_layer_3d.gd`, `industry_layer.gd`, `unit_models.gd`) and only one small plane model is drawn
-(`AirLayer.SINGLE_MODEL`). The model pipeline below is kept for later use.
+(`assets/models/plane-model.glb`, `game/map/plane_model.gd`: at start-up it is split into body, propeller and flag
+decals; the flag painted into the model is mapped to clean paint and the country's flag is laid over the wings and fin). Up close a division counter is the soldier miniature `assets/models/soldier-model.glb`
+(`game/map/unit_figures.gd`, switched by `UnitLayer.FIGURES`): at start-up the flag and number baked into the model's
+base are painted over with the base colour in code (texture and normal map, mip levels rebuilt; no new image file), and
+a curved band with the country's flag plus a `Label3D` number are laid on the base. The figure has a fixed map size
+(`UnitLayer.FIG_SIZE`); `UnitLayer._place_figures` keeps figures apart (`FIG_GAP`, `FIG_AHEAD`) and seats each base on
+the terrain (`FIG_TILT`). The model pipeline below is kept for later use.
 ```
 python3 tools/blender/make_textures.py && python3 tools/blender/make_industry_textures.py   # tileable textures
 Blender --background --factory-startup --python tools/blender/build_cities.py   -- [--render DIR] [--only city_west_capital]
@@ -98,6 +129,13 @@ Content lives in `data/common/*.json` (countries, laws, national conditions and 
 programs in `focuses.json`, technologies, units, buildings, equipment, commanders in `commanders.json`, the historical
 timeline the AI follows in `history.json`: date, acting country, a focus to complete or effects, conditions).
 If an event option has `"require": [conditions]`, it shows as locked until they are met; the AI does not pick it either.
+
+**Scenarios** live in `data/scenarios/scenarios.json` (id, name and description in both languages, start save, days,
+two sides with the attacker first, key cities as `data/map/cities.json` ids, `win_share`). The start save
+`data/scenarios/<start>.json` is a watch save written by the war demo generator on the day the war starts, with the
+placeholder country as the player, for example:
+`godot --headless --path . -s game/dev/war_demo.gd -- --player=GER --enemy=SOV --after=0 --slot=east_1941 --hold=TUR --seed=1941`
+then copy `user://saves/east_1941_watch.json` to `data/scenarios/east_1941.json`. Tests: `tests/test_scenario.gd`.
 
 ## Language
 The game's main language is English; every text is in `game/localization/strings.csv` in English and Turkish. With no

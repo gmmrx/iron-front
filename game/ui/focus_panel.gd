@@ -1,13 +1,29 @@
 class_name FocusPanel
 extends PanelContainer
-## Milli odak ağacı (F): tam ekran, kaydırılabilir grafik; odaklar önkoşul çizgileriyle bağlı.
+## Milli odak ağacı (F): tam ekran grafik; odaklar önkoşul çizgileriyle bağlı. Harita gibi gezilir: tekerlek ya da
+## trackpad sıkıştırmasıyla imlecin olduğu yere yakınlaşır/uzaklaşır, boş yerde sürükleyince kayar (bırakınca süzülüp
+## durur), ok tuşları / WASD ile kayar; −, + ve Sığdır düğmeleri başlıkta. Her hareket yumuşak geçişle.
 
 const CELL := Vector2(236, 168)
 const NODE := Vector2(212, 140)
+const ZOOM_MIN := 0.4
+const ZOOM_MAX := 1.6
+const ZOOM_STEP := 1.15
+const EDGE := 80.0                   ## ağacın kenarı görünümün kenarından en çok bu kadar içeri kayar
+const KEY_PAN := 900.0               ## ok tuşlarıyla kayma (piksel / sn)
 
 var _canvas: Control
+var _view: Control                   ## ağacın göründüğü kırpılmış alan
 var _status: Label
 var _buttons := {}
+var _zoom := 1.0
+var _zoom_t := 1.0                   ## hedef (gösterilen buna yumuşakça gelir)
+var _pan := Vector2(EDGE, 0.0)
+var _pan_t := Vector2(EDGE, 0.0)
+var _vel := Vector2.ZERO             ## bırakınca süzülme hızı
+var _drag := 0                       ## 0 yok, 1 basıldı, 2 sürükleniyor
+var _drag_start := Vector2.ZERO
+var _opened := false
 
 class Lines extends Control:
 	var owner_panel
@@ -39,17 +55,25 @@ func _ready() -> void:
 	_status = UiTheme.make_label("", 17)
 	_status.add_theme_font_override("font", UiTheme.bold_font())
 	head.add_child(_status)
+	for z: Array in [["−", tr("TIP_FOCUS_ZOOM_OUT"), 1.0 / ZOOM_STEP], ["+", tr("TIP_FOCUS_ZOOM_IN"), ZOOM_STEP]]:
+		var f: float = z[2]
+		var zb := PanelLayout.small_button(z[0], func() -> void: _zoom_at(_view.size * 0.5, f * f), true, z[1])
+		zb.custom_minimum_size = Vector2(36, 32)
+		head.add_child(zb)
+	head.add_child(PanelLayout.small_button(tr("FOCUS_FIT"), _fit, true, tr("TIP_FOCUS_FIT")))
 	head.add_child(UiTheme.icon_button("close", tr("TIP_CLOSE"), close, 28))
 	var help := UiTheme.make_label(tr("FOCUS_HELP"), 14, UiTheme.TEXT_DIM)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(help)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	v.add_child(scroll)
-	DragScroll.attach(scroll, true)      # kaydırma çubuğu yok: basılı tutup sürükle
+	_view = Control.new()
+	_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_view.clip_contents = true
+	_view.mouse_filter = Control.MOUSE_FILTER_PASS
+	v.add_child(_view)
 	_canvas = Lines.new()
 	_canvas.owner_panel = self
-	scroll.add_child(_canvas)
+	_canvas.mouse_filter = Control.MOUSE_FILTER_PASS
+	_view.add_child(_canvas)
 	Politics.politics_changed.connect(func(t: String) -> void:
 		if visible and t == World.player_tag: refresh())
 	Politics.focus_completed.connect(func(t: String, _f: String) -> void:
@@ -61,6 +85,126 @@ func open() -> void:
 	visible = true
 	Audio.panel(true)
 	refresh()
+	if not _opened:
+		_opened = true
+		_pan = _pan_t                       # ilk açılışta yerinde başlar (kayarak gelmez)
+
+# ------------------------------------------------------------------ gezinme (yakınlaştırma, kaydırma)
+func _input(event: InputEvent) -> void:
+	if not visible or _view == null:
+		return
+	var r := _view.get_global_rect()
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN) and mb.pressed:
+			if r.has_point(mb.position):
+				var f := mb.factor if mb.factor > 0.0 else 1.0
+				_zoom_at(mb.position - r.position, pow(ZOOM_STEP, f if mb.button_index == MOUSE_BUTTON_WHEEL_UP else -f))
+				get_viewport().set_input_as_handled()
+		elif mb.button_index == MOUSE_BUTTON_LEFT:
+			if mb.pressed:
+				if r.has_point(mb.position) and not _over_node():
+					_drag = 1
+					_drag_start = mb.position
+					_vel = Vector2.ZERO
+			else:
+				if _drag == 2:
+					get_viewport().set_input_as_handled()
+					Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+				_drag = 0
+	elif event is InputEventMouseMotion and _drag > 0:
+		var mm := event as InputEventMouseMotion
+		if not (mm.button_mask & MOUSE_BUTTON_MASK_LEFT):
+			_drag = 0
+			return
+		if _drag == 1 and mm.position.distance_to(_drag_start) > 6.0:
+			_drag = 2
+		if _drag == 2:
+			_pan_t += mm.relative
+			_vel = _vel.lerp(mm.relative / maxf(get_process_delta_time(), 0.001), 0.5)
+			Input.set_default_cursor_shape(Input.CURSOR_DRAG)
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMagnifyGesture:
+		var mg := event as InputEventMagnifyGesture
+		if r.has_point(mg.position):
+			_zoom_at(mg.position - r.position, mg.factor)
+			get_viewport().set_input_as_handled()
+	elif event is InputEventPanGesture:
+		var pg := event as InputEventPanGesture
+		if r.has_point(pg.position):
+			_pan_t -= pg.delta * 12.0
+			get_viewport().set_input_as_handled()
+
+func _over_node() -> bool:
+	var c := get_viewport().gui_get_hovered_control()
+	while c != null and c != _view:
+		if c is BaseButton:
+			return true
+		c = c.get_parent() as Control
+	return false
+
+## Görünümdeki bir noktanın (yerel) altındaki ağaç yeri sabit kalacak şekilde yakınlaş/uzaklaş
+func _zoom_at(local: Vector2, factor: float) -> void:
+	var nz := clampf(_zoom_t * factor, ZOOM_MIN, ZOOM_MAX)
+	var w := (local - _pan_t) / _zoom_t
+	_zoom_t = nz
+	_pan_t = local - w * nz
+	_vel = Vector2.ZERO
+
+## Bütün ağaç görünüme sığar (en çok gerçek boy)
+func _fit() -> void:
+	var cs := _canvas.custom_minimum_size
+	if cs.x <= 0.0 or cs.y <= 0.0:
+		return
+	_zoom_t = clampf(minf(minf(_view.size.x / cs.x, _view.size.y / cs.y), 1.0), ZOOM_MIN, ZOOM_MAX)
+	_pan_t = Vector2((_view.size.x - cs.x * _zoom_t) * 0.5, 0.0)
+	_vel = Vector2.ZERO
+
+## Ağaç görünümden kaçmasın: görünümden küçükse ortalanır (yatay) / üste yaslanır, büyükse kenarı en çok EDGE içeri
+func _clamp(p: Vector2, z: float) -> Vector2:
+	var cs := _canvas.custom_minimum_size * z
+	var vs := _view.size
+	var out := p
+	if cs.x + EDGE * 2.0 <= vs.x:
+		out.x = (vs.x - cs.x) * 0.5
+	else:
+		out.x = clampf(p.x, vs.x - cs.x - EDGE, EDGE)
+	if cs.y + EDGE <= vs.y:
+		out.y = 0.0
+	else:
+		out.y = clampf(p.y, vs.y - cs.y - EDGE, 0.0)
+	return out
+
+func _process(delta: float) -> void:
+	if not visible or _view == null:
+		return
+	var dir := Vector2.ZERO
+	if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
+		dir.x += 1.0
+	if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
+		dir.x -= 1.0
+	if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
+		dir.y += 1.0
+	if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
+		dir.y -= 1.0
+	if dir != Vector2.ZERO and get_viewport().gui_get_focus_owner() == null:
+		_pan_t += dir * KEY_PAN * delta
+		_vel = Vector2.ZERO
+	if _drag == 0 and _vel.length() > 8.0:
+		_pan_t += _vel * delta                  # bırakınca süzülür, sürtünmeyle durur
+		_vel *= exp(-5.0 * delta)
+	elif _drag == 0:
+		_vel = Vector2.ZERO
+	_pan_t = _clamp(_pan_t, _zoom_t)
+	var k := 1.0 - exp(-(22.0 if _drag == 2 else 12.0) * delta)
+	_zoom = lerpf(_zoom, _zoom_t, k)
+	_pan = _pan.lerp(_pan_t, k)
+	if absf(_zoom - _zoom_t) < 0.001:
+		_zoom = _zoom_t
+	if _pan.distance_to(_pan_t) < 0.3:
+		_pan = _pan_t
+	_canvas.scale = Vector2(_zoom, _zoom)
+	_canvas.position = _pan
 
 func close() -> void:
 	if visible:
@@ -130,6 +274,7 @@ func refresh() -> void:
 		_canvas.add_child(b)
 		_buttons[id] = b
 	_canvas.custom_minimum_size = maxp + Vector2(40, 40)
+	_canvas.size = _canvas.custom_minimum_size
 	_canvas.queue_redraw()
 
 ## Program düğümü: yuvarlak resim (arkaplan kartı yok), durum halkası, altında ad ve gün. Tıklanabilir düğme.

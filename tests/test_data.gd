@@ -164,7 +164,11 @@ func test_technologies() -> void:
 	for id: String in Research.techs:
 		var t: Dictionary = Research.techs[id]
 		var ctx := "teknoloji %s" % id
-		_check_text(t.get("name", {}), ctx + " adı", p)
+		if t.get("repeat", false):
+			if Research.tech_name(id).strip_edges() == "":
+				p.append("%s: adı boş" % ctx)
+		else:
+			_check_text(t.get("name", {}), ctx + " adı", p)
 		if not Research.categories.has(str(t.get("cat", ""))):
 			p.append("%s: kategori '%s' yok" % [ctx, t.get("cat", "")])
 		if int(t.get("year", 0)) < 1900 or float(t.get("cost", 0)) <= 0.0:
@@ -183,6 +187,21 @@ func test_technologies() -> void:
 	for t: String in Research.START_TECHS:
 		if not Research.techs.has(t):
 			p.append("başlangıç teknolojisi '%s' yok" % t)
+	# bitmeyen araştırma: her dalın iyileştirme etkisi, ad kalıbı (dal + seviye), artan maliyet ve azalan kazanç
+	var rep: Dictionary = Research.repeatable
+	_check_text(rep.get("name", {}), "iyileştirme adı", p)
+	for lang: String in (rep.get("name", {}) as Dictionary):
+		if str(rep["name"][lang]).count("%s") != 2:
+			p.append("iyileştirme adı (%s): dal ve seviye için iki %%s olmalı" % lang)
+	if float(rep.get("cost_growth", 0.0)) <= 0.0 or float(rep.get("gain_decay", 1.0)) >= 1.0 or float(rep.get("gain_decay", 0.0)) <= 0.0:
+		p.append("iyileştirme: maliyet artmalı, kazanç azalmalı")
+	for cat: String in Research.categories:
+		var eff: Dictionary = (rep.get("effects", {}) as Dictionary).get(cat, {})
+		if eff.is_empty():
+			p.append("iyileştirme: '%s' dalının etkisi yok" % cat)
+		for k: String in eff:
+			if not k in mods:
+				p.append("iyileştirme %s: bilinmeyen modifier '%s'" % [cat, k])
 	none(p, "teknoloji")
 
 func _tech_cycle(from: String, target: String, seen: Dictionary) -> bool:
@@ -351,6 +370,9 @@ func test_strings_rows() -> void:
 		if r.size() < 3 or r[1].strip_edges() == "" or r[2].strip_edges() == "":
 			p.append("'%s': en ya da tr boş" % key)
 			continue
+		if r.size() > 3:
+			# tırnaksız virgül satırı böler: Türkçe sütuna İngilizcenin devamı düşer
+			p.append("'%s': %d sütun (virgüllü metin tırnak içinde olmalı)" % [key, r.size()])
 		var a := _placeholders(r[1])
 		var b := _placeholders(r[2])
 		if a.size() != b.size():
@@ -422,11 +444,14 @@ func _families() -> Dictionary:
 		"SHIP_": Navy.SHIP_TYPES,
 		"SHIPS_": Navy.SHIP_TYPES,
 		"WING_TYPE_": Air.TYPES.keys(),
-		"WING_NAME_": Air.TYPES.keys(),
 		"MOD_": mods.keys(),
 		"EFFECT_": law_effects,
 		"TIP_": map_modes,
 		"MUSIC_": _const_array("res://game/ui/settings_panel.gd", "TRACKS"),
+		"WORLD_KIND_": _regex_set("world_event\\(\"([a-z]+)\""),
+		"PLACE_": ["DIVISION", "WING", "SHIPS"],          # main._begin_place: tr("PLACE_" + kind.to_upper())
+		"ODDS_F_": Military.ESTIMATE_FACTORS,            # map_tooltip._odds_rows: saldırı tahmininin etkenleri
+		"RECRUIT_UNIT_": Military.recruit_def()["units"].keys(),   # state_panel: asker alınabilen birlikler
 	}
 
 ## Son ekli anahtar aileleri: tr(x + "SONEK") biçimindeki kullanımların alabileceği değerler

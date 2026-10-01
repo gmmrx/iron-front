@@ -2,7 +2,7 @@
 
 # Ülkeler
 
-Oyunda 80 ülke oynanabilir. Her biri 1936 başındaki lideri, ideolojisi ve iktidar partisiyle başlar. Tüm ülkeler için
+Oyunda 82 ülke oynanabilir. Her biri 1936 başındaki lideri, ideolojisi ve iktidar partisiyle başlar. Tüm ülkeler için
 `game/dev/country_check.gd` testi oyunu o ülkeyle başlatıp yasa, ticaret, üretim, inşaat, araştırma, devlet programı ve danışman
 eylemlerinin oyuna etki ettiğini ölçer.
 
@@ -101,3 +101,29 @@ eylemlerinin oyuna etki ettiğini ölçer.
 | RAJ | Britanya Hindistanı | Lord Linlithgow | Bağlantısız |  |
 | AFG | Afganistan | Mohammed Zahir Shah | Bağlantısız |  |
 | YEM | Yemen | Yahya Muhammad Hamid ed-Din | Bağlantısız |  |
+| DNZ | Danzig | Arthur Greiser | Faşist | NSDAP |
+| TNG | Tanca | Joseph Le Fur | Bağlantısız |  |
+
+## 1936 sınırları
+Harita bugünün değil 1 Ocak 1936'nın sınırlarıyla başlar. 1936 sınırı bir modern idari bölgenin ortasından geçiyorsa
+harita piksel düzeyinde düzeltilir (`tools/fix_borders_1936.py`), örneğin:
+- **Almanya / Polonya / Danzig:** Polonya Koridoru'na kadar Alman Pomeranyası (Stolp, Lauenburg, Bütow), Grenzmark
+  (Schneidemühl), Vistül'ün doğusundaki Batı Prusya (Marienburg, Marienwerder), Alman Yukarı Silezyası (Gleiwitz, Beuthen,
+  Hindenburg, Ratibor); Soldau ve Lubawa Polonya'nın. **Danzig Serbest Şehri** ayrı ülke.
+- **Polonya'nın doğu sınırı (Riga, 1921):** Wilno, Mołodeczno, Głębokie, Brasław, Nieśwież ve Druskieniki Polonya'nın.
+- **Romanya / SSCB:** sınır Dinyester (Besarabya ve Budjak — Akkerman, İsmail — Romanya'nın, Tiraspol Sovyet); Güney
+  Dobruca Romanya'nın.
+- **Finlandiya:** Karelya Kıstağı (Viipuri), Ladoga Karelyası (Sortavala), Salla ve Petsamo; Fin Körfezi adaları.
+- **Estonya / Letonya:** Narva ötesindeki Jaanilinn, Petseri; Abrene.
+- **İtalya:** Fiume, Zara, Lagosta, Carnaro adaları, Tenda ve Onikiadalar.
+- **Japonya ve Mançukuo:** Karafuto (50. paralelin güneyi), Kuriller, Kwantung Kira Bölgesi (Dairen, Port Arthur);
+  Mançukuo'da Jehol ve Doğu İç Moğolistan (Chifeng, Hsingan, Hulunbuir).
+- **Sömürgeler ve küçük topraklar:** kendi eyaletleriyle Cebelitarık ve Makao, Newfoundland (İngiliz), Portekiz Goa'sı,
+  Fransız Pondichéry ve Kwangchowan, güney İngiliz Kamerunu, Panama Kanal Bölgesi (ABD), 1936 güney sınırıyla İspanyol
+  Fas'ı, İfni ve Cape Juby; **Tanca Uluslararası Bölgesi** ayrı ülke.
+
+Topraklar tarihî akışta el değiştirir: Almanya *Danzig Bunalımı* odağını bitirince Danzig'e "Danzig Reich'a Dönüyor"
+olayı gelir (Reich'a katıl ya da Serbest Şehir kal; Danzig'i oynayan oyuncu seçer); İspanya 14 Haziran 1940'ta Tanca'ya
+işgal olayı gönderir; Moskova Barışı (1940) Viipuri ve Sortavala'yı, 1940 ültimatomu Besarabya'yı (Kişinev, Bălți, Budjak)
+ve Kuzey Bukovina'yı SSCB'ye verir. `tests/test_borders_1936.gd` her test koşusunda ~270 sınır kasabasını
+(`tests/data/borders_1936.json`) haritayla karşılaştırır.

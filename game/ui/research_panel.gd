@@ -3,6 +3,7 @@ extends PanelContainer
 ## Araştırma (I) — tam ekran zaman çizelgesi: sütunlar yıllar, satırlar araştırma dalları; her teknoloji bir kart
 ## (bitti yeşil, sürüyor altın + ilerleme, seçilebilir parlak, kilitli soluk), önkoşullar çizgiyle bağlı, bugünün
 ## tarihi dikey altın çizgi. Üstte araştırma yuvaları. Erken yılın teknolojisi her yıl için +%150 süre alır.
+## Son sütun ("1943+"): her dalın sıradaki iyileştirme seviyesi — araştırma bitmez (Research.next_repeat).
 
 const LABEL_W := 176.0
 const NODE := Vector2(212, 66)
@@ -50,6 +51,8 @@ func _ready() -> void:
 	_canvas.mouse_filter = Control.MOUSE_FILTER_STOP
 	body.add_child(_canvas)
 	for t: Dictionary in Research.techs.values():
+		if t.get("repeat", false):
+			continue
 		_y0 = mini(_y0, int(t["year"]))
 		_y1 = maxi(_y1, int(t["year"]))
 	Research.research_changed.connect(func(t: String) -> void:
@@ -75,7 +78,7 @@ func refresh() -> void:
 		ch.queue_free()
 	_nodes.clear()
 	_rows.clear()
-	var years := _y1 - _y0 + 1
+	var years := _y1 - _y0 + 2                  # tarihî yıllar + iyileştirme sütunu
 	var avail := maxf(size.x - 48.0, 900.0)
 	_col_w = maxf((avail - LABEL_W) / years, NODE.x + 16.0)
 	# satırlar: her dalda aynı yıldaki teknoloji sayısı kadar şerit
@@ -84,7 +87,7 @@ func refresh() -> void:
 		var per_year := {}
 		for id: String in Research.techs:
 			var t: Dictionary = Research.techs[id]
-			if t["cat"] != cat:
+			if t["cat"] != cat or t.get("repeat", false):
 				continue
 			var yr := int(t["year"])
 			if not per_year.has(yr):
@@ -105,6 +108,13 @@ func refresh() -> void:
 				b.size = NODE
 				_canvas.add_child(b)
 				_nodes[ids[lane]] = b
+		# dal bitince sürer: sıradaki iyileştirme seviyesi son sütunda
+		var rep := Research.next_repeat(c, cat)
+		var rb := _tech_button(c, rep)
+		rb.position = Vector2(LABEL_W + (years - 1) * _col_w + (_col_w - NODE.x) * 0.5, y + ROW_PAD * 0.5 + (LANE_H - NODE.y) * 0.5)
+		rb.size = NODE
+		_canvas.add_child(rb)
+		_nodes[rep] = rb
 		y += h
 	_canvas.custom_minimum_size = Vector2(LABEL_W + years * _col_w + 8.0, y + 8.0)
 	_canvas.queue_redraw()
@@ -132,7 +142,8 @@ func _tech_button(c: Country, id: String) -> Button:
 	var t: Dictionary = Research.techs[id]
 	var b := Button.new()
 	b.focus_mode = Control.FOCUS_NONE
-	b.icon = UiTheme.trimmed(UiTheme.technology_icon(id))
+	var repeat: bool = t.get("repeat", false)
+	b.icon = UiTheme.trimmed(_tech_icon(id))
 	b.expand_icon = true
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -173,17 +184,24 @@ func _tech_button(c: Country, id: String) -> Button:
 		var sb := UiTheme.skin(style if st != "hover" or not can else "card_selected", 8, 5)
 		b.add_theme_stylebox_override(st, sb)
 	if running:
-		var pb := PanelLayout.progress(progress, UiTheme.ACCENT, 5.0)
-		pb.position = Vector2(8, NODE.y - 10)
-		pb.size = Vector2(NODE.x - 16, 5)
-		b.add_child(pb)
+		# süren araştırma: ilerleme düğmenin zemini olarak dolar (yazı ve resim önde, aynı kalır)
+		var bg := UiTheme.skin(style, 8, 5)
+		for st: String in ["normal", "hover", "pressed", "disabled"]:
+			var e := bg.duplicate() as StyleBox
+			e.set("draw_center", false)               # çerçeve düğmede; iç zemin arkadaki katmanda
+			b.add_theme_stylebox_override(st, e)
+		_progress_back(b, bg, progress)
 	var tip := Research.tech_name(id) + "  (%d)" % int(t["year"])
+	if repeat:
+		tip += "\n" + tr("RES_REPEAT_TIP") % Research.repeat_level(c, t["cat"])
 	var eff: Dictionary = t.get("effects", {})
 	if not eff.is_empty():
 		tip += "\n" + Politics.describe_mods(eff)
 	for u: String in t.get("unlock", []):
 		tip += "\n• " + tr("RESEARCH_UNLOCK") % Economy.equipment_name(u)
-	if not t["req"].is_empty():
+	if repeat and int(t["level"]) == 1:
+		tip += "\n\n" + tr("RES_REPEAT_REQ") % Research.category_name(t["cat"])
+	elif not t["req"].is_empty() and not repeat:
 		tip += "\n\n" + tr("RESEARCH_REQ") % ", ".join(t["req"].map(func(r: String) -> String: return Research.tech_name(r)))
 	if ahead > 0:
 		tip += "\n" + tr("RESEARCH_AHEAD") % [ahead, roundi(ahead * Research.AHEAD_PENALTY * 100)]
@@ -198,9 +216,15 @@ func _tech_button(c: Country, id: String) -> Button:
 		refresh())
 	return b
 
+## Teknolojinin resmi; iyileştirme seviyesi dalın resmini taşır
+static func _tech_icon(id: String) -> Texture2D:
+	if Research.is_repeat(id):
+		return UiTheme.icon(CAT_ICON.get(Research.techs[id]["cat"], "research"))
+	return UiTheme.technology_icon(id)
+
 func _draw_timeline(ctrl: Control) -> void:
 	var c := World.player()
-	var years := _y1 - _y0 + 1
+	var years := _y1 - _y0 + 2
 	var w := LABEL_W + years * _col_w
 	var font := UiTheme.title_font()
 	# satır bantları
@@ -213,11 +237,19 @@ func _draw_timeline(ctrl: Control) -> void:
 		var x := LABEL_W + k * _col_w
 		ctrl.draw_line(Vector2(x, HEAD_H - 6), Vector2(x, ctrl.size.y), Color(0.55, 0.47, 0.3, 0.3), 1.0)
 		var past := _y0 + k <= GameClock.year
-		ctrl.draw_string(font, Vector2(x, 28), str(_y0 + k), HORIZONTAL_ALIGNMENT_CENTER, _col_w, 24, UiTheme.ACCENT if past else UiTheme.TEXT_DIM)
+		var head := str(_y0 + k) if k < years - 1 else "%d+" % Research.rep_first_year
+		ctrl.draw_string(font, Vector2(x, 28), head, HORIZONTAL_ALIGNMENT_CENTER, _col_w, 24, UiTheme.ACCENT if past else UiTheme.TEXT_DIM)
 	# önkoşul çizgileri
 	for id: String in _nodes:
 		var to: Button = _nodes[id]
-		for req: String in Research.techs[id]["req"]:
+		var reqs: Array = Research.techs[id]["req"]
+		if Research.techs[id].get("repeat", false):
+			# iyileştirme dalın bütün teknolojilerini ister: çizgi yalnız dalın en son yıllarından
+			var last := 0
+			for r: String in reqs:
+				last = maxi(last, int(Research.techs[r]["year"]))
+			reqs = reqs.filter(func(r: String) -> bool: return int(Research.techs[r]["year"]) == last)
+		for req: String in reqs:
 			if not _nodes.has(req):
 				continue
 			var from: Button = _nodes[req]
@@ -233,13 +265,53 @@ func _draw_timeline(ctrl: Control) -> void:
 				ctrl.draw_polyline(PackedVector2Array([a, Vector2(mid, a.y), Vector2(mid, b.y), b]), col, 2.0, true)
 	# bugün: geçmiş hafifçe gölgeli, ince kesik çizgi; üstte yıl başlığının altında küçük etiket
 	var frac := ((GameClock.month - 1) * 30.44 + GameClock.day) / 365.25
-	var tx := LABEL_W + (GameClock.year - _y0 + frac) * _col_w
+	var tx := minf(LABEL_W + (GameClock.year - _y0 + frac) * _col_w, w - 2.0)    # tarihî yıllardan sonra: son sütunda
 	if tx >= LABEL_W and tx <= w:
 		ctrl.draw_rect(Rect2(LABEL_W, HEAD_H, tx - LABEL_W, ctrl.size.y - HEAD_H), Color(0, 0, 0, 0.16))
 		ctrl.draw_dashed_line(Vector2(tx, HEAD_H), Vector2(tx, ctrl.size.y), Color(0.95, 0.78, 0.35, 0.45), 1.5, 6.0)
 		# başlık çizgisinde aşağı bakan küçük altın üçgen (yazı yok: yıl başlığıyla çakışmasın)
 		var tri := PackedVector2Array([Vector2(tx - 7.0, HEAD_H - 9.0), Vector2(tx + 7.0, HEAD_H - 9.0), Vector2(tx, HEAD_H - 1.0)])
 		ctrl.draw_colored_polygon(tri, Color(0.95, 0.78, 0.35))
+
+## İlerleme zemini: düğmenin/kutunun arkasında koyu zemin ve üstünde soldan dolan altın dolgu (sağ kenarı parlak).
+## show_behind_parent: katmanlar düğmenin yazısının ve resminin arkasında kalır.
+static func _progress_back(host: Control, bg: StyleBox, progress: float) -> void:
+	var base := Panel.new()
+	base.show_behind_parent = true
+	base.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	base.set_anchors_preset(Control.PRESET_FULL_RECT)
+	base.add_theme_stylebox_override("panel", bg)
+	host.add_child(base)
+	# dolgu: soldan sağa koyulaşan altın geçiş (ilerlemenin ucu en parlak), ucunda ince parlak çizgi
+	var fill := TextureRect.new()
+	fill.show_behind_parent = true
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var g := Gradient.new()
+	g.set_color(0, Color(UiTheme.ACCENT.darkened(0.45), 0.10))
+	g.set_color(1, Color(UiTheme.ACCENT.darkened(0.1), 0.42))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.width = 64
+	gt.height = 4
+	fill.texture = gt
+	fill.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	fill.stretch_mode = TextureRect.STRETCH_SCALE
+	if progress < 0.995:
+		var edge := ColorRect.new()
+		edge.color = Color(UiTheme.ACCENT.lightened(0.2), 0.9)
+		edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		edge.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
+		edge.offset_left = -2
+		fill.add_child(edge)
+	fill.anchor_top = 0.0
+	fill.anchor_bottom = 1.0
+	fill.anchor_left = 0.0
+	fill.anchor_right = clampf(progress, 0.0, 1.0)
+	fill.offset_left = 4
+	fill.offset_top = 4
+	fill.offset_bottom = -4
+	fill.offset_right = -4 if progress >= 0.995 else 0
+	host.add_child(fill)
 
 func _refresh_slots() -> void:
 	var c := World.player()
@@ -260,12 +332,13 @@ func _refresh_slots() -> void:
 		slot.add_child(row)
 		if i < c.research_current.size():
 			slot.theme_type_variation = "SlotGold"
+			slot.clip_contents = true
 			var r: Dictionary = c.research_current[i]
 			var id: String = r["tech"]
 			var t: Dictionary = Research.techs[id]
 			var ahead := maxi(int(t["year"]) - GameClock.year, 0)
 			var cost := float(t["cost"]) * (1.0 + Research.AHEAD_PENALTY * ahead)
-			row.add_child(UiTheme.icon_texture(UiTheme.technology_icon(id), 60))
+			row.add_child(UiTheme.icon_texture(_tech_icon(id), 60))
 			var col := VBoxContainer.new()
 			col.add_theme_constant_override("separation", 2)
 			col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -274,7 +347,12 @@ func _refresh_slots() -> void:
 			l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 			l.custom_minimum_size.x = 120
 			col.add_child(l)
-			col.add_child(PanelLayout.progress(float(r["progress"]) / maxf(cost, 0.001), Color("7fb0d9"), 9.0))
+			# ilerleme yuvanın zemini olarak dolar (yazılar önde)
+			var holder := Control.new()
+			holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot.add_child(holder)
+			slot.move_child(holder, 0)
+			_progress_back(holder, StyleBoxEmpty.new(), float(r["progress"]) / maxf(cost, 0.001))
 			var left := (cost - float(r["progress"])) / (Research.speed(c) * (1.0 + float(r.get("bonus", 0.0))))
 			col.add_child(UiTheme.make_label("%d %s" % [ceili(left), tr("UI_DAYS")], 13, UiTheme.TEXT_DIM))
 			var x := UiTheme.icon_button("close", tr("TIP_RESEARCH_CANCEL"), func() -> void: Research.cancel(c, id), 30)
