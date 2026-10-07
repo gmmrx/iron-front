@@ -1,0 +1,90 @@
+{
+  "city_west_0": {
+    "vertices": 10856,
+    "triangles": 12552,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2513,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_west_1": {
+    "vertices": 11892,
+    "triangles": 13628,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2513,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_east_0": {
+    "vertices": 10931,
+    "triangles": 12702,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2761,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_east_1": {
+    "vertices": 12047,
+    "triangles": 13858,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2761,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_orient_0": {
+    "vertices": 11154,
+    "triangles": 13116,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2039,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_orient_1": {
+    "vertices": 12570,
+    "triangles": 14608,
+    "materials": 5,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2039,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_nordic_0": {
+    "vertices": 10856,
+    "triangles": 12552,
+    "materials": 6,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2934,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  },
+  "city_nordic_1": {
+    "vertices": 11892,
+    "triangles": 13628,
+    "materials": 6,
+    "width": 1.0,
+    "depth": 0.8483,
+    "height": 0.2934,
+    "buildings": 14,
+    "vertex_colors": "CityTint / native COLOR_0",
+    "normal_texture": "textures/material_atlas_normal.png"
+  }
+}

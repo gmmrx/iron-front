@@ -12,6 +12,7 @@ uniform float y0 = 70.0;
 uniform float y1 = 240.0;
 uniform int steps = 28;
 uniform bool srgb_out = false;
+uniform float fade = 1.0;          // bulutun girişi (oyun başında yavaşça belirir); 1 = olağan görünüm
 varying vec3 wpos;
 
 void vertex() { wpos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
@@ -33,12 +34,17 @@ void fragment() {
     float tf = min(max(ta, tb), distance(wpos, ro));
     if (tf <= tn) { discard; }
     float len = min(tf - tn, 1600.0);
-    float dt = len / float(steps);
+    // Keep close/interior quality; distant, steep rays need fewer samples.
+    // Long grazing rays retain the original budget to avoid visible slices.
+    int samples = int(ceil(mix(float(steps), 12.0, smoothstep(700.0, 2800.0, tn))));
+    samples = min(steps, max(samples, int(ceil(len / 24.0))));
+    float dt = len / float(samples);
     float detail = 1.0 - smoothstep(2500.0, 14000.0, tn);
     float t = tn + dt * 0.5;
     float tr = 1.0;
     vec3 col = vec3(0.0);
     for (int i = 0; i < steps; i++) {
+        if (i >= samples) { break; }
         vec3 p = ro + rd * t;
         float m = mask_at(p.xz);
         if (m > 0.01) {
@@ -58,5 +64,5 @@ void fragment() {
     if (alpha < 0.003) { discard; }
     vec3 o = col / max(alpha, 0.001);
     ALBEDO = srgb_out ? o : pow(o, vec3(2.2));
-    ALPHA = min(alpha, 0.62);
+    ALPHA = min(alpha, 0.62) * fade;
 }

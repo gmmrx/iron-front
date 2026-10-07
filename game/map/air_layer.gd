@@ -3,9 +3,9 @@ extends Node3D
 ## Hava kanatlarının görünümü: üslerde park etmiş uçaklar, görev bölgesi üstünde tur atan V düzenleri,
 ## it dalaşı (iz mermileri, düşen uçak), yakın destek bombaları.
 
-const VISIBLE_DIST := 700.0           ## uçaklar ve kanat sayaçları yalnız yakında (uzakta kare hızı için çizilmez)
+const VISIBLE_DIST := 420.0           ## uçaklar ve kanat sayaçları yakın ve orta görüşte (askerlerden daha uzaktan)
 ## Her kanat aynı uçak modeliyle (PlaneModel: gövde, dönen pervane, ülkenin bayrağı); iğnelerin yanında küçük durur
-const PIN_SCALE := 0.8
+const PIN_SCALE := 1.0                ## uçak modelinin boyu (eskiden 0,8: haritada küçük kalıyordu)
 const PROP_SPEED := 22.0            ## pervane dönüşü (rad/sn); yerdeki uçağın pervanesi durur
 const ZS := 2.6                     ## sabit ölçek: zoom'la uçaklar büyüyüp yer değiştirmez
 const ORBIT_R := 13.0               ## tur yarıçapı (× ölçek)
@@ -16,24 +16,34 @@ const V_SLOTS := [Vector2(0, 0), Vector2(-5.0, -4.6), Vector2(5.0, -4.6), Vector
 var map: MapView3D
 var camera: MapCamera3D
 var models: UnitModels
+var combat_effects: CombatEffects
 
-var _mmi := {}                      ## "body", "prop", "flag:TAG" -> MultiMeshInstance3D
+var _mmi := {}                      ## "body", "prop", "shadow", "flag:TAG" -> MultiMeshInstance3D
+var sun_dir := Vector3(0.35, -0.8, 0.45).normalized()   ## güneş ışığının yönü (main verir): uçak gölgesi buna göre düşer
 var _zs := ZS
-var _fx := {}                       ## anahtar -> Node3D (it dalaşı / bombardıman)
-var _fx_timer := 0.0
 var _crash_timer := 0.0
+var _visual_time := 0.0
+var _freeze_flights := false
+var _fire_at := {}                  ## representative aircraft -> next burst, real seconds (not per-frame odds)
+var _port_target_cache := {}
+var _rng := RandomNumberGenerator.new() # Cosmetic variation must not consume the simulation's global RNG.
+var _crash_nodes: Array[Dictionary] = []
+const MAX_CRASHES := 3
 
 func _ready() -> void:
+	_rng.randomize()
 	var owners := {}
 	for w in Air.wings:
 		owners[w.owner] = true
 	UnitLayer.prewarm_glyphs(["plane"], owners.keys())
 	_multi("body", PlaneModel.body(), PlaneModel.material())
 	_multi("prop", PlaneModel.prop(), PlaneModel.material())
+	_multi("shadow", _shadow_quad(), _shadow_material(), true)
 
-func _multi(key: String, mesh: Mesh, mat: Material) -> MultiMeshInstance3D:
+func _multi(key: String, mesh: Mesh, mat: Material, colors := false) -> MultiMeshInstance3D:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = colors
 	mm.mesh = mesh
 	var mi := MultiMeshInstance3D.new()
 	mi.multimesh = mm
@@ -51,16 +61,33 @@ func _process(delta: float) -> void:
 		for ck: String in _counters.keys():
 			(_counters[ck] as Node3D).queue_free()
 		_counters.clear()
-		for k in _fx.keys():
-			_fx[k].queue_free()
-		_fx.clear()
+		_clear_transients()
+		if not World.in_game: _flights.clear()
 		return
-	_update_planes(minf(delta, 0.1))
-	_update_projectiles(minf(delta, 0.1))
-	_crash_timer -= delta
-	if _crash_timer <= 0.0:
-		_crash_timer = randf_range(6.0, 12.0)
-		_maybe_crash()
+	# These batches have map-wide bounds: automatic renderer LOD cannot estimate
+	# their individual plane distances. Use shared imported LODs by projected size.
+	var viewport_height := get_viewport().get_visible_rect().size.y
+	for part: String in ["body", "prop"]:
+		var mesh := PlaneModel.batch_mesh(part, camera.distance, viewport_height)
+		var mm: MultiMesh = _mmi[part].multimesh
+		if mm.mesh != mesh:
+			mm.mesh = mesh
+	var dt := 0.0 if GameClock.paused else minf(delta, 0.1)
+	_visual_time += dt
+	_freeze_flights = GameClock.paused
+	_update_planes(dt) # Counts/fog/parked planes remain current while physical sorties are frozen.
+	_freeze_flights = false
+	_update_crashes(GameClock.paused)
+	if GameClock.paused:
+		_update_projectiles(0.0) # Recheck physical bomb visibility without advancing clocks or motion.
+		return
+	_update_projectiles(dt)
+	_queue_losses()
+	_crash_timer -= dt
+	if _crash_timer <= 0.0 and not _crashes.is_empty() and _crash_nodes.size() < MAX_CRASHES:
+		_crash_timer = _rng.randf_range(0.7, 1.4)        # düşüşler gerçek zamanda arka arkaya, üst üste binmez
+		var c: Array = _crashes.pop_front()
+		_maybe_crash(int(c[0]), String(c[1]))
 
 func _view_rect() -> Rect2:
 	var r := camera.distance * 1.4
@@ -75,12 +102,58 @@ func _put(lists: Dictionary, owner: String, xf: Transform3D, spin: float) -> voi
 	var m := xf * PlaneModel.fix()
 	(lists["body"] as Array).append(m)
 	(lists["prop"] as Array).append(m * PlaneModel.spin(spin))
+	var sh := _shadow_xf(xf)
+	(lists["shadow"] as Array).append(sh[0])
+	_shadow_alpha.append(sh[1])
 	var fk := "flag:" + owner
 	if not _mmi.has(fk):
 		_multi(fk, PlaneModel.decal(), PlaneModel.flag_material(World.countries[owner]))
 	if not lists.has(fk):
 		lists[fk] = []
 	(lists[fk] as Array).append(m)
+
+## Uçağın gölgesi: altında yumuşak kenarlı koyu bir leke (güneş gölgesi kapalı; yalnız uçaklar gölge düşürür). Siluet
+## yere yassıltılınca ikinci bir uçak gibi okunuyordu. Leke gövde yönünde, kanat açıklığı kadar; uçak yükseldikçe büyür ve
+## söner, güneşin tersine yalnız hafifçe kayar. xf: uçağın (model düzeltmesinden önceki) dönüşümü; [dönüşüm, saydamlık]
+var _shadow_alpha: Array[float] = []
+func _shadow_xf(xf: Transform3D) -> Array:
+	var o := xf.origin
+	# çizilen arazi (gölgelendiricide örneklenen yükseklik) height_at'ten biraz yukarıda kalabiliyor: leke altında
+	# kaybolmasın diye 2,5 birim üstte (tepeden bakışta fark edilmez)
+	var g := maxf(map.height_at(Vector2(o.x, o.z)), 0.0) + 2.5
+	var span := xf.basis.get_scale().x
+	var alt := maxf(o.y - g, 0.0)
+	var grow := 1.0 + alt / maxf(span * 5.0, 0.01)
+	var along := Vector2(xf.basis.z.x, xf.basis.z.z)
+	var yaw := atan2(along.x, along.y) if along.length_squared() > 1e-8 else 0.0
+	var off := Vector2(sun_dir.x, sun_dir.z) / maxf(-sun_dir.y, 0.2) * alt * 0.2
+	var b := Basis(Vector3.UP, yaw).scaled(Vector3(span * 0.95 * grow, 1.0, span * 0.8 * grow))
+	return [Transform3D(b, Vector3(o.x + off.x, g, o.z + off.y)), clampf(0.5 / grow, 0.1, 0.5)]
+
+static func _shadow_quad() -> PlaneMesh:
+	var q := PlaneMesh.new()
+	q.size = Vector2.ONE
+	return q
+
+static func _shadow_material() -> StandardMaterial3D:
+	var g := Gradient.new()
+	g.set_color(0, Color(0, 0, 0, 1.0))
+	g.set_color(1, Color(0, 0, 0, 0.0))
+	g.add_point(0.45, Color(0, 0, 0, 0.75))
+	var gt := GradientTexture2D.new()
+	gt.gradient = g
+	gt.fill = GradientTexture2D.FILL_RADIAL
+	gt.fill_from = Vector2(0.5, 0.5)
+	gt.fill_to = Vector2(1.0, 0.5)
+	gt.width = 64
+	gt.height = 64
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_texture = gt
+	mat.vertex_color_use_as_albedo = true             # örnek rengi: siyah, saydamlığı yüksekliğe göre
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return mat
 
 ## Parktaki uçak: pistin yönünde, yere oturmuş, pervane durur
 func _parked(lists: Dictionary, owner: String, p: Vector2, yaw: float, i: int) -> void:
@@ -90,10 +163,11 @@ func _parked(lists: Dictionary, owner: String, p: Vector2, yaw: float, i: int) -
 
 func _update_planes(dt: float = 1.0 / 60.0) -> void:
 	var view := _view_rect()
+	_shadow_alpha.clear()
 	var lists := {}
 	for n: String in _mmi:
 		lists[n] = []
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := _visual_time
 	# gruplama (tümenler gibi): aynı üs / aynı görev bölgesi + sahip + tür -> tek temsilci düzen, sayı sayaçta
 	var group_lead := {}
 	var group_planes := {}
@@ -128,6 +202,25 @@ func _update_planes(dt: float = 1.0 / 60.0) -> void:
 		if not w.on_mission():
 			if not map.airbase_sites.has(w.base):
 				continue
+			# görev bitti ama havada uçak var: anında yok olmaz, üssüne döner ve iner
+			var homing := false
+			for k in 3:
+				var hf: Dictionary = _flights.get("%d:%d" % [w.id, k], {})
+				if hf.is_empty() or not bool(hf["flying"]):
+					continue
+				if not bool(hf.get("homing", false)):
+					hf["homing"] = true
+					if not bool(hf.get("landing", false)):
+						hf["route"] = [[map.airbase_sites[w.base][0], float((hf["pos"] as Vector3).y), "land"]]
+						hf["wp"] = 0
+				var hp := _fly(w, k, map.airbase_sites[w.base][0], hf["center"], 0.0, String(hf["kind"]), dt)
+				if hp.is_empty():
+					_flights.erase("%d:%d" % [w.id, k])
+					continue
+				homing = true
+				_draw_flight(lists, w, hp, k, t, view)
+			if homing:
+				continue
 			var site: Array = map.airbase_sites[w.base]
 			var pos: Vector2 = site[0]
 			if not view.has_point(pos):
@@ -148,8 +241,6 @@ func _update_planes(dt: float = 1.0 / 60.0) -> void:
 		var center: Vector2 = tgt[0]
 		var attack: bool = tgt[1]
 		var base_p: Vector2 = map.airbase_sites[w.base][0] if map.airbase_sites.has(w.base) else center
-		if not (view.has_point(center) or view.has_point(base_p)):
-			continue
 		var dog := _in_dogfight(center)
 		var n2 := mini(3, maxi(1, total / 34))
 		var ground := maxf(map.height_at(center), 0.0)
@@ -164,28 +255,10 @@ func _update_planes(dt: float = 1.0 / 60.0) -> void:
 					parked[w.base] = pi0 + 1
 					_parked(lists, w.owner, base_p + Vector2(-5.0 + float(pi0) * 4.5, 9.0), yaw0, pi0)
 				continue
-			var p3: Vector3 = sp[0]
-			var fwd3: Vector3 = sp[1]
-			var bank: float = sp[2]
-			var on_run: bool = sp[3]
-			var events: Array = sp[4]
-			if dog and on_run:
-				p3 += Vector3(sin(t * 2.3 + k), sin(t * 3.1 + k) * 0.3, cos(t * 1.7 + k * 2.0)) * 4.0 * _zs
-			var yaw := atan2(fwd3.x, fwd3.z)
-			var pitch := -asin(clampf(fwd3.y, -1.0, 1.0))
-			var b := Basis(Vector3.UP, yaw + PI) * Basis(Vector3.RIGHT, -pitch) * Basis(Vector3.FORWARD, bank)
-			b = b.scaled(Vector3.ONE * _scale())
-			_put(lists, w.owner, Transform3D(b, p3), t * PROP_SPEED + float(k) * 1.3 + float(w.id))
-			if "drop" in events:
-				if kind == "level":
-					for bi in 3:                                    # bomba dizisi: hedefin üstünde, kısa aralıklarla
-						_drop_bomb(p3 + fwd3 * float(bi - 1) * 3.0 * _zs, fwd3, w)
-				else:
-					_drop_bomb(p3, fwd3, w)
-			if kind == "dive" and on_run and fwd3.y < -0.05 and randf() < 0.12:
-				_fire_burst(p3 + fwd3 * 2.0 * _zs, fwd3)          # dalışta makineli ateşi
-			if dog and on_run and randf() < 0.05:
-				_fire_burst(p3 + fwd3 * 2.0 * _zs, fwd3)          # it dalaşı
+			if dog and bool(sp[3]):
+				var p0: Vector3 = sp[0]
+				sp[0] = p0 + Vector3(sin(t * 1.3 + k), sin(t * 1.8 + k) * 0.3, cos(t * 1.0 + k * 2.0)) * 4.0 * _zs
+			_draw_flight(lists, w, sp, k, t, view, kind, dog)
 	for ck: String in _counters.keys():
 		if not counters_seen.has(ck):
 			(_counters[ck] as Node3D).queue_free()
@@ -198,6 +271,34 @@ func _update_planes(dt: float = 1.0 / 60.0) -> void:
 		mm.visible_instance_count = arr.size()
 		for i in arr.size():
 			mm.set_instance_transform(i, arr[i])
+			if n == "shadow":
+				mm.set_instance_color(i, Color(0, 0, 0, _shadow_alpha[i]))
+
+## Uçuştaki bir uçağın çizimi ve olayları (bomba, ateş). sp: _fly'ın dönüşü. Görüş dışındaysa çizilmez (uçuş yine ilerler)
+func _draw_flight(lists: Dictionary, w: AirWing, sp: Array, k: int, t: float, view: Rect2, kind := "", dog := false) -> void:
+	var p3: Vector3 = sp[0]
+	if not view.grow(_scale() * 4.0).has_point(Vector2(p3.x, p3.z)):
+		return
+	var fwd3: Vector3 = sp[1]
+	var bank: float = sp[2]
+	var on_run: bool = sp[3]
+	var events: Array = sp[4]
+	var yaw := atan2(fwd3.x, fwd3.z)
+	var pitch := -asin(clampf(fwd3.y, -1.0, 1.0))
+	var b := Basis(Vector3.UP, yaw + PI) * Basis(Vector3.RIGHT, -pitch) * Basis(Vector3.FORWARD, bank)
+	b = b.scaled(Vector3.ONE * _scale() * float(sp[5]))
+	_put(lists, w.owner, Transform3D(b, p3), t * PROP_SPEED + float(k) * 1.3 + float(w.id))
+	if GameClock.paused: return
+	var key := "%d:%d" % [w.id, k]
+	if "drop" in events:
+		_drop_bomb(p3, fwd3, w, key)
+	var strafing := kind == "dive" and on_run and fwd3.y < -0.05
+	if (strafing or (dog and on_run)) and t >= float(_fire_at.get(key, -1.0)):
+		_fire_at[key] = t + _rng.randf_range(0.14, 0.24) if strafing else t + _rng.randf_range(0.20, 0.34)
+		var aircraft := Transform3D(b, p3) * PlaneModel.fix()
+		# Wing-mounted WWII guns: flames stay on the aircraft, not floating beyond the propeller.
+		for side: float in [-1.0, 1.0]:
+			_fire_burst(aircraft * Vector3(0.24, -0.035, side * 0.18), fwd3, strafing)
 
 # ------------------------------------------------------------------ sayaçlar
 var _counters := {}                 ## grup anahtarı -> Node3D (plaka + sayı)
@@ -285,6 +386,31 @@ func _wing_target(w: AirWing) -> Array:
 	var zc := World.province(w.zone).center
 	if w.mission == AirWing.Mission.RECON:
 		return [zc, false]                     # keşif: bölgenin üstünde geniş tur
+	if w.mission == AirWing.Mission.PORT_STRIKE:
+		# Visual only: the daily damage remains exclusively in Air._port_strikes().
+		var cache_key := "%s:%d" % [w.owner, w.zone]
+		var cached: Dictionary = _port_target_cache.get(cache_key, {})
+		if not cached.is_empty() and _visual_time < float(cached["until"]): return cached["target"]
+		var port_target := Vector2.INF
+		var port_distance := INF
+		for fleet: Fleet in Navy.fleets:
+			if not fleet.in_port() or not Diplomacy.are_enemies(fleet.owner, w.owner): continue
+			var province := World.province(fleet.location)
+			if province == null or Air.distance_km(province.center, zc) > Air.ZONE_KM: continue
+			var point := province.center
+			if map.harbors.has(fleet.location):
+				var harbor: Array = map.harbors[fleet.location]
+				point = (harbor[0] as Vector2) + (harbor[1] as Vector2) * 2.0
+			else:
+				var sea := Navy.sea_for(fleet.location)
+				if sea > 0: point = FleetLayer.nearest_water(province.center, _is_water)
+			var distance := point.distance_squared_to(zc)
+			if distance < port_distance:
+				port_distance = distance
+				port_target = point
+		var result: Array = [port_target, true] if port_target != Vector2.INF else [zc, false]
+		_port_target_cache[cache_key] = {"until": _visual_time + 1.0, "target": result}
+		return result
 	# bombardıman: hedef eyaletin en büyük şehri (sanayinin durduğu yer) üstünden geçiş
 	if w.mission == AirWing.Mission.BOMBING:
 		var st := World.state_of_province(w.zone)
@@ -319,10 +445,12 @@ func _wing_target(w: AirWing) -> Array:
 ## - "level" (taktik bombardıman): yüksekte düz geçiş, hedefin üstünde üç bombalık dizi;
 ## - "patrol" (avcı, hava üstünlüğü): hedefin çevresinde geniş devriye döngüsü (it dalaşı varsa orada manevra).
 ## Aynı kanadın uçakları arka arkaya kalkar ve aynı yoldan gider. Hedefin üstünde durmadan dönüp bomba atmazlar.
-const FLY_SPEED := 16.0             ## uçuş hızı (harita birimi / gerçek sn, × ölçek)
-const TURN_RATE := 1.3              ## en hızlı dönüş (rad / sn)
-const CLIMB_RATE := 5.0             ## irtifa değişimi (birim / sn, × ölçek)
-const REST_TIME := 14.0             ## üste yeniden silahlanma (sn)
+## Hareketler gerçek zamanda (oyun hızından bağımsız): savaşın canlandırması ağır ve okunur akar; oyun hızlanınca hareket
+## hızlanmaz, olaylar (kayıp, düşen uçak) sıklaşır.
+const FLY_SPEED := 9.0              ## uçuş hızı (harita birimi / gerçek sn, × ölçek)
+const TURN_RATE := 0.75             ## en hızlı dönüş (rad / sn)
+const CLIMB_RATE := 3.0             ## irtifa değişimi (birim / sn, × ölçek)
+const REST_TIME := 20.0             ## üste yeniden silahlanma (sn)
 const RUN_HALF := 14.0              ## saldırı geçişinin yarı uzunluğu (× ölçek)
 const CAPTURE := 6.0                ## ara noktaya bu kadar yaklaşınca sıradakine geçer (× ölçek)
 var _flights := {}                  ## "kanat:uçak" -> uçuş durumu
@@ -369,7 +497,21 @@ func _route(w: AirWing, base_p: Vector2, center: Vector2, ground: float, kind: S
 func _fly(w: AirWing, k: int, base_p: Vector2, center: Vector2, ground: float, kind: String, dt: float) -> Array:
 	var key := "%d:%d" % [w.id, k]
 	var f: Dictionary = _flights.get(key, {})
-	if f.is_empty() or (f["center"] as Vector2).distance_to(center) > 1.0 or f["kind"] != kind:
+	if _freeze_flights:
+		if f.is_empty() or not bool(f.get("flying", false)): return []
+		var cached: Array = f.get("render_sp", [])
+		if not cached.is_empty(): return [cached[0], cached[1], cached[2], cached[3], [], cached[5]]
+		var yaw0 := float(f.get("yaw", 0.0))
+		return [f["pos"], Vector3(sin(yaw0), 0.0, cos(yaw0)), 0.0, bool(f.get("run", false)), [], 1.0]
+	var changed: bool = not f.is_empty() and ((f["center"] as Vector2).distance_to(center) > 1.0 or f["kind"] != kind)
+	if changed and bool(f["flying"]):
+		# görev değişti, uçak havada: anında yok olmaz; önce üssüne döner, indikten sonra yeni göreve çıkar
+		if not bool(f.get("homing", false)) and not bool(f.get("landing", false)):
+			f["homing"] = true
+			f["route"] = [[base_p, float((f["pos"] as Vector3).y), "land"]]
+			f["wp"] = 0
+		changed = false
+	if f.is_empty() or changed:
 		# yeni görev: aynı kanadın uçakları arka arkaya, kanatlar birbirinden kaydırılmış kalkar
 		f = {"center": center, "kind": kind, "rest": fposmod(float(w.id) * 2.3, REST_TIME) + float(k) * 0.5, "flying": false}
 		_flights[key] = f
@@ -385,6 +527,8 @@ func _fly(w: AirWing, k: int, base_p: Vector2, center: Vector2, ground: float, k
 		f["yaw"] = atan2(first.x - base_p.x, first.y - base_p.y)
 		f["run"] = false
 		f["flying"] = true
+	if bool(f.get("landing", false)):
+		return _land(f, key, dt)
 	var route: Array = f["route"]
 	var wp: int = f["wp"]
 	var pos: Vector3 = f["pos"]
@@ -399,6 +543,8 @@ func _fly(w: AirWing, k: int, base_p: Vector2, center: Vector2, ground: float, k
 	var step := Vector2(sin(yaw), cos(yaw)) * speed * dt
 	var old_y := pos.y
 	pos = Vector3(pos.x + step.x, move_toward(pos.y, float(tgt[1]), CLIMB_RATE * _zs * dt), pos.z + step.y)
+	# havada zeminin altına hiç inmez (kalkışta ve dalışta da gövde yerin üstünde)
+	pos.y = maxf(pos.y, maxf(map.height_at(Vector2(pos.x, pos.z)), 0.0) + _clearance())
 	var events: Array = []
 	# ara noktaya varıldı (ya da ıskalanıp arkada kaldı): sıradakine
 	var dnow := tp.distance_to(Vector2(pos.x, pos.z))
@@ -410,9 +556,18 @@ func _fly(w: AirWing, k: int, base_p: Vector2, center: Vector2, ground: float, k
 			events.append("drop")
 		elif tag == "end":
 			f["run"] = false
+		elif tag == "land":
+			# üsse vardı: park yerine süzülür (_land), birden kaybolmaz
+			f["landing"] = true
+			f["pos"] = pos
+			f["yaw"] = yaw
+			f["spot"] = base_p + Vector2(-5.0, 9.0)
+			f["park_yaw"] = -float(map.airbase_sites[w.base][1]) + PI * 0.5 if map.airbase_sites.has(w.base) else yaw
+			f["land_d0"] = maxf((f["spot"] as Vector2).distance_to(Vector2(pos.x, pos.z)), 1.0)
+			f["land_y0"] = pos.y
+			return _land(f, key, dt)
 		wp += 1
 		if wp >= route.size():
-			# indi: yerde bekler, sonra yeni sefer
 			f["flying"] = false
 			f["rest"] = REST_TIME
 			return []
@@ -422,7 +577,43 @@ func _fly(w: AirWing, k: int, base_p: Vector2, center: Vector2, ground: float, k
 	var vy := (pos.y - old_y) / maxf(speed * dt, 0.001)
 	var fwd := Vector3(sin(yaw), vy, cos(yaw)).normalized()
 	var bank := clampf(-turn / maxf(TURN_RATE * dt, 1e-5) * 0.7, -0.7, 0.7)
-	return [pos, fwd, bank, bool(f["run"]), events]
+	var result: Array = [pos, fwd, bank, bool(f["run"]), events, 1.0]
+	f["render_sp"] = result.duplicate() # Dogfight wobble may modify the returned presentation pose.
+	return result
+
+## Uçuşta gövdenin yerden en az yüksekliği (modelin en alt noktası yerin üstünde)
+func _clearance() -> float:
+	return PlaneModel.GROUND * _scale() + 0.4
+
+## İniş: park yerine düz süzülür, yavaşlar, alçalır ve park boyuna küçülür (parktaki uçak 0,65 boyunda); varınca yerde
+## bekler. Dönüş: _fly ile aynı biçim, son öğe boy katı
+func _land(f: Dictionary, key: String, dt: float) -> Array:
+	var spot: Vector2 = f["spot"]
+	var pos: Vector3 = f["pos"]
+	var yaw: float = f["yaw"]
+	var p2 := Vector2(pos.x, pos.z)
+	var d := p2.distance_to(spot)
+	var prog := 1.0 - clampf(d / float(f["land_d0"]), 0.0, 1.0)
+	var speed := FLY_SPEED * _zs * lerpf(0.6, 0.15, prog)
+	var want := atan2(spot.x - p2.x, spot.y - p2.y) if d > 1.5 else float(f["park_yaw"])
+	yaw = rotate_toward(yaw, want, TURN_RATE * dt * 0.95)
+	p2 = p2.move_toward(spot, speed * dt)
+	var park_y := maxf(map.height_at(spot), 0.0) + PlaneModel.GROUND * _scale() * 0.65
+	var old_y := pos.y
+	pos = Vector3(p2.x, lerpf(float(f["land_y0"]), park_y, prog), p2.y)
+	f["pos"] = pos
+	f["yaw"] = yaw
+	if d < 0.3:
+		f["flying"] = false
+		f["landing"] = false
+		f["homing"] = false
+		f["rest"] = REST_TIME
+		return []
+	var vy := (pos.y - old_y) / maxf(speed * dt, 0.001)
+	var fwd := Vector3(sin(yaw), clampf(vy, -0.4, 0.4), cos(yaw)).normalized()
+	var result: Array = [pos, fwd, 0.0, false, [], lerpf(1.0, 0.65, prog)]
+	f["render_sp"] = result.duplicate()
+	return result
 
 func _in_dogfight(center: Vector2) -> bool:
 	for zone: int in Air.fights:
@@ -431,11 +622,14 @@ func _in_dogfight(center: Vector2) -> bool:
 	return false
 
 # ------------------------------------------------------------------ bombalar, atışlar, patlamalar
-var _bombs: Array = []              ## [konum, hız]
-var _tracers: Array = []            ## [konum, hız, ömür]
-var _blasts := 0
+const MAX_BOMBS := 96
+const BOMB_INTERVAL := 0.16          ## measured real seconds between bombs in one representative load
+const BOMB_IMPACT_SCALE := 2.1       ## 1.68× former aircraft bomb silhouette; shared budget unchanged
+const CRASH_IMPACT_SCALE := 2.65     ## 1.66× former aircraft crash silhouette, below shared scale clamp 3
+var _bombs: Array = []              ## [position, velocity, owner, mission province]
+var _pending_bombs: Array[Dictionary] = []
+var _bomb_clock := 0.0
 var _bomb_mmi: MultiMeshInstance3D
-var _tracer_mmi: MultiMeshInstance3D
 
 func _ensure_fx_meshes() -> void:
 	if _bomb_mmi != null:
@@ -443,149 +637,228 @@ func _ensure_fx_meshes() -> void:
 	var bm := MultiMesh.new()
 	bm.transform_format = MultiMesh.TRANSFORM_3D
 	var cap := CapsuleMesh.new()
-	cap.radius = 0.18
-	cap.height = 1.1
+	cap.radius = 0.14
+	cap.height = 0.95
+	cap.radial_segments = 8
+	cap.rings = 3
 	var cm := StandardMaterial3D.new()
-	cm.albedo_color = Color(0.12, 0.12, 0.12)
-	cap.material = cm
-	bm.mesh = cap
+	cm.albedo_color = Color(0.16, 0.18, 0.13)
+	cm.roughness = 0.72
+	var fin := BoxMesh.new()
+	fin.size = Vector3(0.44, 0.23, 0.035)
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.append_from(cap, 0, Transform3D.IDENTITY)
+	surface.append_from(fin, 0, Transform3D(Basis.IDENTITY, Vector3(0, 0.38, 0)))
+	surface.append_from(fin, 0, Transform3D(Basis(Vector3.UP, PI * 0.5), Vector3(0, 0.38, 0)))
+	surface.set_material(cm)
+	bm.mesh = surface.commit() # One shared low-poly WWII body plus crossed tail fins.
 	_bomb_mmi = MultiMeshInstance3D.new()
 	_bomb_mmi.multimesh = bm
+	_bomb_mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_bomb_mmi.custom_aabb = AABB(Vector3(-1e5, -100, -1e5), Vector3(2e5, 1e4, 2e5))
 	add_child(_bomb_mmi)
-	var tm := MultiMesh.new()
-	tm.transform_format = MultiMesh.TRANSFORM_3D
-	var box := BoxMesh.new()
-	box.size = Vector3(0.12, 0.12, 2.4)
-	var tmat := StandardMaterial3D.new()
-	tmat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	tmat.albedo_color = Color(1.0, 0.8, 0.35)
-	tmat.emission_enabled = true
-	tmat.emission = Color(1.0, 0.7, 0.3)
-	tmat.emission_energy_multiplier = 3.0
-	box.material = tmat
-	tm.mesh = box
-	_tracer_mmi = MultiMeshInstance3D.new()
-	_tracer_mmi.multimesh = tm
-	_tracer_mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_tracer_mmi.custom_aabb = AABB(Vector3(-1e5, -100, -1e5), Vector3(2e5, 1e4, 2e5))
-	add_child(_tracer_mmi)
 
-func _drop_bomb(from: Vector3, fwd: Vector3, w: AirWing) -> void:
-	# yakın destek 2 bomba, bombardıman uçağı 4'lü dizi (arka arkaya düşer)
+func _drop_bomb(from: Vector3, fwd: Vector3, w: AirWing, aircraft_key := "") -> void:
+	if GameClock.paused or _fogged(w): return
+	# One payload per sortie event, with actual elapsed release intervals rather than 12 simultaneous bombs.
 	var n := 4 if w.type == "bomber" else 2
 	for i in n:
-		var back := -fwd * float(i) * 1.6 * _zs
-		_bombs.append([from + back + Vector3(randf_range(-0.5, 0.5), -0.8, randf_range(-0.5, 0.5)) * _zs, fwd * 9.0 * _zs])
+		if _bombs.size() + _pending_bombs.size() >= MAX_BOMBS: break
+		_pending_bombs.append({"release": _bomb_clock + i * BOMB_INTERVAL, "from": from, "forward": fwd,
+			"owner": w.owner, "zone": w.zone, "aircraft": aircraft_key, "delay": i * BOMB_INTERVAL})
 
-func _fire_burst(nose: Vector3, fwd: Vector3) -> void:
-	for i in 3:
-		var dir := (fwd + Vector3(randf_range(-0.04, 0.04), randf_range(-0.03, 0.03), randf_range(-0.04, 0.04))).normalized()
-		_tracers.append([nose + dir * i * 1.5, dir * 90.0, 0.22])
+func _fire_burst(nose: Vector3, fwd: Vector3, strafing := false) -> void:
+	if combat_effects == null or GameClock.paused: return
+	combat_effects.muzzle(nose, fwd, "rifle", 0.65)
+	for i in 2:
+		var dir := (fwd + Vector3(_rng.randf_range(-0.04, 0.04), _rng.randf_range(-0.03, 0.03), _rng.randf_range(-0.04, 0.04))).normalized()
+		if strafing:
+			var travel := nose.y / maxf(-dir.y, 0.05)
+			var aim := nose + dir * minf(travel, 110.0)
+			if travel <= 110.0:
+				aim.y = maxf(map.height_at(Vector2(aim.x, aim.z)), 0.0) + 0.04
+				combat_effects.projectile(nose, aim, "rifle", 0.6)
+			else:
+				combat_effects.tracer(nose, aim, 180.0, 0.6)
+		else:
+			# Dogfight rounds never invent a ground hit; gameplay casualties are Air's responsibility.
+			combat_effects.tracer(nose, nose + dir * 30.0, 180.0, 0.6)
 
 func _update_projectiles(dt: float) -> void:
+	if GameClock.paused:
+		_prune_hidden_bombs()
+		_draw_bombs()
+		return
 	_ensure_fx_meshes()
+	_bomb_clock += dt
+	for i in range(_pending_bombs.size() - 1, -1, -1):
+		var drop: Dictionary = _pending_bombs[i]
+		if float(drop["release"]) > _bomb_clock: continue
+		_pending_bombs.remove_at(i)
+		if Military.hidden_at(drop["owner"], int(drop["zone"])): continue
+		var fwd: Vector3 = drop["forward"]
+		var origin: Vector3 = drop["from"] + fwd * FLY_SPEED * _zs * float(drop["delay"])
+		var flight: Dictionary = _flights.get(drop["aircraft"], {})
+		if not flight.is_empty() and bool(flight.get("flying", false)): origin = flight["pos"]
+		if _fx_hidden(String(drop["owner"]), int(drop["zone"]), origin): continue
+		_bombs.append([origin + Vector3(_rng.randf_range(-0.25, 0.25), -0.8, _rng.randf_range(-0.25, 0.25)) * _zs,
+			fwd * FLY_SPEED * _zs, drop["owner"], drop["zone"]])
 	for i in range(_bombs.size() - 1, -1, -1):
 		var b: Array = _bombs[i]
+		if _fx_hidden(String(b[2]), int(b[3]), b[0]):
+			_bombs.remove_at(i)
+			continue
 		var v: Vector3 = b[1]
 		v.y -= 55.0 * dt
 		b[1] = v
 		var p: Vector3 = b[0] + v * dt
 		b[0] = p
+		if _fx_hidden(String(b[2]), int(b[3]), p):
+			_bombs.remove_at(i)
+			continue # Never draw a round in the newly-entered unknown province, even for one frame.
 		var g := maxf(map.height_at(Vector2(p.x, p.z)), 0.0)
 		if p.y <= g:
-			_blast(Vector3(p.x, g, p.z))
+			_blast(Vector3(p.x, g, p.z), String(b[2]), int(b[3]))
 			_bombs.remove_at(i)
-	for i in range(_tracers.size() - 1, -1, -1):
-		var tr: Array = _tracers[i]
-		tr[0] = (tr[0] as Vector3) + (tr[1] as Vector3) * dt
-		tr[2] = float(tr[2]) - dt
-		if float(tr[2]) <= 0.0:
-			_tracers.remove_at(i)
+	_draw_bombs()
+
+func _prune_hidden_bombs() -> void:
+	# Observer/player visibility can change while paused. Culling is not simulation advancement.
+	for i in range(_bombs.size() - 1, -1, -1):
+		var bomb: Array = _bombs[i]
+		if _fx_hidden(String(bomb[2]), int(bomb[3]), bomb[0]): _bombs.remove_at(i)
+	for i in range(_pending_bombs.size() - 1, -1, -1):
+		var drop: Dictionary = _pending_bombs[i]
+		var point: Vector3 = drop["from"]
+		var flight: Dictionary = _flights.get(drop["aircraft"], {})
+		if not flight.is_empty() and bool(flight.get("flying", false)): point = flight["pos"]
+		if _fx_hidden(String(drop["owner"]), int(drop["zone"]), point): _pending_bombs.remove_at(i)
+
+func _draw_bombs() -> void:
+	if _bomb_mmi == null: return
 	var bm := _bomb_mmi.multimesh
 	if bm.instance_count < _bombs.size():
-		bm.instance_count = _bombs.size() + 8
+		bm.instance_count = mini(MAX_BOMBS, _bombs.size() + 8)
 	bm.visible_instance_count = _bombs.size()
 	for i in _bombs.size():
 		var v2: Vector3 = (_bombs[i][1] as Vector3).normalized()
 		var basis := Basis.looking_at(v2, Vector3.UP if absf(v2.y) < 0.99 else Vector3.FORWARD) * Basis(Vector3.RIGHT, PI * 0.5)
 		bm.set_instance_transform(i, Transform3D(basis.scaled(Vector3.ONE * _zs * 0.6), _bombs[i][0]))
-	var tm := _tracer_mmi.multimesh
-	if tm.instance_count < _tracers.size():
-		tm.instance_count = _tracers.size() + 16
-	tm.visible_instance_count = _tracers.size()
-	for i in _tracers.size():
-		var d: Vector3 = (_tracers[i][1] as Vector3).normalized()
-		var basis2 := Basis.looking_at(d, Vector3.UP if absf(d.y) < 0.99 else Vector3.FORWARD)
-		tm.set_instance_transform(i, Transform3D(basis2, _tracers[i][0]))
 
-## Tek seferlik isabet patlaması (ateş topu + toprak + is), sonra kendini siler
-func _blast(pos: Vector3) -> void:
-	if _blasts >= 20:
-		return
-	_blasts += 1
-	var root := Node3D.new()
-	root.position = pos
-	add_child(root)
-	var ex := models._particles_explosion()
-	ex.scale = Vector3.ONE * 0.8
-	var st: Array[Node] = [ex]
-	while not st.is_empty():
-		var n: Node = st.pop_back()
-		if n is GPUParticles3D:
-			var gp := n as GPUParticles3D
-			gp.one_shot = true
-			gp.explosiveness = 0.9
-			gp.amount = maxi(gp.amount / 2, 3)
-		st.append_array(n.get_children())
-	# kısa ömürlü ateş topu yerine: emitter'ları dışarıda kapatmadan önce ekle
-	root.add_child(ex)
-	get_tree().create_timer(4.0).timeout.connect(func() -> void:
-		_blasts -= 1
-		root.queue_free())
+func _is_water(point: Vector2) -> bool:
+	var province := World.province(map.province_at(point))
+	return province != null and not province.is_land()
+
+func _blast(pos: Vector3, owner := "", zone := 0) -> void:
+	if GameClock.paused or combat_effects == null or (owner != "" and _fx_hidden(owner, zone, pos)): return
+	combat_effects.impact(pos, "water" if _is_water(Vector2(pos.x, pos.z)) else "bomb", BOMB_IMPACT_SCALE)
+
+func _crash_impact(pos: Vector3, owner: String, zone: int) -> void:
+	if GameClock.paused or combat_effects == null or _fx_hidden(owner, zone, pos): return
+	combat_effects.impact(pos, "water" if _is_water(Vector2(pos.x, pos.z)) else "crash", CRASH_IMPACT_SCALE)
+
+func _fx_hidden(owner: String, zone: int, point: Vector3) -> bool:
+	if Military.hidden_at(owner, zone): return true
+	var pid := map.province_at(Vector2(point.x, point.z))
+	return pid > 0 and Military.hidden_at(owner, pid)
+
+func _clear_transients() -> void:
+	_bombs.clear()
+	_pending_bombs.clear()
+	_crashes.clear()
+	_planes_seen.clear() # Do not replay losses accumulated while zoomed out.
+	_fire_at.clear()
+	_port_target_cache.clear()
+	_crash_timer = 0.0
+	if _bomb_mmi != null: _bomb_mmi.multimesh.visible_instance_count = 0
+	for record: Dictionary in _crash_nodes:
+		var node: Node3D = record["root"]
+		var tween: Tween = record["tween"]
+		if tween.is_valid(): tween.kill()
+		if is_instance_valid(node): node.queue_free()
+	_crash_nodes.clear()
+
+func _update_crashes(paused: bool) -> void:
+	for i in range(_crash_nodes.size() - 1, -1, -1):
+		var record: Dictionary = _crash_nodes[i]
+		var node: Node3D = record["root"]
+		if not is_instance_valid(node):
+			_crash_nodes.remove_at(i)
+			continue
+		if _fx_hidden(String(record["owner"]), int(record["zone"]), node.global_position):
+			var hidden_tween: Tween = record["tween"]
+			if hidden_tween.is_valid(): hidden_tween.kill()
+			node.queue_free()
+			_crash_nodes.remove_at(i)
+			continue
+		var tween: Tween = record["tween"]
+		if tween.is_valid():
+			if paused and tween.is_running(): tween.pause()
+			elif not paused and not tween.is_running(): tween.play()
 
 ## İt dalaşında ara ara düşen uçak: dumanla yere çakılır, yerde patlama
-func _maybe_crash() -> void:
-	var view := _view_rect()
-	var zones: Array = []
-	for zone: int in Air.fights:
-		if view.has_point(Air.fights[zone]["pos"]):
-			zones.append(zone)
-	if zones.is_empty():
+## Düşen uçaklar gerçek kayıplardan: görevdeki bir kanat uçak kaybettikçe (Air'in saatlik hava savaşı) o bölgede
+## sıraya düşüş girer (her ~8 kayıp bir düşüş, bir seferde en çok 3; sıra en çok 6). Oyun hızlanınca kayıp sıklaşır,
+## düşüşün kendisi aynı hızda kalır.
+var _crashes: Array = []                 ## [bölge, sahip]
+var _planes_seen := {}                   ## wing id -> last planes/owner/zone/mission; includes just-destroyed wings
+const CRASH_PER := 8
+const CRASH_QUEUE := 6
+
+func _queue_losses() -> void:
+	var alive := {}
+	for w in Air.wings:
+		alive[w.id] = true
+		var previous: Dictionary = _planes_seen.get(w.id, {})
+		var prev := int(previous.get("planes", w.planes))
+		_planes_seen[w.id] = {"planes": w.planes, "owner": w.owner, "zone": w.zone, "mission": w.on_mission(), "wing": w}
+		if w.planes >= prev or not w.on_mission() or _fogged(w):
+			continue
+		_queue_crashes(prev - w.planes, w.zone, w.owner)
+	# Array removal also happens for disband/country cleanup. The retained wing must really be depleted;
+	# disband returns its surviving planes to stock and must never invent a crash.
+	for id: int in _planes_seen.keys():
+		if alive.has(id): continue
+		var previous: Dictionary = _planes_seen[id]
+		var removed: AirWing = previous.get("wing")
+		if removed != null and removed.planes <= 0 and bool(previous["mission"]) and not Military.hidden_at(previous["owner"], int(previous["zone"])):
+			_queue_crashes(int(previous["planes"]), int(previous["zone"]), String(previous["owner"]))
+		_planes_seen.erase(id)
+
+func _queue_crashes(lost: int, zone: int, owner: String) -> void:
+	var n := clampi(ceili(float(lost) / CRASH_PER), 1, 3)
+	for i in n:
+		if _crashes.size() < CRASH_QUEUE: _crashes.append([zone, owner])
+
+func _maybe_crash(zone: int, owner: String) -> void:
+	var zp := World.province(zone)
+	if GameClock.paused or zp == null or not World.countries.has(owner) or Military.hidden_at(owner, zone):
 		return
-	var zone: int = zones[randi() % zones.size()]
-	var pos: Vector2 = Air.fights[zone]["pos"] + Vector2(randf_range(-1, 1), randf_range(-1, 1)) * ORBIT_R * _zs
-	var tags: Array = Air.fights[zone]["tags"]
-	var owner: String = tags[randi() % tags.size()] if not tags.is_empty() else World.player_tag
-	if not World.countries.has(owner):
+	if _crash_nodes.size() >= MAX_CRASHES:
 		return
+	var center: Vector2 = Air.fights[zone]["pos"] if Air.fights.has(zone) else zp.center
+	if not _view_rect().has_point(center):
+		return
+	var pos: Vector2 = center + Vector2(_rng.randf_range(-1, 1), _rng.randf_range(-1, 1)) * ORBIT_R * _zs
 	# düşen uçak: burnu kökün +Z'sine (gittiği yöne), pervane durmuş
 	var mi := PlaneModel.make(World.countries[owner])
 	mi.transform = Transform3D(Basis(Vector3.UP, PI).scaled(Vector3.ONE * _scale()), Vector3.ZERO)
 	var root := Node3D.new()
 	var ground := maxf(map.height_at(pos), 0.0)
 	root.position = Vector3(pos.x, ground + ALT * _zs, pos.y)
-	root.rotation.y = randf() * TAU
+	root.rotation.y = _rng.randf() * TAU
 	add_child(root)
 	root.add_child(mi)
-	var smoke := models._particles_smoke()
-	smoke.scale = Vector3.ONE * 0.5
-	smoke.local_coords = false
-	root.add_child(smoke)
-	var fire := models._particles_flash()
-	fire.scale = Vector3.ONE * 0.3
-	root.add_child(fire)
+	if combat_effects != null: combat_effects.trail(root, 0.7, 5.0, true)
 	var fwd := Vector3(sin(root.rotation.y), 0, cos(root.rotation.y)) * 25.0 * _zs
 	var tw := root.create_tween().set_parallel(true)
-	tw.tween_property(root, "position", root.position + fwd + Vector3(0, -(ALT * _zs), 0), 3.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw.tween_property(root, "rotation:z", randf_range(2.0, 5.0), 3.2)
-	tw.tween_property(root, "rotation:x", 0.7, 3.2)
+	_crash_nodes.append({"root": root, "tween": tw, "owner": owner, "zone": zone})
+	tw.tween_property(root, "position", root.position + fwd + Vector3(0, -(ALT * _zs), 0), 5.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_property(root, "rotation:z", _rng.randf_range(2.0, 5.0), 5.0)
+	tw.tween_property(root, "rotation:x", 0.7, 5.0)
 	tw.chain().tween_callback(func() -> void:
 		mi.visible = false
-		var ex := models._particles_explosion()
-		ex.scale = Vector3.ONE * 1.6
-		ex.one_shot = true
-		ex.emitting = true
-		root.add_child(ex))
+		_crash_impact(root.global_position, owner, zone))
 	tw.chain().tween_interval(3.0)
 	tw.chain().tween_callback(root.queue_free)

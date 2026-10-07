@@ -50,7 +50,7 @@ func test_program_and_election_entries() -> void:
 			break
 	Politics.complete_focus_now(ger, id, false)
 	var e := _last("NEWS_PROGRAM_DONE")
-	check(not e.is_empty() and e["tags"] == ["GER"], "büyük gücün programı kayıtta")
+	check(e.is_empty(), "kapalı Devlet Programı dünya kaydı/bildirimi üretmez")
 	var me := player()
 	var mine := ""
 	for f: String in Politics.tree_of(me):

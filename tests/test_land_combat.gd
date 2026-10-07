@@ -35,6 +35,7 @@ func _div(tag: String, pid: int, ti: int = INFANTRY) -> Division:
 # ------------------------------------------------------------------ çarpanlar
 func test_attack_modifiers() -> void:
 	_begin_war()
+	GameClock.hour = 12                         # Avrupa'da gündüz: gece cezası bu testin konusu değil
 	var b := _border()
 	if not check(not b.is_empty(), "Almanya–Polonya ova sınırı"):
 		return
@@ -46,10 +47,10 @@ func test_attack_modifiers() -> void:
 	d.planning = 1.0
 	near(Military.attack_mod(d, b[1]), 1.2, 0.0001, "tam planlama +%20")
 	d.planning = 0.0
-	# yakıt: zırhlı tümen yakıtsızken −%35, piyade etkilenmez
+	# yakıt: zırhlı tümen yakıtsızken −%35, piyade etkilenmez (sade oyunda yakıt kapalı: ceza yok)
 	var tank := _div("GER", b[0], ARMOR)
 	country("GER").fuel = 0.0
-	near(Military.attack_mod(tank, b[1]), 1.0 - 0.35, 0.0001, "yakıtsız zırhlı −%35")
+	near(Military.attack_mod(tank, b[1]), 1.0 - (0.35 if Military.FUEL else 0.0), 0.0001, "yakıtsız zırhlı (yakıt açıksa −%35)")
 	near(Military.attack_mod(d, b[1]), 1.0, 0.0001, "yakıtsızlık piyadeyi etkilemez")
 	country("GER").fuel = 1000.0
 	near(Military.attack_mod(tank, b[1]), 1.0, 0.0001, "yakıt varken ceza yok")
@@ -60,6 +61,7 @@ func test_attack_modifiers() -> void:
 
 func test_river_and_amphibious_penalty() -> void:
 	_begin_war()
+	GameClock.hour = 12                         # Avrupa'da gündüz: gece cezası bu testin konusu değil
 	# nehir: bir kara bölgesinden nehir komşusuna saldırı
 	var src := 0
 	var dst := 0
@@ -242,8 +244,38 @@ func test_supply_in_enemy_territory() -> void:
 	World.day_count = 1                           # ikmal çift günlerde hesaplanır; bu gün yalnız uygular
 	Military._on_day()
 	check(home.supplied, "kendi toprağında ikmal var")
-	check(not deep.supplied, "düşman kontrolündeki bölgede ikmal yok")
-	lt(deep.strength, 1.0, "ikmalsiz tümen günde güç kaybeder")
+	if Military.SUPPLY:
+		check(not deep.supplied, "düşman kontrolündeki bölgede ikmal yok")
+		lt(deep.strength, 1.0, "ikmalsiz tümen günde güç kaybeder")
+	else:
+		# sade oyun: ikmal savaşı etkilemez; düşman toprağındaki tümen de ikmalli sayılır, güç kaybetmez
+		check(deep.supplied, "ikmal kapalı: düşman toprağında da ikmalli")
+		eq(deep.strength, 1.0, "ikmal kapalı: güç kaybı yok")
+
+## Teşvik: nüfuz harcanır (tümen başına), bütünlük döner, süre boyunca saldırı ve savunma artar; süre bitince ya da
+## teşvikliyken yeniden teşvik edilmez; nüfuz yetmezse olmaz
+func test_motivate() -> void:
+	_begin_war()
+	var b := _border()
+	if not check(not b.is_empty(), "sınır"):
+		return
+	var ger := country("GER")
+	var d1 := _div("GER", b[0])
+	var d2 := _div("GER", b[0])
+	var md := Military.motivate_def()
+	var base := Military.attack_mod(d1, b[1])
+	d1.org = 0.0
+	ger.political_power = 15.0
+	eq(Military.motivate(ger, [d1, d2]), "MOTIVATE_ERR_PP", "nüfuz yetmezse olmaz")
+	ger.political_power = 100.0
+	eq(Military.motivate(ger, [d1, d2]), "", "teşvik edilir")
+	near(ger.political_power, 100.0 - 2.0 * float(md["pp_per_division"]), 0.001, "tümen başına nüfuz")
+	near(d1.org, Military.div_stats(d1)["org"] * float(md["org"]), 0.001, "bütünlüğün bir kısmı hemen döner")
+	near(Military.attack_mod(d1, b[1]), base + float(md["bonus"]), 0.0001, "saldırı artar")
+	eq(Military.motivate(ger, [d1]), "MOTIVATE_ERR_NONE", "teşviki süren yeniden teşvik edilmez")
+	World.day_count += int(md["hours"]) / 24 + 1
+	check(not Military.motivated(d1), "süre biter")
+	near(Military.attack_mod(d1, b[1]), base, 0.0001, "süre bitince katkı yok")
 
 # ------------------------------------------------------------------ ordu → cephe
 func test_army_spreads_to_front() -> void:

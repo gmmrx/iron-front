@@ -1,0 +1,19 @@
+{
+  "name": "iron-front-web",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "tsc --noEmit && vite build",
+    "prepare-data": "python3 tools/prepare.py"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
+  }
+}

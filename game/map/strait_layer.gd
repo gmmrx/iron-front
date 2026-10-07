@@ -1,21 +1,28 @@
 class_name StraitLayer
 extends Node3D
-## Boğaz geçişleri. Kısa boğazlar: çelik kafes köprü (ayaklı açıklıklar + taş başlıklar).
-## Uzun geçişler (Manş, Cebelitarık...): feribot hattı (kesikli çizgi + ad).
+## Every gameplay strait is a small fixed-world-scale 3D bridge.
+## Shared Blender meshes retain their native PBR; bank placement is visual-only.
 
-const BRIDGE_MAX_LEN := 20.0
-const SPAN_SCALE := 4.0            ## köprü açıklığı dünya uzunluğu (model 1 birim)
-const WIDTH_SCALE := 5.0           ## stratejik kamerada okunur yatay genişlik; düşey eksen ölçeklenmez
-const END_LENGTH_SCALE := 3.2
-const DECK_HEIGHT := 0.38
-const DASH := 1.4
-const GAP := 1.0
-const COLOR := Color(0.93, 0.84, 0.6)
-const VISIBLE_RANGE := 1100.0
+const MODELS := preload("res://game/map/strait_models.gd")
+const BRIDGE_SPAN_LENGTH := 1.7
+const BRIDGE_WIDTH_SCALE := 1.6
+const BRIDGE_END_LENGTH := 0.45
+const BRIDGE_BANK_HALF_WIDTH := 0.25
+const BRIDGE_BANK_STEP := 0.15
+const BRIDGE_BANK_SEARCH := 12.0
+const MAX_BANK_SEARCH := 64.0
+const MIN_DECK_HEIGHT := 0.03
+const COLOR := Color(0.98, 0.96, 0.9)
+const VISIBLE_RANGE := 380.0
 
 var map: MapView3D
 var library: Dictionary        ## CityLayer3D'nin bina kütüphanesi (bridge_span, bridge_end)
-var building_mesh: Callable    ## ad -> Mesh (bina shader'ıyla)
+var building_mesh: Callable    ## CityLayer3D'nin mevcut API'si korunur; yeni modeller native PBR kullanır.
+var placements: Array[Dictionary] = []
+var bridge_endpoints := {}
+var _models := MODELS.new()
+var _land_pixels := {}
+var _water_candidates: Array[Vector2] = []
 
 func _ready() -> void:
 	for s: Dictionary in World.straits:
@@ -23,13 +30,11 @@ func _ready() -> void:
 		var b := Vector2(s["to"][0], s["to"][1])
 		var names: Dictionary = s["name"]
 		var title: String = names.get(TranslationServer.get_locale().substr(0, 2), names["en"])
-		if a.distance_to(b) <= BRIDGE_MAX_LEN:
-			_bridge(a, b, str(names.get("en", "")) == "Bosporus")
-		else:
-			_ferry(a, b)
+		var actor := str(names.get("en", ""))
+		var label_anchor := _bridge(a, b, actor)
 		var l := Label3D.new()
 		l.text = title
-		l.font = UiTheme.bold_font()
+		l.font = load("res://assets/fonts/BarlowCondensed-SemiBold.ttf")
 		l.font_size = 20
 		l.outline_size = 8
 		l.modulate = COLOR
@@ -38,91 +43,130 @@ func _ready() -> void:
 		l.fixed_size = true
 		l.pixel_size = 0.0005
 		l.no_depth_test = true
-		var mid := (a + b) * 0.5
-		l.position = Vector3(mid.x, 5.0, mid.y)
+		# Fixed cartographic offset, not a zoom-specific title: keep the normal
+		# name clear of the fixed, cross-channel bridge.
+		l.position = Vector3(label_anchor.x, 0.05, label_anchor.y)
+		var banks: Dictionary = bridge_endpoints.get(actor, {})
+		l.offset = bridge_label_offset(banks.get("direction", Vector2.RIGHT), l.font, title)
+		l.scale = Vector3.ONE
 		l.visibility_range_end = VISIBLE_RANGE * 0.7
 		add_child(l)
 
-## Uçlar karada kalacak şekilde köprü: taş başlık + n açıklık + taş başlık
-func _bridge(a: Vector2, b: Vector2, illustrated := false) -> void:
-	var dir := (b - a).normalized()
-	# her iki ucu kıyıya doğru biraz uzat, karada otursun
-	a -= dir * 2.0
-	b += dir * 2.0
-	var L := a.distance_to(b)
-	var deck := maxf(maxf(map.height_at(a), map.height_at(b)), 0.0) + DECK_HEIGHT
-	if illustrated and _add_bosphorus_bridge(a, b, deck):
-		return
-	var n := maxi(1, int(ceil(L / SPAN_SCALE)))
-	var span := L / n
-	var yaw := -atan2(dir.y, dir.x)
-	var span_mesh: Mesh = building_mesh.call("bridge_span")
-	var end_mesh: Mesh = building_mesh.call("bridge_end")
-	if span_mesh == null:
-		return
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = span_mesh
-	mm.instance_count = n
-	for i in n:
-		var p := a + dir * (span * i)
-		# glTF sonrası model eksenleri: X=uzunluk, Y=yükseklik, Z=genişlik.
-		# Eski kod Y'yi WIDTH_SCALE ile çarpıp köprüleri dikeyde beş kat uzatıyordu.
-		var basis := Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(span, 1.0, WIDTH_SCALE))
-		mm.set_instance_transform(i, Transform3D(basis, Vector3(p.x, deck, p.y)))
-	var mmi := MultiMeshInstance3D.new()
-	mmi.multimesh = mm
-	mmi.visibility_range_end = VISIBLE_RANGE
-	mmi.visibility_range_end_margin = VISIBLE_RANGE * 0.12
-	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-	add_child(mmi)
-	if end_mesh:
-		for pair: Array in [[a, yaw + PI], [b, yaw]]:
-			var mi := MeshInstance3D.new()
-			mi.mesh = end_mesh
-			var p2: Vector2 = pair[0]
-			var end_basis := Basis(Vector3.UP, pair[1]) * Basis.from_scale(Vector3(END_LENGTH_SCALE, 1.0, WIDTH_SCALE))
-			mi.transform = Transform3D(end_basis, Vector3(p2.x, deck, p2.y))
-			mi.visibility_range_end = VISIBLE_RANGE
-			mi.visibility_range_end_margin = VISIBLE_RANGE * 0.12
-			mi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-			add_child(mi)
+## One-time offset perpendicular to the bridge. Text stays in its normal style
+## and does not sit on a long diagonal/vertical span; no camera/zoom dependency.
+func bridge_label_offset(direction: Vector2, font: Font, title: String) -> Vector2:
+	var projected := Vector2(direction.x, direction.y * cos(MapCamera3D.PITCH_NEAR)).normalized()
+	var perpendicular := Vector2(-projected.y, projected.x)
+	if perpendicular.y < 0.0: perpendicular = -perpendicular
+	var text_width := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+	var clearance := absf(perpendicular.x) * (text_width * 0.5 + 8.0) + absf(perpendicular.y) * 18.0 + 12.0
+	var screen_offset := perpendicular * clearance
+	return Vector2(screen_offset.x, -screen_offset.y)
 
-## Boğaz üzerindeki ana geçişi harita düzleminde döndürülmüş sade bir 3D yol köprüsüyle göster.
-func _add_bosphorus_bridge(a: Vector2, b: Vector2, deck: float) -> bool:
-	var direction := (b - a).normalized()
-	var mid := (a + b) * 0.5
-	var bridge := RoadBridge3D.new()
-	bridge.build(a.distance_to(b), 3.6)
-	bridge.position = Vector3(mid.x, deck, mid.y)
-	bridge.rotation.y = -atan2(direction.y, direction.x)
-	add_child(bridge)
+func _is_land(p: Vector2) -> bool:
+	var key := Vector2i(p.floor())
+	if not _land_pixels.has(key):
+		var province := World.province(map.province_at(p))
+		_land_pixels[key] = province != null and province.is_land()
+	return _land_pixels[key]
+
+## Small nearest-water lookup; no civilian model loading or hull-fitting dependency.
+func nearest_water_point(seed: Vector2) -> Vector2:
+	if not _is_land(seed): return seed
+	if _water_candidates.is_empty():
+		for x in range(-32, 33):
+			for y in range(-32, 33): _water_candidates.append(Vector2(x, y) * 0.25)
+		_water_candidates.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.length_squared() < b.length_squared())
+	for offset: Vector2 in _water_candidates:
+		var point := seed + offset
+		if not _is_land(point): return point
+	return Vector2.INF
+
+func _add_model(kind: String, model: Dictionary, placement: Transform3D, site: Dictionary = {}) -> MeshInstance3D:
+	var node := MeshInstance3D.new()
+	node.name = kind
+	node.mesh = model["mesh"]
+	node.transform = placement * (model["transform"] as Transform3D)
+	node.visibility_range_end = VISIBLE_RANGE
+	node.visibility_range_end_margin = VISIBLE_RANGE * 0.12
+	node.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	# Native imported surface materials and atlas are intentionally not replaced.
+	add_child(node)
+	var record := site.duplicate()
+	record.merge({"kind": kind, "path": model["path"], "placement": placement, "node": node})
+	placements.append(record)
+	return node
+
+## Gameplay strait endpoints may be water pixels along the channel, not bridge abutments.
+## Find the shortest bank-to-bank crossing around the water midpoint, visual-only.
+func bridge_banks(a: Vector2, b: Vector2, actor: String) -> Dictionary:
+	var original := (b - a).normalized()
+	var center := nearest_water_point((a + b) * 0.5)
+	if center == Vector2.INF: return {}
+	var reach := clampf(a.distance_to(b) * 1.75 + 4.0, BRIDGE_BANK_SEARCH, MAX_BANK_SEARCH)
+	var best := {}
+	var shortest := INF
+	for angle: float in [0.0, PI / 2.0, -PI / 12.0, PI / 12.0, -PI / 6.0, PI / 6.0,
+		PI / 2.0 - PI / 12.0, PI / 2.0 + PI / 12.0, PI / 2.0 - PI / 6.0, PI / 2.0 + PI / 6.0]:
+		var direction := original.rotated(angle)
+		var first := _bridge_bank(center, -direction, reach)
+		var second := _bridge_bank(center, direction, reach)
+		if first == Vector2.INF or second == Vector2.INF: continue
+		var length := first.distance_to(second)
+		if length >= shortest or _is_land(first.lerp(second, 0.5)): continue
+		# The crossing must pass through the water channel, not connect two points on one land shelf.
+		var wet := 0
+		for fraction: float in [0.2, 0.35, 0.5, 0.65, 0.8]:
+			if not _is_land(first.lerp(second, fraction)): wet += 1
+		if wet < 3: continue
+		shortest = length
+		best = {"actor": actor, "start": first, "end": second, "center": (first + second) * 0.5,
+			"direction": (second - first).normalized(), "length_world": length, "water_samples": wet, "search_world": reach}
+	return best
+
+func _bridge_bank(center: Vector2, outward: Vector2, reach: float) -> Vector2:
+	for step in range(1, ceili(reach / BRIDGE_BANK_STEP) + 1):
+		var p := center + outward * (step * BRIDGE_BANK_STEP)
+		if _bridge_bank_fits(p, outward): return p
+	return Vector2.INF
+
+func _bridge_bank_fits(p: Vector2, outward: Vector2) -> bool:
+	var right := Vector2(-outward.y, outward.x)
+	# The entire small end abutment extends from the shoreline back onto its bank (+X).
+	for depth: float in [0.0, BRIDGE_END_LENGTH * 0.5, BRIDGE_END_LENGTH]:
+		for side: float in [-BRIDGE_BANK_HALF_WIDTH, 0.0, BRIDGE_BANK_HALF_WIDTH]:
+			if not _is_land(p + outward * depth + right * side): return false
 	return true
 
-func _ferry(a: Vector2, b: Vector2) -> void:
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = COLOR
-	mat.no_depth_test = true
-	mat.render_priority = 3
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var dir := (b - a).normalized()
-	var nrm := Vector2(-dir.y, dir.x) * 0.3
+func _bridge(a: Vector2, b: Vector2, actor: String) -> Vector2:
+	var model := _models.model("little_belt_span")
+	var end := _models.model("little_belt_end")
+	if model.is_empty() or end.is_empty(): return (a + b) * 0.5
+	var banks := bridge_banks(a, b, actor)
+	if banks.is_empty():
+		push_warning("No safe visual bridge banks found for " + actor)
+		return (a + b) * 0.5
+	bridge_endpoints[actor] = banks
+	a = banks["start"]
+	b = banks["end"]
+	var direction := (b - a).normalized()
+	var yaw := -atan2(direction.y, direction.x)
 	var length := a.distance_to(b)
-	var t := 0.0
-	while t < length:
-		var p0 := a + dir * t
-		var p1 := a + dir * minf(t + DASH, length)
-		var v := [Vector3(p0.x - nrm.x, 0.6, p0.y - nrm.y), Vector3(p0.x + nrm.x, 0.6, p0.y + nrm.y),
-				Vector3(p1.x + nrm.x, 0.6, p1.y + nrm.y), Vector3(p1.x - nrm.x, 0.6, p1.y - nrm.y)]
-		for i in [0, 1, 2, 0, 2, 3]:
-			st.set_normal(Vector3.UP)
-			st.add_vertex(v[i])
-		t += DASH + GAP
-	var mi := MeshInstance3D.new()
-	mi.mesh = st.commit()
-	mi.material_override = mat
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	mi.visibility_range_end = VISIBLE_RANGE * 2.0
-	add_child(mi)
+	# The abutment's imported bottom determines deck height: its stone base
+	# touches the flat ground instead of floating above it at an arbitrary Y.
+	var end_bounds: AABB = end["bounds"]
+	var deck := maxf(-end_bounds.position.y, MIN_DECK_HEIGHT)
+	var count := maxi(1, ceili(length / BRIDGE_SPAN_LENGTH))
+	var span := length / count
+	for i in count:
+		var p := a + direction * (span * i)
+		var basis := Basis(Vector3.UP, yaw) * Basis.from_scale(Vector3(span, 1.0, BRIDGE_WIDTH_SCALE))
+		_add_model("bridge_span", model, Transform3D(basis, Vector3(p.x, deck, p.y)), banks)
+	for pair: Array in [[a, yaw + PI], [b, yaw]]:
+		var p: Vector2 = pair[0]
+		var basis := Basis(Vector3.UP, pair[1]) * Basis.from_scale(Vector3(BRIDGE_END_LENGTH, 1.0, BRIDGE_WIDTH_SCALE))
+		var metadata := banks.duplicate()
+		metadata["bank_position"] = p
+		metadata["outward"] = -direction if p == a else direction
+		_add_model("bridge_end", end, Transform3D(basis, Vector3(p.x, deck, p.y)), metadata)
+	return banks["center"]

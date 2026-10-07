@@ -1,7 +1,7 @@
 class_name MapView3D
 extends Node3D
-## 3D harita: yükseklik haritasıyla kabartılmış tek bir ızgara mesh + harita shader'ı.
-## Province seçimi CPU'daki id görüntüsünden, yükseklik CPU'daki yükseklik görüntüsünden okunur.
+## Düz harita zemini + ayrıntılı boyalı arazi; modeller ve yapılar ayrı 3D katmanlarda kalır.
+## Ham yükseklik yalnız yüzeydeki dağ gölgesi, biyom ve kar için; model yerleşimi daima y=0.
 
 enum MapMode { POLITICAL, TERRAIN, STATES, ROUTES }
 
@@ -12,16 +12,15 @@ const HEIGHT_PATH := "res://data/map/heightmap.r32"
 const WATER_PATH := "res://data/map/water.png"
 const BIOME_PATH := "res://data/map/biome.png"
 const DETAIL_DIR := "res://assets/terrain/"
-const CLOUD_SHADER := preload("res://assets/shaders/clouds.gdshader")
-const CLOUD_HEIGHT := 140.0
-const CLOUD_FADE := Vector2(2400.0, 4200.0)   ## kamera mesafesi: bulutların belirmeye başladığı / tam olduğu
+const AMBIENT_CLOUDS := preload("res://game/map/ambient_clouds.gd")
 const SHADER := preload("res://assets/shaders/map3d.gdshader")
-const HEIGHT_SCALE := 0.012        ## dünya birimi / metre (~15x abartı; 1 birim = 1.23 km)
+const HEIGHT_SCALE := 0.0          ## gerçek zemin: CPU, yol ve yapı shader'larında düz
+const RELIEF_SCALE := 0.012        ## yalnız boyalı dağ/eğim gölgesi; geometriyi etkilemez
 const CHUNK := 1024.0               ## harita ağı parça boyu (piksel)
-const VERTEX_SPACING := 4.0          ## ağ köşeleri arası (piksel)
+const TERRAIN_GRID := preload("res://game/map/terrain_grid.gd")
+const VERTEX_SPACING := CHUNK        ## düz zeminde yoğun yükseklik ızgarası yok
 const WRAP_COLUMNS := 9              ## sarmalama için öbür kenara kopyalanan parça sütunu (en uzak zoom'un yarım genişliği)
 const LABEL_SCALE := 0.5
-const FLATTEN_STRENGTH := 1.0      ## şehir altı düzleştirme; kalan eğimi modeller vertex'te takip eder           ## ad katmanı çözünürlüğü (harita boyutuna oranla)
 
 var map_mode: MapMode = MapMode.POLITICAL
 var harbors := {}                     ## liman bölge id -> [liman modeli kıyı noktası, denize bakan yön] (şehir katmanı doldurur)
@@ -44,18 +43,44 @@ var _palette_texture: ImageTexture
 var _province_la := false            ## bölge kimliği L + A*256 olarak kodlu (RGBA8'e çevrilse de)
 var labels: CountryLabels3D
 var terrain_texture: Texture2D           ## arazi rengi (dünya saati küresi de kullanır)
+var _terrain_grid := TERRAIN_GRID.new()
+## Şehir açıklıkları terrain_tex'in kullanılmayan alfasında: 1 doğal arazi, 0 temiz parsel.
+## Ek harita sampler'ı yok; ham RF yükseklik ve arazi RGB'si hiç değiştirilmez.
+var _city_sites: Dictionary = {}          ## city id -> [görsel merkez, dünya biriminde çekirdek yarıçapı]
+var _city_site_pixels: Dictionary = {}    ## önceki commit'te değiştirilen alfa texelleri
+var _city_sites_dirty := false
+var _city_terrain_image: Image           ## ilk toplu commit'e kadar; sonra CPU kopyası bırakılır
+const CITY_SITE_FEATHER := 1.4
+
+## Açılış yükleme ekranı (main): kurulum adımları arasında bir kare çizilir (yükleme çubuğu ilerler); on_progress 0..1.
+## Kapalıyken (testler, araçlar) kurulum tek seferde biter. Bitince built.
+signal built
+var yield_frames := false
+var on_progress: Callable
+var is_built := false
+
+func _boot_step(f: float) -> void:
+	if on_progress.is_valid():
+		on_progress.call(f)
+	if yield_frames:
+		await get_tree().process_frame
 
 func _ready() -> void:
 	var terrain := Image.load_from_file(TERRAIN_PATH)
+	await _boot_step(0.2)
+	terrain.convert(Image.FORMAT_RGBA8)       # mevcut RGB korunur, başlangıç alfası 1
+	_city_terrain_image = terrain
 	terrain.generate_mipmaps()
+	await _boot_step(0.3)
 	_province_image = Image.load_from_file(PROVINCES_PATH)
 	_province_la = _province_image.get_format() == Image.FORMAT_LA8
 	if _province_la and UnitModels.COMPAT:
 		_province_image.convert(Image.FORMAT_RGBA8)   # GLES3/WebGL2'de LA8 yok; R=L, A=A korunur, çözümleme (R + A*256) aynı kalır
 	var borders := Image.load_from_file(BORDERS_PATH)
 	map_size = Vector2(_province_image.get_size())
+	await _boot_step(0.45)
 	_height_image = _load_heightmap()
-	_flatten_under_cities()
+	await _boot_step(0.55)
 	for st: StateRegion in World.states.values():
 		if st.building_level("air_base") > 0:
 			_place_airbase(st)
@@ -71,16 +96,19 @@ func _ready() -> void:
 	_material.set_shader_parameter("province_tex", _province_texture)
 	border_texture = ImageTexture.create_from_image(borders)
 	_material.set_shader_parameter("border_tex", border_texture)
+	await _boot_step(0.7)
 	var water := Image.load_from_file(WATER_PATH)
 	water.generate_mipmaps()
 	_material.set_shader_parameter("water_tex", ImageTexture.create_from_image(water))
 	_setup_detail_textures()
+	await _boot_step(0.8)
 	_material.set_shader_parameter("map_size", map_size)
 	_material.set_shader_parameter("proj_miller", World._miller)
 	_material.set_shader_parameter("wrap_x", World.wraps)
 	_material.set_shader_parameter("proj_y_top", World._y_top)
 	_material.set_shader_parameter("proj_px_per_rad", World._px_per_rad)
-	_material.set_shader_parameter("height_scale", HEIGHT_SCALE)
+	_material.set_shader_parameter("proj_lon_min", World._lon_min)
+	_material.set_shader_parameter("relief_scale", RELIEF_SCALE)
 
 	# harita ağı parçalara bölünür: kameranın görmediği parçalar çizilmez (dünya haritası çok büyük)
 	var nx := ceili(map_size.x / CHUNK)
@@ -89,11 +117,7 @@ func _ready() -> void:
 		for cx in nx:
 			var w := minf(CHUNK, map_size.x - cx * CHUNK)
 			var h := minf(CHUNK, map_size.y - cy * CHUNK)
-			var plane := PlaneMesh.new()
-			plane.size = Vector2(w, h)
-			plane.subdivide_width = maxi(int(w / VERTEX_SPACING) - 1, 1)
-			plane.subdivide_depth = maxi(int(h / VERTEX_SPACING) - 1, 1)
-			plane.custom_aabb = AABB(Vector3(-w / 2, -10, -h / 2), Vector3(w, 130, h))
+			var plane: PlaneMesh = _terrain_grid.flat_mesh(Vector2(w, h))
 			var mi := MeshInstance3D.new()
 			mi.mesh = plane
 			mi.material_override = _material
@@ -115,6 +139,7 @@ func _ready() -> void:
 					dup.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 					add_child(dup)
 
+	await _boot_step(0.9)
 	_setup_clouds()
 	labels = CountryLabels3D.new()
 	labels.map = self
@@ -131,6 +156,8 @@ func _ready() -> void:
 	World.selection_changed.connect(_on_selection_changed)
 	World.player_changed.connect(func(_t: String) -> void: _update_player())
 	_update_player()
+	is_built = true
+	built.emit()
 
 func _load_heightmap() -> Image:
 	var meta: Array = World.heightmap_size
@@ -151,7 +178,6 @@ func add_airbase_site(st: StateRegion) -> bool:
 		return false
 	if not _place_airbase(st):
 		return false
-	height_texture.update(_height_image)
 	return true
 
 func _place_airbase(st: StateRegion) -> bool:
@@ -178,8 +204,6 @@ func _place_airbase(st: StateRegion) -> bool:
 	if best_pos == Vector2.INF:
 		return false
 	airbase_sites[st.id] = [best_pos, best_yaw]
-	var k2 := float(_height_image.get_width()) / map_size.x
-	_flatten_disc(best_pos * k2, AIRBASE_RADIUS * k2, AIRBASE_RADIUS * 1.8 * k2, 1.0)
 	return true
 
 var _near_cities: Array[City] = []
@@ -203,66 +227,86 @@ func _site_score(p: Vector2, sid: int) -> Variant:
 			hi = maxf(hi, h)
 	return hi - lo
 
-func _flatten_disc(center: Vector2, r: float, outer: float, strength: float) -> void:
-	var hs := Vector2(_height_image.get_size())
-	var ci := Vector2i(center.clamp(Vector2.ZERO, hs - Vector2.ONE))
-	var h0 := _height_image.get_pixelv(ci).r
-	var R := int(ceil(outer))
-	for y in range(maxi(ci.y - R, 0), mini(ci.y + R + 1, int(hs.y))):
-		for x in range(maxi(ci.x - R, 0), mini(ci.x + R + 1, int(hs.x))):
-			var d := Vector2(x, y).distance_to(center)
-			if d > outer:
-				continue
-			var w := (1.0 - smoothstep(r, outer, d)) * strength
-			var h := _height_image.get_pixel(x, y).r
-			_height_image.set_pixel(x, y, Color(lerpf(h, h0, w), 0, 0))
+## Düz zeminde parsel düzleştirme gerekmez; ham yükselti boyalı araziyi besler.
+func _flatten_disc(_center: Vector2, _r: float, _outer: float, _strength: float) -> void:
+	pass
 
-## İnşaat parselini düzleştir (tesis ya da şantiye dikilen yer düz olur; kenarı yumuşak geçişle araziye bağlanır).
-## Değişiklik CPU'daki yükseklik görüntüsüne yazılır; commit_height() GPU dokusunu bir kez günceller.
-func flatten_site(p: Vector2, radius: float) -> void:
-	var k := float(_height_image.get_width()) / map_size.x
-	var c := p * k
-	var r := maxf(radius * 1.3 * k, 1.5)          # yükseklik haritası parsele göre kaba: tam düz bölge biraz geniş
-	var outer := r + maxf(radius * 1.0 * k, 1.5)
-	var hs := Vector2i(_height_image.get_size())
-	var R := int(ceil(outer))
-	var ci := Vector2i(c)
-	# hedef: parseldeki kara piksellerinin ortalaması (merkez pikseli tek başına tepeyi/çukuru yakalar)
-	var sum := 0.0
-	var n := 0
-	for y in range(maxi(ci.y - R, 0), mini(ci.y + R + 1, hs.y)):
-		for x in range(maxi(ci.x - R, 0), mini(ci.x + R + 1, hs.x)):
-			var h := _height_image.get_pixel(x, y).r
-			if h > 0.0 and Vector2(x, y).distance_to(c) <= r:
-				sum += h
-				n += 1
-	if n == 0:
-		return
-	var h0 := sum / n
-	for y in range(maxi(ci.y - R, 0), mini(ci.y + R + 1, hs.y)):
-		for x in range(maxi(ci.x - R, 0), mini(ci.x + R + 1, hs.x)):
-			var d := Vector2(x, y).distance_to(c)
-			if d > outer:
-				continue
-			var h := _height_image.get_pixel(x, y).r
-			if h <= 0.0:
-				continue                                   # deniz: kıyı çizgisi değişmesin
-			var w := 1.0 - smoothstep(r, outer, d)
-			_height_image.set_pixel(x, y, Color(maxf(lerpf(h, h0, w), 0.01), 0, 0))
-	_height_dirty = true
+## Yapı katmanlarının mevcut sözleşmesi korunur; dağ/orman dokusunu silmez.
+func flatten_site(_p: Vector2, _radius: float) -> void:
+	pass
 
 func commit_height() -> void:
-	if _height_dirty and height_texture:
-		_height_dirty = false
-		height_texture.update(_height_image)
+	pass
 
-## Şehir modellerinin altındaki araziyi merkez yüksekliğine yumuşakça düzleştir
-## (engebeli arazide binalar tepelere gömülmesin).
-func _flatten_under_cities() -> void:
-	var k := float(_height_image.get_width()) / map_size.x
-	for c: City in World.cities:
-		var r := CityLayer3D.footprint_radius(c) * k * 1.15
-		_flatten_disc(c.position * k, r, r * 2.2, FLATTEN_STRENGTH)
+## Modelin sabit dünya ölçeğindeki parseli. Oyun verisi değil, görsel merkez kullanılır.
+## radius tamamen temiz çekirdek; kenar 0.4× radius (en az bir arazi texeli) boyunca yumuşar.
+func register_city_site(city_id: int, center: Vector2, radius: float) -> void:
+	if not center.is_finite() or not is_finite(radius) or radius <= 0.0:
+		return
+	var site: Array = [center, radius]
+	if _city_sites.get(city_id) == site:
+		return
+	_city_sites[city_id] = site
+	_city_sites_dirty = true
+
+func unregister_city_site(city_id: int) -> void:
+	if _city_sites.erase(city_id):
+		_city_sites_dirty = true
+
+## Şehir kurulumunun sonunda bir defa çağrılır; her şehir için büyük doku yüklemesi yapılmaz.
+func commit_city_sites() -> void:
+	if not _city_sites_dirty or terrain_texture == null or map_size.x <= 0.0 or map_size.y <= 0.0:
+		return
+	var tex := terrain_texture as ImageTexture
+	if tex == null:
+		return
+	var image := _city_terrain_image if _city_terrain_image != null else tex.get_image()
+	image.clear_mipmaps()
+	image.convert(Image.FORMAT_RGBA8)
+	# Taşınan/silinen parselin eski açıklığını kaldır, sonra bütün siteleri üst üste damgala.
+	for p: Vector2i in _city_site_pixels:
+		var c := image.get_pixelv(p)
+		c.a = 1.0
+		image.set_pixelv(p, c)
+	_city_site_pixels.clear()
+	for site: Array in _city_sites.values():
+		_stamp_city_site(image, site[0], site[1])
+	image.generate_mipmaps()
+	_upload_city_site_image(image)
+	_city_terrain_image = null              # tam haritanın kalıcı CPU kopyasına gerek yok
+	_city_sites_dirty = false
+
+func _upload_city_site_image(image: Image) -> void:
+	var tex := terrain_texture as ImageTexture
+	if tex.get_format() == Image.FORMAT_RGBA8:
+		tex.update(image)
+	else:
+		tex.set_image(image)
+
+func _city_site_is_land(p: Vector2) -> bool:
+	var pr := World.province(province_at(p))
+	return pr != null and pr.is_land()
+
+func _stamp_city_site(image: Image, center: Vector2, radius: float) -> void:
+	var size := image.get_size()
+	var texels := Vector2(size) / map_size
+	# Arazi resmi province resminden küçük olabilir; halka en az bir texel kadar yumuşasın.
+	var outer := radius + maxf(radius * (CITY_SITE_FEATHER - 1.0), 1.0 / minf(texels.x, texels.y))
+	var lo := Vector2i(((center - Vector2.ONE * outer) * texels - Vector2.ONE * 0.5).floor())
+	var hi := Vector2i(((center + Vector2.ONE * outer) * texels - Vector2.ONE * 0.5).ceil())
+	for y in range(maxi(0, lo.y), mini(size.y - 1, hi.y) + 1):
+		for x in range(lo.x, hi.x + 1):
+			if not World.wraps and (x < 0 or x >= size.x):
+				continue
+			var wp := (Vector2(x, y) + Vector2.ONE * 0.5) / texels
+			var distance := wp.distance_to(center)
+			if distance >= outer or not _city_site_is_land(wp):
+				continue
+			var p := Vector2i(posmod(x, size.x) if World.wraps else x, y)
+			var c := image.get_pixelv(p)
+			c.a = minf(c.a, smoothstep(radius, outer, distance))
+			image.set_pixelv(p, c)
+			_city_site_pixels[p] = true
 
 ## Yakın zoom detay dokuları: 7 katman albedo + normal -> Texture2DArray
 func _setup_detail_textures() -> void:
@@ -275,33 +319,30 @@ func _setup_detail_textures() -> void:
 		var a := Image.load_from_file(DETAIL_DIR + name + "_albedo.png")
 		a.generate_mipmaps()
 		albedo.append(a)
-		var n := Image.load_from_file(DETAIL_DIR + name + "_normal.png")
-		n.generate_mipmaps()
-		normal.append(n)
+		if not UnitModels.COMPAT:
+			var n := Image.load_from_file(DETAIL_DIR + name + "_normal.png")
+			n.generate_mipmaps()
+			normal.append(n)
 		var c: Array = info["avg"][i]
 		avg.append(Vector3(c[0], c[1], c[2]))
 	var ta := Texture2DArray.new()
 	ta.create_from_images(albedo)
-	var tn := Texture2DArray.new()
-	tn.create_from_images(normal)
 	_material.set_shader_parameter("detail_albedo", ta)
-	_material.set_shader_parameter("detail_normal", tn)
+	if not UnitModels.COMPAT:
+		var tn := Texture2DArray.new()
+		tn.create_from_images(normal)
+		_material.set_shader_parameter("detail_normal", tn)
 	_material.set_shader_parameter("detail_avg", avg)
 	_material.set_shader_parameter("biome_tex", ImageTexture.create_from_image(Image.load_from_file(BIOME_PATH)))
 
 var _cloud_material: ShaderMaterial
+var _cloud_mesh: Node3D
 
 func _setup_clouds() -> void:
-	_cloud_material = ShaderMaterial.new()
-	_cloud_material.shader = CLOUD_SHADER
-	var plane := PlaneMesh.new()
-	plane.size = map_size * 1.3
-	var mi := MeshInstance3D.new()
-	mi.mesh = plane
-	mi.material_override = _cloud_material
-	mi.position = Vector3(map_size.x / 2, CLOUD_HEIGHT, map_size.y / 2)
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(mi)
+	_cloud_mesh = AMBIENT_CLOUDS.new()
+	_cloud_mesh.setup(map_size, World.wraps)
+	_cloud_material = _cloud_mesh.material
+	add_child(_cloud_mesh)
 
 ## Kamera mesafesine göre bulut miktarı (yakında bulut yok, stratejik zoom'da var)
 ## Mevsim: kış şiddeti (ay ortası değerleri arasında gün gün geçiş); kuzey ve güney yarıküre ters
@@ -318,11 +359,29 @@ func update_season() -> void:
 	_material.set_shader_parameter("winter_north", north)
 	_material.set_shader_parameter("winter_south", lerpf(a2, b2, absf(f)) * 0.7)
 
+## Gece ve gündüz (DayNight): güneşin tepede olduğu nokta (boylam, enlem; derece), gecenin gücü (0 kapalı) ve 3D
+## ışığın o anki kısılma katı (harita bunu geri alır: zemin her noktada kendi saatinde)
+func set_day_night(subsolar: Vector2, strength: float, light: float) -> void:
+	_material.set_shader_parameter("sun_lonlat", subsolar)
+	_material.set_shader_parameter("night_strength", strength)
+	_material.set_shader_parameter("light_comp", light)
+	if _cloud_material and World._miller:
+		_cloud_material.set_shader_parameter("sun_lonlat", subsolar)
+		_cloud_material.set_shader_parameter("night_strength", strength)
+		if not _cloud_material.has_meta("proj"):
+			_cloud_material.set_meta("proj", true)
+			_cloud_material.set_shader_parameter("map_size", map_size)
+			_cloud_material.set_shader_parameter("proj_lon_min", World._lon_min)
+			_cloud_material.set_shader_parameter("proj_y_top", World._y_top)
+			_cloud_material.set_shader_parameter("proj_px_per_rad", World._px_per_rad)
+
+func terrain_spacing() -> float:
+	return CHUNK
+
 func set_camera_distance(d: float) -> void:
-	# hava bulutları (ara ara geçen cepheler): kamera bulut yüksekliğine (CLOUD_HEIGHT) yaklaşınca solar, içinden geçilir
-	var a := smoothstep(260.0, 650.0, d) * 0.9
-	_cloud_material.set_shader_parameter("cloud_amount", a)
-	_material.set_shader_parameter("cloud_amount", a)
+	_cloud_mesh.set_camera_distance(d)
+	# Sparse cards already carry light/shade. No full-map procedural shadow field.
+	_material.set_shader_parameter("cloud_amount", 0.0)
 
 ## Kamera ölçeği (ekran pikseli / dünya birimi) değişince ad katmanı yeniden çizilir.
 func set_view_scale(_px_per_unit: float) -> void:
@@ -340,19 +399,9 @@ func province_at(world_xz: Vector2) -> int:
 		return c.r8 + c.a8 * 256
 	return c.r8 + c.g8 * 256 + c.b8 * 65536
 
-## Dünya koordinatında (x, z) arazi yüksekliği (dünya birimi), çift doğrusal
-func height_at(world_xz: Vector2) -> float:
-	if World.wraps:
-		world_xz.x = fposmod(world_xz.x, map_size.x)
-	var hs := Vector2(_height_image.get_size())
-	var p := (world_xz / map_size * hs - Vector2(0.5, 0.5)).clamp(Vector2.ZERO, hs - Vector2(1.001, 1.001))
-	var i := Vector2i(p.floor())
-	var f := p - Vector2(i)
-	var h00 := _height_image.get_pixel(i.x, i.y).r
-	var h10 := _height_image.get_pixel(i.x + 1, i.y).r
-	var h01 := _height_image.get_pixel(i.x, i.y + 1).r
-	var h11 := _height_image.get_pixel(i.x + 1, i.y + 1).r
-	return lerpf(lerpf(h00, h10, f.x), lerpf(h01, h11, f.x), f.y) * HEIGHT_SCALE
+## Görsel kabartmadan bağımsız ortak zemin: modeller, oklar ve tıklama aynı düzlemi kullanır.
+func height_at(_world_xz: Vector2) -> float:
+	return 0.0
 
 func set_hovered(id: int) -> void:
 	if id != hovered_province:
@@ -360,6 +409,22 @@ func set_hovered(id: int) -> void:
 		_material.set_shader_parameter("hovered_province", id)
 
 var _mark_texture: ImageTexture
+var _recon_texture: ImageTexture
+
+func set_recon_targets(targets: Dictionary) -> void:
+	_material.set_shader_parameter("recon_enabled", not targets.is_empty())
+	if targets.is_empty(): return
+	var rows := ceili(World.provinces.size() / 256.0)
+	var bytes := PackedByteArray()
+	bytes.resize(256 * rows)
+	for pid: int in targets:
+		if pid > 0 and pid < bytes.size(): bytes[pid] = 255
+	var img := Image.create_from_data(256, rows, false, Image.FORMAT_R8, bytes)
+	if _recon_texture == null:
+		_recon_texture = ImageTexture.create_from_image(img)
+		_material.set_shader_parameter("recon_tex", _recon_texture)
+	else:
+		_recon_texture.update(img)
 var _fog_texture: ImageTexture
 var _fog_version := -1
 
@@ -367,11 +432,32 @@ var _fog_version := -1
 ## düzeyi (Military.fog_levels: 0 bulut, 2 keşfedilmiş) dokuya yazılır, CloudFog ondan bulut maskesini çizer.
 var _fog_volume: CloudFog
 
-func set_fog(levels: PackedByteArray, version: int) -> void:
+func _ensure_fog_volume() -> void:
 	if _fog_volume == null:
 		_fog_volume = CloudFog.new()
 		add_child(_fog_volume)
 		_fog_volume.setup(_province_texture, map_size, World.wraps)
+
+## Bulutun tek seferlik kurulumu (maske, 3B gürültü) ve ilk çizimi yükleme ekranında (oyun başında takılmasın)
+func prewarm_fog() -> void:
+	_ensure_fog_volume()
+	_fog_volume.prewarm(3)
+
+## Bulut ve sis rengi sıfırdan yavaşça belirir (oyun başında, geçiş animasyonları bittikten sonra)
+var _fog_tween: Tween
+func fade_fog_in(secs: float) -> void:
+	_ensure_fog_volume()
+	if _fog_tween:
+		_fog_tween.kill()
+	_fog_volume.set_fade(0.0)                   # hemen: bulut görünür olduğu ilk karede tam yoğun belirmesin
+	_material.set_shader_parameter("fog_fade", 0.0)
+	_fog_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_fog_tween.tween_method(func(f: float) -> void:
+		_fog_volume.set_fade(f)
+		_material.set_shader_parameter("fog_fade", f), 0.0, 1.0, secs)
+
+func set_fog(levels: PackedByteArray, version: int) -> void:
+	_ensure_fog_volume()
 	if levels.is_empty():
 		_fog_volume.clear()
 		_material.set_shader_parameter("fog_enabled", false)
@@ -436,9 +522,56 @@ func set_marked_provinces(vals: Dictionary, rest: int = 128) -> void:
 		_mark_texture.update(img)
 	_material.set_shader_parameter("marks_enabled", true)
 
-func set_highlight_country(tag: String) -> void:
+## Ülke seçimi vurgusu: öbür yerler kararır, sınırı neon yanar. animate: yumuşak geçiş — ilk seçimde karartma girer;
+## ülke değişince karartma olduğu gibi kalır, eski ülkenin ışığı söner, yenisininki yanar (vurgu sıfırdan başlayınca
+## bütün harita bir an aydınlanıp yeniden kararıyordu: flaş)
+var _hl_tween: Tween
+var _hl_idx := 0                       ## seçili ülkenin indeksi
+var _hl := Vector3(1.0, 0.0, 1.0)      ## seçilinin ışığı, öncekinin ışığı, karartma (gölgelendiriciye giden değerler)
+func set_highlight_country(tag: String, animate := false) -> void:
 	var c: Country = World.countries.get(tag)
-	_material.set_shader_parameter("highlight_country", c.index if c else 0)
+	var idx := c.index if c else 0
+	if _hl_tween:
+		_hl_tween.kill()
+	if not animate or idx == 0:
+		_hl_idx = idx
+		_material.set_shader_parameter("highlight_country", idx)
+		_material.set_shader_parameter("highlight_prev", 0)
+		_set_hl(Vector3(1.0, 0.0, 1.0 if idx > 0 else 0.0))
+		return
+	var from := _hl
+	var prev := 0
+	var prev_lit := 0.0
+	if _hl_idx > 0 and _hl_idx != idx:
+		prev = _hl_idx
+		prev_lit = from.x
+	elif _hl_idx == 0:
+		from = Vector3(0.0, 0.0, 0.0)          # ilk seçim: karartma da yumuşakça girer
+	_hl_idx = idx
+	_material.set_shader_parameter("highlight_country", idx)
+	_material.set_shader_parameter("highlight_prev", prev)
+	var d0 := from.z
+	_hl_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_hl_tween.tween_method(func(t: float) -> void: _set_hl(Vector3(t, prev_lit * (1.0 - t), lerpf(d0, 1.0, t))), 0.0, 1.0, 0.6)
+	_hl_tween.tween_callback(func() -> void: _material.set_shader_parameter("highlight_prev", 0))
+
+func _set_hl(v: Vector3) -> void:
+	_hl = v
+	_material.set_shader_parameter("highlight_fade", v.x)
+	_material.set_shader_parameter("prev_fade", v.y)
+	_material.set_shader_parameter("dim_amount", v.z)
+
+## Vurgunun sönmesi (oyun başlarken): karartma ve neon yavaşça kalkar, sonra vurgu silinir
+func fade_highlight(secs: float) -> void:
+	if _hl_tween:
+		_hl_tween.kill()
+	var from := _hl
+	_hl_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_hl_tween.tween_method(func(t: float) -> void: _set_hl(from * t), 1.0, 0.0, secs)
+	_hl_tween.tween_callback(func() -> void:
+		_hl_idx = 0
+		_material.set_shader_parameter("highlight_country", 0)
+		_material.set_shader_parameter("highlight_prev", 0))
 
 func set_map_mode(mode: MapMode) -> void:
 	map_mode = mode

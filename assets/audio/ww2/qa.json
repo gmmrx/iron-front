@@ -1,0 +1,3383 @@
+{
+  "sample_rate": 48000,
+  "files": 375,
+  "bytes": 22258074,
+  "problems": [],
+  "assets": [
+    {
+      "file": "ui_click_1.wav",
+      "duration": 0.2674,
+      "peak_dbfs": -7.36,
+      "rms_dbfs": -28.15,
+      "dc": 4.24e-05,
+      "sha256": "d8655178429d9e67ff6a66c181d26324d857b0b41eb4c792d2747736b9f164cc",
+      "bytes": 25718
+    },
+    {
+      "file": "ui_click_2.wav",
+      "duration": 0.2778,
+      "peak_dbfs": -7.37,
+      "rms_dbfs": -27.36,
+      "dc": 1.99e-05,
+      "sha256": "caeb48d9de5de33cbd1d93482582a732b9926ebde4440ed4807c61e1a0ef79c6",
+      "bytes": 26716
+    },
+    {
+      "file": "ui_click_3.wav",
+      "duration": 0.2541,
+      "peak_dbfs": -4.35,
+      "rms_dbfs": -27.9,
+      "dc": 4.72e-05,
+      "sha256": "69184850a41dbb549abd48b4e04d892599e2263a26295339e153f13a7461a61a",
+      "bytes": 24434
+    },
+    {
+      "file": "ui_hover_1.wav",
+      "duration": 0.1067,
+      "peak_dbfs": -11.45,
+      "rms_dbfs": -33.26,
+      "dc": 7e-07,
+      "sha256": "4c90492190e459d4de6c35db56a324eece473b6029a89bf81002f6ce2120866f",
+      "bytes": 10286
+    },
+    {
+      "file": "ui_hover_2.wav",
+      "duration": 0.1004,
+      "peak_dbfs": -11.43,
+      "rms_dbfs": -33.0,
+      "dc": 1e-06,
+      "sha256": "a8031ce8e2ebd08271da2ee4bb8b884ed2235fb6c1a35c8ef8f8cfc2e19b28ed",
+      "bytes": 9686
+    },
+    {
+      "file": "ui_open_1.wav",
+      "duration": 0.2282,
+      "peak_dbfs": -7.7,
+      "rms_dbfs": -25.1,
+      "dc": 2e-07,
+      "sha256": "437b39240202d309615e9d35498675659b9886bcc80a3aa5eed075d4eec5ddcd",
+      "bytes": 21952
+    },
+    {
+      "file": "ui_open_2.wav",
+      "duration": 0.2279,
+      "peak_dbfs": -7.28,
+      "rms_dbfs": -25.73,
+      "dc": 0.0,
+      "sha256": "f23afaf2bcdbf63044aa63336bf35e752e6421a0385962fa76415e4268c1b2fc",
+      "bytes": 21924
+    },
+    {
+      "file": "ui_open_3.wav",
+      "duration": 0.2266,
+      "peak_dbfs": -8.04,
+      "rms_dbfs": -25.06,
+      "dc": 3e-07,
+      "sha256": "762e8f73a6b21a21f6fb13474e7162e34ca135f8667c947b95b3be37df5d2cac",
+      "bytes": 21800
+    },
+    {
+      "file": "ui_close_1.wav",
+      "duration": 0.3345,
+      "peak_dbfs": -8.4,
+      "rms_dbfs": -26.73,
+      "dc": 1e-07,
+      "sha256": "7d6de85b62271974d9e6e48d37c5c3f36efe2dafcd26aa5c68ca1bd6ee9d2992",
+      "bytes": 32154
+    },
+    {
+      "file": "ui_close_2.wav",
+      "duration": 0.3354,
+      "peak_dbfs": -8.04,
+      "rms_dbfs": -26.72,
+      "dc": 0.0,
+      "sha256": "5b1a145de873dc59908a12c8125cf95e7d597c68b1048838b9dde3232c18ffe1",
+      "bytes": 32244
+    },
+    {
+      "file": "ui_close_3.wav",
+      "duration": 0.3221,
+      "peak_dbfs": -7.26,
+      "rms_dbfs": -26.54,
+      "dc": 3e-07,
+      "sha256": "d85f28ee9bf6e92eb691efaa2322a545032ddecf4fef7a440f1c1f7c9c3d5ae8",
+      "bytes": 30968
+    },
+    {
+      "file": "ui_tab_1.wav",
+      "duration": 0.1385,
+      "peak_dbfs": -9.76,
+      "rms_dbfs": -26.6,
+      "dc": 3.3e-06,
+      "sha256": "686c99c450db076ce149b1c24ac481642e92d74056ff77aaf8f027e1b1f42e9b",
+      "bytes": 13336
+    },
+    {
+      "file": "ui_tab_2.wav",
+      "duration": 0.1376,
+      "peak_dbfs": -4.77,
+      "rms_dbfs": -25.35,
+      "dc": 7e-07,
+      "sha256": "b92b387bdb088a50c92bd5cd9f8c21d871982e8e191e4053fa1caa8ba32f8147",
+      "bytes": 13256
+    },
+    {
+      "file": "ui_confirm_1.wav",
+      "duration": 0.3605,
+      "peak_dbfs": -8.49,
+      "rms_dbfs": -28.3,
+      "dc": 2e-07,
+      "sha256": "e2803ad330fb1487d600cae92df9fa0ec437db8e7dd06f76fcfacdf529ea0ef6",
+      "bytes": 34648
+    },
+    {
+      "file": "ui_confirm_2.wav",
+      "duration": 0.3661,
+      "peak_dbfs": -9.91,
+      "rms_dbfs": -28.36,
+      "dc": 1e-07,
+      "sha256": "0ac8373eb303080767247bb5406b150039b9626bef8b8e32fcad771336fc0fde",
+      "bytes": 35192
+    },
+    {
+      "file": "ui_confirm_3.wav",
+      "duration": 0.3582,
+      "peak_dbfs": -9.66,
+      "rms_dbfs": -29.13,
+      "dc": 1e-07,
+      "sha256": "dbc9abb05e3e3c196e34664185b00cacc5ec0e1fdda20f4b12424202c21a84a0",
+      "bytes": 34430
+    },
+    {
+      "file": "ui_toggle_1.wav",
+      "duration": 0.2732,
+      "peak_dbfs": -6.05,
+      "rms_dbfs": -27.31,
+      "dc": 2.71e-05,
+      "sha256": "c70d2578e4bdb02c18ddc6e46bfe6567ce50707dc863c836f3b75f136a14b382",
+      "bytes": 26272
+    },
+    {
+      "file": "ui_toggle_2.wav",
+      "duration": 0.2604,
+      "peak_dbfs": -6.53,
+      "rms_dbfs": -28.03,
+      "dc": 9.8e-05,
+      "sha256": "be5bc209074b9728b687339238fca7cb1da917c84f43043601ff69854f56ba22",
+      "bytes": 25046
+    },
+    {
+      "file": "ui_error_1.wav",
+      "duration": 0.3549,
+      "peak_dbfs": -9.96,
+      "rms_dbfs": -25.88,
+      "dc": 4.7e-06,
+      "sha256": "8569bb6116cc797eabbdac0420b951cb9dde9bc4c66265dde06c001b70d7c918",
+      "bytes": 34118
+    },
+    {
+      "file": "ui_error_2.wav",
+      "duration": 0.3552,
+      "peak_dbfs": -9.64,
+      "rms_dbfs": -25.87,
+      "dc": 3.72e-05,
+      "sha256": "ec049d79f4e3c4ac4a1da8ebd19002261f3ade3c654a2394ea9120dd7f797c52",
+      "bytes": 34144
+    },
+    {
+      "file": "menu_click_1.wav",
+      "duration": 0.2518,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -27.71,
+      "dc": 6.35e-05,
+      "sha256": "d99068b6823ddfc2dd6cdf940f02f371698a592e9feb9348f7287c2a0142cd97",
+      "bytes": 24220
+    },
+    {
+      "file": "menu_click_2.wav",
+      "duration": 0.2809,
+      "peak_dbfs": -7.6,
+      "rms_dbfs": -27.43,
+      "dc": 7.01e-05,
+      "sha256": "f827c76724371b79f04730591df66fadf2cf7da6214c8f6c5c032c2db0c3aaf9",
+      "bytes": 27012
+    },
+    {
+      "file": "menu_click_3.wav",
+      "duration": 0.2795,
+      "peak_dbfs": -8.16,
+      "rms_dbfs": -27.4,
+      "dc": 1.2e-06,
+      "sha256": "84a7694265295a555acc1bab5d867ec753d5ee269dc0fa8bb19706ffb40b18c9",
+      "bytes": 26872
+    },
+    {
+      "file": "menu_hover_1.wav",
+      "duration": 0.1031,
+      "peak_dbfs": -15.33,
+      "rms_dbfs": -33.11,
+      "dc": 2e-07,
+      "sha256": "b1bdc47087a48d8847d116bd23fa90097ff65888dbcef00212f718ad33161592",
+      "bytes": 9942
+    },
+    {
+      "file": "menu_hover_2.wav",
+      "duration": 0.1002,
+      "peak_dbfs": -16.43,
+      "rms_dbfs": -35.94,
+      "dc": 2e-07,
+      "sha256": "5602fcae20b00332beba3c75de6dd07e53eb3e9cf74818b7463687aa6cd8219c",
+      "bytes": 9664
+    },
+    {
+      "file": "menu_open_1.wav",
+      "duration": 0.3736,
+      "peak_dbfs": -8.12,
+      "rms_dbfs": -25.25,
+      "dc": 3e-07,
+      "sha256": "c72af2c4ddc7426507da9dfae3f2c9767d8ab78608abf981bc5b7372576f8f1a",
+      "bytes": 35908
+    },
+    {
+      "file": "menu_open_2.wav",
+      "duration": 0.3745,
+      "peak_dbfs": -7.39,
+      "rms_dbfs": -25.25,
+      "dc": 1e-07,
+      "sha256": "522a070433565fcecf825e35ef16d35c63031fe48d57a77235c6c8d98b3636d4",
+      "bytes": 35996
+    },
+    {
+      "file": "menu_open_3.wav",
+      "duration": 0.3764,
+      "peak_dbfs": -7.7,
+      "rms_dbfs": -24.91,
+      "dc": 3e-07,
+      "sha256": "75a6086c83e91e38184091d1158a73a5890d6f24247238f4d0f636f25230bc04",
+      "bytes": 36174
+    },
+    {
+      "file": "menu_close_1.wav",
+      "duration": 0.3313,
+      "peak_dbfs": -9.21,
+      "rms_dbfs": -27.33,
+      "dc": 2e-07,
+      "sha256": "d994de26cd062d20a8250754bbeadf1001c136a03b4c194ed0847d74c357e927",
+      "bytes": 31846
+    },
+    {
+      "file": "menu_close_2.wav",
+      "duration": 0.3305,
+      "peak_dbfs": -8.46,
+      "rms_dbfs": -26.68,
+      "dc": 3e-07,
+      "sha256": "abbebbc3e0d967a7bd24f31ded14d43419a6016c528ab28d50de0c3b641433f1",
+      "bytes": 31770
+    },
+    {
+      "file": "menu_close_3.wav",
+      "duration": 0.3279,
+      "peak_dbfs": -6.66,
+      "rms_dbfs": -26.06,
+      "dc": 0.0,
+      "sha256": "34fd392a0951efaa593cc83845a4a4c33a7fce3f612d3747e319f36737711cfd",
+      "bytes": 31522
+    },
+    {
+      "file": "menu_tab_1.wav",
+      "duration": 0.1496,
+      "peak_dbfs": -7.24,
+      "rms_dbfs": -25.71,
+      "dc": 1.6e-06,
+      "sha256": "08c77dbb1ee3fda3b106ac47cc7ad84c896eb80321e3efcc828a937d1f2cd7cb",
+      "bytes": 14408
+    },
+    {
+      "file": "menu_tab_2.wav",
+      "duration": 0.1527,
+      "peak_dbfs": -7.34,
+      "rms_dbfs": -25.8,
+      "dc": 1.6e-06,
+      "sha256": "46a0ec1decb06014f90b4d4d45423fe5cb2569d4a22e292de2662fa489830bec",
+      "bytes": 14700
+    },
+    {
+      "file": "menu_confirm_1.wav",
+      "duration": 0.3549,
+      "peak_dbfs": -8.0,
+      "rms_dbfs": -28.18,
+      "dc": 2e-07,
+      "sha256": "a1dcbda905fb2d089205d3491937d1926ccba7797ea18af3355cb8e23b75af93",
+      "bytes": 34118
+    },
+    {
+      "file": "menu_confirm_2.wav",
+      "duration": 0.3545,
+      "peak_dbfs": -7.91,
+      "rms_dbfs": -27.45,
+      "dc": 1e-07,
+      "sha256": "92e25ccbad235488200114d37b384e9b91e9d2ed6a81d6d831276cb7e5b249fc",
+      "bytes": 34078
+    },
+    {
+      "file": "menu_confirm_3.wav",
+      "duration": 0.3623,
+      "peak_dbfs": -9.99,
+      "rms_dbfs": -28.27,
+      "dc": 1e-07,
+      "sha256": "bc2352ac437962a7f00afd106917339e760555679a2b3328c9c81fb09fcde679",
+      "bytes": 34826
+    },
+    {
+      "file": "menu_toggle_1.wav",
+      "duration": 0.2756,
+      "peak_dbfs": -6.61,
+      "rms_dbfs": -27.35,
+      "dc": 2.52e-05,
+      "sha256": "c484d393b0b4f6da58920e729fb73e47349960978e9ae5bee8cb7748f28271da",
+      "bytes": 26498
+    },
+    {
+      "file": "menu_toggle_2.wav",
+      "duration": 0.2707,
+      "peak_dbfs": -6.98,
+      "rms_dbfs": -28.18,
+      "dc": 2.75e-05,
+      "sha256": "d4548b0e11e8c38962a42fac9fbea14e260d35889bcc9a11e3af1a82eaa6df83",
+      "bytes": 26034
+    },
+    {
+      "file": "menu_error_1.wav",
+      "duration": 0.3542,
+      "peak_dbfs": -7.51,
+      "rms_dbfs": -25.86,
+      "dc": 2.48e-05,
+      "sha256": "adb2365295366bce79d4cecd115fce29a518297db713c512ed1d7de09357e9a3",
+      "bytes": 34048
+    },
+    {
+      "file": "menu_error_2.wav",
+      "duration": 0.3543,
+      "peak_dbfs": -7.59,
+      "rms_dbfs": -25.86,
+      "dc": 9.7e-06,
+      "sha256": "005e6bbfc903c6c3d15f0759e3bfd5f7c962067168ca493c450ae920a50eb542",
+      "bytes": 34052
+    },
+    {
+      "file": "menu_new_game_1.wav",
+      "duration": 0.471,
+      "peak_dbfs": -9.86,
+      "rms_dbfs": -24.65,
+      "dc": 0.0,
+      "sha256": "6835eb10c2185c11a31f509db6416f162c576e182ed96030cb603789e5a9f69f",
+      "bytes": 45256
+    },
+    {
+      "file": "menu_new_game_2.wav",
+      "duration": 0.4631,
+      "peak_dbfs": -7.93,
+      "rms_dbfs": -25.44,
+      "dc": 1e-07,
+      "sha256": "f01f54da9cf3dd5ce94b84910a0d19410bb2fd35779d8e372a9347105dec8be9",
+      "bytes": 44504
+    },
+    {
+      "file": "menu_tutorial_1.wav",
+      "duration": 0.3757,
+      "peak_dbfs": -7.17,
+      "rms_dbfs": -24.57,
+      "dc": 3e-07,
+      "sha256": "8de3c4ac5492f785f1399f795e32ae25b3888f694ad13f5899bb423b9c79a736",
+      "bytes": 36108
+    },
+    {
+      "file": "menu_tutorial_2.wav",
+      "duration": 0.374,
+      "peak_dbfs": -8.56,
+      "rms_dbfs": -24.89,
+      "dc": 4e-07,
+      "sha256": "cc8c49a909edd49c70fed9ebbc4db5f8940f6391c0ad96b1ec7129a7d475803d",
+      "bytes": 35948
+    },
+    {
+      "file": "menu_continue_1.wav",
+      "duration": 0.51,
+      "peak_dbfs": -8.7,
+      "rms_dbfs": -25.86,
+      "dc": 0.0,
+      "sha256": "a6705902bcb6d04a4abc63a6309e5962fc5898d4a3031cb8344a6914af0c14f3",
+      "bytes": 49002
+    },
+    {
+      "file": "menu_continue_2.wav",
+      "duration": 0.513,
+      "peak_dbfs": -6.74,
+      "rms_dbfs": -25.84,
+      "dc": 2e-07,
+      "sha256": "90f50f19c1114942fc79be32574eeaebf0c1dcbfab81719fd61c0ecd766c1edc",
+      "bytes": 49296
+    },
+    {
+      "file": "menu_settings_1.wav",
+      "duration": 0.2927,
+      "peak_dbfs": -4.22,
+      "rms_dbfs": -26.76,
+      "dc": 0.0001179,
+      "sha256": "05fcdf3a68bf731f67f9196647303b373f191d8debd211f76a661ed93950f9d5",
+      "bytes": 28146
+    },
+    {
+      "file": "menu_settings_2.wav",
+      "duration": 0.3167,
+      "peak_dbfs": -6.22,
+      "rms_dbfs": -27.09,
+      "dc": 6.47e-05,
+      "sha256": "8d9c545459bfd418ef363916d6366c580e873192ee6e8eeb5cf24467ab25f438",
+      "bytes": 30452
+    },
+    {
+      "file": "menu_quit_1.wav",
+      "duration": 0.3288,
+      "peak_dbfs": -7.36,
+      "rms_dbfs": -26.08,
+      "dc": 1e-07,
+      "sha256": "54b1b8de11e635233825c3819c5d0b412dd8a470878daee154d371807cb3fdf0",
+      "bytes": 31608
+    },
+    {
+      "file": "menu_quit_2.wav",
+      "duration": 0.3251,
+      "peak_dbfs": -8.08,
+      "rms_dbfs": -26.6,
+      "dc": 1e-07,
+      "sha256": "df10b390af95efdace0d62f180fee5f223e8e73d081947eb10cc5a0ef0680aec",
+      "bytes": 31254
+    },
+    {
+      "file": "country_select_1.wav",
+      "duration": 0.1811,
+      "peak_dbfs": -9.28,
+      "rms_dbfs": -26.52,
+      "dc": 9.38e-05,
+      "sha256": "d6ed0f9bb3eac97f76609caa3454a812c5c494c868dd7a6fcfe6e489d43103d2",
+      "bytes": 17426
+    },
+    {
+      "file": "country_select_2.wav",
+      "duration": 0.1814,
+      "peak_dbfs": -9.76,
+      "rms_dbfs": -26.52,
+      "dc": 4.95e-05,
+      "sha256": "2ece56c7110a8d58ff18c3d10823b50d53af5473c5e86af69e524e03ac7789c2",
+      "bytes": 17462
+    },
+    {
+      "file": "game_start_1.wav",
+      "duration": 1.1366,
+      "peak_dbfs": -6.36,
+      "rms_dbfs": -25.03,
+      "dc": 1e-07,
+      "sha256": "ce176e7f4935037690150a403bc3c755b3b2cdfb9061372ad7d1d4b0dab087ee",
+      "bytes": 109154
+    },
+    {
+      "file": "game_start_2.wav",
+      "duration": 1.1451,
+      "peak_dbfs": -6.98,
+      "rms_dbfs": -24.83,
+      "dc": 1e-07,
+      "sha256": "618725e4ace67c6d2fcbc2f1949f12197c0f14a55df6ef9c8ad121bb4a5d8b0c",
+      "bytes": 109978
+    },
+    {
+      "file": "ui_speed_1.wav",
+      "duration": 0.2639,
+      "peak_dbfs": -6.89,
+      "rms_dbfs": -28.09,
+      "dc": 1.38e-05,
+      "sha256": "767d12e1303384351e08985b381da8569edd5a59fc6d793ad9339cde1417d5ca",
+      "bytes": 25374
+    },
+    {
+      "file": "ui_speed_2.wav",
+      "duration": 0.2786,
+      "peak_dbfs": -6.18,
+      "rms_dbfs": -27.38,
+      "dc": 4.84e-05,
+      "sha256": "2a8990f21c45c74a2dc58b5b3446c786efed5d4393989b9741e6a24d4a712b88",
+      "bytes": 26792
+    },
+    {
+      "file": "ui_pause_1.wav",
+      "duration": 0.2732,
+      "peak_dbfs": -8.42,
+      "rms_dbfs": -28.24,
+      "dc": 2.66e-05,
+      "sha256": "08a6f06887d1d33754f721f8f05376256d2f69d584097ab4d0d675a9efa319e3",
+      "bytes": 26272
+    },
+    {
+      "file": "ui_pause_2.wav",
+      "duration": 0.2724,
+      "peak_dbfs": -7.9,
+      "rms_dbfs": -28.21,
+      "dc": 3.23e-05,
+      "sha256": "67e68fb9c83bbed1e2627a711898176cd7a2ae75798fd980986ffcf1d06548dd",
+      "bytes": 26190
+    },
+    {
+      "file": "ui_resume_1.wav",
+      "duration": 0.2927,
+      "peak_dbfs": -6.81,
+      "rms_dbfs": -26.17,
+      "dc": 4.63e-05,
+      "sha256": "6903d1d3d7adc9d786397e2657371cae7ecb0aa029cbf793db4c2346c800bcb6",
+      "bytes": 28140
+    },
+    {
+      "file": "ui_resume_2.wav",
+      "duration": 0.2894,
+      "peak_dbfs": -5.88,
+      "rms_dbfs": -26.71,
+      "dc": 4.45e-05,
+      "sha256": "3da4e1ec35857deb004045fb0fb80194a47dbde4c339e6c2acb3c241dc6b9449",
+      "bytes": 27828
+    },
+    {
+      "file": "unit_deselect_1.wav",
+      "duration": 0.1578,
+      "peak_dbfs": -4.65,
+      "rms_dbfs": -25.95,
+      "dc": 7.65e-05,
+      "sha256": "aef1aa5b7ef27aa21da41fb1306159dba0034cb188a24a5b8466bf7dc254082e",
+      "bytes": 15196
+    },
+    {
+      "file": "unit_deselect_2.wav",
+      "duration": 0.1714,
+      "peak_dbfs": -9.03,
+      "rms_dbfs": -26.3,
+      "dc": 3.3e-05,
+      "sha256": "42e2718b77fbcb1c6c72e73570b7d4be280e7313fecc2ae6a59f7cc8f84babac",
+      "bytes": 16498
+    },
+    {
+      "file": "notification_open_1.wav",
+      "duration": 0.4466,
+      "peak_dbfs": -8.27,
+      "rms_dbfs": -26.41,
+      "dc": 0.0,
+      "sha256": "8cbb38429689a25d4dea7e702bd6f1cc28b331dbb6b5c51f19dbccae787b1411",
+      "bytes": 42914
+    },
+    {
+      "file": "notification_open_2.wav",
+      "duration": 0.4319,
+      "peak_dbfs": -4.43,
+      "rms_dbfs": -25.47,
+      "dc": 2e-07,
+      "sha256": "19ff384a66b595dc516ae7400f2eee8ec66b32e5ed1b76930ae71170e46a8cbb",
+      "bytes": 41506
+    },
+    {
+      "file": "select_unit_1.wav",
+      "duration": 0.3591,
+      "peak_dbfs": -7.97,
+      "rms_dbfs": -27.55,
+      "dc": 1.89e-05,
+      "sha256": "0b83cd88fa6456c6174d377a286df9ff6927890f379e518a479e8e2dd022bef2",
+      "bytes": 34514
+    },
+    {
+      "file": "select_unit_2.wav",
+      "duration": 0.3636,
+      "peak_dbfs": -8.9,
+      "rms_dbfs": -27.61,
+      "dc": 4.44e-05,
+      "sha256": "5b45beb0f3796254d6088bdb40ab1da0c0de0b4a8a35ffa814fc965bfa109deb",
+      "bytes": 34946
+    },
+    {
+      "file": "select_unit_3.wav",
+      "duration": 0.3479,
+      "peak_dbfs": -5.0,
+      "rms_dbfs": -27.4,
+      "dc": 4.58e-05,
+      "sha256": "21f17fce09b0fb0cd48479ab09f155877d28fbae97bd44162105673759e68b77",
+      "bytes": 33440
+    },
+    {
+      "file": "select_infantry_1.wav",
+      "duration": 0.3541,
+      "peak_dbfs": -6.8,
+      "rms_dbfs": -27.47,
+      "dc": 2.87e-05,
+      "sha256": "3da2421206c69c962d8102ff278876d7e8272982bfaa4f96a9eef995d65aad33",
+      "bytes": 34038
+    },
+    {
+      "file": "select_infantry_2.wav",
+      "duration": 0.3659,
+      "peak_dbfs": -8.97,
+      "rms_dbfs": -27.61,
+      "dc": 1.86e-05,
+      "sha256": "24c9370dd47d24c06f28c535412dfbe57e45b2934bcacada0244787cc3f3c76a",
+      "bytes": 35166
+    },
+    {
+      "file": "select_infantry_3.wav",
+      "duration": 0.3579,
+      "peak_dbfs": -7.16,
+      "rms_dbfs": -27.53,
+      "dc": 4.1e-05,
+      "sha256": "bf4a426f494cbd09fb7086ae585dcc149e2937825f7c7e56c0639fad931faf55",
+      "bytes": 34404
+    },
+    {
+      "file": "select_armor_1.wav",
+      "duration": 0.3495,
+      "peak_dbfs": -6.51,
+      "rms_dbfs": -25.78,
+      "dc": 2.92e-05,
+      "sha256": "adb3f59cac1b6271fdb09e2068641fce07b7bd3a9c125c148fcd77801ce81543",
+      "bytes": 33598
+    },
+    {
+      "file": "select_armor_2.wav",
+      "duration": 0.3501,
+      "peak_dbfs": -9.25,
+      "rms_dbfs": -26.23,
+      "dc": 4.9e-06,
+      "sha256": "147262eb0950c16d27289bc9ab56f31f1cc1a1d0b5efebe44e976f02043bf1bf",
+      "bytes": 33652
+    },
+    {
+      "file": "select_armor_3.wav",
+      "duration": 0.3503,
+      "peak_dbfs": -8.99,
+      "rms_dbfs": -25.77,
+      "dc": 5.45e-05,
+      "sha256": "447f617e1d2b7878f8dfbfd5351ddbe9ae08a65646ec7e1b953abac3d1b47bbf",
+      "bytes": 33670
+    },
+    {
+      "file": "select_artillery_1.wav",
+      "duration": 0.9004,
+      "peak_dbfs": -6.74,
+      "rms_dbfs": -28.18,
+      "dc": 7.2e-06,
+      "sha256": "e6477f2653383c4dbbdead9b905871dc4123d1c4258dfe4d6794ee9d2ad97a9c",
+      "bytes": 86486
+    },
+    {
+      "file": "select_artillery_2.wav",
+      "duration": 0.8944,
+      "peak_dbfs": -5.63,
+      "rms_dbfs": -28.11,
+      "dc": 3.1e-06,
+      "sha256": "1efd6213601d11309d0ba70f91199ad1517183d17b55bc68b30feaf1ccd402eb",
+      "bytes": 85904
+    },
+    {
+      "file": "select_artillery_3.wav",
+      "duration": 0.8986,
+      "peak_dbfs": -7.28,
+      "rms_dbfs": -28.17,
+      "dc": 1.31e-05,
+      "sha256": "bf490b0805f3e450bbdfa066f6da04be0235dc3b65c7c68471fdf4501163975f",
+      "bytes": 86308
+    },
+    {
+      "file": "select_motorized_1.wav",
+      "duration": 0.3493,
+      "peak_dbfs": -5.15,
+      "rms_dbfs": -25.76,
+      "dc": 3.02e-05,
+      "sha256": "fd1638a514cd6618676b1ab5003c545e3642b4c58b28dfc254d3256459899630",
+      "bytes": 33578
+    },
+    {
+      "file": "select_motorized_2.wav",
+      "duration": 0.3486,
+      "peak_dbfs": -4.97,
+      "rms_dbfs": -25.74,
+      "dc": 3.61e-05,
+      "sha256": "c2ece84d3d175e4d3424e344d388d0e4d0b93f2a68de58e267228f30844ba1a4",
+      "bytes": 33512
+    },
+    {
+      "file": "select_motorized_3.wav",
+      "duration": 0.3493,
+      "peak_dbfs": -6.55,
+      "rms_dbfs": -26.22,
+      "dc": 2.41e-05,
+      "sha256": "f2cec4fcc0542d08f0a3bf1090419b4537b3add7cecbe8db24fc559e3f214d2f",
+      "bytes": 33578
+    },
+    {
+      "file": "select_fleet_1.wav",
+      "duration": 0.3556,
+      "peak_dbfs": -6.53,
+      "rms_dbfs": -24.34,
+      "dc": 3.01e-05,
+      "sha256": "f9d15fb6818fc999d722fbf39c44eeb411b5bd4594d036d4ad364e9a5e64ab8d",
+      "bytes": 34184
+    },
+    {
+      "file": "select_fleet_2.wav",
+      "duration": 0.3523,
+      "peak_dbfs": -8.22,
+      "rms_dbfs": -24.3,
+      "dc": 1.32e-05,
+      "sha256": "88b27cb6ad1dd0240a0e81e6eb4f787aaa5b528b3e8532a648dc8988284442c4",
+      "bytes": 33862
+    },
+    {
+      "file": "select_fleet_3.wav",
+      "duration": 0.3531,
+      "peak_dbfs": -6.53,
+      "rms_dbfs": -24.31,
+      "dc": 2.9e-05,
+      "sha256": "653c3167b25f6ec1df042de75e998e800d090fe683960da39c4629884bdce2fe",
+      "bytes": 33940
+    },
+    {
+      "file": "select_air_1.wav",
+      "duration": 0.3284,
+      "peak_dbfs": -6.26,
+      "rms_dbfs": -24.66,
+      "dc": 1.46e-05,
+      "sha256": "e7eaf05a04d3518946c6a3326344b62583fcf0631efcc486d0f12639488eb851",
+      "bytes": 31566
+    },
+    {
+      "file": "select_air_2.wav",
+      "duration": 0.3285,
+      "peak_dbfs": -7.47,
+      "rms_dbfs": -24.67,
+      "dc": 2.26e-05,
+      "sha256": "61ce66a1a50ab5968c4ed5ad6d572a8d211bcdf59093d8cf123dc9c2e7bf0042",
+      "bytes": 31578
+    },
+    {
+      "file": "select_air_3.wav",
+      "duration": 0.3286,
+      "peak_dbfs": -8.74,
+      "rms_dbfs": -24.67,
+      "dc": 1.56e-05,
+      "sha256": "461f6596fce1b563c88b22bc78a46401ce714c8dbb9e828fb8f91b416fe5968e",
+      "bytes": 31588
+    },
+    {
+      "file": "order_move_1.wav",
+      "duration": 0.3044,
+      "peak_dbfs": -8.55,
+      "rms_dbfs": -25.72,
+      "dc": 0.0,
+      "sha256": "b346c88415e5cd8517d7c4070670af1233991a16b0aab7791d7de654eb974a95",
+      "bytes": 29266
+    },
+    {
+      "file": "order_move_2.wav",
+      "duration": 0.3041,
+      "peak_dbfs": -7.88,
+      "rms_dbfs": -26.3,
+      "dc": 0.0,
+      "sha256": "c10a29df4cf71a927b1b715817fe42dfa2e306755f3c89199f58b76c5a280f76",
+      "bytes": 29236
+    },
+    {
+      "file": "order_move_3.wav",
+      "duration": 0.3028,
+      "peak_dbfs": -8.26,
+      "rms_dbfs": -26.29,
+      "dc": 1e-07,
+      "sha256": "649c7c82e34938a5212d414f5aefc6d14c4d151fc128f666738d79ef4b5e48ec",
+      "bytes": 29114
+    },
+    {
+      "file": "order_attack_1.wav",
+      "duration": 0.4372,
+      "peak_dbfs": -9.2,
+      "rms_dbfs": -25.55,
+      "dc": 2.35e-05,
+      "sha256": "574808ebb10bedb7295184b1533012636664e49096c2d7d8fdcd0f6a5e71220e",
+      "bytes": 42012
+    },
+    {
+      "file": "order_attack_2.wav",
+      "duration": 0.4375,
+      "peak_dbfs": -6.96,
+      "rms_dbfs": -25.55,
+      "dc": 2.28e-05,
+      "sha256": "4b0fe1a32189e8a1be21bdd54eb34fe772ad274b6e6881ab968996347cfddc80",
+      "bytes": 42046
+    },
+    {
+      "file": "order_attack_3.wav",
+      "duration": 0.4371,
+      "peak_dbfs": -7.5,
+      "rms_dbfs": -25.55,
+      "dc": 3.33e-05,
+      "sha256": "cda21d0145c69a206dd953f5959ef1eab569b8955123468f128e79916713185b",
+      "bytes": 42008
+    },
+    {
+      "file": "order_stop_1.wav",
+      "duration": 0.318,
+      "peak_dbfs": -9.84,
+      "rms_dbfs": -27.17,
+      "dc": 6.48e-05,
+      "sha256": "2bddf691f309c03051d7ef245b50c0e7d9d3a92250ebe3f01100f174eae6529f",
+      "bytes": 30572
+    },
+    {
+      "file": "order_stop_2.wav",
+      "duration": 0.3226,
+      "peak_dbfs": -9.68,
+      "rms_dbfs": -27.23,
+      "dc": 1.57e-05,
+      "sha256": "4eb1526addd4087fec2850b3a64c187e0868d4903eb5326b60b7d79966295c7a",
+      "bytes": 31014
+    },
+    {
+      "file": "order_stop_3.wav",
+      "duration": 0.3158,
+      "peak_dbfs": -8.08,
+      "rms_dbfs": -27.12,
+      "dc": 6.34e-05,
+      "sha256": "7111f3691917675b8fb6007df4f7ac86288e5b0c6e6d633c1d65fed27f4c73da",
+      "bytes": 30358
+    },
+    {
+      "file": "order_retreat_1.wav",
+      "duration": 0.5662,
+      "peak_dbfs": -6.93,
+      "rms_dbfs": -26.64,
+      "dc": 9e-07,
+      "sha256": "f1a2ac8dcd2aa16ae20557b15bcb812ff611e638664a83ef134391d2ad0e9137",
+      "bytes": 54402
+    },
+    {
+      "file": "order_retreat_2.wav",
+      "duration": 0.5592,
+      "peak_dbfs": -5.37,
+      "rms_dbfs": -26.59,
+      "dc": 1.3e-06,
+      "sha256": "bf0d5ee1c6c5168c73c2725551a245a43a40ed5942e19075d7ff80b7483d483f",
+      "bytes": 53724
+    },
+    {
+      "file": "order_retreat_3.wav",
+      "duration": 0.564,
+      "peak_dbfs": -6.06,
+      "rms_dbfs": -26.63,
+      "dc": 1e-06,
+      "sha256": "cfe40c7cbeb8861f6cfb9721f21c8c3bf0aea867c2fc29c5b7a51b3d5824ce98",
+      "bytes": 54188
+    },
+    {
+      "file": "deploy_1.wav",
+      "duration": 0.4523,
+      "peak_dbfs": -8.27,
+      "rms_dbfs": -26.0,
+      "dc": 1.44e-05,
+      "sha256": "9c7795a60b97d055ea69dc644e931c2be690474a27c8919635b1aa56bb4642d6",
+      "bytes": 43466
+    },
+    {
+      "file": "deploy_2.wav",
+      "duration": 0.4529,
+      "peak_dbfs": -8.14,
+      "rms_dbfs": -25.66,
+      "dc": 2.95e-05,
+      "sha256": "298602061807738e98e717ce690bf7b7152d1015e7da299c8b8dadbfbcbbd5dd",
+      "bytes": 43520
+    },
+    {
+      "file": "deploy_3.wav",
+      "duration": 0.451,
+      "peak_dbfs": -7.81,
+      "rms_dbfs": -25.98,
+      "dc": 4.13e-05,
+      "sha256": "087f2ec643ba2fd7c8911df08e3c68a6a2351450b04d80815e0bf8881fa97004",
+      "bytes": 43342
+    },
+    {
+      "file": "notify_info_1.wav",
+      "duration": 0.4465,
+      "peak_dbfs": -4.57,
+      "rms_dbfs": -25.01,
+      "dc": 0.0,
+      "sha256": "d53cf11f2fad6139e1c466f51cd1c43c34ed4f00d0acc8540d3743f10abbb1da",
+      "bytes": 42904
+    },
+    {
+      "file": "notify_info_2.wav",
+      "duration": 0.4985,
+      "peak_dbfs": -6.88,
+      "rms_dbfs": -25.47,
+      "dc": 0.0,
+      "sha256": "3066f00c46296514a840b64e38f9c4f64a4c2114561de52d4a546ea76ba664d6",
+      "bytes": 47900
+    },
+    {
+      "file": "notify_good_1.wav",
+      "duration": 0.8726,
+      "peak_dbfs": -7.72,
+      "rms_dbfs": -26.11,
+      "dc": 1e-07,
+      "sha256": "7136f74c3d07a5cdd7a85250688a339dc0e4e57829d45703f037b1245647503f",
+      "bytes": 83810
+    },
+    {
+      "file": "notify_good_2.wav",
+      "duration": 0.8731,
+      "peak_dbfs": -8.3,
+      "rms_dbfs": -26.54,
+      "dc": 0.0,
+      "sha256": "bc611bb3f429f9a97c9e59e7dd6a0e293e8f1570ac7ee95d20991417c23ca3aa",
+      "bytes": 83866
+    },
+    {
+      "file": "notify_bad_1.wav",
+      "duration": 0.5935,
+      "peak_dbfs": -8.68,
+      "rms_dbfs": -24.06,
+      "dc": 4.4e-06,
+      "sha256": "693027e99c760e1967889a72f8296baa14e709b0cde107a32efdb57637d91dd8",
+      "bytes": 57016
+    },
+    {
+      "file": "notify_bad_2.wav",
+      "duration": 0.5908,
+      "peak_dbfs": -8.68,
+      "rms_dbfs": -24.04,
+      "dc": 7.5e-06,
+      "sha256": "5b1d3c4cd9c35b641d111d3497bee7bc93aefbbcc5ec1def7bd129dc3ce2ab21",
+      "bytes": 56762
+    },
+    {
+      "file": "notify_warning_1.wav",
+      "duration": 0.5918,
+      "peak_dbfs": -8.55,
+      "rms_dbfs": -24.05,
+      "dc": 1.08e-05,
+      "sha256": "01d0ef5b3cfb2c2e75c08e4c2a17c6733bf0fcb6f3faf75427f21b2d59a72783",
+      "bytes": 56860
+    },
+    {
+      "file": "notify_warning_2.wav",
+      "duration": 0.5941,
+      "peak_dbfs": -8.69,
+      "rms_dbfs": -24.07,
+      "dc": 8.2e-06,
+      "sha256": "621badf117e9d00eaafb672248e1b12c09f33f0852303a51c8aed7282a31c120",
+      "bytes": 57082
+    },
+    {
+      "file": "notify_urgent_1.wav",
+      "duration": 0.7953,
+      "peak_dbfs": -7.56,
+      "rms_dbfs": -22.65,
+      "dc": 1.1e-06,
+      "sha256": "bd5a1eb15c5ddf60bce4827d2b77422418f94253b0aac7951e330e0eb28a3630",
+      "bytes": 76394
+    },
+    {
+      "file": "notify_urgent_2.wav",
+      "duration": 0.7941,
+      "peak_dbfs": -7.08,
+      "rms_dbfs": -22.8,
+      "dc": 1.7e-06,
+      "sha256": "978dad33d0c38b6709014da52992db27c921661954198b54b2179b76b1289088",
+      "bytes": 76280
+    },
+    {
+      "file": "event_1.wav",
+      "duration": 0.4218,
+      "peak_dbfs": -5.76,
+      "rms_dbfs": -26.15,
+      "dc": 1e-07,
+      "sha256": "719e731e8354da67c15a5faf7cc29276e165335d96259f0a7d8e7cdd69596648",
+      "bytes": 40532
+    },
+    {
+      "file": "event_2.wav",
+      "duration": 0.4448,
+      "peak_dbfs": -6.14,
+      "rms_dbfs": -24.98,
+      "dc": 1e-07,
+      "sha256": "29d2e0f6b81096ae904fb5df1c8ced6a98306a20507acb290a77a75f371e9fab",
+      "bytes": 42748
+    },
+    {
+      "file": "war_declare_1.wav",
+      "duration": 1.3841,
+      "peak_dbfs": -4.45,
+      "rms_dbfs": -25.82,
+      "dc": 2.3e-06,
+      "sha256": "1b4755a2c0a35119f998eda0f554635d7b3267a2bb2652ccd8e16118720f7be3",
+      "bytes": 132916
+    },
+    {
+      "file": "war_declare_2.wav",
+      "duration": 1.3822,
+      "peak_dbfs": -3.58,
+      "rms_dbfs": -25.98,
+      "dc": 2.4e-06,
+      "sha256": "e5ead7db8d4905ca6630881fed8fee9c6a87f98ee5fef1fa0bd90036443d3fa8",
+      "bytes": 132732
+    },
+    {
+      "file": "war_declared_on_1.wav",
+      "duration": 1.3282,
+      "peak_dbfs": -6.69,
+      "rms_dbfs": -25.02,
+      "dc": 4.4e-06,
+      "sha256": "2a877cc995c95a3b470c1df2edb961d825d14ac7d4b9d33055107187bc929bc7",
+      "bytes": 127554
+    },
+    {
+      "file": "war_declared_on_2.wav",
+      "duration": 1.2919,
+      "peak_dbfs": -6.39,
+      "rms_dbfs": -25.06,
+      "dc": 3.9e-06,
+      "sha256": "899e06fd32742753aa643a4d4d3aceb77022c943bfe9c9f3293d3d2facb8f094",
+      "bytes": 124068
+    },
+    {
+      "file": "war_world_1.wav",
+      "duration": 1.4629,
+      "peak_dbfs": -3.93,
+      "rms_dbfs": -24.66,
+      "dc": 1.16e-05,
+      "sha256": "54f7d11d589ab1b6ea2b2b719dbd04da1395d37b7e0f2975b372a056f1ae536f",
+      "bytes": 140482
+    },
+    {
+      "file": "war_world_2.wav",
+      "duration": 1.4651,
+      "peak_dbfs": -3.01,
+      "rms_dbfs": -24.67,
+      "dc": 7e-06,
+      "sha256": "0eba8df99574a87e43cf70305d44c02d7500448491332404d5cb09fe1960735d",
+      "bytes": 140690
+    },
+    {
+      "file": "peace_signed_1.wav",
+      "duration": 0.7874,
+      "peak_dbfs": -6.12,
+      "rms_dbfs": -22.44,
+      "dc": 2e-07,
+      "sha256": "3e0eec7ef5e401cd8c4b6cbe5d0c760f73e16b054bc5c50800475a5f5b82f7f5",
+      "bytes": 75638
+    },
+    {
+      "file": "peace_signed_2.wav",
+      "duration": 0.7863,
+      "peak_dbfs": -5.16,
+      "rms_dbfs": -22.57,
+      "dc": 1e-07,
+      "sha256": "8050507bd2d4eb8dcb2daab3931c07e0bb0804c7e4a9c970c6d2a783d1106f7a",
+      "bytes": 75524
+    },
+    {
+      "file": "alliance_formed_1.wav",
+      "duration": 0.9243,
+      "peak_dbfs": -5.5,
+      "rms_dbfs": -22.98,
+      "dc": 1e-07,
+      "sha256": "cb30f6c875229d73429abd2998b93aac51caadfabcda2365f555d30745fd8b27",
+      "bytes": 88776
+    },
+    {
+      "file": "alliance_formed_2.wav",
+      "duration": 0.9303,
+      "peak_dbfs": -3.84,
+      "rms_dbfs": -23.13,
+      "dc": 0.0,
+      "sha256": "168587337530af75569e9e9c2d59150a4140a3c293124cf9dd8ac6748771767b",
+      "bytes": 89352
+    },
+    {
+      "file": "guarantee_issued_1.wav",
+      "duration": 0.36,
+      "peak_dbfs": -7.53,
+      "rms_dbfs": -26.91,
+      "dc": 2e-07,
+      "sha256": "63732f870bdac51afe7c5da7e80c67c0de766314a8d2018c178e586ba4f525bb",
+      "bytes": 34608
+    },
+    {
+      "file": "guarantee_issued_2.wav",
+      "duration": 0.3639,
+      "peak_dbfs": -7.74,
+      "rms_dbfs": -26.46,
+      "dc": 0.0,
+      "sha256": "a5e9f69b915af6efbdb8c5b827fa34d6966183047922be2b63f0ff248fa731e3",
+      "bytes": 34982
+    },
+    {
+      "file": "access_granted_1.wav",
+      "duration": 0.6695,
+      "peak_dbfs": -7.43,
+      "rms_dbfs": -24.76,
+      "dc": 0.0,
+      "sha256": "b8b799f1f35b759035e91e14eb642df9e785dbcb3c502a5f564880aa975be5b2",
+      "bytes": 64316
+    },
+    {
+      "file": "access_granted_2.wav",
+      "duration": 0.6731,
+      "peak_dbfs": -6.76,
+      "rms_dbfs": -24.43,
+      "dc": 0.0,
+      "sha256": "9a1d3ba0ddcfe0f452dcfd11896c75f16267e19a0b3ae08a3c2174155416d172",
+      "bytes": 64664
+    },
+    {
+      "file": "diplomacy_rejected_1.wav",
+      "duration": 0.5924,
+      "peak_dbfs": -7.72,
+      "rms_dbfs": -24.05,
+      "dc": 7e-07,
+      "sha256": "f5eb60c99db7259d3bf600f4508ee206d482895d569a53987bd5c9fe947f72bd",
+      "bytes": 56912
+    },
+    {
+      "file": "diplomacy_rejected_2.wav",
+      "duration": 0.5905,
+      "peak_dbfs": -8.59,
+      "rms_dbfs": -24.04,
+      "dc": 1.89e-05,
+      "sha256": "9e0ef06051ae687445fcddea1d989d3fef56954d2ef25e1dd6d530ccfbe06bf8",
+      "bytes": 56728
+    },
+    {
+      "file": "war_justification_1.wav",
+      "duration": 0.6664,
+      "peak_dbfs": -6.59,
+      "rms_dbfs": -24.55,
+      "dc": 0.0,
+      "sha256": "b9d09adfe60045275482ae8b5fff74f59ec8c345055d9cb659d509327f9670c3",
+      "bytes": 64016
+    },
+    {
+      "file": "war_justification_2.wav",
+      "duration": 0.6678,
+      "peak_dbfs": -6.81,
+      "rms_dbfs": -24.41,
+      "dc": 0.0,
+      "sha256": "2599f54abe00caae98ed13a336cf589875701e4ab87ceaea64b557f70024f737",
+      "bytes": 64150
+    },
+    {
+      "file": "capitulation_1.wav",
+      "duration": 0.9067,
+      "peak_dbfs": -5.95,
+      "rms_dbfs": -23.03,
+      "dc": 0.0,
+      "sha256": "bdbc8447378c8aaf32cf0ff059fe0d85b359f6be7f9ba2afef581594c12d8267",
+      "bytes": 87086
+    },
+    {
+      "file": "capitulation_2.wav",
+      "duration": 0.9068,
+      "peak_dbfs": -5.62,
+      "rms_dbfs": -22.88,
+      "dc": 0.0,
+      "sha256": "54ec6403dc0d5f10a625e32327ac26b52fc0bddf25f889d004f3747978bd0bf4",
+      "bytes": 87094
+    },
+    {
+      "file": "battle_start_1.wav",
+      "duration": 1.3048,
+      "peak_dbfs": -8.27,
+      "rms_dbfs": -29.16,
+      "dc": 1.7e-05,
+      "sha256": "ee6875b34108bc176be7bb960037f0522c66c02115ccdf894e1587ea55be5b99",
+      "bytes": 125306
+    },
+    {
+      "file": "battle_start_2.wav",
+      "duration": 1.3127,
+      "peak_dbfs": -8.24,
+      "rms_dbfs": -28.94,
+      "dc": 1.39e-05,
+      "sha256": "cb077491112134e5e795cc58c25a354d2a8aee239074bad6a814f6d93ff4c6d3",
+      "bytes": 126066
+    },
+    {
+      "file": "government_change_1.wav",
+      "duration": 1.1309,
+      "peak_dbfs": -2.83,
+      "rms_dbfs": -23.34,
+      "dc": 0.0,
+      "sha256": "65450795bb524752e5172db347dd0036af76dff2f1d9dbc1e28976e66919bdad",
+      "bytes": 108614
+    },
+    {
+      "file": "government_change_2.wav",
+      "duration": 1.1322,
+      "peak_dbfs": -4.27,
+      "rms_dbfs": -22.91,
+      "dc": 1e-07,
+      "sha256": "59e757b9acec549244be21f406409fcf45c3aa936136e1a6f47931f24f2f9627",
+      "bytes": 108736
+    },
+    {
+      "file": "build_queued_1.wav",
+      "duration": 0.7542,
+      "peak_dbfs": -6.5,
+      "rms_dbfs": -25.73,
+      "dc": 1e-07,
+      "sha256": "70db884b5316cdd0dc05a956cb364ead97ccd6dd2369d2be2877905d574a57c0",
+      "bytes": 72448
+    },
+    {
+      "file": "build_queued_2.wav",
+      "duration": 0.7532,
+      "peak_dbfs": -6.72,
+      "rms_dbfs": -26.15,
+      "dc": 2e-07,
+      "sha256": "0d5e55f4d04cf6a02e63b28cee4c592db7956a077dfd9cc0bd30db0916a891c9",
+      "bytes": 72348
+    },
+    {
+      "file": "production_line_1.wav",
+      "duration": 0.7529,
+      "peak_dbfs": -6.7,
+      "rms_dbfs": -25.73,
+      "dc": 0.0,
+      "sha256": "f5872855cce7d8940cd031dee733bb918acdb4140dfb2bc81d7ddbdf128898e0",
+      "bytes": 72320
+    },
+    {
+      "file": "production_line_2.wav",
+      "duration": 0.7636,
+      "peak_dbfs": -8.31,
+      "rms_dbfs": -26.0,
+      "dc": 0.0,
+      "sha256": "ff96ba6d2cb2e59741378bd519a97b8d20bcc10af3737c0909cbbb19e4c611f7",
+      "bytes": 73348
+    },
+    {
+      "file": "production_done_1.wav",
+      "duration": 1.0425,
+      "peak_dbfs": -8.71,
+      "rms_dbfs": -25.61,
+      "dc": 0.0,
+      "sha256": "0e73c385b2d7a2cc7cfed4b05b1d6d8153f7ae7bca955b413dca981de5d0047c",
+      "bytes": 100128
+    },
+    {
+      "file": "production_done_2.wav",
+      "duration": 1.0415,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -25.34,
+      "dc": 0.0,
+      "sha256": "441324a7435ffb52471ab954e3425df9d5852fb22efeaebc2f85905675359d20",
+      "bytes": 100032
+    },
+    {
+      "file": "trade_deal_1.wav",
+      "duration": 0.5374,
+      "peak_dbfs": -7.3,
+      "rms_dbfs": -24.7,
+      "dc": 0.0,
+      "sha256": "3f8d839cb2f39307c42a8dd22979bf012ac94184c47482622dad859963682071",
+      "bytes": 51636
+    },
+    {
+      "file": "trade_deal_2.wav",
+      "duration": 0.5421,
+      "peak_dbfs": -7.77,
+      "rms_dbfs": -24.52,
+      "dc": 1e-07,
+      "sha256": "d7db5e963f547117926c7618af862540e9797aefa625a7c972427ba06e286750",
+      "bytes": 52090
+    },
+    {
+      "file": "diplomacy_1.wav",
+      "duration": 0.3603,
+      "peak_dbfs": -6.12,
+      "rms_dbfs": -26.39,
+      "dc": 1e-07,
+      "sha256": "c70b9d2e672c0dd2e39a2d4ad74bf638ccffa174b2b128b1a89db3135f6814d3",
+      "bytes": 34628
+    },
+    {
+      "file": "diplomacy_2.wav",
+      "duration": 0.3658,
+      "peak_dbfs": -10.8,
+      "rms_dbfs": -29.21,
+      "dc": 0.0,
+      "sha256": "87aa18543876cfd4747f7d3adce3c0af027cbc6d38db58634f165fb17c5f9add",
+      "bytes": 35164
+    },
+    {
+      "file": "law_change_1.wav",
+      "duration": 0.3647,
+      "peak_dbfs": -10.77,
+      "rms_dbfs": -28.38,
+      "dc": 2e-07,
+      "sha256": "113bcc85fdcb318e65d47211a99e409284338a97ab61acae02eb6ed47e812196",
+      "bytes": 35052
+    },
+    {
+      "file": "law_change_2.wav",
+      "duration": 0.3608,
+      "peak_dbfs": -8.59,
+      "rms_dbfs": -27.57,
+      "dc": 1e-07,
+      "sha256": "c282de60c645ea88b38792cec7ebdd3017628737c0652e50ad5a49602d75d4dd",
+      "bytes": 34678
+    },
+    {
+      "file": "advisor_hire_1.wav",
+      "duration": 0.4967,
+      "peak_dbfs": -7.38,
+      "rms_dbfs": -25.13,
+      "dc": 0.0,
+      "sha256": "d5dfe4e95dfa3d9ec7050149c78cc8966cfcc8d637f97d229e4443d4305f8eaa",
+      "bytes": 47728
+    },
+    {
+      "file": "advisor_hire_2.wav",
+      "duration": 0.4923,
+      "peak_dbfs": -6.6,
+      "rms_dbfs": -24.8,
+      "dc": 0.0,
+      "sha256": "403924bfde2ba6119d84d363a95320e07b572c6792572377c9a2310a4e3e27dd",
+      "bytes": 47308
+    },
+    {
+      "file": "advisor_dismiss_1.wav",
+      "duration": 0.3732,
+      "peak_dbfs": -6.05,
+      "rms_dbfs": -24.88,
+      "dc": 3e-07,
+      "sha256": "c2df5d898a2081bb8c5d9eee76abbbadfc3ec7ffb6ef2ccb20e34edf6a742e8b",
+      "bytes": 35872
+    },
+    {
+      "file": "advisor_dismiss_2.wav",
+      "duration": 0.3733,
+      "peak_dbfs": -7.98,
+      "rms_dbfs": -25.24,
+      "dc": 3e-07,
+      "sha256": "1163c46857d68673e2a12d195aae38dab64d0004d03eca04430730677cb5a340",
+      "bytes": 35884
+    },
+    {
+      "file": "decision_take_1.wav",
+      "duration": 0.3551,
+      "peak_dbfs": -7.6,
+      "rms_dbfs": -27.47,
+      "dc": 1e-07,
+      "sha256": "ef2e4ffdd3924c6c44b2b7359dc40c64b6be9e185f2b5a892f72a56d4d558ce6",
+      "bytes": 34136
+    },
+    {
+      "file": "decision_take_2.wav",
+      "duration": 0.3544,
+      "peak_dbfs": -6.95,
+      "rms_dbfs": -27.52,
+      "dc": 1e-07,
+      "sha256": "35553c28037baa78c33412dd776fd934608fc485aee4c2a8d48d3f405251426c",
+      "bytes": 34066
+    },
+    {
+      "file": "research_start_1.wav",
+      "duration": 0.6865,
+      "peak_dbfs": -5.97,
+      "rms_dbfs": -26.39,
+      "dc": 1e-07,
+      "sha256": "449a7576f84b4f360f3c60124c726412b57848257e2815e24d18d1bb2d3728ae",
+      "bytes": 65950
+    },
+    {
+      "file": "research_start_2.wav",
+      "duration": 0.6865,
+      "peak_dbfs": -4.67,
+      "rms_dbfs": -26.35,
+      "dc": 0.0,
+      "sha256": "9d582b0f070a2bdbbc746215334ed057fa60a158b9ad84830195830bcebcba4c",
+      "bytes": 65948
+    },
+    {
+      "file": "research_done_1.wav",
+      "duration": 0.8477,
+      "peak_dbfs": -6.95,
+      "rms_dbfs": -26.95,
+      "dc": 7.1e-06,
+      "sha256": "99d2f8167c77cf7692d3378bc2216604d77332f5dab81060b190a77b9702c55b",
+      "bytes": 81424
+    },
+    {
+      "file": "research_done_2.wav",
+      "duration": 0.8602,
+      "peak_dbfs": -7.48,
+      "rms_dbfs": -27.01,
+      "dc": 1.3e-06,
+      "sha256": "ea0dfe7790fdd96d5ff7d0a700917fa6e089c27ac1459a7a39f63e0c32921f46",
+      "bytes": 82628
+    },
+    {
+      "file": "focus_start_1.wav",
+      "duration": 0.5679,
+      "peak_dbfs": -5.89,
+      "rms_dbfs": -24.89,
+      "dc": 1e-07,
+      "sha256": "36f66e91996c64ddb40a21fde995a86c878c6e1a870de7f7f4fa10006638d928",
+      "bytes": 54562
+    },
+    {
+      "file": "focus_start_2.wav",
+      "duration": 0.5752,
+      "peak_dbfs": -5.93,
+      "rms_dbfs": -24.12,
+      "dc": 0.0,
+      "sha256": "dd1644bcba1ba7ec4eccdaae7e18c30aab46c5a1988acbdd3355887ee3cb3d8b",
+      "bytes": 55260
+    },
+    {
+      "file": "focus_done_1.wav",
+      "duration": 0.8622,
+      "peak_dbfs": -6.59,
+      "rms_dbfs": -26.67,
+      "dc": 4e-07,
+      "sha256": "f7e26b145d43e133307e8b7de7f0f02134cf35f2f836f3ef623c765f3c2342f6",
+      "bytes": 82820
+    },
+    {
+      "file": "focus_done_2.wav",
+      "duration": 0.8599,
+      "peak_dbfs": -4.59,
+      "rms_dbfs": -26.4,
+      "dc": 1.1e-06,
+      "sha256": "b5bc538817a929288c538f15f3597085f3781f53971732699ade3119a62edaa0",
+      "bytes": 82590
+    },
+    {
+      "file": "map_civilian_factory.wav",
+      "duration": 0.6783,
+      "peak_dbfs": -7.11,
+      "rms_dbfs": -27.67,
+      "dc": 8.9e-06,
+      "sha256": "51acb5853049ebbdb9f5d7d9f9b505028aa540c1a5f54d4b21a2fdbc2a461ca8",
+      "bytes": 65160
+    },
+    {
+      "file": "map_military_factory.wav",
+      "duration": 0.3628,
+      "peak_dbfs": -7.62,
+      "rms_dbfs": -27.58,
+      "dc": 1.78e-05,
+      "sha256": "a9cf0584164e4482ecda1dbdab6a27901ad1cd5e2076cefbd48fc71a59663b97",
+      "bytes": 34872
+    },
+    {
+      "file": "map_synthetic_refinery.wav",
+      "duration": 0.3495,
+      "peak_dbfs": -6.12,
+      "rms_dbfs": -25.76,
+      "dc": 1.3e-05,
+      "sha256": "6ee52dd443f63aa600ba679cb6515bd7fd6cc410b9a925f717daa57b1d0f3543",
+      "bytes": 33594
+    },
+    {
+      "file": "map_dockyard.wav",
+      "duration": 0.3536,
+      "peak_dbfs": -9.06,
+      "rms_dbfs": -24.63,
+      "dc": 1.81e-05,
+      "sha256": "45abe77805ad6e36cdd0f4309dc8d2631b23357e8bd6b78416925eecfc70fee8",
+      "bytes": 33986
+    },
+    {
+      "file": "map_naval_base.wav",
+      "duration": 0.3544,
+      "peak_dbfs": -8.64,
+      "rms_dbfs": -24.32,
+      "dc": 9.3e-06,
+      "sha256": "ffa8d71252cedafb6bfa8708d8d586acc7a975b1fa4287f50477797139c362e5",
+      "bytes": 34070
+    },
+    {
+      "file": "map_air_base.wav",
+      "duration": 0.3285,
+      "peak_dbfs": -7.16,
+      "rms_dbfs": -24.67,
+      "dc": 2.75e-05,
+      "sha256": "a1302f7e255f933d9fb8551185710e2195eea4c8388b8760a60f34eb8f010392",
+      "bytes": 31580
+    },
+    {
+      "file": "map_anti_air.wav",
+      "duration": 0.901,
+      "peak_dbfs": -7.87,
+      "rms_dbfs": -27.85,
+      "dc": 3.8e-06,
+      "sha256": "c66426a492a25a58a78746cfb2665266e632a11fd128d5fc73d088817fee1dda",
+      "bytes": 86542
+    },
+    {
+      "file": "map_infrastructure.wav",
+      "duration": 0.668,
+      "peak_dbfs": -6.28,
+      "rms_dbfs": -28.05,
+      "dc": 6.5e-06,
+      "sha256": "66efe6c241f66b4aaeeca7f7efb1f068b8a62526a54d89a6ff00c7999c7ec56d",
+      "bytes": 64172
+    },
+    {
+      "file": "rifle_crack_1.wav",
+      "duration": 0.3517,
+      "peak_dbfs": -3.62,
+      "rms_dbfs": -24.33,
+      "dc": 0.00013,
+      "sha256": "f8f6f39261cb3dd47885b3aa13346389a8d270aa26763a81faec15d3b991c3de",
+      "bytes": 33806
+    },
+    {
+      "file": "rifle_crack_2.wav",
+      "duration": 0.3436,
+      "peak_dbfs": -2.24,
+      "rms_dbfs": -24.23,
+      "dc": 9.06e-05,
+      "sha256": "d7f283d1f5820860b98b8450f748720509fe5f01a73fdf4b4828994f734a01ea",
+      "bytes": 33028
+    },
+    {
+      "file": "rifle_crack_3.wav",
+      "duration": 0.3371,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -26.86,
+      "dc": 6.89e-05,
+      "sha256": "1ef2b4152d95182b99a423ecadfabc9a2b90c3b28faa389e88aedd74591574e4",
+      "bytes": 32402
+    },
+    {
+      "file": "mg_burst_1.wav",
+      "duration": 0.6816,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -20.42,
+      "dc": 4.49e-05,
+      "sha256": "8c9eb5d19a070875069b965a3353259f80e9a31da5de06f91a6d4ea25ed23415",
+      "bytes": 65478
+    },
+    {
+      "file": "mg_burst_2.wav",
+      "duration": 0.659,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -21.12,
+      "dc": 2.09e-05,
+      "sha256": "39712d09ca15e97807e020b24f9ec44697342a5840b88c6113355633c900c2bc",
+      "bytes": 63310
+    },
+    {
+      "file": "mg_burst_3.wav",
+      "duration": 0.6555,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -22.14,
+      "dc": 5.87e-05,
+      "sha256": "eed90a8ca4a7211e1de3d0ec744812af18578f4b8785708466d414f7b36392b1",
+      "bytes": 62970
+    },
+    {
+      "file": "artillery_boom_1.wav",
+      "duration": 1.2638,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -24.17,
+      "dc": 6.3e-06,
+      "sha256": "9e8794b455205ff7a3c188c3f2b47993b364e257b5b39aaa319394aae62b4c11",
+      "bytes": 121370
+    },
+    {
+      "file": "artillery_boom_2.wav",
+      "duration": 1.2884,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -25.5,
+      "dc": 7.6e-06,
+      "sha256": "c1420de4ec1bb689ac96baa811c39536067a054a2d8fdca4a7244e05503fa547",
+      "bytes": 123728
+    },
+    {
+      "file": "artillery_boom_3.wav",
+      "duration": 1.2869,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -23.52,
+      "dc": 9.3e-06,
+      "sha256": "1fff53d2d315e3149ce7fb1873e62ddd1774612b53d69c7d62394f0c35da6f9b",
+      "bytes": 123586
+    },
+    {
+      "file": "explosion_1.wav",
+      "duration": 1.2607,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -25.14,
+      "dc": 3.9e-05,
+      "sha256": "d6bfa97f411c3bda319a541c438fa0a812bc7e1cd3be98d19ac2c97711f9bde1",
+      "bytes": 121072
+    },
+    {
+      "file": "explosion_2.wav",
+      "duration": 1.2892,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -24.99,
+      "dc": 2.25e-05,
+      "sha256": "bf6a230b6a73820b84ba14c79ec628f8a57d5e40db3e9622bef3964df2dfe855",
+      "bytes": 123806
+    },
+    {
+      "file": "explosion_3.wav",
+      "duration": 1.2541,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -24.54,
+      "dc": 5.62e-05,
+      "sha256": "9d274f9c79e9d7cb2c3879aae228808c0c9ff3d0eeae958706370d57a0f83409",
+      "bytes": 120436
+    },
+    {
+      "file": "naval_gun_1.wav",
+      "duration": 1.1929,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -27.08,
+      "dc": 4.65e-05,
+      "sha256": "3af5e5491dddce0a4b3bdc2ccab52a21294feae2d821838f008da0283623baa6",
+      "bytes": 114558
+    },
+    {
+      "file": "naval_gun_2.wav",
+      "duration": 1.3196,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -24.46,
+      "dc": 3.42e-05,
+      "sha256": "7b99378414d9289c79058806edd49a21ee68b959ea7cd6d338a4862cc6586212",
+      "bytes": 126724
+    },
+    {
+      "file": "naval_gun_3.wav",
+      "duration": 1.149,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -27.6,
+      "dc": 6.2e-05,
+      "sha256": "e0669a61071ee09531153c191563e0a68c426f988472d348452d77ad0e57745f",
+      "bytes": 110348
+    },
+    {
+      "file": "plane_flyby_1.wav",
+      "duration": 1.7777,
+      "peak_dbfs": -3.5,
+      "rms_dbfs": -19.14,
+      "dc": 0.0,
+      "sha256": "dd87ce08966fa6db880b5e817e9a8bccfe40f5283ab03ec97a5f87869e678134",
+      "bytes": 170706
+    },
+    {
+      "file": "plane_flyby_2.wav",
+      "duration": 1.7774,
+      "peak_dbfs": -3.37,
+      "rms_dbfs": -19.2,
+      "dc": 0.0,
+      "sha256": "013efebb359072917e629a592732ad271d4b701ec4800dcc77398817aad62a96",
+      "bytes": 170678
+    },
+    {
+      "file": "plane_flyby_3.wav",
+      "duration": 1.7777,
+      "peak_dbfs": -3.17,
+      "rms_dbfs": -19.2,
+      "dc": 0.0,
+      "sha256": "70442cc2467cc0ccfcc436b736179d4da9577e467d90e3d539b427fcf98f0338",
+      "bytes": 170708
+    },
+    {
+      "file": "tank_engine_1.wav",
+      "duration": 1.4,
+      "peak_dbfs": -4.89,
+      "rms_dbfs": -18.79,
+      "dc": 1.2e-06,
+      "sha256": "7eaf5abe614885ffb9e970f25fbabc957fee380893f2f8d931ecd0e5bdf567a9",
+      "bytes": 134444
+    },
+    {
+      "file": "tank_engine_2.wav",
+      "duration": 1.4,
+      "peak_dbfs": -4.92,
+      "rms_dbfs": -18.79,
+      "dc": 1.2e-06,
+      "sha256": "49d854c2ce0be9b2fc59f508a1b587e7623b7daa9fd67df43c626cb022e61205",
+      "bytes": 134444
+    },
+    {
+      "file": "tank_engine_3.wav",
+      "duration": 1.4,
+      "peak_dbfs": -4.97,
+      "rms_dbfs": -18.79,
+      "dc": 1.3e-06,
+      "sha256": "1af5375716bc0dad0892f1ccf23effb603c2acb70b48f6c15917a6fbeded9322",
+      "bytes": 134444
+    },
+    {
+      "file": "research_anti_tank_1_select.wav",
+      "duration": 0.9093,
+      "peak_dbfs": -4.76,
+      "rms_dbfs": -27.15,
+      "dc": 1e-06,
+      "sha256": "f5a72856537f93c343d247636e21767631d19cff5ddb311cd6b59fc026e1b8d0",
+      "bytes": 87336
+    },
+    {
+      "file": "research_anti_tank_1_start.wav",
+      "duration": 1.101,
+      "peak_dbfs": -5.52,
+      "rms_dbfs": -26.85,
+      "dc": 0.0,
+      "sha256": "65890c554c733f82d0a46ca9de90adda1241b78d90f052e663804d6dff846ef7",
+      "bytes": 105738
+    },
+    {
+      "file": "research_anti_tank_1_done.wav",
+      "duration": 1.0817,
+      "peak_dbfs": -5.7,
+      "rms_dbfs": -25.57,
+      "dc": 1.4e-06,
+      "sha256": "9cae5d2172fac15a57e0a96e15622721325daf473932673d5f1d4ae1e568c4c3",
+      "bytes": 103884
+    },
+    {
+      "file": "research_anti_tank_1_cancel.wav",
+      "duration": 0.8153,
+      "peak_dbfs": -7.03,
+      "rms_dbfs": -28.12,
+      "dc": 0.0,
+      "sha256": "6980ab5819738ba7e868fe2e9f53cd4289d2a0bf917a9cfaefc4d20de5ac9bd3",
+      "bytes": 78314
+    },
+    {
+      "file": "research_artillery_1_select.wav",
+      "duration": 0.9475,
+      "peak_dbfs": -5.69,
+      "rms_dbfs": -27.07,
+      "dc": 1.1e-06,
+      "sha256": "ba48f6fcc4291d305138cfe930fded32cc5a27ba4958ddb1872b5ba3909fcf3a",
+      "bytes": 91000
+    },
+    {
+      "file": "research_artillery_1_start.wav",
+      "duration": 1.1371,
+      "peak_dbfs": -6.35,
+      "rms_dbfs": -26.59,
+      "dc": 0.0,
+      "sha256": "448df7ca734c690460ffc5cc0a9403f3065e78e2f4e2259efe62e886307cc2e4",
+      "bytes": 109208
+    },
+    {
+      "file": "research_artillery_1_done.wav",
+      "duration": 1.1111,
+      "peak_dbfs": -2.45,
+      "rms_dbfs": -24.95,
+      "dc": 1.8e-06,
+      "sha256": "4edf4c98ba23f3a8a6fc61622bae9fa22c8339073c6f013c7ca3b00fa65f4d6b",
+      "bytes": 106708
+    },
+    {
+      "file": "research_artillery_1_cancel.wav",
+      "duration": 0.8034,
+      "peak_dbfs": -5.77,
+      "rms_dbfs": -27.45,
+      "dc": 1e-07,
+      "sha256": "d3b541834e89bbfc8a50e14df69f7ed9530e9b92b852d4cb4a16d406f142aa4b",
+      "bytes": 77174
+    },
+    {
+      "file": "research_artillery_2_select.wav",
+      "duration": 0.9203,
+      "peak_dbfs": -7.02,
+      "rms_dbfs": -26.95,
+      "dc": 1.1e-06,
+      "sha256": "05048cbf0166a148fb850abb4bd4d9dcb289fb97fb9320289c1a41987e762544",
+      "bytes": 88392
+    },
+    {
+      "file": "research_artillery_2_start.wav",
+      "duration": 1.1108,
+      "peak_dbfs": -6.86,
+      "rms_dbfs": -26.53,
+      "dc": 0.0,
+      "sha256": "494c6d3ae0fa93c3d8be089962f76ad68f90367f9f2016f9080aad8e3efcba4c",
+      "bytes": 106684
+    },
+    {
+      "file": "research_artillery_2_done.wav",
+      "duration": 1.0907,
+      "peak_dbfs": -6.13,
+      "rms_dbfs": -25.55,
+      "dc": 2.1e-06,
+      "sha256": "7b25b979d3bebc9c4c65d666f45681a90eb4baa6e1c143810b26ca882c597b50",
+      "bytes": 104754
+    },
+    {
+      "file": "research_artillery_2_cancel.wav",
+      "duration": 0.8212,
+      "peak_dbfs": -6.98,
+      "rms_dbfs": -27.84,
+      "dc": 1e-07,
+      "sha256": "fb6f869d69af6ce1d3dcf62c61e7c39c32d5ae8295decd12bedd8529ece181ad",
+      "bytes": 78880
+    },
+    {
+      "file": "research_artillery_3_select.wav",
+      "duration": 0.9642,
+      "peak_dbfs": -4.2,
+      "rms_dbfs": -26.91,
+      "dc": 9e-07,
+      "sha256": "cc541870d1a42fc1a87742251222bbcab8c361c1e6a096e00c60aae69bec5f0d",
+      "bytes": 92606
+    },
+    {
+      "file": "research_artillery_3_start.wav",
+      "duration": 1.1552,
+      "peak_dbfs": -5.48,
+      "rms_dbfs": -27.04,
+      "dc": 0.0,
+      "sha256": "fc7e80d0194ab9222da6328968c4a94fa331e5bcda9ee4144698cb65a6804521",
+      "bytes": 110940
+    },
+    {
+      "file": "research_artillery_3_done.wav",
+      "duration": 1.1348,
+      "peak_dbfs": -4.53,
+      "rms_dbfs": -25.42,
+      "dc": 1.4e-06,
+      "sha256": "ee1dfe20c36c51bb82d086afab5fb8a44dcdb0869069a4387674510667a51adc",
+      "bytes": 108984
+    },
+    {
+      "file": "research_artillery_3_cancel.wav",
+      "duration": 0.8139,
+      "peak_dbfs": -5.94,
+      "rms_dbfs": -27.8,
+      "dc": 0.0,
+      "sha256": "16b3893de57b69e2c0d5a8ebd20d2f40cd183f40b70723fe41daee229f705f81",
+      "bytes": 78182
+    },
+    {
+      "file": "research_battleship_1_select.wav",
+      "duration": 0.3427,
+      "peak_dbfs": -9.04,
+      "rms_dbfs": -24.89,
+      "dc": 7.2e-06,
+      "sha256": "e1d152a2d533fa781997c2cbcb1e7e5bcbc91a1e52a54cc57fceca7609a426b9",
+      "bytes": 32948
+    },
+    {
+      "file": "research_battleship_1_start.wav",
+      "duration": 0.7136,
+      "peak_dbfs": -12.17,
+      "rms_dbfs": -24.69,
+      "dc": 0.0,
+      "sha256": "598aee2aad7909ac0925d4d8a04d2e9b09980853149af600dec36b73f2784bf8",
+      "bytes": 68552
+    },
+    {
+      "file": "research_battleship_1_done.wav",
+      "duration": 0.8327,
+      "peak_dbfs": -7.19,
+      "rms_dbfs": -23.89,
+      "dc": 4.7e-06,
+      "sha256": "3a86d4d253f0a388069d02587149ca3d392aef722189f4697354560b9b5ec53b",
+      "bytes": 79982
+    },
+    {
+      "file": "research_battleship_1_cancel.wav",
+      "duration": 0.5223,
+      "peak_dbfs": -7.8,
+      "rms_dbfs": -27.88,
+      "dc": 1e-07,
+      "sha256": "6694e9c10bb42fac8031886c911678d347330ee7b264d154fcb4cef926618546",
+      "bytes": 50188
+    },
+    {
+      "file": "research_bomber_1_select.wav",
+      "duration": 0.333,
+      "peak_dbfs": -8.2,
+      "rms_dbfs": -24.73,
+      "dc": 9.1e-06,
+      "sha256": "3992b3c6c765efda85534eae3349d37e8e1970cb71334e07f51a98b9c97475cd",
+      "bytes": 32014
+    },
+    {
+      "file": "research_bomber_1_start.wav",
+      "duration": 0.7047,
+      "peak_dbfs": -5.88,
+      "rms_dbfs": -24.74,
+      "dc": 1e-07,
+      "sha256": "d78fbf211d11645b82ae2a3c1cc8ff228494808d5b81a541745b40d419ade4e4",
+      "bytes": 67700
+    },
+    {
+      "file": "research_bomber_1_done.wav",
+      "duration": 0.8488,
+      "peak_dbfs": -5.37,
+      "rms_dbfs": -23.34,
+      "dc": 8e-07,
+      "sha256": "8f2ffc8a4958e7c8642a901d78b6d105fa159e33f430b7c4fd868cb2406d77c7",
+      "bytes": 81528
+    },
+    {
+      "file": "research_bomber_1_cancel.wav",
+      "duration": 0.4822,
+      "peak_dbfs": -7.22,
+      "rms_dbfs": -27.7,
+      "dc": 0.0,
+      "sha256": "1eb0d78b8e050adf2a29a944ecba3296f8a10f7020c6fdd703b9d8fb069590bc",
+      "bytes": 46332
+    },
+    {
+      "file": "research_cas_1_select.wav",
+      "duration": 0.3513,
+      "peak_dbfs": -8.09,
+      "rms_dbfs": -24.28,
+      "dc": 9.7e-06,
+      "sha256": "3bb309cc9f311ebda586a6c4e232888535f6dcafbb63e88baac23d3c56c01fe3",
+      "bytes": 33772
+    },
+    {
+      "file": "research_cas_1_start.wav",
+      "duration": 0.7231,
+      "peak_dbfs": -7.02,
+      "rms_dbfs": -25.25,
+      "dc": 1e-07,
+      "sha256": "32d2c88702f58669b89eba6e26a393fa69c51374b4bb34533019f4bd4b45944b",
+      "bytes": 69466
+    },
+    {
+      "file": "research_cas_1_done.wav",
+      "duration": 0.8606,
+      "peak_dbfs": -6.28,
+      "rms_dbfs": -23.43,
+      "dc": 6.7e-06,
+      "sha256": "ee2729bb022874670879fe2ece5da39b8c6832552ed046e9f6a63845057135f8",
+      "bytes": 82658
+    },
+    {
+      "file": "research_cas_1_cancel.wav",
+      "duration": 0.4822,
+      "peak_dbfs": -5.75,
+      "rms_dbfs": -27.68,
+      "dc": 0.0,
+      "sha256": "ad6e3db0e163e246a0a1ac37834f795ed560c3615303595b17e868c5b2005e41",
+      "bytes": 46338
+    },
+    {
+      "file": "research_computing_1_select.wav",
+      "duration": 0.4826,
+      "peak_dbfs": -6.13,
+      "rms_dbfs": -24.74,
+      "dc": 1.03e-05,
+      "sha256": "3d3fead93d073e725c1b1c72eb10c9badc8af42365bb338c4f5ff54f1ddb2e8d",
+      "bytes": 46374
+    },
+    {
+      "file": "research_computing_1_start.wav",
+      "duration": 0.6637,
+      "peak_dbfs": -6.03,
+      "rms_dbfs": -25.38,
+      "dc": 0.0,
+      "sha256": "8c676cca97a3391b2195d65edf241e66ae4edf249ad4dd83a0fa397e03cf9d06",
+      "bytes": 63756
+    },
+    {
+      "file": "research_computing_1_done.wav",
+      "duration": 0.8449,
+      "peak_dbfs": -3.27,
+      "rms_dbfs": -24.03,
+      "dc": 7.8e-06,
+      "sha256": "7b077ee4845bb04707a61fc63790e48128ff284ab6a2e79270e8bb56bc19c60f",
+      "bytes": 81150
+    },
+    {
+      "file": "research_computing_1_cancel.wav",
+      "duration": 0.4007,
+      "peak_dbfs": -6.37,
+      "rms_dbfs": -26.4,
+      "dc": 0.0,
+      "sha256": "b0bf27d75da992d8e50eb961289a7ac44687dbd94dd229719069b1b96690e7b0",
+      "bytes": 38516
+    },
+    {
+      "file": "research_construction_1_select.wav",
+      "duration": 0.7352,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -26.06,
+      "dc": 1.7e-06,
+      "sha256": "543d239e9b6ad2b236010dd71bfee5f41c31effd75f6f5ee925f34ae6fd1745a",
+      "bytes": 70626
+    },
+    {
+      "file": "research_construction_1_start.wav",
+      "duration": 0.9264,
+      "peak_dbfs": -7.17,
+      "rms_dbfs": -25.82,
+      "dc": 0.0,
+      "sha256": "0d66c5327e9486570b36c7e64f9c312118162a35b5ada106c95ab547ab20bf43",
+      "bytes": 88980
+    },
+    {
+      "file": "research_construction_1_done.wav",
+      "duration": 0.9043,
+      "peak_dbfs": -3.18,
+      "rms_dbfs": -24.12,
+      "dc": 1.9e-06,
+      "sha256": "2efb02f9f1e1990716d183db4ef66c17dadbccaab89f6cc219dfbfa6a9120f3a",
+      "bytes": 86858
+    },
+    {
+      "file": "research_construction_1_cancel.wav",
+      "duration": 0.5833,
+      "peak_dbfs": -7.86,
+      "rms_dbfs": -28.02,
+      "dc": 0.0,
+      "sha256": "262649ef364ae0899947ebde379b128c5d2d48b2db2c28b44184d0701a11409b",
+      "bytes": 56044
+    },
+    {
+      "file": "research_construction_2_select.wav",
+      "duration": 0.7168,
+      "peak_dbfs": -5.58,
+      "rms_dbfs": -25.74,
+      "dc": 1.9e-06,
+      "sha256": "6740d61aec419982c1f463f6d4064b70dae3a4ab90f627b3e6219ef6f3126439",
+      "bytes": 68858
+    },
+    {
+      "file": "research_construction_2_start.wav",
+      "duration": 0.9067,
+      "peak_dbfs": -5.82,
+      "rms_dbfs": -26.04,
+      "dc": 0.0,
+      "sha256": "1449bb53b628d6bd061526202b5529c7fb733b82f18f1a6b740e56c46bc6982f",
+      "bytes": 87084
+    },
+    {
+      "file": "research_construction_2_done.wav",
+      "duration": 0.8862,
+      "peak_dbfs": -3.53,
+      "rms_dbfs": -23.46,
+      "dc": 1.7e-06,
+      "sha256": "78681d453499f56ce81f71c4ca8eeef65b65416cfb5a424ecbf2bfe0bb539715",
+      "bytes": 85122
+    },
+    {
+      "file": "research_construction_2_cancel.wav",
+      "duration": 0.5841,
+      "peak_dbfs": -7.54,
+      "rms_dbfs": -28.0,
+      "dc": 0.0,
+      "sha256": "20ddae57c6373d0aefc9172b2458a41f8529cd479813794f5c3b41556beed9c0",
+      "bytes": 56116
+    },
+    {
+      "file": "research_cruiser_1_select.wav",
+      "duration": 0.3999,
+      "peak_dbfs": -12.97,
+      "rms_dbfs": -25.57,
+      "dc": 5.9e-06,
+      "sha256": "91d8f9a51664d363a537bc693379e60524832c7021021bfe6580a3a0f80c8209",
+      "bytes": 38432
+    },
+    {
+      "file": "research_cruiser_1_start.wav",
+      "duration": 0.7696,
+      "peak_dbfs": -11.95,
+      "rms_dbfs": -25.04,
+      "dc": 1e-07,
+      "sha256": "d8bcc9f69a84d5b44ee7ad8663574705d16e83c20768978356ac4f48761b1141",
+      "bytes": 73926
+    },
+    {
+      "file": "research_cruiser_1_done.wav",
+      "duration": 0.8882,
+      "peak_dbfs": -7.29,
+      "rms_dbfs": -24.19,
+      "dc": 2.1e-06,
+      "sha256": "4356047246cbeb843cd64ee7bc00ed8e3552b9677740d6a6499745617aab29c9",
+      "bytes": 85310
+    },
+    {
+      "file": "research_cruiser_1_cancel.wav",
+      "duration": 0.5238,
+      "peak_dbfs": -5.52,
+      "rms_dbfs": -26.93,
+      "dc": 2e-07,
+      "sha256": "4a8d36db9abad1fe6c502d164e7827ea1291937d468e683028539d7941494fb0",
+      "bytes": 50332
+    },
+    {
+      "file": "research_destroyer_1_select.wav",
+      "duration": 0.3541,
+      "peak_dbfs": -9.73,
+      "rms_dbfs": -25.05,
+      "dc": 8.1e-06,
+      "sha256": "bc57a4d94c4b07297a64778f6e6168f46c675ecc0a730446667e2f6fd7fd8519",
+      "bytes": 34036
+    },
+    {
+      "file": "research_destroyer_1_start.wav",
+      "duration": 0.7245,
+      "peak_dbfs": -12.13,
+      "rms_dbfs": -24.76,
+      "dc": 0.0,
+      "sha256": "ee9dbf7163569238887c0f57a7973379964419a48a1cd9279174ba5e8f42c851",
+      "bytes": 69592
+    },
+    {
+      "file": "research_destroyer_1_done.wav",
+      "duration": 0.8434,
+      "peak_dbfs": -6.61,
+      "rms_dbfs": -23.57,
+      "dc": 4e-07,
+      "sha256": "4101249d5cd451aad4390c9bb562c3a39b0bde0da61c2953d412fd95c55903ed",
+      "bytes": 81014
+    },
+    {
+      "file": "research_destroyer_1_cancel.wav",
+      "duration": 0.5276,
+      "peak_dbfs": -7.96,
+      "rms_dbfs": -28.4,
+      "dc": 0.0,
+      "sha256": "bdb2c66366ab50904cc2d634c7af76c7c4d54d1c88c5c9e1afb4c71c82056715",
+      "bytes": 50698
+    },
+    {
+      "file": "research_doctrine_1_select.wav",
+      "duration": 0.3772,
+      "peak_dbfs": -6.22,
+      "rms_dbfs": -25.27,
+      "dc": 6.5e-06,
+      "sha256": "ec05e7b234dc2d22f41ec1857439c5ace8d51bea5dab7606ed64eeda4728f3c5",
+      "bytes": 36260
+    },
+    {
+      "file": "research_doctrine_1_start.wav",
+      "duration": 0.5937,
+      "peak_dbfs": -6.73,
+      "rms_dbfs": -24.66,
+      "dc": 0.0,
+      "sha256": "87b67b8a5dc57c07a5823273bf2d0fb407b0638a7502bfc4d6dfdcca5ac49309",
+      "bytes": 57038
+    },
+    {
+      "file": "research_doctrine_1_done.wav",
+      "duration": 0.8624,
+      "peak_dbfs": -4.71,
+      "rms_dbfs": -25.2,
+      "dc": 7.9e-06,
+      "sha256": "24d7f6d1d263dbba4429dd9e9286325809bbbbd654f1a35a317891ddced81a9e",
+      "bytes": 82836
+    },
+    {
+      "file": "research_doctrine_1_cancel.wav",
+      "duration": 0.3331,
+      "peak_dbfs": -8.38,
+      "rms_dbfs": -26.11,
+      "dc": 1e-07,
+      "sha256": "a63bf361f7ddbffac3a0a58a57ed31da896c0a3b2557d3c71e97eb801ddbd1aa",
+      "bytes": 32018
+    },
+    {
+      "file": "research_doctrine_2_select.wav",
+      "duration": 0.4025,
+      "peak_dbfs": -5.82,
+      "rms_dbfs": -24.87,
+      "dc": 7e-06,
+      "sha256": "3f1bd7ca5ea0309b1cd8606deef7cbdd7c02df6ceb7692b2896d77cb4ce50c4a",
+      "bytes": 38686
+    },
+    {
+      "file": "research_doctrine_2_start.wav",
+      "duration": 0.6155,
+      "peak_dbfs": -7.7,
+      "rms_dbfs": -26.05,
+      "dc": 0.0,
+      "sha256": "96c5c67ef26214a269a299174b9a163be6ea370d871cd2009f45641c4e5ecfac",
+      "bytes": 59132
+    },
+    {
+      "file": "research_doctrine_2_done.wav",
+      "duration": 0.8758,
+      "peak_dbfs": -2.41,
+      "rms_dbfs": -24.85,
+      "dc": 3.4e-06,
+      "sha256": "be79f075e2feeb1d5e8c9e8d39fc3adb229b1e845e4b97460c45bc1d911e7bc1",
+      "bytes": 84118
+    },
+    {
+      "file": "research_doctrine_2_cancel.wav",
+      "duration": 0.3237,
+      "peak_dbfs": -6.05,
+      "rms_dbfs": -25.49,
+      "dc": 1e-07,
+      "sha256": "75019d2986548343b907af5c72e579e2a255f7ff415e2a18d8845b894b236f6b",
+      "bytes": 31120
+    },
+    {
+      "file": "research_doctrine_3_select.wav",
+      "duration": 0.3765,
+      "peak_dbfs": -5.93,
+      "rms_dbfs": -24.91,
+      "dc": 6.7e-06,
+      "sha256": "28e9f2dcc63b508d9a2279e8cabaeb50b017c37ae7963bb24e27714cc4258195",
+      "bytes": 36186
+    },
+    {
+      "file": "research_doctrine_3_start.wav",
+      "duration": 0.5884,
+      "peak_dbfs": -4.83,
+      "rms_dbfs": -25.11,
+      "dc": 2e-07,
+      "sha256": "a99d826835f8887a8e5ef2a981ad52994d470333050dcf52825ff3e64d74c330",
+      "bytes": 56528
+    },
+    {
+      "file": "research_doctrine_3_done.wav",
+      "duration": 0.8597,
+      "peak_dbfs": -4.59,
+      "rms_dbfs": -25.28,
+      "dc": 4.2e-06,
+      "sha256": "988b742b1af0e203f471302fb56e595cc4167087a03a77dc7b4e0da88374cb91",
+      "bytes": 82574
+    },
+    {
+      "file": "research_doctrine_3_cancel.wav",
+      "duration": 0.3239,
+      "peak_dbfs": -6.98,
+      "rms_dbfs": -25.49,
+      "dc": 3e-07,
+      "sha256": "fdb1e8f9647d53d138229ca56e698630bf6552331c2fef8e98a5693d609e84cb",
+      "bytes": 31138
+    },
+    {
+      "file": "research_doctrine_4_select.wav",
+      "duration": 0.3764,
+      "peak_dbfs": -5.22,
+      "rms_dbfs": -24.89,
+      "dc": 7.6e-06,
+      "sha256": "bddea698f6f6ce102a602107efae13c21b25c845b924af8f1318d86710b1d433",
+      "bytes": 36174
+    },
+    {
+      "file": "research_doctrine_4_start.wav",
+      "duration": 0.5873,
+      "peak_dbfs": -4.31,
+      "rms_dbfs": -24.83,
+      "dc": 2e-07,
+      "sha256": "ad8564a96fe898da4ab99689c771b9f928e75c9492ca74f9ba3282e1f7789188",
+      "bytes": 56428
+    },
+    {
+      "file": "research_doctrine_4_done.wav",
+      "duration": 0.8607,
+      "peak_dbfs": -4.46,
+      "rms_dbfs": -25.21,
+      "dc": 1.16e-05,
+      "sha256": "0ec8308e6f4be7074084973ba462e2854692df9268d99bf99bfef6f3aa1e0913",
+      "bytes": 82668
+    },
+    {
+      "file": "research_doctrine_4_cancel.wav",
+      "duration": 0.3315,
+      "peak_dbfs": -6.85,
+      "rms_dbfs": -26.08,
+      "dc": 1e-07,
+      "sha256": "24740e8b8d4c87d0a3dbcdd0254c61b3d04c5ab95bc44f0a803b10688c6a54d9",
+      "bytes": 31864
+    },
+    {
+      "file": "research_fighter_1_select.wav",
+      "duration": 0.3506,
+      "peak_dbfs": -7.66,
+      "rms_dbfs": -24.59,
+      "dc": 6.7e-06,
+      "sha256": "3ab3789b77cec634d4dfa388e8e22586ce54381fbeaf5e69dd5b7c4abf6fc0f2",
+      "bytes": 33706
+    },
+    {
+      "file": "research_fighter_1_start.wav",
+      "duration": 0.7229,
+      "peak_dbfs": -4.92,
+      "rms_dbfs": -24.68,
+      "dc": 1e-07,
+      "sha256": "3c7fae2020073c827645f16df9b9967a271d07a8074d58261131cd22fdda33e5",
+      "bytes": 69438
+    },
+    {
+      "file": "research_fighter_1_done.wav",
+      "duration": 0.8776,
+      "peak_dbfs": -6.73,
+      "rms_dbfs": -23.49,
+      "dc": 1.6e-06,
+      "sha256": "24f0146473138827fab113a40b2b446f9029cd3182b4cd166461d0951b89b385",
+      "bytes": 84298
+    },
+    {
+      "file": "research_fighter_1_cancel.wav",
+      "duration": 0.4844,
+      "peak_dbfs": -7.35,
+      "rms_dbfs": -27.72,
+      "dc": 1e-07,
+      "sha256": "1725d20de47de8aa424b0691c78a2d3d6839e6a0ea455587ee28c8c81ca7899b",
+      "bytes": 46544
+    },
+    {
+      "file": "research_fighter_2_select.wav",
+      "duration": 0.3338,
+      "peak_dbfs": -8.77,
+      "rms_dbfs": -24.05,
+      "dc": 9.9e-06,
+      "sha256": "1dd05a674a5435e718a6e3caeb4bc203af5ca1308f1422941f72bad03fd3df07",
+      "bytes": 32092
+    },
+    {
+      "file": "research_fighter_2_start.wav",
+      "duration": 0.7051,
+      "peak_dbfs": -6.09,
+      "rms_dbfs": -25.15,
+      "dc": 0.0,
+      "sha256": "cd3c4d9c982e4dcfa6340dcfae8af28d541294da16142db73fce7043b3e08c7b",
+      "bytes": 67732
+    },
+    {
+      "file": "research_fighter_2_done.wav",
+      "duration": 0.8502,
+      "peak_dbfs": -7.92,
+      "rms_dbfs": -23.75,
+      "dc": 1.1e-06,
+      "sha256": "4772b0056a9698c3e7ccb0bad4320c4e79d4d9d5d8f261198f4f3c1927250d57",
+      "bytes": 81660
+    },
+    {
+      "file": "research_fighter_2_cancel.wav",
+      "duration": 0.4823,
+      "peak_dbfs": -5.67,
+      "rms_dbfs": -27.21,
+      "dc": 1e-07,
+      "sha256": "6bd162531fb20df7cbfa499bb25b9d65d3ec03111d10f5aff7a83125fd1b4675",
+      "bytes": 46346
+    },
+    {
+      "file": "research_government_communism_transition_select.wav",
+      "duration": 0.5326,
+      "peak_dbfs": -6.68,
+      "rms_dbfs": -25.39,
+      "dc": 5.7e-06,
+      "sha256": "89022eade1b3da43bd11a177129e5a67b33fdf272c5eec256b03a09c6e4171d9",
+      "bytes": 51176
+    },
+    {
+      "file": "research_government_communism_transition_start.wav",
+      "duration": 0.7126,
+      "peak_dbfs": -4.39,
+      "rms_dbfs": -24.33,
+      "dc": 0.0,
+      "sha256": "b0dccbb29e03d111d7435ee2a7bc5a7a2d4278571cac76c90e7e928a7ed245de",
+      "bytes": 68458
+    },
+    {
+      "file": "research_government_communism_transition_done.wav",
+      "duration": 0.8403,
+      "peak_dbfs": -4.52,
+      "rms_dbfs": -24.88,
+      "dc": 2.4e-06,
+      "sha256": "f1208bfa68f5f204cdb2bf9a4df7a1e50cbb359a384ca5049445fdf3c5bcf503",
+      "bytes": 80708
+    },
+    {
+      "file": "research_government_communism_transition_cancel.wav",
+      "duration": 0.477,
+      "peak_dbfs": -7.09,
+      "rms_dbfs": -27.6,
+      "dc": 2e-07,
+      "sha256": "c97cb8aaa867cb97f5d4ae3ca9f96f85bc3ecc83e22054c58b5bb63327c946ef",
+      "bytes": 45834
+    },
+    {
+      "file": "research_government_democratic_transition_select.wav",
+      "duration": 0.3963,
+      "peak_dbfs": -7.43,
+      "rms_dbfs": -25.9,
+      "dc": 8.4e-06,
+      "sha256": "e0a89fa8ae4785bec5ddbb49d5dfe2abb70ca51f40d99f324c3c6de5e2b01006",
+      "bytes": 38086
+    },
+    {
+      "file": "research_government_democratic_transition_start.wav",
+      "duration": 0.5946,
+      "peak_dbfs": -6.85,
+      "rms_dbfs": -26.12,
+      "dc": 0.0,
+      "sha256": "8db2a5d61fdcd54384cb64ff501e3fac7da30c5ea64411110d8b0fba9d17aacf",
+      "bytes": 57128
+    },
+    {
+      "file": "research_government_democratic_transition_done.wav",
+      "duration": 0.8343,
+      "peak_dbfs": -2.53,
+      "rms_dbfs": -24.61,
+      "dc": 9e-07,
+      "sha256": "6db59d81426653c69fa797e0966a02a02c008d05bcfcf1fcaaf0a5f3551d9bc2",
+      "bytes": 80138
+    },
+    {
+      "file": "research_government_democratic_transition_cancel.wav",
+      "duration": 0.3635,
+      "peak_dbfs": -8.78,
+      "rms_dbfs": -26.01,
+      "dc": 3e-07,
+      "sha256": "aab2c38a422a8fd60c5244945c62701cc3f99c67068ec42b7eaa747580b75625",
+      "bytes": 34940
+    },
+    {
+      "file": "research_government_fascism_transition_select.wav",
+      "duration": 0.445,
+      "peak_dbfs": -5.27,
+      "rms_dbfs": -25.27,
+      "dc": 6.9e-06,
+      "sha256": "6e41ccd59d4d7e209e2286b063e84e5afbd1173ce1188314afc7ee47c65e9e17",
+      "bytes": 42768
+    },
+    {
+      "file": "research_government_fascism_transition_start.wav",
+      "duration": 0.641,
+      "peak_dbfs": -6.91,
+      "rms_dbfs": -24.57,
+      "dc": 0.0,
+      "sha256": "2f5f3af409ca82347d4b13b40dd21eed0687a18935b6941e4ae8748a5a24b96e",
+      "bytes": 61584
+    },
+    {
+      "file": "research_government_fascism_transition_done.wav",
+      "duration": 0.8402,
+      "peak_dbfs": -4.02,
+      "rms_dbfs": -24.64,
+      "dc": 3.1e-06,
+      "sha256": "9b2850f929c36900f3a24ffeaaaf8c36a5d255ff829354f4505805c775b84e05",
+      "bytes": 80702
+    },
+    {
+      "file": "research_government_fascism_transition_cancel.wav",
+      "duration": 0.4,
+      "peak_dbfs": -6.52,
+      "rms_dbfs": -26.37,
+      "dc": 0.0,
+      "sha256": "cc4ea458702f013ea418933cd255cd2a9f179f1680f7282a32c054dfee9c787b",
+      "bytes": 38440
+    },
+    {
+      "file": "research_government_neutrality_transition_select.wav",
+      "duration": 0.3964,
+      "peak_dbfs": -7.43,
+      "rms_dbfs": -26.35,
+      "dc": 8.1e-06,
+      "sha256": "8af18ca5a5eefea784800c8f7a0626c88ff6516684e086d65c5bda0e4332b517",
+      "bytes": 38102
+    },
+    {
+      "file": "research_government_neutrality_transition_start.wav",
+      "duration": 0.6082,
+      "peak_dbfs": -7.61,
+      "rms_dbfs": -26.18,
+      "dc": 1e-07,
+      "sha256": "aa274de4debbb4e2fce007c9fa3bfe50fcd35bfb345ea192530c6447e8cecb05",
+      "bytes": 58432
+    },
+    {
+      "file": "research_government_neutrality_transition_done.wav",
+      "duration": 0.8597,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -23.61,
+      "dc": 1e-07,
+      "sha256": "7a7f7db0518151f673ba7433ecef0325b032ec35ab710060e96858108fc5f70c",
+      "bytes": 82578
+    },
+    {
+      "file": "research_government_neutrality_transition_cancel.wav",
+      "duration": 0.3309,
+      "peak_dbfs": -9.27,
+      "rms_dbfs": -25.61,
+      "dc": 3e-07,
+      "sha256": "de081e6fd7c1d241e53880ba96dec82d70525787b31f4861408ca23482ada39f",
+      "bytes": 31812
+    },
+    {
+      "file": "research_industry_1_select.wav",
+      "duration": 0.7167,
+      "peak_dbfs": -6.44,
+      "rms_dbfs": -25.95,
+      "dc": 2.2e-06,
+      "sha256": "bf081f4c46235953e5d2615ebe1acf83afbf7dc6a983954fb91851256fc584dc",
+      "bytes": 68844
+    },
+    {
+      "file": "research_industry_1_start.wav",
+      "duration": 0.9062,
+      "peak_dbfs": -5.69,
+      "rms_dbfs": -26.08,
+      "dc": 1e-07,
+      "sha256": "95097e279b568fd6c65a0bb70bd26d3c531605c5af34a5d32dc397cd24e8e354",
+      "bytes": 87038
+    },
+    {
+      "file": "research_industry_1_done.wav",
+      "duration": 0.8845,
+      "peak_dbfs": -2.0,
+      "rms_dbfs": -23.76,
+      "dc": 3.4e-06,
+      "sha256": "dc3bfea7db7465f088824f5b2e36c0f5f2961c5fe2c0fb82493baf6d3ca70a1a",
+      "bytes": 84956
+    },
+    {
+      "file": "research_industry_1_cancel.wav",
+      "duration": 0.5827,
+      "peak_dbfs": -7.41,
+      "rms_dbfs": -27.57,
+      "dc": 0.0,
+      "sha256": "4bd5a5957943a2dd3cc772cc8a7b3298fe99be69cbdd0c6add62b0ba99ed5093",
+      "bytes": 55980
+    },
+    {
+      "file": "research_industry_2_select.wav",
+      "duration": 0.7177,
+      "peak_dbfs": -6.06,
+      "rms_dbfs": -25.74,
+      "dc": 1.8e-06,
+      "sha256": "d2af512800335bcf7732984d8f6a1fd13bda43bee0093ae6ec2726203b079060",
+      "bytes": 68946
+    },
+    {
+      "file": "research_industry_2_start.wav",
+      "duration": 0.9077,
+      "peak_dbfs": -6.72,
+      "rms_dbfs": -26.48,
+      "dc": 0.0,
+      "sha256": "3080d0e7584211ad960108759d6b82bc2163739ff135a793c6eaac2217195f58",
+      "bytes": 87180
+    },
+    {
+      "file": "research_industry_2_done.wav",
+      "duration": 0.8846,
+      "peak_dbfs": -2.74,
+      "rms_dbfs": -24.4,
+      "dc": 2e-07,
+      "sha256": "7cddff37b70d84c4c1f08423f207a855d5e7ccf6a1e7da1fa6dc958d8c2e5f82",
+      "bytes": 84970
+    },
+    {
+      "file": "research_industry_2_cancel.wav",
+      "duration": 0.5774,
+      "peak_dbfs": -7.16,
+      "rms_dbfs": -27.95,
+      "dc": 1e-07,
+      "sha256": "982c358acfd780ae86b099363f061d680e9d24b06d4dbc3972fcf495f964575c",
+      "bytes": 55474
+    },
+    {
+      "file": "research_industry_3_select.wav",
+      "duration": 0.7273,
+      "peak_dbfs": -7.24,
+      "rms_dbfs": -26.02,
+      "dc": 1.8e-06,
+      "sha256": "0d62fbc71f6f8178314b85138aa297449890f76e4a384b848ffcf93e473188b7",
+      "bytes": 69866
+    },
+    {
+      "file": "research_industry_3_start.wav",
+      "duration": 0.9165,
+      "peak_dbfs": -6.77,
+      "rms_dbfs": -26.29,
+      "dc": 0.0,
+      "sha256": "4760d010f12535568a6400be42130a7666554ebcaa47afa35053740e52aa68ec",
+      "bytes": 88026
+    },
+    {
+      "file": "research_industry_3_done.wav",
+      "duration": 0.8964,
+      "peak_dbfs": -2.99,
+      "rms_dbfs": -23.41,
+      "dc": 2.2e-06,
+      "sha256": "5d4d414e924f1451d2b8f94db98871e923dccee1b945be221d7625db769b53d1",
+      "bytes": 86094
+    },
+    {
+      "file": "research_industry_3_cancel.wav",
+      "duration": 0.5717,
+      "peak_dbfs": -6.65,
+      "rms_dbfs": -27.92,
+      "dc": 0.0,
+      "sha256": "8f3c40c73bae86158555c8a807cd11b8e43a7a2edf560c9ab99b3c2864b60c2d",
+      "bytes": 54924
+    },
+    {
+      "file": "research_infantry_weapons_1_select.wav",
+      "duration": 0.3855,
+      "peak_dbfs": -6.38,
+      "rms_dbfs": -24.7,
+      "dc": 8.5e-06,
+      "sha256": "6ed0a1940f756af4ab08d4b215542ad4ce69091d01f403cab2cef7400d57f52c",
+      "bytes": 37054
+    },
+    {
+      "file": "research_infantry_weapons_1_start.wav",
+      "duration": 0.5735,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -25.71,
+      "dc": 1e-07,
+      "sha256": "1e94ff2651ec1d9808cae07303f05298927df9c91f028d9721c588a95f7bfc65",
+      "bytes": 55102
+    },
+    {
+      "file": "research_infantry_weapons_1_done.wav",
+      "duration": 0.8394,
+      "peak_dbfs": -4.09,
+      "rms_dbfs": -24.65,
+      "dc": 6.2e-06,
+      "sha256": "55e96311dd866f3200b1591fa0887fb4a125ae63634f43cfb0bb7fdad87c8024",
+      "bytes": 80624
+    },
+    {
+      "file": "research_infantry_weapons_1_cancel.wav",
+      "duration": 0.3517,
+      "peak_dbfs": -7.79,
+      "rms_dbfs": -26.32,
+      "dc": 0.0,
+      "sha256": "2fc222988a0330d3840b240bd43c52d057fd5550873dc5b6ea9a065f4eec7dcb",
+      "bytes": 33808
+    },
+    {
+      "file": "research_infantry_weapons_2_select.wav",
+      "duration": 0.4213,
+      "peak_dbfs": -6.11,
+      "rms_dbfs": -25.74,
+      "dc": 7e-06,
+      "sha256": "975cff44aa46b1ea24a69dba9ec012b1cf0a661d64795bf0c4589686c6318c16",
+      "bytes": 40484
+    },
+    {
+      "file": "research_infantry_weapons_2_start.wav",
+      "duration": 0.6195,
+      "peak_dbfs": -6.63,
+      "rms_dbfs": -25.31,
+      "dc": 1e-07,
+      "sha256": "8b18e5509be46b4b29c0c2456e165924513a5e2a39eee01ee0c3e467cf365e21",
+      "bytes": 59518
+    },
+    {
+      "file": "research_infantry_weapons_2_done.wav",
+      "duration": 0.8754,
+      "peak_dbfs": -5.25,
+      "rms_dbfs": -24.97,
+      "dc": 4.5e-06,
+      "sha256": "eba784ca4a79e828f2c24bd9d8804dcbee28a6c23fc6100f56f2eebfd263906d",
+      "bytes": 84082
+    },
+    {
+      "file": "research_infantry_weapons_2_cancel.wav",
+      "duration": 0.3405,
+      "peak_dbfs": -7.77,
+      "rms_dbfs": -26.2,
+      "dc": 3e-07,
+      "sha256": "69e4ff0da87be82b0e9e4bd75036eadaa008b254aa1507c8bdd5f09ed0696756",
+      "bytes": 32730
+    },
+    {
+      "file": "research_infantry_weapons_3_select.wav",
+      "duration": 0.4189,
+      "peak_dbfs": -4.1,
+      "rms_dbfs": -25.72,
+      "dc": 7.9e-06,
+      "sha256": "8528e851b27ca0bd261c32037486264e40fdd0937ee49488dbfffc1b605e7a3e",
+      "bytes": 40260
+    },
+    {
+      "file": "research_infantry_weapons_3_start.wav",
+      "duration": 0.6229,
+      "peak_dbfs": -6.74,
+      "rms_dbfs": -26.4,
+      "dc": 1e-07,
+      "sha256": "443eae368843d9ba8e73850cd7774158618d80c8286612ec3debc71b56a3d32e",
+      "bytes": 59838
+    },
+    {
+      "file": "research_infantry_weapons_3_done.wav",
+      "duration": 0.8547,
+      "peak_dbfs": -4.7,
+      "rms_dbfs": -25.75,
+      "dc": 3.4e-06,
+      "sha256": "92d36825a0c144f17f8e71c3cbcdf5f04f9646a984b5cb6051535f9723616d4c",
+      "bytes": 82092
+    },
+    {
+      "file": "research_infantry_weapons_3_cancel.wav",
+      "duration": 0.3523,
+      "peak_dbfs": -8.45,
+      "rms_dbfs": -25.85,
+      "dc": 0.0,
+      "sha256": "374652396b07c3c566cf9659e19a712cd26c6f3c623d5aa9312745bd6e85cb68",
+      "bytes": 33864
+    },
+    {
+      "file": "research_light_tank_2_select.wav",
+      "duration": 0.3936,
+      "peak_dbfs": -7.87,
+      "rms_dbfs": -24.73,
+      "dc": 8.3e-06,
+      "sha256": "24120f51c85c206c3aee3fbd303c26a72e66ca9f92063b0dfe2103107a073727",
+      "bytes": 37834
+    },
+    {
+      "file": "research_light_tank_2_start.wav",
+      "duration": 0.7673,
+      "peak_dbfs": -6.73,
+      "rms_dbfs": -24.17,
+      "dc": 6e-07,
+      "sha256": "28b41b1d19a17d94c196cf1bf3c08c564f85e41abf3584329a351acb57309651",
+      "bytes": 73708
+    },
+    {
+      "file": "research_light_tank_2_done.wav",
+      "duration": 0.8781,
+      "peak_dbfs": -3.45,
+      "rms_dbfs": -23.31,
+      "dc": 2.9e-06,
+      "sha256": "4b77d9c174cb6a28ed80d6acbd4877dd4be4d3435b0a98aabd29fe32d575e804",
+      "bytes": 84338
+    },
+    {
+      "file": "research_light_tank_2_cancel.wav",
+      "duration": 0.5332,
+      "peak_dbfs": -6.62,
+      "rms_dbfs": -27.67,
+      "dc": 1e-07,
+      "sha256": "39e692debe83b08cf7d617bfe043526246e059860cb273357eb618b058ca4dd6",
+      "bytes": 51228
+    },
+    {
+      "file": "research_medium_tank_1_select.wav",
+      "duration": 0.3757,
+      "peak_dbfs": -7.19,
+      "rms_dbfs": -24.54,
+      "dc": 8.4e-06,
+      "sha256": "73fd4acaf7923618e3ccb267d4b56eaa3da78004a2e6670635df62e7bd6a065a",
+      "bytes": 36108
+    },
+    {
+      "file": "research_medium_tank_1_start.wav",
+      "duration": 0.7496,
+      "peak_dbfs": -7.86,
+      "rms_dbfs": -24.06,
+      "dc": 6e-07,
+      "sha256": "db2bd2f2f8a693d1af720ae80da793f27c145e9cc8cd1eb43424a1cde7a3f74c",
+      "bytes": 72008
+    },
+    {
+      "file": "research_medium_tank_1_done.wav",
+      "duration": 0.8617,
+      "peak_dbfs": -4.98,
+      "rms_dbfs": -23.73,
+      "dc": 1e-07,
+      "sha256": "d898b603024b3b467151aa8f834187d1f2e845de92e99c24492d1f736940e487",
+      "bytes": 82766
+    },
+    {
+      "file": "research_medium_tank_1_cancel.wav",
+      "duration": 0.4986,
+      "peak_dbfs": -8.18,
+      "rms_dbfs": -27.83,
+      "dc": 1e-07,
+      "sha256": "b6f70e0f3e8f898a5132cb5df1f7c661724c90666ce7f6c8ca2e218a7d825c51",
+      "bytes": 47906
+    },
+    {
+      "file": "research_medium_tank_2_select.wav",
+      "duration": 0.3845,
+      "peak_dbfs": -6.72,
+      "rms_dbfs": -24.99,
+      "dc": 6.7e-06,
+      "sha256": "b2bc0689625ee3eeba86ef5030677ea150964c7707c02fdadcc2dba6d4aa474d",
+      "bytes": 36954
+    },
+    {
+      "file": "research_medium_tank_2_start.wav",
+      "duration": 0.7585,
+      "peak_dbfs": -9.09,
+      "rms_dbfs": -24.74,
+      "dc": 6e-07,
+      "sha256": "8d91a54b68fc152c24fc8e3a4a613cfdbf5e2a9132229c00014cf8cc6d65cf60",
+      "bytes": 72864
+    },
+    {
+      "file": "research_medium_tank_2_done.wav",
+      "duration": 0.873,
+      "peak_dbfs": -4.01,
+      "rms_dbfs": -23.27,
+      "dc": 5e-06,
+      "sha256": "1eb6d9e6d0949f6154e694b0b272dd67cd3d81ff3a678add1c41a8c48798301d",
+      "bytes": 83848
+    },
+    {
+      "file": "research_medium_tank_2_cancel.wav",
+      "duration": 0.4992,
+      "peak_dbfs": -7.38,
+      "rms_dbfs": -27.37,
+      "dc": 1e-07,
+      "sha256": "dc547548b6156f372155b20cd6ebad2fb736469cc9ea038494ff5a24b20e6b6e",
+      "bytes": 47968
+    },
+    {
+      "file": "research_motorization_select.wav",
+      "duration": 0.3847,
+      "peak_dbfs": -7.46,
+      "rms_dbfs": -25.0,
+      "dc": 8.7e-06,
+      "sha256": "5ed6cc64a0c3b320bb930885df4792851381c7c33b2a6e1b12ab0f6d8577e3f3",
+      "bytes": 36980
+    },
+    {
+      "file": "research_motorization_start.wav",
+      "duration": 0.7579,
+      "peak_dbfs": -7.24,
+      "rms_dbfs": -25.29,
+      "dc": 7e-07,
+      "sha256": "b56c67e2c0e157239df7b9c57d5e07b5b42fd5234aea227cbe89bf758d56d31c",
+      "bytes": 72806
+    },
+    {
+      "file": "research_motorization_done.wav",
+      "duration": 0.861,
+      "peak_dbfs": -5.81,
+      "rms_dbfs": -24.38,
+      "dc": 3.2e-06,
+      "sha256": "ce6b98b9cf76502add1cadff98bb552dccad9ab7dd5a13aa83927bd49e16c78b",
+      "bytes": 82702
+    },
+    {
+      "file": "research_motorization_cancel.wav",
+      "duration": 0.4989,
+      "peak_dbfs": -5.79,
+      "rms_dbfs": -27.38,
+      "dc": 3e-07,
+      "sha256": "63585ad4e6167bbe050d1c922f27f0592cf037a56d4c2dfe193b1a705d13b0ee",
+      "bytes": 47942
+    },
+    {
+      "file": "research_radar_1_select.wav",
+      "duration": 0.473,
+      "peak_dbfs": -4.8,
+      "rms_dbfs": -25.52,
+      "dc": 1.08e-05,
+      "sha256": "95f1634b412d39b532ac480c54faab5e8838a7886d792f996579be76ea130eec",
+      "bytes": 45456
+    },
+    {
+      "file": "research_radar_1_start.wav",
+      "duration": 0.6706,
+      "peak_dbfs": -6.9,
+      "rms_dbfs": -26.05,
+      "dc": 1e-07,
+      "sha256": "d7c0204e4bf65e8d5f5e6d1eec97f9b22d9d66cbef1e7b8726997a7b279592af",
+      "bytes": 64418
+    },
+    {
+      "file": "research_radar_1_done.wav",
+      "duration": 0.8421,
+      "peak_dbfs": -5.06,
+      "rms_dbfs": -26.11,
+      "dc": 2.1e-06,
+      "sha256": "75b06f5f4644cb89b82aefdf7f57495ad32a47713e1151967bb1dc9e7f2d26b7",
+      "bytes": 80890
+    },
+    {
+      "file": "research_radar_1_cancel.wav",
+      "duration": 0.4368,
+      "peak_dbfs": -7.81,
+      "rms_dbfs": -26.76,
+      "dc": 2e-07,
+      "sha256": "9f06e14500fbb84e53ebd5802271cd1669a658d4a800eb8e45238e4f11c70fee",
+      "bytes": 41978
+    },
+    {
+      "file": "research_radio_select.wav",
+      "duration": 0.4536,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -26.29,
+      "dc": 1.06e-05,
+      "sha256": "7ee1c4dcaa0f6d6bc5fcb234d76f0468c0ad2a22cf25c9f23d4a03cd39307620",
+      "bytes": 43588
+    },
+    {
+      "file": "research_radio_start.wav",
+      "duration": 0.7409,
+      "peak_dbfs": -7.31,
+      "rms_dbfs": -26.67,
+      "dc": 0.0,
+      "sha256": "0491e98c4a4242b02124973c95ddae509db507b259627428eaf17ff3242b3eb9",
+      "bytes": 71166
+    },
+    {
+      "file": "research_radio_done.wav",
+      "duration": 0.8871,
+      "peak_dbfs": -3.73,
+      "rms_dbfs": -24.7,
+      "dc": 8e-07,
+      "sha256": "a9c2d9c3e807840065d01bbf2a55fff9028c182402dba6cf2ec6163d3b2d5956",
+      "bytes": 85204
+    },
+    {
+      "file": "research_radio_cancel.wav",
+      "duration": 0.462,
+      "peak_dbfs": -7.78,
+      "rms_dbfs": -27.53,
+      "dc": 0.0,
+      "sha256": "26fc826700d059c0af61d471f883b9b516ba3dfe59257d0b2051850cef5d4640",
+      "bytes": 44394
+    },
+    {
+      "file": "research_submarine_1_select.wav",
+      "duration": 0.3897,
+      "peak_dbfs": -4.54,
+      "rms_dbfs": -24.69,
+      "dc": 7.1e-06,
+      "sha256": "981702f573d9ea054ec93f0663af3279c3d821651caa8806b15cc813b67e8508",
+      "bytes": 37452
+    },
+    {
+      "file": "research_submarine_1_start.wav",
+      "duration": 0.6058,
+      "peak_dbfs": -7.01,
+      "rms_dbfs": -25.12,
+      "dc": 1e-07,
+      "sha256": "c965ab92479370977a6278fa49a257014eaca258b883bf35f968d4a6c2e57c2c",
+      "bytes": 58204
+    },
+    {
+      "file": "research_submarine_1_done.wav",
+      "duration": 0.8536,
+      "peak_dbfs": -4.89,
+      "rms_dbfs": -24.47,
+      "dc": 6.4e-06,
+      "sha256": "0d2f65cff28014c110f948ee7156e6eab2319d8e57f619e607aff0c03d084d7c",
+      "bytes": 81990
+    },
+    {
+      "file": "research_submarine_1_cancel.wav",
+      "duration": 0.366,
+      "peak_dbfs": -7.46,
+      "rms_dbfs": -26.5,
+      "dc": 2e-07,
+      "sha256": "cc243402aee463aa5c24aafd4f4ea24b2e62ab31351b72a8345285dcd8525a46",
+      "bytes": 35178
+    },
+    {
+      "file": "research_support_weapons_select.wav",
+      "duration": 0.3753,
+      "peak_dbfs": -5.73,
+      "rms_dbfs": -25.28,
+      "dc": 8.5e-06,
+      "sha256": "d754de6f3d16b3c0b91f4afc4c0287fe3b69cac7545c6d1175116d3402c2562f",
+      "bytes": 36070
+    },
+    {
+      "file": "research_support_weapons_start.wav",
+      "duration": 0.5781,
+      "peak_dbfs": -8.06,
+      "rms_dbfs": -25.72,
+      "dc": 1e-07,
+      "sha256": "008b6bb602833624621dc6881a21921f2475958923c921acdf03e8ca505a348e",
+      "bytes": 55538
+    },
+    {
+      "file": "research_support_weapons_done.wav",
+      "duration": 0.8241,
+      "peak_dbfs": -4.28,
+      "rms_dbfs": -24.94,
+      "dc": 3.3e-06,
+      "sha256": "aa1addc6d3bb0a4e192c0046d61e41d83811cec02bef0045c30e60855583b171",
+      "bytes": 79156
+    },
+    {
+      "file": "research_support_weapons_cancel.wav",
+      "duration": 0.3382,
+      "peak_dbfs": -7.51,
+      "rms_dbfs": -25.67,
+      "dc": 1e-07,
+      "sha256": "81a9ad2d3623ea726f74fa11af2c36800e30274ff7df898e5d920049f006c9e0",
+      "bytes": 32512
+    },
+    {
+      "file": "research_synthetic_oil_select.wav",
+      "duration": 0.734,
+      "peak_dbfs": -5.77,
+      "rms_dbfs": -26.06,
+      "dc": 1.9e-06,
+      "sha256": "604a7f4a84964604be580a68c7071e90ea52d9dddbc083401bcf2e3780153f98",
+      "bytes": 70512
+    },
+    {
+      "file": "research_synthetic_oil_start.wav",
+      "duration": 0.9253,
+      "peak_dbfs": -6.74,
+      "rms_dbfs": -26.57,
+      "dc": 1e-07,
+      "sha256": "a27228aff4337042c0a592e9adda3048397a86ec445f86aed78877d5a6e3c6b4",
+      "bytes": 88868
+    },
+    {
+      "file": "research_synthetic_oil_done.wav",
+      "duration": 0.906,
+      "peak_dbfs": -5.35,
+      "rms_dbfs": -24.54,
+      "dc": 4.4e-06,
+      "sha256": "8dae2905abce504f065ccb317d60c6f6e16f81cdd3acc334f92416fbff8a613a",
+      "bytes": 87020
+    },
+    {
+      "file": "research_synthetic_oil_cancel.wav",
+      "duration": 0.57,
+      "peak_dbfs": -7.47,
+      "rms_dbfs": -27.48,
+      "dc": 1e-07,
+      "sha256": "7f304c5709d71584dd52a8ada14ba46a78e1cad03fa39285616527c6417d0493",
+      "bytes": 54764
+    },
+    {
+      "file": "research_category_air_select.wav",
+      "duration": 0.3681,
+      "peak_dbfs": -5.01,
+      "rms_dbfs": -24.48,
+      "dc": 9.9e-06,
+      "sha256": "24b6100dd497863f9d4f52077a68be0af4bd4054ee68d7f7421ff2fdd5273f27",
+      "bytes": 35384
+    },
+    {
+      "file": "research_category_air_start.wav",
+      "duration": 0.741,
+      "peak_dbfs": -7.04,
+      "rms_dbfs": -25.35,
+      "dc": 1e-07,
+      "sha256": "e9c577df370acc72f58d97e45d2db53ebef7e55109bfeebe0308cf3ada914456",
+      "bytes": 71176
+    },
+    {
+      "file": "research_category_air_done.wav",
+      "duration": 0.8851,
+      "peak_dbfs": -6.46,
+      "rms_dbfs": -23.74,
+      "dc": 3.3e-06,
+      "sha256": "df9e0414f7a7629ef4f8b099b10cbd94613d06efd8d351f527ea4fa9f13a1db6",
+      "bytes": 85012
+    },
+    {
+      "file": "research_category_air_cancel.wav",
+      "duration": 0.4823,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -27.7,
+      "dc": 1e-07,
+      "sha256": "8aab96e267552fb4944c3f3f4c323cdb4930345dda5cf7f2d6e7bcd7a453e95f",
+      "bytes": 46344
+    },
+    {
+      "file": "research_category_armor_select.wav",
+      "duration": 0.3579,
+      "peak_dbfs": -6.86,
+      "rms_dbfs": -24.69,
+      "dc": 9.7e-06,
+      "sha256": "35e868d753b1d73006b3d7831b6b2e8768571df33d6ec5f233e20bfe0e24eee2",
+      "bytes": 34398
+    },
+    {
+      "file": "research_category_armor_start.wav",
+      "duration": 0.7316,
+      "peak_dbfs": -6.81,
+      "rms_dbfs": -23.7,
+      "dc": 6e-07,
+      "sha256": "93be7efbde1bec68b17d37e010534a5f75cf6843a376abac72be49790cd80628",
+      "bytes": 70276
+    },
+    {
+      "file": "research_category_armor_done.wav",
+      "duration": 0.8302,
+      "peak_dbfs": -4.63,
+      "rms_dbfs": -23.08,
+      "dc": 1.1e-06,
+      "sha256": "ea388988670b6805881e0f29ff21d9caaa5a6f9c33182da7f8ba574dc16bb894",
+      "bytes": 79744
+    },
+    {
+      "file": "research_category_armor_cancel.wav",
+      "duration": 0.5327,
+      "peak_dbfs": -7.04,
+      "rms_dbfs": -28.13,
+      "dc": 1e-07,
+      "sha256": "84c48cd8845925f07abe60b0ba28257a3d8fde574766a8abbb0550947023efb8",
+      "bytes": 51188
+    },
+    {
+      "file": "research_category_artillery_select.wav",
+      "duration": 0.8975,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -27.89,
+      "dc": 9e-07,
+      "sha256": "cf5bff6553c411882ffa4fb29c3594d6330ed9e8e1f1ac055e2f6c9b61d16fa4",
+      "bytes": 86208
+    },
+    {
+      "file": "research_category_artillery_start.wav",
+      "duration": 1.0972,
+      "peak_dbfs": -4.0,
+      "rms_dbfs": -26.77,
+      "dc": 0.0,
+      "sha256": "3cb58a306292008c1233c9c3f6d3758d3c7e2ea4f5cea9a55e9a156cee991325",
+      "bytes": 105374
+    },
+    {
+      "file": "research_category_artillery_done.wav",
+      "duration": 1.081,
+      "peak_dbfs": -5.24,
+      "rms_dbfs": -25.38,
+      "dc": 6.9e-06,
+      "sha256": "13bad2b0df00b270bb3b9918dfc2516296a55c6b7e091c82fc2e000cca27f86b",
+      "bytes": 103816
+    },
+    {
+      "file": "research_category_artillery_cancel.wav",
+      "duration": 0.821,
+      "peak_dbfs": -6.76,
+      "rms_dbfs": -27.81,
+      "dc": 0.0,
+      "sha256": "bb0eb5ddc50e8486ac6c3fdc409c6410f99df28e1f59d2b1a50edaec61443f16",
+      "bytes": 78864
+    },
+    {
+      "file": "research_category_doctrine_select.wav",
+      "duration": 0.3611,
+      "peak_dbfs": -7.29,
+      "rms_dbfs": -24.71,
+      "dc": 6.6e-06,
+      "sha256": "fca876c372c39af3a5a501d66937b919dd2f54ada65b62575690b1a644c6b011",
+      "bytes": 34708
+    },
+    {
+      "file": "research_category_doctrine_start.wav",
+      "duration": 0.5755,
+      "peak_dbfs": -7.09,
+      "rms_dbfs": -24.98,
+      "dc": 0.0,
+      "sha256": "f2469e2996e7b205562cfc2f24dd4ed20ddc866dc906caf174c3087f06e2e664",
+      "bytes": 55292
+    },
+    {
+      "file": "research_category_doctrine_done.wav",
+      "duration": 0.8324,
+      "peak_dbfs": -3.98,
+      "rms_dbfs": -24.79,
+      "dc": 3e-06,
+      "sha256": "87fe7b30d24be3fa152aa696f516c71f69f174c95418a5c3bd222560ef1eff3b",
+      "bytes": 79958
+    },
+    {
+      "file": "research_category_doctrine_cancel.wav",
+      "duration": 0.3227,
+      "peak_dbfs": -8.07,
+      "rms_dbfs": -25.99,
+      "dc": 0.0,
+      "sha256": "10e5cf7096eb6c6285580cb0304f649cdc8bbe263b78f1ee7d20fad84dff638e",
+      "bytes": 31028
+    },
+    {
+      "file": "research_category_electronics_select.wav",
+      "duration": 0.4535,
+      "peak_dbfs": -6.89,
+      "rms_dbfs": -26.47,
+      "dc": 1.35e-05,
+      "sha256": "559ade438eab7793cf451fc311764266343395875268729bddce333a2a32060a",
+      "bytes": 43582
+    },
+    {
+      "file": "research_category_electronics_start.wav",
+      "duration": 0.7227,
+      "peak_dbfs": -7.2,
+      "rms_dbfs": -25.81,
+      "dc": 0.0,
+      "sha256": "a9f0378cfdb9d3a8f39f5216e5e5b2d11023357ad4fdbc967e91443a690b3a01",
+      "bytes": 69422
+    },
+    {
+      "file": "research_category_electronics_done.wav",
+      "duration": 0.8677,
+      "peak_dbfs": -2.4,
+      "rms_dbfs": -23.91,
+      "dc": 9.3e-06,
+      "sha256": "b474cd1c78b12c787bce4106f7c92a9d8d166ac02cf50a1bb337f83db8306039",
+      "bytes": 83346
+    },
+    {
+      "file": "research_category_electronics_cancel.wav",
+      "duration": 0.4641,
+      "peak_dbfs": -7.3,
+      "rms_dbfs": -27.03,
+      "dc": 2e-07,
+      "sha256": "91622ee421096414eb61b260e3c005afd6085c54e8c3693d4375b9f521163f6a",
+      "bytes": 44596
+    },
+    {
+      "file": "research_category_governance_select.wav",
+      "duration": 0.4668,
+      "peak_dbfs": -5.21,
+      "rms_dbfs": -25.8,
+      "dc": 7.7e-06,
+      "sha256": "6cdfff8091c45641798cbd858226cacdf319ab4aa85b6db30e569713d471a281",
+      "bytes": 44858
+    },
+    {
+      "file": "research_category_governance_start.wav",
+      "duration": 0.6593,
+      "peak_dbfs": -6.74,
+      "rms_dbfs": -26.02,
+      "dc": 1e-07,
+      "sha256": "d11df9978416bae2fd364a95987f831921b529882bb9817bf2fabdc635f61567",
+      "bytes": 63336
+    },
+    {
+      "file": "research_category_governance_done.wav",
+      "duration": 0.8922,
+      "peak_dbfs": -3.5,
+      "rms_dbfs": -23.71,
+      "dc": 4e-06,
+      "sha256": "dd03dae3518c94581a99bda70d5e2a3baedfdab0c4e0ff9845027a773020d7c5",
+      "bytes": 85700
+    },
+    {
+      "file": "research_category_governance_cancel.wav",
+      "duration": 0.3845,
+      "peak_dbfs": -7.29,
+      "rms_dbfs": -26.23,
+      "dc": 2e-07,
+      "sha256": "033362bc657376c489aec4f3a8a8dfb34290b9c779eb718a27c46cfd5ca3e529",
+      "bytes": 36954
+    },
+    {
+      "file": "research_category_industry_select.wav",
+      "duration": 0.6895,
+      "peak_dbfs": -6.41,
+      "rms_dbfs": -26.04,
+      "dc": 2.4e-06,
+      "sha256": "038401eaaff24808d31185dc6b2e370c366036532c45f303c09a403ac8e705fc",
+      "bytes": 66240
+    },
+    {
+      "file": "research_category_industry_start.wav",
+      "duration": 0.8799,
+      "peak_dbfs": -6.46,
+      "rms_dbfs": -26.3,
+      "dc": 1e-07,
+      "sha256": "6a4e5bf5f697d533e2b11718fa46b68da043b064f73e13df4d3b161a7f3bd186",
+      "bytes": 84514
+    },
+    {
+      "file": "research_category_industry_done.wav",
+      "duration": 0.8608,
+      "peak_dbfs": -2.19,
+      "rms_dbfs": -23.38,
+      "dc": 7e-07,
+      "sha256": "e60e5b947506460630c18a4015109dedb23ff83872fa43dd70df5a26d779a05a",
+      "bytes": 82680
+    },
+    {
+      "file": "research_category_industry_cancel.wav",
+      "duration": 0.5913,
+      "peak_dbfs": -8.52,
+      "rms_dbfs": -28.06,
+      "dc": 0.0,
+      "sha256": "e435801ad53c27cbc6c8f229379913436fb840077bdfaf9d971145b72fc8b3b2",
+      "bytes": 56810
+    },
+    {
+      "file": "research_category_infantry_select.wav",
+      "duration": 0.3834,
+      "peak_dbfs": -5.6,
+      "rms_dbfs": -25.34,
+      "dc": 8.2e-06,
+      "sha256": "3af7a9bfd3886f30a3aa2f348568a13f87a8343809a0a9503717d404fe58a934",
+      "bytes": 36852
+    },
+    {
+      "file": "research_category_infantry_start.wav",
+      "duration": 0.5761,
+      "peak_dbfs": -5.73,
+      "rms_dbfs": -24.75,
+      "dc": 1e-07,
+      "sha256": "1788e0cfc9ba05cec54ab6fa8e754d89dd5909c6e391c7bbb7b74558396bdf4e",
+      "bytes": 55346
+    },
+    {
+      "file": "research_category_infantry_done.wav",
+      "duration": 0.8568,
+      "peak_dbfs": -4.27,
+      "rms_dbfs": -24.5,
+      "dc": 1.01e-05,
+      "sha256": "da9662f9df2cd1722da356bedf18162d63e4e6b8a31dd439fcea25b6b173f1a2",
+      "bytes": 82296
+    },
+    {
+      "file": "research_category_infantry_cancel.wav",
+      "duration": 0.3401,
+      "peak_dbfs": -8.51,
+      "rms_dbfs": -26.2,
+      "dc": 2e-07,
+      "sha256": "d74a9f4eae90b6f14a33eca0720b1e2e385aee51c217e0b49452f97bae87a3ea",
+      "bytes": 32690
+    },
+    {
+      "file": "research_category_naval_select.wav",
+      "duration": 0.3743,
+      "peak_dbfs": -10.07,
+      "rms_dbfs": -25.29,
+      "dc": 5.8e-06,
+      "sha256": "c965d904b19583d57905a4e2a791c97ad71482073bdaa062173dc34d145ad1aa",
+      "bytes": 35974
+    },
+    {
+      "file": "research_category_naval_start.wav",
+      "duration": 0.7419,
+      "peak_dbfs": -12.69,
+      "rms_dbfs": -25.06,
+      "dc": 1e-07,
+      "sha256": "6cd2cb381ee1cf533c4662e7166a78a6260a6de12a858158cf833d249d160e21",
+      "bytes": 71266
+    },
+    {
+      "file": "research_category_naval_done.wav",
+      "duration": 0.8616,
+      "peak_dbfs": -7.76,
+      "rms_dbfs": -24.46,
+      "dc": 3.1e-06,
+      "sha256": "7fbc8e50fa078d73522274750d83423efcc932edd2634336fdf728f09b49914d",
+      "bytes": 82758
+    },
+    {
+      "file": "research_category_naval_cancel.wav",
+      "duration": 0.5217,
+      "peak_dbfs": -6.63,
+      "rms_dbfs": -27.27,
+      "dc": 6e-07,
+      "sha256": "7ce02b1d8789189fa8095e3d27fc27f120c84142905b0c796c9a5ce250cec1f2",
+      "bytes": 50126
+    }
+  ]
+}

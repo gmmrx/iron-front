@@ -14,13 +14,14 @@ uniform sampler2D path_tex : source_color, filter_linear_mipmap, repeat_enable;
 // yükseklik haritanın kendi yükseklik dokusundan (MapView3D ile aynı): ağ kurulurken işlemci yükseklik hesaplamaz
 uniform sampler2D height_tex : filter_linear, repeat_enable;
 uniform vec2 map_size = vec2(16384.0, 8106.0);
-uniform float height_scale = 0.012;
+uniform float height_scale = 0.0;
 uniform float lift = 0.25;
 uniform float mesh_step = 4.0;       // arazi ağının köşe aralığı (MapView3D.VERTEX_SPACING)
 
 // Arazi ağı gibi yükseklik: bulunduğu ağ hücresinin dört köşesinden ara değer (ağ yüzeyi yolu vadide örtmesin),
 // köşelerin en yükseğine doğru küçük pay
 float mesh_height(vec2 xz) {
+	if (height_scale == 0.0) { return 0.0; }
 	vec2 c = floor(xz / mesh_step) * mesh_step;
 	vec2 f = (xz - c) / mesh_step;
 	float h00 = textureLod(height_tex, c / map_size, 0.0).r;

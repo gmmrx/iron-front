@@ -13,8 +13,9 @@
   others use English).
 - **Deploy**: the panel closes and the map darkens everything except where the unit can go (divisions: your own
   regions; air wings: states with an air base; new ships: states with a port); click a highlighted region to deploy
-  there (right click / Esc: cancel). Ships from the dockyards wait in the Navy panel ("New ships waiting for a port")
-  until you choose their port; they join the reserve fleet there. With enough manpower and equipment the division
+  there (right click / Esc: cancel). Ships are bought with SP in the port of a state with a naval
+  base (state panel → recruit: destroyer 41, submarine 30, cruiser 121, battleship 336 SP) and join the reserve fleet
+  there; the computer buys ships the same way, up to its 1936 navy grown by 8% a year. With enough manpower and equipment the division
   trains for 14 days (it cannot move meanwhile); the conscription law changes this (Two-Year Service 13, Reserve
   Call-Up 16, Levée en Masse 20 days).
 
@@ -98,7 +99,8 @@ The war game is played by selecting divisions; the Army screen and the army tool
 ## Combat
 - Attack: anti-personnel fire × (1 − the target's armour share) + anti-armor fire × armour share, multiplied by strength
   and experience.
-- Modifiers: terrain, river (−), landing from the sea (−), no supply −35%, no fuel −35%, winter and mud, preparation
+- Modifiers: terrain, river (−), landing from the sea (−), no supply −35%, no fuel −35%, winter and mud, night −25%
+  (only the attacker; eased at dusk and dawn; `data/common/units.json` → `night`), preparation
   (up to +20%), air superiority and close air support, command bonus (general and field marshal skill).
 - Of the attacks met by defense/shock 10% hit, of the rest 40%. Hits reduce cohesion and strength.
 - Entrenchment: a waiting division gains up to +15% defense over 10 days.
@@ -123,6 +125,15 @@ The war game is played by selecting divisions; the Army screen and the army tool
 Each division counter shows its type: infantry ✕, motorised ✕ with wheels, armoured an oval (track). Your armies stand
 on separate pins even in the same region, with the army's name under the counter; a single division of yours shows its
 own name. Names only appear close up.
+
+### The front line
+While you are at war, the border between regions held by your side (you and your allies) and regions held by your
+enemies glows like a seam of fire under the ground, at every zoom. Click next to it and the **front panel** opens at the
+bottom: the two regions, the divisions on each side (number · average strength; "?" under the fog of war), your share of
+the air over the enemy region and the battle going on there (each side's cohesion left). Two buttons send a free air
+wing that can reach the front: **Air support** (close support over the battle, or the enemy region if there is none)
+and **Air superiority**. A close support plane goes first for air support, a fighter for superiority; a wing already on
+another mission is not taken. The panel closes by itself when the region changes hands.
 
 ## Supply and fuel
 Supply reaches at most 9 regions into occupied land from a source on friendly soil; divisions beyond that or encircled
@@ -152,7 +163,8 @@ box starts off.
 - **Quick reconnaissance**: the Recon button at the bottom of the left menu (or K), then a click on the map: the
   nearest idle wing that can reach the region flies over it (fighters first; wings on another mission are not taken).
 - **Reconnaissance**: the wing flies over the zone, and enemy divisions within 350 km of its centre show on the map
-  through the fog of war. Any aircraft can fly it; enemy fighters shoot at it.
+  through the fog of war (at night only 175 km: `night_recon_range` in `data/common/recruit.json`). Any aircraft can fly
+  it; enemy fighters shoot at it.
 
 ## Fog of war
 Everything beyond your sight lies under patchy **clouds** on the map: scattered clouds drift over it with clear gaps
@@ -160,7 +172,8 @@ between them, so the map stays easy on the eye. Clear: regions held by you or yo
 your divisions stand and the zones of your reconnaissance wings. Across the border only a strip stays open: in the
 neighbouring regions the part near the border is clear and the clouds close in about 100 map pixels further in (the
 border strip; divisions standing in these regions are visible). Everything else needs reconnaissance. Under the clouds
-the divisions, fleets and air wings of every country that is not your ally are hidden, the region card says there is no
+the divisions, fleets and air wings of every country that is not your ally are hidden. At night a division sees only
+the region it stands in; it uncovers the neighbouring regions when the sun rises, the region card says there is no
 information, and the attack estimate says the enemy strength is unknown. The computer's countries are not limited by the
 fog; the watch mode has no fog. Until you reconnoitre it, a foreign region under the clouds shows only its cities: the
 city markers stay, buildings (ports, air bases, factories) are hidden, and the region card shows the population and

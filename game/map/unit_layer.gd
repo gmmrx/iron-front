@@ -14,7 +14,10 @@ const COUNTER_W := 216.0          ## birlik levhası dokusu (piksel, ekranın ~2
 const COUNTER_H := 100.0
 const CARD_PX := 0.00028           ## levhanın piksel boyu (216 px doku ≈ 107 ekran pikseli, 1080p)
 const CARD_LIFT := 0.012           ## kart haritanın hemen üstünde (iğne yok), kamera uzaklığının katı
-const CARD_DIST := 330.0           ## bu uzaklığın dışında kart yerine "bayrak | sayı" rozeti (iğnesiz); içinde iğneli kart
+const CARD_DIST := 230.0           ## bu uzaklığın dışında kart yerine "bayrak | sayı" rozeti (iğnesiz); içinde 3D figür
+								   ## (ya da iğneli kart): 3D yalnız çok yakın zoom'da
+const CHIP_STACK := Vector2(0.011, -0.008)  ## aynı noktadaki rozetler üst üste: her biri bir öncekinin sağ üstüne biner
+										   ## (kamera uzaklığının katı, ekranda ~14 × 10 px), yan yana yayılmaz
 const COMPOSE_DIST := 105.0        ## çok yakında kart dağılır: içindeki tabur türleri aynı boy kartlarla (ızgara)
 const COMPOSE_COLS := 2
 const CHIP_W := 64.0               ## "bayrak | sayı" rozeti dokusu (piksel)
@@ -67,6 +70,7 @@ const COMMANDER_BODY_SHIFT := 24.0 ## portre takılıyken plakayı sağa al; tü
 var map: MapView3D
 var camera: Camera3D
 var models: UnitModels                 ## akıcı görsel konumlar (sayaçlar ve oklar)
+var combat_effects: CombatEffects       ## kara/hava için ortak, bütçeli savaş efektleri
 var selected: Array[Division] = []
 
 var _counters := {}                ## "pid:tag" -> {root, label, org, str, divs}
@@ -101,6 +105,7 @@ var _dying: Array = []             ## [kök, yaş]: yok olan tümenin sayacı ö
 static var _glow_tex: Texture2D
 
 func _ready() -> void:
+	_combat_rng.randomize()                  # kozmetik atışlar oyun simülasyonunun rastgele akışını tüketmez
 	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
 	img.fill(Color.WHITE)
 	_white = ImageTexture.create_from_image(img)
@@ -113,11 +118,15 @@ func _ready() -> void:
 	_arrows.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_arrows)
 	Military.divisions_changed.connect(func() -> void: _dirty = true)
-	GameClock.hour_passed.connect(func() -> void: _dirty = true)      # yürüme/saldırı başladı ya da bitti (sayaç anahtarı)
+	GameClock.hour_passed.connect(func() -> void:
+		_dirty = true                          # yürüme/saldırı başladı ya da bitti (sayaç anahtarı)
+		_reseat())                             # muharebe ve sınırda karşılaşmalar saat saat değişir: duranlar sınıra yürür
 	Military.armies_changed.connect(func() -> void:                     # ordu kuruldu / katıldı / ayrıldı
 		_dirty = true
 		_full_refresh = true)
-	Military.battles_changed.connect(_update_battles)
+	Military.battles_changed.connect(func() -> void:
+		_update_battles()
+		_reseat())
 	World.player_changed.connect(func(_t: String) -> void: clear_selection())
 
 func _process(delta: float) -> void:
@@ -137,6 +146,9 @@ func _process(delta: float) -> void:
 		GameClock.timed("units_rebuild_combat", __c2)
 		GameClock.timed("units_rebuild", __r)
 		_vis_dirty = true
+		if _build_more:
+			_dirty = true                      # kurulmayan sayaçlar bir sonraki karede (aralık beklenmez)
+			_timer = 99.0
 	var hide_all: bool = camera != null and camera.distance > HIDE_ALL
 	var __tm := Time.get_ticks_usec()
 	_tile_merge()
@@ -288,12 +300,16 @@ func _follow_anchors(delta := 1.0) -> void:
 		# yan yana kartlar (aynı bölgede ayrı ordular/ülkeler): kart + komutan portresi kadar aralık; dağılmış ızgara
 		# ya da rozet için kendi genişliği
 		# uzakta rozetler yan yana; yakında aynı noktadakiler yan yana dizilmez, tek noktada üst üste yığılır (_declutter)
-		var gap := 0.042 if cam_d > CARD_DIST else 0.0
-		var p := base + Vector2(float(c.get("off", 0.0)) * cam_d * gap, 0.0)
+		var p := base + (CHIP_STACK * float(c.get("off", 0.0)) * cam_d if cam_d > CARD_DIST else Vector2.ZERO)
 		# üst üste binme payı (_declutter): hedefe yumuşakça gelir (kat atlarken sayaç sıçramaz)
 		# figür kipinde pay dünya birimidir (zoom'la yer değişmez); kartlarda kamera uzaklığının katı (ekranda sabit aralık)
 		var dk: Vector3 = c.get("dk", Vector3.ZERO)
 		var dk_t: Vector3 = c.get("dk_t", Vector3.ZERO)
+		if fig_mode and c.has("post_pid"):
+			if not c.has("post_offset"): c["post_offset"] = dk
+			dk = c["post_offset"]
+			dk_t = dk
+			c["dk"] = dk
 		var moved_dk := dk != dk_t
 		if moved_dk:
 			if fig_mode:
@@ -360,17 +376,29 @@ func _goal_base(c: Dictionary, key: String, divs: Array, delta: float, frame: in
 			all_walk = false
 			break
 	c["walking"] = all_walk
+	if all_walk or int(c.get("post_pid", pid)) != pid:
+		for field: String in ["post_pid", "post_goal", "post_offset", "post_av", "post_aim"]:
+			c.erase(field)
 	if all_walk:
 		var sum := Vector2.ZERO
 		for d: Division in divs:
 			sum += _walk_pos(d)
 		goal = sum / divs.size()
-		var w: Array = _walk[(divs[0] as Division).id]
-		c["mdir"] = (w[1] as Vector2) - (w[0] as Vector2)
+		c["mdir"] = _walk_dir(divs[0])                # yolun o noktadaki yönü (rota kıvrılınca figür de döner)
 	elif not World.province(pid).is_land():
 		var a0: Array = models.anchors.get((divs[0] as Division).id, [])
 		if not a0.is_empty():
 			goal = a0[0]                              # denizde (çıkarma): konvoyun yeri
+	else:
+		# savaş sınırda olur: muharebedeki (saldıran ya da savunan) ve düşmanla yüz yüze duran figür kendi tarafında sınıra
+		# yürür, karşısındakiyle sınırın iki yanında durur; savunan çözülünce saldıran sınırı geçip bölgeye girer
+		var foe := _combat_foe(pid, divs)
+		if c.has("post_goal"):
+			goal = c["post_goal"]
+		elif foe > 0:
+			goal = _border_spot(pid, foe)
+			c["post_pid"] = pid
+			c["post_goal"] = goal
 	# sıçramaz: yeni bölgeye giren, geri çekilen figür oraya yürür (HOP_SPEED). Uzun sıçrama (çıkarma, konuşlanma) ve
 	# bir süredir görüş dışında kalan sayaç doğrudan yerine geçer.
 	var base: Vector2 = c.get("base", goal)
@@ -395,6 +423,62 @@ func _goal_base(c: Dictionary, key: String, divs: Array, delta: float, frame: in
 	c["base"] = base
 	c["seen_f"] = frame
 	return [goal, base]
+
+## Oturmuş duran sayaçların yeri yeniden hesaplanır (muharebe başladı ya da bitti: sınıra yürür, sınırdan döner)
+func _reseat() -> void:
+	for c: Dictionary in _counters.values():
+		c["ep"] = -1
+
+## Figürün çarpıştığı düşman bölgesi (0: yok): saldırdığı bölge; savunuyorsa saldıranların çoğunun geldiği bölge;
+## yoksa sınırda karşısında duran düşman (Military.skirmishes)
+func _combat_foe(pid: int, divs: Array) -> int:
+	var votes := {}
+	for d: Division in divs:
+		if d.attacking > 0:
+			votes[d.attacking] = int(votes.get(d.attacking, 0)) + 1
+	if votes.is_empty() and Military.battles.has(pid):
+		for a: Division in Military.battles[pid]["attackers"]:
+			if a.province != pid:
+				votes[a.province] = int(votes.get(a.province, 0)) + 1
+	if votes.is_empty():
+		for pair: Array in Military.skirmishes:
+			if int(pair[0]) == pid:
+				votes[int(pair[1])] = int(votes.get(int(pair[1]), 0)) + 1
+			elif int(pair[1]) == pid:
+				votes[int(pair[0])] = int(votes.get(int(pair[0]), 0)) + 1
+	var best := 0
+	var most := 0
+	for q: int in votes:
+		if int(votes[q]) > most or (int(votes[q]) == most and (best == 0 or q < best)):
+			most = int(votes[q])
+			best = q
+	return best
+
+## Sınırdaki duruş yeri: kendi bölgesinin noktasından düşman bölgesininkine yürürken sınırın kesildiği yer, kendi tarafına
+## BORDER_GAP geri çekilmiş (iki taraf arasında ~2 × BORDER_GAP: menzilden ateş, dip dibe değil). Sınırlar değişmez:
+## önbellekli.
+const BORDER_GAP := 10.0
+var _border := {}
+func _border_spot(own: int, foe: int) -> Vector2:
+	var k := own * 1000003 + foe
+	if _border.has(k):
+		return _border[k]
+	var a := _tile_spot(own)
+	var b := World.unwrap_near(a, _tile_spot(foe))
+	var dir := (b - a).normalized()
+	var len := a.distance_to(b)
+	var cut := a.lerp(b, 0.5)
+	var t := 0.0
+	while t < len:
+		var p := a + dir * t
+		var q := map.province_at(p)
+		if q != own and q != 0:
+			cut = p
+			break
+		t += 1.0
+	var spot := cut - dir * minf(BORDER_GAP, cut.distance_to(a))
+	_border[k] = spot
+	return spot
 
 ## Figürler (yakında) birbirinin içinden geçmez, araziye oturur, gittikleri yöne dönerler:
 ## - yürüyen figür önündekinin çevresinden dolanır: yoluna dik yana açılır, geçince yoluna döner; karşılaşan ya da yan
@@ -436,6 +520,9 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 			var tv: Vector2 = World.unwrap_near(pos, c["ctarget"]) - pos
 			if tv.length() > 0.01:
 				foe = tv.normalized()
+				if c.has("post_pid") and not moving: c["post_aim"] = foe
+		elif c.has("post_pid"):
+			foe = c.get("post_aim", Vector2.ZERO)
 		var dm := Vector2(dir.x, dir.y * kz)
 		var av0: Vector2 = c.get("av", Vector2.ZERO)
 		info[key] = [Vector2(pos.x, pos.y * kz), moving, dm.normalized() if dm.length() > 0.001 else Vector2.RIGHT,
@@ -453,7 +540,7 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 		var cell := Vector2i((pos / cs).floor())
 		# yürüyen figür bölgeden bölgeye yolunda düz yürür (yana kaçmaz; aynı bölgedeki kendi ülkesinin figürüne varınca
 		# ona katılır); yalnız duran iki figür değiyorsa ikisi de yarı yarıya aralanır (aynı yığındakiler hariç)
-		if not me[1]:
+		if not me[1] and not _counters[key].has("post_pid"):
 			for gy in range(cell.y - 1, cell.y + 2):
 				for gx in range(cell.x - 1, cell.x + 2):
 					for other: String in buckets.get(Vector2i(gx, gy), []):
@@ -471,6 +558,9 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 		push = push.limit_length(dmin * 1.5)
 		push = Vector2(push.x, push.y / kz)             # ölçülü uzaydan haritaya
 		var av: Vector2 = c.get("av", Vector2.ZERO)
+		if c.has("post_pid"):
+			if not c.has("post_av"): c["post_av"] = av
+			push = c["post_av"]
 		if av != push:
 			# yürüyen yol verirken yürüme hızının en çok 2 katı yana kayar (yolundan çapraz sapar, "başını alıp gitmez");
 			# duran figürler FIG_STEP ile aralanır
@@ -490,12 +580,12 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 		else:
 			vel = Vector2.ZERO
 		c["vel"] = vel
-		var want: Vector2 = me[7]
+		var want: Vector2 = Vector2.ZERO if me[1] else me[7]
 		var aim := want != Vector2.ZERO                # düşmana: tüfeği ona çevrilir (gövde tüfek açısı kadar döner)
 		if want == Vector2.ZERO and bool(me[1]) and c.has("mdir") and (c["mdir"] as Vector2).length() > 0.01:
 			want = (c["mdir"] as Vector2).normalized()   # yürüyen hep hedefine bakar (yolda sağa sola dönmez)
 		if want == Vector2.ZERO:
-			if vel.length() > 0.15:
+			if me[1] and vel.length() > 0.15:
 				want = vel.normalized()
 			elif me[1]:
 				want = me[9]                          # cephede bekleyen ya da çok yavaş yürüyen: yolunun yönü
@@ -506,10 +596,11 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 				want = UnitFigures.FACE_DIR
 		var yaw: float = c.get("yaw", deg_to_rad(UnitFigures.FACE_YAW))
 		var yaw_t := UnitFigures.yaw_for(want) - (UnitFigures.aim_yaw(UnitFigures.kind_of(c.get("fig"))) if aim else 0.0)
+		c["aim_ready"] = not me[1] and aim and absf(wrapf(yaw_t - yaw, -PI, PI)) < deg_to_rad(15.0)
 		if yaw != yaw_t:
 			yaw = rotate_toward(yaw, yaw_t, FIG_TURN * delta)
 			c["yaw"] = yaw
-			UnitFigures.set_yaw(fig, yaw)
+		UnitFigures.set_yaw(fig, yaw)
 		if (c.get("fxz", Vector2.INF) as Vector2).distance_squared_to(xz) < 0.0001:
 			continue
 		c["fxz"] = xz
@@ -567,10 +658,7 @@ func _swap_fig(c: Dictionary, tag: String, fk: String) -> void:
 	fig.scale = old.scale
 	fig.position = old.position
 	fig.visible = old.visible
-	var on: Label3D = old.get_node_or_null("h/n")
-	var nn: Label3D = fig.get_node_or_null("h/n")
-	if on and nn:
-		nn.text = on.text
+	UnitFigures.set_count(fig, int(c.get("count", (c["divs"] as Array).size())))
 	UnitFigures.set_yaw(fig, float(c.get("yaw", deg_to_rad(UnitFigures.FACE_YAW))))
 	old.get_parent().add_child(fig)
 	old.queue_free()
@@ -974,8 +1062,52 @@ func _group_pos(pid: int, tag: String, index: int, count: int) -> Vector3:
 	return Vector3(p.x + off.x, h, p.y + off.y)
 
 var _rebuild_n := 0
+## Tek seferlik hazırlık: ilk sayacın kurulumu (figür örgülerinin ayrılması, malzemeler, levha dokuları) ~0,5 sn ve
+## figürlerin ilk çizimi (gölgelendirici hatlarının derlenmesi) ~0,13 sn tutuyordu; oyun başında donmasın diye açılışta
+## yapılır (main). Örnek sayaç ve iki figür türü birkaç kare zeminin altında çizilir: görünmez ama hatlar derlenir.
+var _warm := false
+func prewarm(tag: String) -> void:
+	if _warm or not World.countries.has(tag):
+		return
+	_warm = true
+	var c := _make_counter(tag)
+	_tex_for(tag)
+	_tex_for(tag, 10, 10, true)
+	flag_marker(tag)
+	flag_marker(tag, true)
+	var root: Node3D = c["root"]
+	root.reparent(get_parent())                # birlik katmanı gizliyken de çizilsin
+	var tank := UnitFigures.make(World.countries[tag], "tank")
+	root.add_child(tank)
+	for f: Node3D in [c["fig"], tank]:
+		if f:
+			f.visible = true
+			f.scale = Vector3.ONE * FIG_SIZE
+	for key: String in ["glow", "flag", "clabel"]:
+		var n: Node3D = c[key]
+		n.visible = true
+		if n is SpriteBase3D:
+			(n as SpriteBase3D).modulate.a = 0.0
+		elif n is Label3D:
+			(n as Label3D).modulate.a = 0.0
+			(n as Label3D).outline_modulate.a = 0.0
+	for i in 6:
+		# kameranın baktığı yerin altında (menü kamerayı sonradan yerleştirir: görüş alanında kalsın)
+		var at: Vector3 = (camera as MapCamera3D).target if camera is MapCamera3D else Vector3.ZERO
+		root.position = Vector3(at.x, -60.0, at.z)
+		await get_tree().process_frame
+	_free_parked(c)
+	root.queue_free()
+
+## Yeni sayaç kurma bütçesi (µs, 0 = sınırsız): açıkken bir yeniden kurulumda bu süre dolunca kalan sayaçlar sonraki
+## karelere kalır (oyun başında ilk kurulum ~0,5 sn tek kare donmaydı; geçiş animasyonu sırasında karelere yayılır)
+var build_budget_usec := 0
+var _build_more := false
+
 func _rebuild() -> void:
 	var __t0 := Time.get_ticks_usec()
+	var t_start := __t0
+	_build_more = false
 	_rebuild_n += 1
 	_div_key.clear()
 	var groups := {}
@@ -987,7 +1119,9 @@ func _rebuild() -> void:
 		# hepsi aynı ordudaysa anahtarda o ordu, aşağıda). Yürüyenler ">hedef": aynı bölgeden aynı hedefe gidenler tek
 		# figür, hedefe düz yürür (_walk_pos), yol üstündeki dost figürlerin içine girip çıkmaz; hedefteki kendi figürüne
 		# değdiği an ona katılır (_tile_merge).
-		var wdest := d.path[d.path.size() - 1] if _walking(d) else -1
+		# yürüyenler sıradaki adımlarına göre: aynı bölgeden aynı komşuya yürüyenler (son hedefleri farklı olsa da) tek figür;
+		# vardıkları bölgede yine aynı yöne gidenler birlikte devam eder
+		var wdest := d.path[0] if _walking(d) else -1
 		var kc: Array = _dkey.get(d.id, [])
 		var key: String
 		if not kc.is_empty() and int(kc[0]) == d.province and int(kc[1]) == wdest:
@@ -995,7 +1129,7 @@ func _rebuild() -> void:
 		else:
 			key = "%d:%s:0:" % [d.province, d.owner]
 			if wdest >= 0:
-				key += ">%d" % wdest                  # aynı bölgeden aynı hedefe yürüyenler tek figür
+				key += ">%d" % wdest                  # aynı bölgeden aynı komşuya yürüyenler tek figür
 			_dkey[d.id] = [d.province, wdest, key]
 		if wdest >= 0:
 			live[d.id] = true
@@ -1005,6 +1139,7 @@ func _rebuild() -> void:
 	for id: int in _walk.keys():
 		if not live.has(id):
 			_walk.erase(id)
+			_walk_last.erase(id)
 	# sayacın tümenleri tek ordudaysa anahtarda o ordu (ordunun ana sayacı: komutan portresi, rütbe yıldızları)
 	var keyed := {}
 	for key: String in groups:
@@ -1126,12 +1261,17 @@ func _rebuild() -> void:
 			var divs: Array = groups[key]
 			var tag: String = key.get_slice(":", 1)
 			if not _counters.has(key):
+				if build_budget_usec > 0 and Time.get_ticks_usec() - t_start > build_budget_usec:
+					_build_more = true                 # bütçe doldu: bu yığının sayacı sonraki karede
+					continue
+				var __mk := Time.get_ticks_usec()
 				_counters[key] = _make_counter(tag)
+				GameClock.timed("ur_make", __mk)
 				var src: Dictionary = born_from.get(key, {})
 				if not src.is_empty() and src.has("base"):
 					# ayrılan yığın eski sayacın tam yerinde doğar, oradan kendi yerine yürür (başka yerde belirmez)
 					var nc: Dictionary = _counters[key]
-					for f: String in ["base", "lp", "ld", "h0", "dk", "seen_f"]:
+					for f: String in ["base", "lp", "ld", "h0", "dk", "seen_f", "yaw"]:
 						if src.has(f):
 							nc[f] = src[f]
 					(nc["root"] as Node3D).position = (src["root"] as Node3D).position
@@ -1161,7 +1301,8 @@ func _rebuild() -> void:
 			c["ep"] = -1                                            # tümenleri değişmiş olabilir: bir kez yeniden hesapla
 			c["dyn"] = dyn
 			c.erase("face_sig")
-			c["off"] = float(i) - float(keys.size() - 1) * 0.5     # yan yana sıra (ekran aralığı _follow_anchors'ta)
+			c["off"] = float(i) - float(keys.size() - 1) * 0.5     # destedeki sıra (ekran payı _follow_anchors'ta)
+			_stack_priority(c, i)
 			var army_id := int(key.get_slice(":", 2))
 			var an: Label3D = c["army"]
 			var army := Military.army_by_id(army_id) if army_id != 0 and tag == World.player_tag else null
@@ -1247,6 +1388,14 @@ func _sprite(tex: Texture2D, px: float, prio: int) -> Sprite3D:
 	s.render_priority = prio
 	s.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	return s
+
+## Destede sonraki rozet öncekinin üstünde çizilir (bayrağı ve sayısı birlikte): sayılar alttaki rozetin üstüne taşmaz
+func _stack_priority(c: Dictionary, i: int) -> void:
+	var m := mini(i, 30) * 3
+	(c["flag"] as Sprite3D).render_priority = 10 + m
+	var cl: Label3D = c["clabel"]
+	cl.outline_render_priority = 11 + m
+	cl.render_priority = 12 + m
 
 func _make_counter(tag: String) -> Dictionary:
 	var root := Node3D.new()
@@ -1600,6 +1749,7 @@ static func glow_texture() -> Texture2D:
 ## Muharebe durumu: saldıran taraf payı %50'den çoksa saldıranlar üstün (yeşil), savunanlar geriliyor (kırmızı); tersi
 ## de öyle. Sayaç, içindeki tümenlerin çoğunun durumunu alır. Muharebe değişince ve sayaçlar yeniden kurulunca.
 func _refresh_combat() -> void:
+	var previous_targets := _combat_target.duplicate()
 	_combat.clear()
 	_combat_dir.clear()
 	_combat_target.clear()
@@ -1618,12 +1768,12 @@ func _refresh_combat() -> void:
 			if d.path.is_empty() and _enemies(d.owner, tb):
 				_combat[d.id] = 1 if sa >= sb else -1
 				_combat_dir[d.id] = (pb - pa).normalized()
-				_combat_target[d.id] = spb
+				_choose_combat_target(d.id, _border_spot(int(pr[1]), int(pr[0])), previous_targets)
 		for d: Division in Military.divisions_in(int(pr[1])):
 			if d.path.is_empty() and _enemies(d.owner, ta):
 				_combat[d.id] = 1 if sb > sa else -1
 				_combat_dir[d.id] = (pa - pb).normalized()
-				_combat_target[d.id] = spa
+				_choose_combat_target(d.id, _border_spot(int(pr[0]), int(pr[1])), previous_targets)
 	for pid: int in Military.battles:
 		var b: Dictionary = Military.battles[pid]
 		var ar := float(b.get("att_ratio", 0.5))
@@ -1634,11 +1784,11 @@ func _refresh_combat() -> void:
 		for d: Division in b.get("attackers", []):
 			_combat[d.id] = 1 if att_good else -1
 			_combat_dir[d.id] = (to - from).normalized()
-			_combat_target[d.id] = _tile_spot(pid)
+			_choose_combat_target(d.id, _border_spot(pid, d.province) if d.province != pid else _tile_spot(pid), previous_targets)
 		for d: Division in b.get("defenders", []):
 			_combat[d.id] = -1 if att_good else 1
 			_combat_dir[d.id] = (from - to).normalized()
-			_combat_target[d.id] = _tile_spot(int(b.get("from", pid)))
+			_choose_combat_target(d.id, _border_spot(int(b.get("from", pid)), pid) if int(b.get("from", pid)) != pid else _tile_spot(pid), previous_targets)
 	_glowing.clear()
 	for key: String in _counters:
 		var c: Dictionary = _counters[key]
@@ -1663,11 +1813,28 @@ func _refresh_combat() -> void:
 				c["ctarget"] = best
 			else:
 				c.erase("ctarget")
-		c["cstate"] = signi(s)
-		if s != 0:
+		c["cstate"] = signi(s) if s != 0 else (1 if c.has("ctarget") else 0)
+		if int(c["cstate"]) != 0:
 			_glowing.append(key)
 		elif (c["glow"] as Sprite3D).visible:
 			(c["glow"] as Sprite3D).visible = false
+
+## Keep a still-valid aim point regardless of skirmish/dictionary iteration order.
+## If it disappeared, choose the nearest remaining candidate, with a stable tie break.
+func _choose_combat_target(id: int, candidate: Vector2, previous: Dictionary) -> void:
+	if not _combat_target.has(id):
+		_combat_target[id] = candidate
+		return
+	var current: Vector2 = _combat_target[id]
+	if previous.has(id):
+		var origin: Vector2 = previous[id]
+		var old_distance := origin.distance_squared_to(World.unwrap_near(origin, current))
+		var new_distance := origin.distance_squared_to(World.unwrap_near(origin, candidate))
+		if not is_equal_approx(old_distance, new_distance):
+			if new_distance < old_distance: _combat_target[id] = candidate
+			return
+	if candidate.x < current.x or (candidate.x == current.x and candidate.y < current.y):
+		_combat_target[id] = candidate
 
 # ------------------------------------------------------------------ bölgede tek figür (her karede)
 var _tile_key := {}                  ## "bölge:ülke" -> o bölgenin figürünün anahtarı (son kurulumdan)
@@ -1755,9 +1922,9 @@ func _merge_walkers() -> void:
 		changed = true
 		var n := divs.size() - int(c.get("gone", 0))
 		if prev != "" and _counters.has(prev):
-			_counters[prev]["extra"] = int(_counters[prev]["extra"]) - n
+			_counters[prev]["extra"] = maxi(0, int(_counters[prev].get("extra", 0)) - n)
 		if into != "":
-			_counters[into]["extra"] = int(_counters[into]["extra"]) + n
+			_counters[into]["extra"] = int(_counters[into].get("extra", 0)) + n
 		c["walk_into"] = into
 		c["tile_merged"] = into != ""
 		(c["root"] as Node3D).visible = c.get("base_vis", true) and not c.get("merged", false) \
@@ -1780,6 +1947,7 @@ func _shown_count(c: Dictionary) -> int:
 
 # ------------------------------------------------------------------ yürüyüş (figürler)
 var _walk := {}                      ## tümen id -> [çıkış noktası, hedef noktası, toplam km, hedef, önbellek anahtarı, kalan bacakların km'si]
+var _walk_last := {}                 ## last sampled route point; reorders start here, never on a straight chord
 
 ## Yürüyor mu (figürü hedefe yürür): yolda, taarruzda değil, eğitimde değil; sıradaki bölgede düşman yoksa (taarruz için
 ## yola çıkan bölgesinin figüründe durup ateş eder)
@@ -1867,9 +2035,46 @@ func _enemy_in(pid: int, tag: String) -> bool:
 			return true
 	return false
 
-## Yürüyenin yeri: çıktığı yerden hedef bölgenin noktasına düz çizgide, rotada aldığı yolla orantılı (bölge bölge
-## zikzak çizmez, hep hedefe bakar). Emir değişince o anki yerinden yeni hedefe.
+## Yürüyenin yeri: emir anındaki gerçek rotası (_route_line: bölgelerden geçen yol, okla aynı çizgi) boyunca, rotada
+## aldığı yolla orantılı. Emir değişince o anki yerinden yeni rotaya. Kayıt: [çıkış, hedef noktası, toplam km, hedef
+## bölge, saat anahtarı, sonraki bacakların km'si, rota çizgisi, çizgi boyunca birikimli uzunluk]
 func _walk_pos(d: Division) -> Vector2:
+	var e := _walk_entry(d)
+	var p := _poly_at(e, _walk_frac(d, e))
+	_walk_last[d.id] = p
+	return p
+
+## Yürüyenin şimdiki yönü (rotanın o noktadaki teğeti)
+func _walk_dir(d: Division) -> Vector2:
+	var e := _walk_entry(d)
+	var f := _walk_frac(d, e)
+	return _poly_at(e, minf(f + 0.02, 1.0)) - _poly_at(e, maxf(f - 0.02, 0.0))
+
+## Yürüyenin kalan rotası (ok bunu çizer): şimdiki yerinden hedefe
+func walk_line(d: Division) -> Array[Vector2]:
+	var e := _walk_entry(d)
+	var f := _walk_frac(d, e)
+	var poly: Array[Vector2] = e[6]
+	var cum: PackedFloat32Array = e[7]
+	var at := f * cum[cum.size() - 1]
+	var out: Array[Vector2] = [_poly_at(e, f)]
+	for i in poly.size():
+		if cum[i] > at:
+			out.append(poly[i])
+	return out
+
+func _poly_at(e: Array, f: float) -> Vector2:
+	var poly: Array[Vector2] = e[6]
+	var cum: PackedFloat32Array = e[7]
+	if poly.size() < 2:
+		return poly[0] if not poly.is_empty() else e[0]
+	var at := clampf(f, 0.0, 1.0) * cum[cum.size() - 1]
+	var i := cum.bsearch(at)
+	i = clampi(i, 1, poly.size() - 1)
+	var seg := maxf(cum[i] - cum[i - 1], 1e-5)
+	return poly[i - 1].lerp(poly[i], clampf((at - cum[i - 1]) / seg, 0.0, 1.0))
+
+func _walk_entry(d: Division) -> Array:
 	var dest: int = d.path[d.path.size() - 1]
 	var e: Array = _walk.get(d.id, [])
 	var hr := World.day_count * 24 + GameClock.hour
@@ -1877,9 +2082,19 @@ func _walk_pos(d: Division) -> Vector2:
 	if e.is_empty() or int(e[3]) != dest:
 		var start: Vector2 = _tile_spot(d.province)
 		if not e.is_empty():
-			start = (e[0] as Vector2).lerp(e[1], _walk_frac(d, e))    # yolda emir değişti: bulunduğu yerden
+			start = _walk_last.get(d.id, _poly_at(e, _walk_frac(d, e)))
+		# Depart from the visible emplacement, not back through the province centre.
+		var key: String = _div_key.get(d.id, "")
+		if _counters.has(key):
+			var counter: Dictionary = _counters[key]
+			start = counter.get("fxz", counter.get("base", start))
 		var to := World.unwrap_near(start, _tile_spot(dest))
-		e = [start, to, 1.0, dest, Vector3i(-1, 0, 0), 0.0]
+		var poly := _route_line(d, start)
+		poly[poly.size() - 1] = to                    # rota hedefin duruş noktasında biter
+		var cum := PackedFloat32Array([0.0])
+		for i in range(1, poly.size()):
+			cum.append(cum[i - 1] + poly[i - 1].distance_to(poly[i]))
+		e = [start, to, 1.0, dest, Vector3i(-1, 0, 0), 0.0, poly, cum]
 		e[5] = _rest_km(d)
 		e[4] = ck
 		e[2] = maxf(_leg_left_km(d) + float(e[5]), 1.0)
@@ -1887,7 +2102,7 @@ func _walk_pos(d: Division) -> Vector2:
 	elif e[4] != ck:
 		e[5] = _rest_km(d)
 		e[4] = ck
-	return (e[0] as Vector2).lerp(e[1], _walk_frac(d, e))
+	return e
 
 func _walk_frac(d: Division, e: Array) -> float:
 	return clampf(1.0 - (_leg_left_km(d) + float(e[5])) / float(e[2]), 0.0, 1.0)
@@ -1906,29 +2121,31 @@ func _rest_km(d: Division) -> float:
 	return km
 
 # ------------------------------------------------------------------ çatışma canlandırması (figürler)
-## Çatışan figür tüfeğini düşmana çevirir ve aralıklarla ateş eder: namlu alevi, geri tepme, namlu dumanı, karşı figüre
-## uçan mermi izi, isabet yerinde toz; vurulan figür hafifçe sarsılır. Ara sıra düşmanın yakınına top mermisi düşer
-## (alev, toprak, duman). Üstün taraf daha sık ateş eder. Hepsi dünya boyunda (figürle orantılı, zoom'la büyüyüp
-## ekranı kaplamaz), havuzlu düğümlerle; yalnız yakında (figür kipi) ve görünen figürlerde.
-## silahın açısı ve namlu ucu figür türüne göre: UnitFigures.aim_yaw / muzzle (asker tüfeği sola dönük, tank namlusu düz)
-const SHOT_GAP := Vector2(0.35, 1.3)                 ## iki atış arası (gerçek sn; üstün taraf %35 daha sık)
-const SHELL_GAP := Vector2(3.0, 8.0)                 ## top mermisi düşüşleri arası (çatışan figür başına)
-const TRACER_SPEED := 120.0                          ## mermi izinin hızı (dünya birimi / sn)
-const FX_MAX := 450                                  ## aynı anda en çok bu kadar efekt
-var _fx: Array = []                                  ## [düğüm, yaş, ömür, tür, a, b, boy, renk]
-var _fx_free := {}                                   ## tür -> boştaki düğümler (havuz)
+## UnitFigures'ın gerçek namlu yuvası kullanılır. Atış/tetik ve geri tepme burada;
+## alev, uçuş, isabet, toprak ve duman ortak CombatEffects katmanında toplu çizilir.
+## Tank topu tüfekle aynı hızda ateş etmez; yığındaki tümen sayısı görsel ateşi çoğaltmaz.
+const RIFLE_GAP := Vector2(0.35, 0.85)
+const CANNON_GAP := Vector2(1.8, 3.0)
+const SHELL_GAP := Vector2(3.2, 6.5)                 ## arada gelen topçu isabeti (gerçek sn)
+const HAZE_GAP := Vector2(4.5, 7.5)                  ## seyrek barut dumanı; harita sisle kaplanmaz
 var _combat_target := {}                             ## tümen id -> ateş ettiği düşman figürünün bölge noktası
 var _posed := {}                                     ## geri tepme/sarsılma pozu uygulanan sayaçlar
-var _tracer_mesh: BoxMesh
-var _tracer_mat: StandardMaterial3D
-static var _dot_tex: Texture2D
+var _combat_rng := RandomNumberGenerator.new()       ## yalnız görsel atış/dağılım; Military RNG'sinden ayrı
 
 func _tile_spot(pid: int) -> Vector2:
 	var pc := World.province(pid).center
 	return models.cities.unit_spot(pid, pc) if models and models.cities and World.province(pid).is_land() else pc
 
 func _combat_fx(delta: float) -> void:
-	var fig_mode := FIGURES and _was_far == 0
+	# Ortak efektlerin zamanı da duraklatılır; yeni atış ve gövde geri tepmesi ilerlemez.
+	if GameClock.paused:
+		return
+	var fig_mode := FIGURES and _was_far == 0 and combat_effects != null
+	var view := Rect2()
+	if camera is MapCamera3D:
+		var mc := camera as MapCamera3D
+		var r := mc.distance * 1.6
+		view = Rect2(Vector2(mc.target.x, mc.target.z) - Vector2(r, r), Vector2(r * 2.0, r * 1.8))
 	var active := {}
 	if fig_mode:
 		for key: String in _glowing:
@@ -1936,22 +2153,39 @@ func _combat_fx(delta: float) -> void:
 				continue
 			var c: Dictionary = _counters[key]
 			var fig: Node3D = c.get("fig")
+			if c.get("walking", false) or not c.get("aim_ready", true):
+				continue
 			if fig == null or not fig.visible or not (c["root"] as Node3D).visible:
+				continue
+			# visible=true ekran içinde demek değildir: dünya dışındaki muharebeler
+			# ortak efekt bütçesini tüketmeden önce ucuz görüş elemesinden geçer.
+			if not _combat_in_view((c["root"] as Node3D).global_position, view):
 				continue
 			if not c.has("ctarget"):
 				continue
 			var tgt: Vector2 = World.unwrap_near(Vector2((c["root"] as Node3D).position.x, (c["root"] as Node3D).position.z), c["ctarget"])
 			active[key] = true
-			var good := int(c.get("cstate", 0)) > 0
-			var many := clampf(float((c["divs"] as Array).size()), 1.0, 4.0)
-			c["shot_t"] = float(c.get("shot_t", randf_range(0.0, SHOT_GAP.y))) - delta
+			var weapon := _combat_weapon(fig)
+			var gap := CANNON_GAP if weapon == "cannon" else RIFLE_GAP
+			if c.get("shot_weapon", "") != weapon:
+				c["shot_weapon"] = weapon
+				c["shot_t"] = _combat_rng.randf_range(gap.x, gap.y)
+			c["shot_t"] = float(c["shot_t"]) - delta
 			if float(c["shot_t"]) <= 0.0:
-				c["shot_t"] = randf_range(SHOT_GAP.x, SHOT_GAP.y) / (0.8 + 0.2 * many) / (1.35 if good else 1.0)
+				c["shot_t"] = _combat_rng.randf_range(gap.x, gap.y)
 				_fire(c, fig, tgt)
-			c["shell_t"] = float(c.get("shell_t", randf_range(SHELL_GAP.x, SHELL_GAP.y))) - delta
+			if not c.has("shell_t"):
+				c["shell_t"] = _combat_rng.randf_range(SHELL_GAP.x, SHELL_GAP.y)
+			c["shell_t"] = float(c["shell_t"]) - delta
 			if float(c["shell_t"]) <= 0.0:
-				c["shell_t"] = randf_range(SHELL_GAP.x, SHELL_GAP.y)
+				c["shell_t"] = _combat_rng.randf_range(SHELL_GAP.x, SHELL_GAP.y)
 				_shell(tgt)
+			if not c.has("haze_t"):
+				c["haze_t"] = _combat_rng.randf_range(HAZE_GAP.x, HAZE_GAP.y)
+			c["haze_t"] = float(c["haze_t"]) - delta
+			if float(c["haze_t"]) <= 0.0:
+				c["haze_t"] = _combat_rng.randf_range(HAZE_GAP.x, HAZE_GAP.y)
+				_haze(Vector2((c["root"] as Node3D).position.x, (c["root"] as Node3D).position.z), tgt)
 			_pose(c, fig, delta)
 	# çatışmadan çıkanlar dik durur
 	for key: String in _posed:
@@ -1966,7 +2200,30 @@ func _combat_fx(delta: float) -> void:
 			c.erase("shake")
 			c.erase("duck")
 	_posed = active
-	_fx_update(delta)
+
+func _combat_in_view(at: Vector3, view: Rect2) -> bool:
+	if camera == null:
+		return true
+	var point := at
+	if camera is MapCamera3D:
+		var mc := camera as MapCamera3D
+		if mc.distance > CARD_DIST:
+			return false
+		# Counter transforms are already placed in their visible wrapped copy.
+		# Do not reinterpret a stale offscreen model as a visible copy here.
+		var xz := Vector2(at.x, at.z)
+		if not view.has_point(xz):
+			return false
+		point = Vector3(xz.x, at.y, xz.y)
+	if not camera.is_inside_tree():
+		return true
+	if camera.is_position_behind(point):
+		return false
+	var screen := Rect2(Vector2.ZERO, camera.get_viewport().get_visible_rect().size).grow(64.0)
+	return screen.has_point(camera.unproject_position(point))
+
+static func _combat_weapon(fig: Node3D) -> String:
+	return "cannon" if UnitFigures.kind_of(fig) == "tank" else "rifle"
 
 ## Geri tepme (tüfeğin tersine kısa itiş, üst gövde hafif geri yatar) ve vurulunca sarsılma
 func _pose(c: Dictionary, fig: Node3D, delta: float) -> void:
@@ -1984,43 +2241,46 @@ func _pose(c: Dictionary, fig: Node3D, delta: float) -> void:
 	var fwd := Vector3(cos(yaw + ay), 0.0, -sin(yaw + ay))
 	var side := fwd.cross(Vector3.UP)
 	var kick := rc * rc
-	var b := Basis(side, kick * 0.12) * Basis(Vector3.UP, yaw)
-	if sh > 0.0:
-		b = Basis(fwd, sin(_anim_t * 55.0) * 0.07 * sh) * b
-	# çömelme: hızla iner, yavaşça kalkar (üst parça basık, kaideye doğru)
-	var down := sin(clampf(dk, 0.0, 1.0) * PI * 0.5) * 0.2
-	b = b.scaled(Vector3(1.0 + down * 0.25, 1.0 - down, 1.0 + down * 0.25))
-	t.transform = Transform3D(b, Vector3(0.0, 0.5 - down * 0.35, 0.0) - fwd * 0.045 * kick + side * sin(_anim_t * 41.0) * 0.015 * sh)
+	# A short damped kick, not continuous sideways vibration or squash/stretch.
+	var b := Basis(side, kick * 0.045 + sh * 0.015) * Basis(Vector3.UP, yaw)
+	var down := sin(clampf(dk, 0.0, 1.0) * PI * 0.5) * 0.04
+	t.transform = Transform3D(b, Vector3(0.0, 0.5 - down, 0.0) - fwd * (0.018 * kick + 0.008 * sh))
 
 func _fire(c: Dictionary, fig: Node3D, tgt: Vector2) -> void:
 	var t: Node3D = fig.get_node_or_null("t")
-	if t == null or _fx.size() > FX_MAX - 4:
+	if t == null or combat_effects == null or map == null or GameClock.paused:
 		return
 	c["recoil"] = 1.0
-	var muzzle: Vector3 = fig.global_transform * (t.transform * UnitFigures.muzzle(UnitFigures.kind_of(fig)))
-	var off := Vector2.from_angle(randf() * TAU) * FIG_SIZE * randf_range(0.1, 0.75)
+	var kind := UnitFigures.kind_of(fig)
+	var socket := fig.global_transform * t.transform
+	var muzzle: Vector3 = socket * UnitFigures.muzzle(kind)
+	var yaw := UnitFigures.aim_yaw(kind)
+	var direction := (socket.basis * Vector3(cos(yaw), 0.0, -sin(yaw))).normalized()
+	var weapon := _combat_weapon(fig)
+	var off := Vector2.from_angle(_combat_rng.randf() * TAU) * FIG_SIZE * _combat_rng.randf_range(0.1, 0.75)
 	var at := tgt + off
-	var aim := Vector3(at.x, maxf(map.height_at(at), 0.0) + FIG_SIZE * randf_range(0.05, 0.35), at.y)
-	_fx_spawn("flash", muzzle, muzzle, 0.08, FIG_SIZE * 0.3, Color(2.2, 1.7, 0.8))           # ışıyan (masaüstünde parlama)
-	_fx_spawn("puff", muzzle, muzzle, randf_range(0.7, 1.0), FIG_SIZE * 0.14, Color(0.85, 0.83, 0.8, 0.55))
-	var life := clampf(muzzle.distance_to(aim) / TRACER_SPEED, 0.08, 0.6)
-	_fx_spawn("tracer", muzzle, aim, life, 1.0, Color(1.0, 0.86, 0.5))
+	var aim := Vector3(at.x, maxf(map.height_at(at), 0.0) + 0.15, at.y)
+	var scale := FIG_SIZE / 10.0
+	combat_effects.muzzle(muzzle, direction, weapon, scale)
+	# CombatEffects schedules the impact when the round arrives, not at shot time.
+	combat_effects.projectile(muzzle, aim, weapon, scale)
 
 ## Top mermisi: düşman figürünün yakınına (üstüne değil) düşer — alev, toprak sıçraması, koyu duman
 func _shell(tgt: Vector2) -> void:
-	if _fx.size() > FX_MAX - 10:
+	if combat_effects == null or map == null or GameClock.paused:
 		return
-	var at := tgt + Vector2.from_angle(randf() * TAU) * FIG_SIZE * randf_range(0.7, 1.6)
-	var g := Vector3(at.x, maxf(map.height_at(at), 0.0) + 0.3, at.y)
-	_fx_spawn("flash", g + Vector3(0.0, FIG_SIZE * 0.2, 0.0), g, 0.15, FIG_SIZE * 0.75, Color(2.4, 1.5, 0.6))
-	for i in 5:
-		var o := Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)) * FIG_SIZE * 0.25
-		_fx_spawn("dirt", g + o, g + o + Vector3(o.x, FIG_SIZE * randf_range(0.5, 0.9), o.z), randf_range(0.45, 0.7),
-			FIG_SIZE * randf_range(0.12, 0.2), Color(0.32, 0.26, 0.18, 0.9))
-	for i in 2:
-		var o := Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)) * FIG_SIZE * 0.15
-		_fx_spawn("smoke", g + o, g + o, randf_range(1.4, 2.0), FIG_SIZE * randf_range(0.4, 0.6), Color(0.2, 0.19, 0.17, 0.65))
-	_shake_near(g, FIG_SIZE * 2.0, true)
+	var at := tgt + Vector2.from_angle(_combat_rng.randf() * TAU) * FIG_SIZE * _combat_rng.randf_range(0.7, 1.6)
+	var g := Vector3(at.x, maxf(map.height_at(at), 0.0) + 0.15, at.y)
+	combat_effects.impact(g, "shell", FIG_SIZE / 10.0)
+
+## Seyrek, küçük barut dumanı; arazinin ve figürlerin üstünde sürekli bir perde olmaz.
+func _haze(from: Vector2, to: Vector2) -> void:
+	if combat_effects == null or map == null or GameClock.paused:
+		return
+	var at := from.lerp(to, _combat_rng.randf_range(0.35, 0.65)) + Vector2.from_angle(_combat_rng.randf() * TAU) * FIG_SIZE * 0.4
+	var g := Vector3(at.x, maxf(map.height_at(at), 0.0) + FIG_SIZE * 0.06, at.y)
+	combat_effects.smoke(g, FIG_SIZE / 10.0 * 0.55, false,
+		Vector3(_combat_rng.randf_range(-0.2, 0.2), 0.55, _combat_rng.randf_range(-0.2, 0.2)))
 
 ## Mermi ya da top mermisi yakınındaki figürü sarsar; top mermisinde asker bir an çömelir (siper alır)
 func _shake_near(p: Vector3, r: float, duck := false) -> void:
@@ -2033,105 +2293,6 @@ func _shake_near(p: Vector3, r: float, duck := false) -> void:
 			c["shake"] = 1.0
 			if duck:
 				c["duck"] = 1.0
-
-func _fx_spawn(kind: String, a: Vector3, b: Vector3, life: float, size: float, col: Color) -> void:
-	if _fx.size() >= FX_MAX:
-		return
-	var n := _fx_node(kind)
-	n.position = a
-	if kind == "tracer":
-		if a.distance_squared_to(b) > 0.01:
-			n.look_at_from_position(a, b, Vector3.UP if absf((b - a).normalized().y) < 0.98 else Vector3.RIGHT)
-	else:
-		(n as Sprite3D).modulate = col
-		n.scale = Vector3.ONE * size
-	_fx.append([n, 0.0, life, kind, a, b, size, col])
-
-func _fx_node(kind: String) -> Node3D:
-	var pool: Array = _fx_free.get(kind, [])
-	if not pool.is_empty():
-		var old: Node3D = pool.pop_back()
-		old.visible = true
-		return old
-	var n: Node3D
-	if kind == "tracer":
-		if _tracer_mesh == null:
-			_tracer_mesh = BoxMesh.new()
-			_tracer_mesh.size = Vector3(0.16, 0.16, 2.6)
-			_tracer_mat = StandardMaterial3D.new()
-			_tracer_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			_tracer_mat.albedo_color = Color(2.0, 1.6, 0.8)      # ışıyan mermi izi
-		var mi := MeshInstance3D.new()
-		mi.mesh = _tracer_mesh
-		mi.material_override = _tracer_mat
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		n = mi
-	else:
-		var sp := Sprite3D.new()
-		sp.texture = flash_texture() if kind == "flash" else _fx_dot()
-		sp.pixel_size = 1.0 / float(sp.texture.get_width())
-		sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		sp.shaded = false
-		sp.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		n = sp
-	add_child(n)
-	return n
-
-func _fx_update(delta: float) -> void:
-	for i in range(_fx.size() - 1, -1, -1):
-		var e: Array = _fx[i]
-		e[1] = float(e[1]) + delta
-		var k := float(e[1]) / float(e[2])
-		var n: Node3D = e[0]
-		var kind: String = e[3]
-		if k >= 1.0:
-			if kind == "tracer":
-				# isabet: toz, yakındaki figür sarsılır
-				var b: Vector3 = e[5]
-				var g := Vector3(b.x, maxf(map.height_at(Vector2(b.x, b.z)), 0.0) + 0.2, b.z)
-				_fx_spawn("dust", g, g, randf_range(0.35, 0.55), FIG_SIZE * randf_range(0.1, 0.17), Color(0.45, 0.38, 0.28, 0.75))
-				_shake_near(g, FIG_SIZE * 0.9)
-			n.visible = false
-			if not _fx_free.has(kind):
-				_fx_free[kind] = []
-			(_fx_free[kind] as Array).append(n)
-			_fx.remove_at(i)
-			continue
-		var a: Vector3 = e[4]
-		var size: float = e[6]
-		var col: Color = e[7]
-		match kind:
-			"tracer":
-				n.position = a.lerp(e[5], k)
-			"flash":
-				n.scale = Vector3.ONE * size * (0.8 + 0.6 * k)
-				(n as Sprite3D).modulate = Color(col.r, col.g, col.b, 1.0 - k)
-			"puff", "smoke":
-				n.position = a + Vector3(0.0, size * (0.9 if kind == "puff" else 1.4) * k, 0.0)
-				n.scale = Vector3.ONE * size * (0.6 + 1.4 * k)
-				(n as Sprite3D).modulate = Color(col.r, col.g, col.b, col.a * (1.0 - k))
-			"dust":
-				n.scale = Vector3.ONE * size * (0.5 + 1.6 * sqrt(k))
-				(n as Sprite3D).modulate = Color(col.r, col.g, col.b, col.a * (1.0 - k) * (1.0 - k))
-			"dirt":
-				# toprak parçası: yukarı fırlar, yerçekimiyle düşer
-				var b: Vector3 = e[5]
-				n.position = Vector3(lerpf(a.x, b.x, k), a.y + (b.y - a.y) * 4.0 * k * (1.0 - k), lerpf(a.z, b.z, k))
-				(n as Sprite3D).modulate = Color(col.r, col.g, col.b, col.a * (1.0 - k * k))
-
-## Yumuşak kenarlı yuvarlak nokta (duman, toz): beyaz, renk modulate ile
-static func _fx_dot() -> Texture2D:
-	if _dot_tex:
-		return _dot_tex
-	var n := 48
-	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
-	for y in n:
-		for x in n:
-			var d := Vector2(x + 0.5 - n * 0.5, y + 0.5 - n * 0.5).length() / (n * 0.5)
-			var a := clampf(1.0 - d, 0.0, 1.0)
-			img.set_pixel(x, y, Color(1, 1, 1, a * a * (3.0 - 2.0 * a)))
-	_dot_tex = ImageTexture.create_from_image(img)
-	return _dot_tex
 
 ## Bölgedeki, komşudaki düşmana (foe: komşuyu elinde tutan) ateş eden tümenlerin ortalama bütünlük oranı
 func _side_org(pid: int, foe: String) -> float:
@@ -2607,6 +2768,9 @@ func _apply_counts() -> void:
 		c["count"] = n
 		if not FIGURES:
 			set_count(c["label"], n, 42)                      # figür kipinde levha yazısı hiç görünmez: dizilmez
+		elif c.get("fig") != null and int(c.get("fig_n", -1)) != n:
+			c["fig_n"] = n
+			UnitFigures.set_count(c["fig"], n)                # kaidede ve başın üstünde
 		set_count(c["clabel"], n, 30)
 
 ## Sayacın temsil ettiği bütün tümenler (birleşik sayaçta grubun tamamı)
@@ -3082,6 +3246,7 @@ func pick_province(screen: Vector2) -> int:
 	return best
 
 func select_in_rect(rect: Rect2, additive: bool) -> void:
+	var previous := selected.duplicate()
 	if not additive:
 		selected.clear()
 	for key: String in _counters:
@@ -3094,44 +3259,80 @@ func select_in_rect(rect: Rect2, additive: bool) -> void:
 			for d: Division in _counter_divs(c):
 				if not d in selected:
 					selected.append(d)
+	_selection_audio(previous)
 	_dirty = true
 	_full_refresh = true
 
 func select_divisions(divs: Array, additive: bool) -> void:
+	var previous := selected.duplicate()
 	if not additive:
 		selected.clear()
-	var before := selected.size()
 	for d: Division in divs:
 		if d.owner == World.player_tag and not d in selected:
 			selected.append(d)
-	if selected.size() > before:
-		Audio.play("select_unit", 120)
+	_selection_audio(previous)
 	_dirty = true
 	_full_refresh = true
+
+## Only an actual user selection change has a cue. Programmatic clear/prune stays
+## silent so selecting a fleet does not also play a land-unit deselection sound.
+func _selection_audio(previous: Array) -> void:
+	var added := selected.filter(func(d: Division) -> bool: return not d in previous)
+	if not added.is_empty():
+		Audio.unit_selection(added)
+	elif previous.size() > selected.size():
+		Audio.play("unit_deselect", 100)
 
 func prune_selection() -> void:
 	selected = selected.filter(func(d: Division) -> bool: return d in Military.divisions)
 
 # ------------------------------------------------------------------ oklar
-const ARROW_MOVE := Color(0.27, 0.62, 0.2)
-const ARROW_ATTACK := Color(0.78, 0.16, 0.11)
+## Oklar haritaya mürekkeple çizilmiş gibi koyu kızıl (menü arka planındaki harekât okları): hareket biraz açık, taarruz koyu
+const ARROW_MOVE := Color(0.52, 0.13, 0.09)
+const ARROW_ATTACK := Color(0.45, 0.05, 0.03)
 
-## Hareket okunun rengi: tümenin ülkesinin rengi, haritadaki toprak rengiyle karışmasın diye açılmış; ülke yoksa yeşil
-static func move_color(tag: String) -> Color:
-	var c: Country = World.countries.get(tag)
-	return c.color.lightened(0.3) if c else ARROW_MOVE
+## Hareket okunun rengi (bütün ülkelerde aynı mürekkep kızılı)
+static func move_color(_tag: String) -> Color:
+	return ARROW_MOVE
 
-## Seçili tümenlerin okları (her karede): tümenin bulunduğu yerden başlar, eğri boyunca sivrilir
+## Seçili tümenlerin okları (her karede): tümenin bulunduğu yerden başlar, eğri boyunca sivrilir.
+## Seçim, rotalar, başlangıç noktaları, zoom ve savaş/kontrol durumu aynıysa geçen karenin örgüsü kalır
+## (duran seçimde her kare eğri + şerit kurmak boşa giderdi; yürürken başlangıç kaydığı için yine her kare kurulur).
+var _arrow_sig := 0
+var _arrow_div_ver := -1
+
 func _draw_arrows() -> void:
+	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
+	_arrows.visible = cam_d < 1250.0
+	if _arrow_mat:                                   # (testte katman ağaca eklenmeden çizilir)
+		_arrow_mat.set_shader_parameter("zoom_opacity", 1.0 - smoothstep(900.0, 1250.0, cam_d))
+	if not _arrows.visible:
+		return
 	if selected.is_empty():
 		if _arrows.mesh != null:
 			_arrows.mesh = null
+		_arrow_sig = 0
 		return
-	prune_selection()
+	if Military._div_version != _arrow_div_ver:
+		_arrow_div_ver = Military._div_version
+		prune_selection()
+	var width := clampf(cam_d * 0.015, 1.6, 44.0)
+	var sig: Array = [width, World.control_version, Diplomacy.wars.size(), _arrow_div_ver]
+	var starts := {}
+	for d in selected:
+		if d.path.is_empty():
+			continue
+		var start: Vector2 = World.province(d.province).center
+		if models and models.anchors.has(d.id):
+			start = models.anchors[d.id][0]
+		starts[d.id] = start
+		sig.append_array([d.id, d.province, d.path, start])
+	var h := sig.hash()
+	if h == _arrow_sig:
+		return
+	_arrow_sig = h
 	var im := ImmediateMesh.new()
 	var drawn := {}
-	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
-	var width := clampf(cam_d * 0.015, 1.6, 44.0)
 	var arrows: Array = []
 	for d in selected:
 		if d.path.is_empty():
@@ -3140,23 +3341,16 @@ func _draw_arrows() -> void:
 		if drawn.has(key):
 			continue
 		drawn[key] = true
-		var start: Vector2 = World.province(d.province).center
-		if models and models.anchors.has(d.id):
-			start = models.anchors[d.id][0]
+		var start: Vector2 = starts[d.id]
 		# rota tümenin gerçekten yürüdüğü noktalardan geçer: şehir modellerinin yanındaki duruş yeri (sayacın
 		# oturduğu yer); bölge merkezinde biten ok, sağ tıklanan sayaca varmıyormuş gibi görünüyordu
-		var spots: CityLayer3D = models.cities if models else null
-		var pts: Array[Vector2] = [start]
-		for pid in d.path:
-			var cpt := World.province(pid).center
-			pts.append(spots.unit_spot(pid, cpt) if spots and World.province(pid).is_land() else cpt)
 		var hostile := false
 		for pid in d.path:
 			if Diplomacy.are_enemies(World.controller_tag(pid), d.owner):
 				hostile = true
 		# hareket ülkenin renginde, düşman toprağına taarruz kırmızı
 		var cc := ARROW_ATTACK if hostile else move_color(d.owner)
-		var cv := _curve(pts)
+		var cv := walk_line(d) if _walking(d) else _route_line(d, start)   # figürün yürüdüğü yolun kalanı
 		var total := 0.0
 		for i in cv.size() - 1:
 			total += cv[i].distance_to(cv[i + 1])
@@ -3168,9 +3362,45 @@ func _draw_arrows() -> void:
 	im.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
 	# önce gölgeler, sonra oklar
 	for a: Array in arrows:
-		_ribbon(im, a[0], a[1], width, false)           # ok başı yok: akan işaretler yönü gösterir
+		_ribbon(im, a[0], a[1], width, true)            # ok başı: gittiği yön belli olsun
 	im.surface_end()
 	_arrows.mesh = im
+
+## Tümenin rotası, figürün gerçekten yürüyeceği çizgi (PathMotion.division ile aynı hesap): karada bölge merkezlerinden
+## Catmull-Rom (önceki nokta yansıtılır) + çıkış/varış duruş noktası kayması, denizde deniz yolu. İlk bacak tümenin şu
+## anki yerinden başlar; ok ile yürüyüş birebir aynı yoldan gider.
+func _route_line(d: Division, start: Vector2) -> Array[Vector2]:
+	var out: Array[Vector2] = [start]
+	var chain: Array[int] = [d.province]
+	for pid in d.path:
+		chain.append(pid)
+	var t_now: float = PathMotion.division(d)[4] if d.attacking == 0 else 0.0
+	var spots: CityLayer3D = models.cities if models else null
+	for i in chain.size() - 1:
+		var a: int = chain[i]
+		var b: int = chain[i + 1]
+		var prev: int = chain[i - 1] if i > 0 else -1
+		var nxt: int = chain[i + 2] if i + 2 < chain.size() else -1
+		var pa := World.province(a)
+		var pb := World.province(b)
+		var land := pa.is_land() and pb.is_land()
+		var rp := PathMotion.route_points(a, PackedInt32Array([b] if nxt < 0 else [b, nxt]))
+		var oa := Vector2.ZERO
+		var ob := Vector2.ZERO
+		if land and spots:
+			oa = spots.unit_spot(a, pa.center) - pa.center
+			ob = spots.unit_spot(b, pb.center) - pb.center
+		var t0 := t_now if i == 0 else 0.0
+		for k in range(1, 11):
+			var t := lerpf(t0, 1.0, float(k) / 10.0)
+			var p: Vector2
+			var sp: Array = [] if land else PathMotion.sea_pose(prev, a, b, nxt, t, out[out.size() - 1])
+			if not sp.is_empty():
+				p = sp[0]
+			else:
+				p = PathMotion.sample(rp, t)[0] + oa.lerp(ob, t)
+			out.append(p)
+	return out
 
 ## Catmull-Rom ile yumuşatılmış rota (kesim başına 8 örnek)
 func _curve(pts: Array[Vector2]) -> Array[Vector2]:
@@ -3185,86 +3415,64 @@ func _curve(pts: Array[Vector2]) -> Array[Vector2]:
 	out.append(pts[pts.size() - 1])
 	return out
 
-## Kesintisiz şerit (köşelerde ortak kenar), kuyrukta incelen gövde ve çentikli geniş ok başı
-func _ribbon(im: ImmediateMesh, pts: Array[Vector2], col: Color, width: float, head := true) -> void:
-	var n := pts.size()
-	if n < 2:
+## Filled cartographic arrow, with a real outline around shaft AND head.
+func _ribbon(im: ImmediateMesh, pts: Array[Vector2], col: Color, width: float, _head := true) -> void:
+	var shape := preload("res://game/map/order_arrow_shape.gd").contour(pts, width)
+	if shape.size() < 3:
 		return
-	var cum: Array[float] = [0.0]
-	for i in n - 1:
-		cum.append(cum[i] + pts[i].distance_to(pts[i + 1]))
-	var total: float = cum[n - 1]
-	if total < 0.5:
-		return
-	var head_len := minf(width * 3.4, total * 0.45)
-	var body_end := total - head_len if head else total
-	var lift := 0.6
-	# gövde: her örnekte ortalama normal (birleşimler kopmaz)
-	var prev_l := Vector3.ZERO
-	var prev_r := Vector3.ZERO
-	var prev_u := 0.0
-	var prev_a := 0.0
-	var have := false
-	var neck := pts[n - 1]
-	var neck_dir := (pts[n - 1] - pts[n - 2]).normalized()
-	for i in n:
-		var along: float = cum[i]
-		var p := pts[i]
-		var clip := false
-		if along > body_end:
-			# gövdeyi tam ok başı tabanında kes
-			var j := maxi(i - 1, 0)
-			var seg: float = cum[i] - cum[j]
-			var t := (body_end - cum[j]) / maxf(seg, 0.001)
-			p = pts[j].lerp(pts[i], clampf(t, 0.0, 1.0))
-			along = body_end
-			clip = true
-		var d0 := (pts[mini(i + 1, n - 1)] - pts[maxi(i - 1, 0)]).normalized()
-		var nrm := Vector2(-d0.y, d0.x)
-		var taper := lerpf(0.6, 1.0, smoothstep(0.0, total * 0.15, along))
-		var w := width * 0.5 * taper
-		var y := maxf(map.height_at(p), 0.0) + lift
-		var l := Vector3(p.x + nrm.x * w, y, p.y + nrm.y * w)
-		var r := Vector3(p.x - nrm.x * w, y, p.y - nrm.y * w)
-		var u := along / total
-		if have:
-			_quad(im, prev_l, prev_r, r, l, prev_u, u, col, prev_a / width, along / width)
-		prev_l = l
-		prev_r = r
-		prev_u = u
-		prev_a = along
-		have = true
-		if clip:
-			neck = p
-			neck_dir = d0
-			break
-	if not head:
-		return
-	# ok başı: çentikli (kırlangıç kuyruğu) geniş üçgen
-	var tip := pts[n - 1]
-	var hd := (tip - neck).normalized() if tip.distance_to(neck) > 0.01 else neck_dir
-	var hn := Vector2(-hd.y, hd.x)
-	var hw := width * 1.25
-	var y0 := maxf(map.height_at(neck), 0.0) + lift
-	var y1 := maxf(map.height_at(tip), 0.0) + lift
-	var notch := neck + hd * head_len * 0.18
-	var wl := neck + hn * hw
-	var wr := neck - hn * hw
-	var V := func(p: Vector2, yy: float) -> Vector3: return Vector3(p.x, yy, p.y)
-	# iki yarım: (kanat, uç, çentik) — UV.y kenar degradesi için 0/0.5/1
-	for tri: Array in [[V.call(wl, y0), 0.0, V.call(tip, y1), 0.5, V.call(notch, y0), 0.5],
-			[V.call(notch, y0), 0.5, V.call(tip, y1), 0.5, V.call(wr, y0), 1.0]]:
-		for k in 3:
-			im.surface_set_color(col)
-			im.surface_set_uv(Vector2(1.0, tri[k * 2 + 1]))
-			im.surface_set_uv2(Vector2(body_end / width, 0.0))
-			im.surface_add_vertex(tri[k * 2])
+	var outline := Geometry2D.offset_polygon(shape, width * 0.055, Geometry2D.JOIN_ROUND)
+	for border: PackedVector2Array in outline:
+		_arrow_polygon(im, border, Color("21100b"), 0.65, pts)
+	_arrow_polygon(im, shape, col, 0.7, pts)
 
-func _quad(im: ImmediateMesh, a: Vector3, b: Vector3, c: Vector3, d: Vector3, u0: float, u1: float, col: Color, s0: float = 0.0, s1: float = 0.0) -> void:
-	# a=önceki sol, b=önceki sağ, c=şimdiki sağ, d=şimdiki sol; s: gövde boyunca mesafe (genişlik cinsinden)
-	var q := [[a, Vector2(u0, 0.0), s0], [b, Vector2(u0, 1.0), s0], [c, Vector2(u1, 1.0), s1], [d, Vector2(u1, 0.0), s1]]
-	for k in [0, 1, 2, 0, 2, 3]:
+func _arrow_polygon(im: ImmediateMesh, polygon: PackedVector2Array, col: Color, lift: float, route: Array[Vector2]) -> void:
+	var indices := Geometry2D.triangulate_polygon(polygon)
+	var lengths: Array[float] = [0.0]
+	for i in range(1, route.size()):
+		lengths.append(lengths.back() + route[i - 1].distance_to(route[i]))
+	var progress := PackedFloat32Array()
+	for p in polygon:
+		var nearest := INF
+		var along := 0.0
+		for i in range(1, route.size()):
+			var delta := route[i] - route[i - 1]
+			var t := clampf((p - route[i - 1]).dot(delta) / maxf(delta.length_squared(), 0.001), 0.0, 1.0)
+			var distance_squared := p.distance_squared_to(route[i - 1] + delta * t)
+			if distance_squared < nearest:
+				nearest = distance_squared
+				along = lerpf(lengths[i - 1], lengths[i], t)
+		progress.append(along / maxf(lengths.back(), 0.001))
+	for i in range(0, indices.size(), 3):
+		var a := indices[i]
+		var b := indices[i + 1]
+		var c := indices[i + 2]
+		_arrow_terrain_triangle(im, polygon[a], polygon[b], polygon[c], progress[a], progress[b], progress[c], col, lift)
+
+## Split the longest edge until the whole face follows relief, not just its outline.
+func _arrow_terrain_triangle(im: ImmediateMesh, a: Vector2, b: Vector2, c: Vector2,
+		ua: float, ub: float, uc: float, col: Color, lift: float, depth: int = 0) -> void:
+	var ab := a.distance_squared_to(b)
+	var bc := b.distance_squared_to(c)
+	var ca := c.distance_squared_to(a)
+	if maxf(ab, maxf(bc, ca)) > 36.0 and depth < 14:
+		if ab >= bc and ab >= ca:
+			var m := (a + b) * 0.5
+			var um := (ua + ub) * 0.5
+			_arrow_terrain_triangle(im, a, m, c, ua, um, uc, col, lift, depth + 1)
+			_arrow_terrain_triangle(im, m, b, c, um, ub, uc, col, lift, depth + 1)
+		elif bc >= ca:
+			var m := (b + c) * 0.5
+			var um := (ub + uc) * 0.5
+			_arrow_terrain_triangle(im, a, b, m, ua, ub, um, col, lift, depth + 1)
+			_arrow_terrain_triangle(im, a, m, c, ua, um, uc, col, lift, depth + 1)
+		else:
+			var m := (c + a) * 0.5
+			var um := (uc + ua) * 0.5
+			_arrow_terrain_triangle(im, a, b, m, ua, ub, um, col, lift, depth + 1)
+			_arrow_terrain_triangle(im, m, b, c, um, ub, uc, col, lift, depth + 1)
+		return
+	for vertex: Array in [[a, ua], [b, ub], [c, uc]]:
+		var p: Vector2 = vertex[0]
 		im.surface_set_color(col)
-		im.surface_set_uv(q[k][1])
-		im.surface_set_uv2(Vector2(q[k][2], 0.0))
-		im.surface_add_vertex(q[k][0])
+		im.surface_set_uv(Vector2(vertex[1], 0.0))
+		im.surface_add_vertex(Vector3(p.x, maxf(map.height_at(p), 0.0) + lift, p.y))

@@ -2,16 +2,17 @@
 
 # How to play
 
-## Scenarios
-In the main menu choose **Scenarios**, then a side of a scenario. A scenario starts from a prepared moment of the war.
-There is no time limit: the war goes on until one side gives up (surrenders or is destroyed). If the two sides make
-peace, the side holding more of the key city points counts as the winner.
-- **Key cities** are what both sides fight for; the computer gives them extra weight when it picks what to attack, and
-  the card of a key city says it is one.
-- You play your side with the defaults of a new game (manual trade, manual wings, "to the last man"); every other
-  country is run by the computer.
-- **Eastern Front, 1941**: 22 June 1941, Germany against the Soviet Union. Key cities: Moscow 50, Leningrad 15, Kiev 15,
-  Minsk 10, Kharkov 10, Odessa, Dnipropetrovsk, Stalino and Rostov 5 each.
+## Starting a game
+In the main menu choose **New game**, then one of the countries that took part in the Second World War. The game starts on
+1 January 1936 and has no end date; every other country is run by the computer. Scenarios (a prepared moment of the
+war) are no longer in the menu. The game starts at 07:00 in your capital.
+
+**Tutorial** (main menu): about ten minutes as Italy in January 1936, at war with Ethiopia (the war was going on that
+day). A small guide card at the bottom says one thing at a time: move the map and zoom in, select soldiers, read the
+attack estimate with Shift, attack, start the clock, motivate the fighting troops, take a region, recruit in a city, the
+alert strip. Each step passes when you have done it (the guide never does anything for you); **Show** takes the camera
+to the place, **Skip step** and **End tutorial** are always there. When it ends the game simply goes on. Steps:
+`data/common/tutorial.json`.
 
 ## The game loop
 1. **Scout**: beyond your land and one region past the border the map is dark. Press **K** (or the Recon button) and
@@ -25,7 +26,9 @@ peace, the side holding more of the key city points counts as the winner.
    nothing.
 
 ## Getting started (free game)
-1. In the main menu choose **New game** → pick a country on the map or from the list → **Play**.
+1. In the main menu choose **New game** → pick a country from the boxes at the top or on the map: the rest of the map
+   darkens, the country's border lights up and the camera glides to it; the leader and the country's figures come in on
+   the left → **Play**: the selection panels rise, the camera lands on your capital and the game panels come down.
 2. The game starts **paused** (1 January 1936). Space starts/pauses, 1–5 set the speed.
 3. The game starts in English; switch to Turkish in **Settings → Language** (main menu or Esc menu).
 

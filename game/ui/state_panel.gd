@@ -5,7 +5,7 @@ extends PanelContainer
 
 signal diplomacy_requested(tag: String)
 
-const SHARED := ["civilian_factory", "military_factory", "dockyard", "synthetic_refinery"]
+const SHARED := ["civilian_factory", "military_factory"]
 const PROVINCIAL := ["infrastructure", "air_base", "naval_base", "anti_air"]
 
 var _body: VBoxContainer
@@ -13,37 +13,73 @@ var _play_btn: Button
 var _diplo_btn: Button
 var _state_id := 0
 var _province_id := 0
+var _country_box: VBoxContainer
+var _quick_actions: Dictionary = {}
+var _war_confirmation: ConfirmationDialog
+var _pending_war: Dictionary = {}
+var _refresh_pending := false
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	position = Vector2(PanelLayout.SIDE_LEFT, PanelLayout.SIDE_TOP)
 	visible = false
 	_body = PanelLayout.frame(self, "", "construction", 400.0)
+	_country_box = PanelLayout.fixed(self)
 	_play_btn = Button.new()
 	_play_btn.focus_mode = Control.FOCUS_NONE
 	_play_btn.custom_minimum_size.y = 40
 	_play_btn.pressed.connect(_on_play_pressed)
 	_diplo_btn = Button.new()
-	_diplo_btn.text = tr("UI_DIPLOMACY_BTN")
+	_diplo_btn.text = tr("QUICK_DETAILS")
 	_diplo_btn.icon = UiTheme.trimmed(UiTheme.icon("diplomacy"))
 	_diplo_btn.add_theme_constant_override("icon_max_width", 22)
 	_diplo_btn.focus_mode = Control.FOCUS_NONE
 	_diplo_btn.custom_minimum_size.y = 40
-	_diplo_btn.pressed.connect(func() -> void: diplomacy_requested.emit(World.states[_state_id].owner))
+	_diplo_btn.pressed.connect(func() -> void:
+		var state: StateRegion = World.states.get(_state_id)
+		if state and World.in_game and state.owner != World.player_tag:
+			diplomacy_requested.emit(state.owner))
 	var bottom := VBoxContainer.new()
 	bottom.add_child(_play_btn)
 	bottom.add_child(_diplo_btn)
 	get_child(0).add_child(bottom)
 	World.selection_changed.connect(_on_selection)
-	World.daily_update.connect(_refresh)
-	Economy.building_completed.connect(func(_t: String, _s: int, _b: String) -> void: _refresh())
-	Economy.construction_changed.connect(func(_t: String) -> void: _refresh())
-	World.player_changed.connect(func(_t: String) -> void: _refresh())
+	World.daily_update.connect(_queue_refresh)
+	Economy.building_completed.connect(func(_t: String, _s: int, _b: String) -> void: _queue_refresh())
+	Economy.construction_changed.connect(func(_t: String) -> void: _queue_refresh())
+	World.player_changed.connect(func(_t: String) -> void:
+		_cancel_war()
+		_queue_refresh())
+	World.ownership_changed.connect(_queue_refresh)
+	World.control_changed.connect(_queue_refresh)
+	World.country_removed.connect(func(_t: String) -> void: _queue_refresh())
+	Diplomacy.diplomacy_changed.connect(func(_t: String) -> void: _queue_refresh())
+	Diplomacy.wars_changed.connect(_queue_refresh)
+	visibility_changed.connect(func() -> void:
+		if not visible: _cancel_war())
+	_war_confirmation = ConfirmationDialog.new()
+	_war_confirmation.title = tr("QUICK_WAR_TITLE")
+	_war_confirmation.dialog_autowrap = true
+	_war_confirmation.theme = CommandPanelSkin.get_theme().duplicate()
+	_war_confirmation.theme.set_stylebox("panel", "AcceptDialog", CommandPanelSkin.box("panel", 18))
+	var border := ThemeDB.get_default_theme().get_stylebox("embedded_border", "Window").duplicate()
+	if border is StyleBoxFlat:
+		border.bg_color = Color("101719")
+		border.border_color = Color("887045")
+	_war_confirmation.theme.set_stylebox("embedded_border", "Window", border)
+	_war_confirmation.theme.set_stylebox("embedded_unfocused_border", "Window", border)
+	_war_confirmation.theme.set_color("title_color", "Window", UiTheme.ACCENT)
+	_war_confirmation.ok_button_text = tr("DIPLO_DECLARE")
+	_war_confirmation.cancel_button_text = tr("RES_CONFIRM_CANCEL")
+	_war_confirmation.confirmed.connect(_confirm_war)
+	_war_confirmation.canceled.connect(_cancel_war)
+	add_child(_war_confirmation)
 
 func close() -> void:
 	World.select_province(0)
 
 func _on_selection(pid: int) -> void:
+	_cancel_war()
 	var p := World.province(pid)
 	_province_id = pid
 	_state_id = p.state_id if p else 0
@@ -54,40 +90,40 @@ func _on_selection(pid: int) -> void:
 					or p2 is ResearchPanel or p2 is DiplomacyPanel or p2 is NavyPanel or p2 is AirPanel or p2 is LogisticsPanel) and p2.visible:
 				p2.close()
 		_refresh()
+	else:
+		_quick_actions.clear()
+
+func _queue_refresh() -> void:
+	if _refresh_pending or not visible: return
+	_refresh_pending = true
+	_refresh.call_deferred()
 
 func _refresh() -> void:
+	_refresh_pending = false
 	if _state_id == 0 or not visible:
 		return
-	var st: StateRegion = World.states[_state_id]
-	var c: Country = World.countries[st.owner]
+	var st: StateRegion = World.states.get(_state_id)
+	var c: Country = World.countries.get(st.owner) if st else null
 	var p := World.province(_province_id)
+	if st == null or c == null or p == null:
+		_quick_actions.clear()
+		visible = false
+		return
+	if not _pending_war.is_empty():
+		var target: Country = World.countries.get(_pending_war.get("target", ""))
+		if not _war_context_valid(_pending_war) or CountryDiplomacyActions.blocked(World.player(), target, "declare") != "":
+			_cancel_war()
 	PanelLayout.set_title(self, st.display_name())
-	for ch in _body.get_children():
-		ch.queue_free()
-	# sahibi
-	var own := HBoxContainer.new()
-	own.add_theme_constant_override("separation", 10)
-	_body.add_child(own)
-	var flag := PanelContainer.new()
-	flag.theme_type_variation = "SlotGold"
-	var ft := TextureRect.new()
-	ft.texture = FlagFactory.get_flag(c)
-	ft.custom_minimum_size = Vector2(60, 40)
-	ft.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	ft.stretch_mode = TextureRect.STRETCH_SCALE
-	flag.add_child(ft)
-	own.add_child(flag)
-	var oc := VBoxContainer.new()
-	oc.add_theme_constant_override("separation", -2)
-	own.add_child(oc)
-	var on := UiTheme.make_label(c.display_name(), 19, UiTheme.ACCENT)
-	on.add_theme_font_override("font", UiTheme.bold_font())
-	oc.add_child(on)
-	var sub := tr("CAT_" + st.category)
-	var ctl := World.controller_of(_province_id)
-	if ctl and ctl.tag != st.owner:
-		sub += "  ·  " + tr("UI_OCCUPIED") % ctl.display_name()
-	oc.add_child(UiTheme.make_label(sub, 14, UiTheme.BAD if ctl and ctl.tag != st.owner else UiTheme.TEXT_DIM))
+	for box: VBoxContainer in [_body, _country_box]:
+		for ch in box.get_children():
+			box.remove_child(ch)
+			ch.queue_free()
+	_build_country_card(st, c)
+	# Public diplomacy stays accessible even when the state's buildings are hidden.
+	_play_btn.text = tr("UI_PLAY_AS") % c.display_name()
+	_play_btn.visible = st.owner != World.player_tag and not World.in_game and World.is_active(c.tag)
+	_diplo_btn.visible = st.owner != World.player_tag and World.in_game and World.is_active(c.tag) and c.exists()
+	PanelLayout.queue_fit(self)
 	# temel bilgiler
 	var cells := PanelLayout.info_cells(_body, [["manpower", tr("UI_POPULATION"), ""], ["army", tr("UI_MANPOWER"), ""], ["political_power", tr("UI_VICTORY_POINTS"), ""]])
 	cells[0].text = UiTheme.format_number(st.population)
@@ -190,9 +226,105 @@ func _refresh() -> void:
 					World.notify(tr("ST_QUEUED_NOTE") % [Economy.building_name(b), st.display_name()], "good")
 				_refresh())
 			g.add_child(t)
-	_play_btn.text = tr("UI_PLAY_AS") % c.display_name()
-	_play_btn.visible = st.owner != World.player_tag and not World.in_game
-	_diplo_btn.visible = st.owner != World.player_tag and World.in_game
+
+func _build_country_card(st: StateRegion, c: Country) -> void:
+	_quick_actions.clear()
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", CommandPanelSkin.box("inset", 10))
+	_country_box.add_child(card)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 8)
+	card.add_child(content)
+	var identity := HBoxContainer.new()
+	identity.add_theme_constant_override("separation", 12)
+	content.add_child(identity)
+	var flag := UiTheme.icon_texture(FlagFactory.get_flag(c), 48)
+	flag.custom_minimum_size = Vector2(72, 48)
+	identity.add_child(flag)
+	var labels := VBoxContainer.new()
+	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	labels.add_theme_constant_override("separation", 1)
+	identity.add_child(labels)
+	var country_name := UiTheme.make_label(c.display_name(), 20, UiTheme.ACCENT)
+	country_name.add_theme_font_override("font", UiTheme.bold_font())
+	country_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	labels.add_child(country_name)
+	var relation := "DIPLO_REL_NEUTRAL"
+	if Diplomacy.are_enemies(World.player_tag, c.tag): relation = "DIPLO_REL_WAR"
+	elif Diplomacy.are_allies(World.player_tag, c.tag): relation = "DIPLO_REL_ALLY"
+	var caption := tr("IDEOLOGY_" + c.ideology)
+	if World.in_game and c.tag != World.player_tag: caption += " · " + tr(relation)
+	var subtitle := UiTheme.make_label(caption, 13, UiTheme.BAD if relation == "DIPLO_REL_WAR" else UiTheme.TEXT_DIM)
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	labels.add_child(subtitle)
+	var controller := World.controller_of(_province_id)
+	if controller and controller.tag != st.owner:
+		var occupation := UiTheme.make_label(tr("UI_OCCUPIED") % controller.display_name(), 13, UiTheme.BAD)
+		occupation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(occupation)
+	var player := World.player()
+	if not World.in_game or player == null or c.tag == player.tag or not c.exists() or not World.is_active(c.tag): return
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	content.add_child(grid)
+	for entry: Dictionary in CountryDiplomacyActions.entries(player, c):
+		var button := Button.new()
+		button.text = entry.title
+		button.icon = UiTheme.trimmed(CommandPanelSkin.icon(entry.icon))
+		button.add_theme_constant_override("icon_max_width", 22)
+		button.add_theme_font_size_override("font_size", 17)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.custom_minimum_size = Vector2(0, 48)
+		button.disabled = entry.error != ""
+		button.tooltip_text = entry.tip + ("\n\n" + tr(entry.error) if entry.error != "" else "")
+		button.set_meta("diplomatic_action_id", entry.key)
+		button.set_meta("target_tag", c.tag)
+		var action: String = entry.key
+		var target_tag := c.tag
+		var province_id := _province_id
+		var actor_tag := player.tag
+		button.pressed.connect(func() -> void:
+			if actor_tag == World.player_tag: _request_quick_action(action, target_tag, province_id))
+		grid.add_child(button)
+		_quick_actions[action] = button
+	if player.justify_progress.has(c.tag):
+		content.add_child(UiTheme.make_label(tr("DIPLO_JUSTIFYING") % int(player.justify_progress[c.tag]), 13, UiTheme.ACCENT))
+	elif player.war_goals.has(c.tag):
+		content.add_child(UiTheme.make_label(tr("DIPLO_HAS_GOAL"), 13, UiTheme.BAD))
+
+func _request_quick_action(action: String, target_tag: String, province_id: int) -> void:
+	var context := {"player": World.player_tag, "target": target_tag, "province": province_id, "state": _state_id}
+	if not _war_context_valid(context): return
+	var target: Country = World.countries.get(target_tag)
+	if CountryDiplomacyActions.blocked(World.player(), target, action) != "": return
+	if action == "declare":
+		_pending_war = context
+		_war_confirmation.dialog_text = tr("QUICK_WAR_CONFIRM") % target.display_name()
+		_war_confirmation.popup_centered(Vector2i(mini(540, int(get_viewport_rect().size.x) - 64), 260))
+		_war_confirmation.get_cancel_button().grab_focus()
+		return
+	CountryDiplomacyActions.execute(World.player_tag, target_tag, action)
+	_queue_refresh()
+
+func _war_context_valid(context: Dictionary) -> bool:
+	if not visible or not World.in_game or context.get("player") != World.player_tag or context.get("province") != _province_id or context.get("state") != _state_id: return false
+	var st: StateRegion = World.states.get(_state_id)
+	var p := World.province(_province_id)
+	return st != null and p != null and p.state_id == _state_id and st.owner == context.get("target") and st.owner != World.player_tag
+
+func _confirm_war() -> void:
+	var context := _pending_war.duplicate()
+	_cancel_war()
+	if context.is_empty() or not _war_context_valid(context): return
+	CountryDiplomacyActions.execute(context.player, context.target, "declare")
+	_queue_refresh()
+
+func _cancel_war() -> void:
+	_pending_war.clear()
+	if is_instance_valid(_war_confirmation): _war_confirmation.hide()
 
 ## Bina yuvası hücresi: sütun genişliğini doldurur, yüksek; içinde büyük bina ikonu
 ## Asker al: oyuncunun elindeki şehirde (tıklanan bölge şehir değilse eyaletin en büyük şehri) birlik türleri, bedelleri ve
@@ -206,12 +338,17 @@ func _recruit_section(st: StateRegion, p: Province) -> void:
 		return
 	PanelLayout.section(_body, tr("RECRUIT_HEAD") % city.display_name())
 	var units: Dictionary = Military.recruit_def()["units"]
+	var port := Navy.port_in_state(player.tag, st.id)
 	for kind: String in units:
 		var u: Dictionary = units[kind]
 		var sub := ""
 		if u.has("template"):
 			var mp := int(Military.stats(player, int(u["template"]))["manpower"])
 			sub = tr("RECRUIT_COST_DIV") % [int(u["sp"]), UiTheme.format_number(mp), int(u["days"])]
+		elif u.has("ship"):
+			if port == 0:
+				continue                  # gemi yalnız deniz üssü olan eyaletin limanında alınır
+			sub = tr("RECRUIT_COST_SHIP") % int(u["sp"])
 		else:
 			sub = tr("RECRUIT_COST_WING") % int(u["sp"])
 		var col := PanelLayout.row(_body, UiTheme.icon_or(String(u.get("icon", "army")), "army"), tr("RECRUIT_UNIT_" + kind), sub)

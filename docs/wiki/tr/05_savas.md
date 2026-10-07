@@ -11,8 +11,9 @@
   olmayan diller Latin harfleriyle). Adlar `data/common/unit_names.json`'dadır (24 dil; öbürleri İngilizce).
 - **Konuşlandır**: panel kapanır, harita birliğin gidebileceği yerler dışında kararır (tümen: kendi bölgelerin; hava
   kanadı: hava üssü olan eyaletler; yeni gemiler: limanı olan eyaletler); vurgulu bir bölgeye tıklayınca oraya
-  konuşlanır (sağ tık / Esc: vazgeç). Tersaneden çıkan gemiler Donanma panelinde ("Liman bekleyen yeni gemiler") sen
-  limanını seçene kadar bekler; oradaki yedek filoya katılırlar. İnsan gücü ve ekipman yeterliyse tümen 14 gün eğitim alır (bu sürede hareket etmez); askerlik yasası bunu değiştirir (İki Yıllık Mükellefiyet 13, İhtiyat Celbi 16, Kitlesel Celp 20 gün).
+  konuşlanır (sağ tık / Esc: vazgeç). Gemi, deniz üssü olan eyaletin limanında SP ile alınır (bölge
+  paneli → asker al: muhrip 41, denizaltı 30, kruvazör 121, zırhlı 336 SP) ve oradaki yedek filoya katılır; bilgisayar da
+  gemiyi aynı yoldan, 1936 donanmasının yılda %8 büyümüş haline kadar alır. İnsan gücü ve ekipman yeterliyse tümen 14 gün eğitim alır (bu sürede hareket etmez); askerlik yasası bunu değiştirir (İki Yıllık Mükellefiyet 13, İhtiyat Celbi 16, Kitlesel Celp 20 gün).
 
 ## Emirler
 - Sol tık / kutu ile seç, **sağ tık** (web ve Mac'te, tümen seçiliyken Ctrl + sol tık) hedef bölgeye git ya da saldır.
@@ -85,7 +86,8 @@ Aşağıdaki kurallar motorda duruyor ve yapay zekâ ülkeleri kullanıyor.
 
 ## Muharebe
 - Saldırı gücü: personel ateşi × (1 − hedefin zırh oranı) + tanksavar ateşi × zırh oranı, güç ve tecrübeyle çarpılır.
-- Değiştiriciler: arazi, nehir (−), deniz aşırı çıkarma (−), ikmalsizlik −%35, yakıtsızlık −%35, kış ve çamur, hazırlık (en çok +%20),
+- Değiştiriciler: arazi, nehir (−), deniz aşırı çıkarma (−), ikmalsizlik −%35, yakıtsızlık −%35, kış ve çamur, gece −%25
+  (yalnız saldırana; alacakaranlıkta ve şafakta hafif; `data/common/units.json` → `night`), hazırlık (en çok +%20),
   hava üstünlüğü ve yakın hava desteği, komuta katkısı (general ve mareşal becerisi).
 - Savunma/şok ile karşılanan saldırıların %10'u, aşan kısmın %40'ı isabet eder. İsabetler bütünlüğü ve gücü düşürür.
 - Siper: bekleyen tümen 10 günde en çok +%15 savunma kazanır.
@@ -108,6 +110,15 @@ Aşağıdaki kurallar motorda duruyor ve yapay zekâ ülkeleri kullanıyor.
 Her tümen sayacı türünü gösterir: piyade ✕, motorlu tekerlekli ✕, zırhlı oval (palet). Ordularınız aynı bölgede de ayrı
 iğnelerde durur, sayacın altında ordunun adı yazar; tek başına duran tümeninizin kendi adı yazar. Adlar yalnız yakında
 görünür.
+
+### Cephe çizgisi
+Savaştayken senin tarafının (sen ve müttefiklerin) elindeki bölgelerle düşmanlarının elindeki bölgelerin sınırı, her
+zoom'da yerin altından yanan bir ateş damarı gibi parlar. Yanına tıklayınca altta **cephe paneli** açılır: iki bölge, iki
+taraftaki tümenler (sayı · ortalama güç; savaş sisinin altındaysa "?"), düşman bölgesinin üstündeki hava payın ve orada
+süren muharebe (iki tarafın kalan bütünlüğü). İki düğme cepheye uzanabilen boştaki bir hava kanadını yollar: **Hava
+desteği** (muharebenin üstüne yakın destek; muharebe yoksa düşman bölgesine) ve **Hava üstünlüğü**. Hava desteğine önce
+yakın destek uçağı, üstünlüğe önce avcı gider; başka görevdeki kanat alınmaz. Bölge el değiştirince panel kendiliğinden
+kapanır.
 
 ## İkmal ve yakıt
 Dost topraktaki kaynaktan işgal edilen topraklarda en çok 9 bölge içeri ikmal ulaşır; ötesindeki ya da kuşatılmış tümenler ikmalsiz kalır: saldırı −%35, yavaş toparlanma.
@@ -135,14 +146,16 @@ Görevler: bekle, hava üstünlüğü, yakın hava desteği, liman baskını, **
 - **Hızlı keşif**: sol menünün altındaki Keşif düğmesi (ya da K), sonra haritaya tık: bölgeye yetişen en yakın boştaki
   kanat üstünde uçar (önce avcılar; başka görevdeki kanat alınmaz).
 - **Keşif**: kanat bölgenin üstünde uçar; merkezinin 350 km çevresindeki düşman tümenleri savaş sisine rağmen haritada
-  görünür. Her uçak yapabilir; düşman avcıları ateş eder.
+  görünür (gece yalnız 175 km: `data/common/recruit.json` → `night_recon_range`). Her uçak yapabilir; düşman avcıları
+  ateş eder.
 
 ## Savaş sisi
 Görüş alanının ötesi haritada aralıklı **bulutla** kaplıdır: dağınık bulutlar sürüklenir, araları açıktır; harita
 gözü yormaz. Açık olan yerler: senin ya da müttefiklerinin elindeki bölgeler,
 tümenlerinin durduğu bölgeler ve keşif kanatlarının bölgeleri. Sınırın öbür yanında yalnız bir şerit açık kalır: komşu
 bölgelerde sınıra yakın kısım açıktır, yaklaşık 100 harita pikseli içeride bulut başlar (sınır şeridi; bu bölgelerde
-duran tümenler görünür). Gerisi hep keşif ister. Bulutun altında müttefikin olmayan her ülkenin tümenleri, filoları ve
+duran tümenler görünür). Gerisi hep keşif ister. Gece tümen yalnız durduğu bölgeyi görür; komşu bölgeleri güneş doğunca açar. Bulutun altında müttefikin olmayan her
+ülkenin tümenleri, filoları ve
 hava kanatları gizlidir; bölge kartı bilgi yok der, saldırı tahmini düşman gücünün bilinmediğini söyler. Bilgisayarın
 ülkeleri sisten etkilenmez; izleme kipinde sis yoktur. Bulutun altındaki yabancı bölgede keşfetmedikçe yalnız şehirler
 görünür: şehir işaretleri kalır, yapılar (liman, hava üssü, fabrika) gizlidir, bölge kartı nüfusu ve şehri gösterir

@@ -9,6 +9,8 @@ extends SceneTree
 ##   ... -- --load=war_demo_watch [--pair=GER,SOV] [--battle]   kayıttan (savaş demosu): en kalabalık cephede (ya da
 ##                                                   süren en kalabalık muharebede) ölçer, --focus'u yazar
 func _init() -> void:
+	var catcher: Logger = preload("res://game/dev/error_catcher.gd").new()
+	OS.add_logger(catcher)
 	await process_frame
 	var args := {}
 	for a in OS.get_cmdline_user_args():
@@ -16,4 +18,9 @@ func _init() -> void:
 		args[kv[0]] = kv[1] if kv.size() > 1 else ""
 	var runner: Object = load("res://game/dev/fig_check_run.gd").new()
 	var code: int = await runner.run(self, args)
+	var errors: Array = catcher.take()
+	OS.remove_logger(catcher)
+	if not errors.is_empty():
+		print("FIGCHECK runtime errors=", errors)
+		code = 1
 	quit(code)

@@ -19,6 +19,10 @@ var _pending := false
 var _popup_open := false          ## açılır liste açıkken günlük yenileme listeyi kapatmasın
 var _portrait_map: Dictionary = {}
 var _portrait_map_loaded := false
+var _portrait_textures: Dictionary = {}
+var _selection_cards: Array[Dictionary] = []
+var _selection_timer := 0.0
+var _selection_key := ""
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -50,6 +54,18 @@ func close() -> void:
 	visible = false
 	_popup_open = false
 
+func _process(delta: float) -> void:
+	if not visible or units == null: return
+	_selection_timer += delta
+	if _selection_timer < 0.15: return
+	_selection_timer = 0.0
+	var ids := PackedStringArray()
+	for d: Division in units.selected: ids.append(str(d.id))
+	var signature := ",".join(ids)
+	if signature != _selection_key:
+		_selection_key = signature
+		_sync_selection_cards()
+
 func _queue_refresh() -> void:
 	if _pending:
 		return
@@ -73,20 +89,29 @@ func refresh() -> void:
 	_cells[2].text = UiTheme.format_number(c.available_manpower())
 	_cells[3].text = UiTheme.format_number(c.stockpile.get("infantry_equipment", 0.0))
 	for ch in _root.get_children():
+		_root.remove_child(ch)
 		ch.queue_free()
+	_selection_cards.clear()
 	_popup_open = false
-	PanelLayout.tabs(_root, [tr("ARM_TAB_COMMAND"), tr("ARM_TAB_TEMPLATES")], func(i: int) -> void:
-		_tab = i
-		refresh(), _tab)
+	PanelLayout.tabs(_root, [tr("ARM_TAB_COMMAND"), tr("ARM_TAB_TEMPLATES")], _switch_tab, _tab)
 	if _tab == 0:
 		_build_command(c)
 	else:
 		_build_templates(c)
+	_sync_selection_cards()
+	PanelLayout.queue_fit(self)
+
+func _switch_tab(index: int) -> void:
+	if _tab != index:
+		_tab = index
+		# Daily updates preserve the roster position, but a different page starts at its heading.
+		(get_meta("scroll") as ScrollContainer).scroll_vertical = 0
+	refresh()
 
 # ================================================================== komuta zinciri
 func _build_command(c: Country) -> void:
 	_validate_sel(c)
-	var cols := PanelLayout.columns(_root, [1.0, 1.5, 1.0])
+	var cols := PanelLayout.columns(_root, [1.0, 1.8, 1.0])
 	_tree(cols[0], c)
 	var kind := _sel.get_slice(":", 0)
 	var id := int(_sel.get_slice(":", 1)) if _sel.contains(":") else 0
@@ -99,6 +124,8 @@ func _build_command(c: Country) -> void:
 	_roster(cols[2], c)
 
 func _validate_sel(c: Country) -> void:
+	# The unattached roster is an explicit selection, not an invalid army id.
+	if _sel == "free": return
 	var kind := _sel.get_slice(":", 0)
 	var id := int(_sel.get_slice(":", 1)) if _sel.contains(":") else 0
 	if kind == "a":
@@ -169,21 +196,91 @@ func _node(parent: Container, key: String, indent: int) -> VBoxContainer:
 	wrap.add_theme_constant_override("margin_left", indent)
 	parent.add_child(wrap)
 	var pc := PanelContainer.new()
-	pc.theme_type_variation = "SlotGold" if _sel == key else "Row"
-	UiTheme.pad(pc, 12, 9)
+	pc.custom_minimum_size.y = 92
+	pc.set_meta("force_key", key)
+	ForceSelectionCard.apply(pc, false)
 	pc.mouse_filter = Control.MOUSE_FILTER_STOP
 	pc.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	pc.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
-			Audio.play("ui_click", 120)
-			_sel = key
-			refresh())
+			var mouse := e as InputEventMouseButton
+			_select_node(key, mouse.shift_pressed or mouse.ctrl_pressed, mouse.ctrl_pressed)
+			pc.accept_event())
 	wrap.add_child(pc)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 10)
+	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pc.add_child(hb)
+	var checkbox := ForceSelectionCard.checkbox(false, func() -> void: _toggle_node(key))
+	checkbox.name = "SelectionCheckbox"
+	hb.add_child(checkbox)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 4)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pc.add_child(v)
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hb.add_child(v)
+	var art := UiTheme.icon_texture(CommandPanelSkin.illustration("army"), 74)
+	art.name = "ForceThumbnail"
+	art.custom_minimum_size = Vector2(0, 74)
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.add_child(art)
+	_selection_cards.append({"panel": pc, "checkbox": checkbox, "key": key})
 	return v
+
+func _node_members(key: String) -> Array:
+	var c := World.player()
+	if c == null: return []
+	if key == "free": return _free_divisions(c)
+	var id := int(key.get_slice(":", 1))
+	if key.begins_with("a:"):
+		var army := Military.army_by_id(id)
+		return Military.army_divisions(army) if army != null and army.owner == c.tag else []
+	var group := Military.group_by_id(id)
+	var members: Array[Division] = []
+	if group != null and group.owner == c.tag:
+		for army: Army in Military.group_armies(group): members.append_array(Military.army_divisions(army))
+	return members
+
+func _select_members(members: Array, additive: bool, toggle: bool) -> void:
+	if units == null or members.is_empty(): return
+	members = members.filter(func(d: Division) -> bool: return d in Military.divisions and d.owner == World.player_tag)
+	if members.is_empty(): return
+	var all_selected := members.all(func(d: Division) -> bool: return d in units.selected)
+	if toggle and all_selected:
+		var remaining := units.selected.filter(func(d: Division) -> bool: return not d in members)
+		units.select_divisions(remaining, false)
+	else:
+		units.select_divisions(members, additive)
+	_sync_selection_cards()
+
+func _select_node(key: String, additive := false, toggle := false) -> void:
+	_sel = key
+	_select_members(_node_members(key), additive, toggle)
+	refresh()
+
+func _toggle_node(key: String) -> void:
+	_sel = key
+	_select_members(_node_members(key), true, true)
+	refresh()
+
+func _sync_selection_cards() -> void:
+	for record: Dictionary in _selection_cards:
+		var panel := record["panel"] as PanelContainer
+		if not is_instance_valid(panel): continue
+		var members: Array = [record["division"]] if record.has("division") else _node_members(record["key"])
+		members = members.filter(func(d: Division) -> bool: return d in Military.divisions and d.owner == World.player_tag)
+		var selected := 0
+		for d: Division in members:
+			if units != null and d in units.selected: selected += 1
+		var all_selected := not members.is_empty() and selected == members.size()
+		var partial := selected > 0 and not all_selected
+		ForceSelectionCard.apply(panel, all_selected, partial)
+		var checkbox := record["checkbox"] as ForceSelectionCard.SelectionBox
+		checkbox.set_pressed_no_signal(all_selected)
+		checkbox.partial = partial
+		checkbox.disabled = units == null or members.is_empty()
+		checkbox.tooltip_text = tr("FORCE_PARTIAL") if partial else tr("FORCE_DESELECT" if all_selected else "FORCE_SELECT")
+		checkbox.queue_redraw()
 
 func _group_node(col: VBoxContainer, g: ArmyGroup) -> void:
 	var v := _node(col, "g:%d" % g.id, 0)
@@ -293,8 +390,9 @@ func _army_detail(col: VBoxContainer, c: Country, a: Army) -> void:
 	for o in Military.armies_of(c.tag):
 		if o != a:
 			targets.append([o.name, o.id])
+	var division_grid := _division_grid(col, "ArmyDivisionGrid")
 	for d in divs:
-		_division_row(col, c, d, _option(targets, -1, func(v: int) -> void:
+		_division_row(division_grid, c, d, _option(targets, -1, func(v: int) -> void:
 			if v >= 0: Military.set_division_army(d, v), tr("TIP_ARM_MOVE_DIV")))
 	# bağlanmamış tümenler buraya katılabilir
 	var free := _free_divisions(c)
@@ -304,8 +402,9 @@ func _army_detail(col: VBoxContainer, c: Country, a: Army) -> void:
 			for d in free:
 				d.army = a.id
 			Military.armies_changed.emit()))
+		var free_grid := _division_grid(col, "AvailableDivisionGrid")
 		for d in free.slice(0, 12):
-			_division_row(col, c, d, PanelLayout.small_button(tr("ARM_ADD_ONE"), func() -> void: Military.set_division_army(d, a.id)))
+			_division_row(free_grid, c, d, PanelLayout.small_button(tr("ARM_ADD_ONE"), func() -> void: Military.set_division_army(d, a.id)))
 		if free.size() > 12:
 			PanelLayout.empty(col, tr("DIV_MORE") % (free.size() - 12))
 
@@ -382,8 +481,9 @@ func _free_detail(col: VBoxContainer, c: Country) -> void:
 	var targets: Array = [[tr("ARM_JOIN_ARMY"), 0]]
 	for o in Military.armies_of(c.tag):
 		targets.append([o.name, o.id])
+	var free_grid := _division_grid(col, "FreeDivisionGrid")
 	for d in free:
-		_division_row(col, c, d, _option(targets, 0, func(v: int) -> void:
+		_division_row(free_grid, c, d, _option(targets, 0, func(v: int) -> void:
 			if v > 0: Military.set_division_army(d, v), tr("TIP_ARM_JOIN")) if targets.size() > 1 else Control.new())
 
 # ------------------------------------------------------------------ komutan kadrosu
@@ -416,9 +516,12 @@ func _roster(col: VBoxContainer, c: Country) -> void:
 		pc.tooltip_text = tr("TIP_COMMANDER") % [cm.name, cm.rank_name(), cm.skill, roundi(cm.xp * 100),
 			roundi(Military.GENERAL_BONUS * cm.skill * 100), roundi(Military.MARSHAL_BONUS * cm.skill * 100)]
 		col.add_child(pc)
+		var stack := VBoxContainer.new()
+		stack.add_theme_constant_override("separation", 6)
+		pc.add_child(stack)
 		var hb := HBoxContainer.new()
 		hb.add_theme_constant_override("separation", 8)
-		pc.add_child(hb)
+		stack.add_child(hb)
 		var portrait := _commander_portrait(cm, Vector2(42, 54))
 		if portrait != null:
 			hb.add_child(portrait)
@@ -430,8 +533,8 @@ func _roster(col: VBoxContainer, c: Country) -> void:
 		n.add_theme_font_override("font", UiTheme.bold_font())
 		n.clip_text = true
 		v.add_child(n)
-		var r2 := HBoxContainer.new()
-		r2.add_theme_constant_override("separation", 6)
+		var r2 := HFlowContainer.new()
+		r2.add_theme_constant_override("h_separation", 6)
 		v.add_child(r2)
 		r2.add_child(_dim(cm.rank_name()))
 		r2.add_child(_pips(cm.skill))
@@ -440,10 +543,11 @@ func _roster(col: VBoxContainer, c: Country) -> void:
 		if post == null:
 			pl.add_theme_color_override("font_color", UiTheme.TEXT_DIM.darkened(0.2))
 		v.add_child(pl)
-		var btns := VBoxContainer.new()
-		btns.add_theme_constant_override("separation", 2)
+		var btns := HFlowContainer.new()
+		btns.add_theme_constant_override("h_separation", 6)
+		btns.add_theme_constant_override("v_separation", 4)
 		btns.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		hb.add_child(btns)
+		stack.add_child(btns)
 		if sel_army and sel_army.commander != cm.id:
 			btns.add_child(PanelLayout.small_button(tr("ARM_ASSIGN"), func() -> void: Military.assign_army_commander(sel_army, cm.id),
 				true, tr("TIP_ARM_ASSIGN") % [cm.name, sel_army.name]))
@@ -462,9 +566,12 @@ func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: in
 	box.theme_type_variation = "Row"
 	UiTheme.pad(box, 14, 10)
 	col.add_child(box)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 8)
+	box.add_child(stack)
 	var hb := HBoxContainer.new()
 	hb.add_theme_constant_override("separation", 12)
-	box.add_child(hb)
+	stack.add_child(hb)
 	var portrait := _commander_portrait(cm, Vector2(64, 76)) if cm else null
 	if portrait != null:
 		hb.add_child(portrait)
@@ -479,9 +586,11 @@ func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: in
 	if cm:
 		var n := UiTheme.make_label(cm.name, 20, UiTheme.ACCENT)
 		n.add_theme_font_override("font", UiTheme.title_font())
+		n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		n.custom_minimum_size.x = 1
 		v.add_child(n)
-		var r := HBoxContainer.new()
-		r.add_theme_constant_override("separation", 8)
+		var r := HFlowContainer.new()
+		r.add_theme_constant_override("h_separation", 8)
 		v.add_child(r)
 		r.add_child(UiTheme.make_label(cm.rank_name(), 15, UiTheme.TEXT))
 		r.add_child(_pips(cm.skill))
@@ -491,9 +600,10 @@ func _commander_box(col: VBoxContainer, cm: Commander, picks: Array, current: in
 		v.add_child(UiTheme.make_label(tr("ARM_NO_COMMANDER"), 18, UiTheme.BAD.lightened(0.2)))
 	PanelLayout.detail(v, bonus_text, 14)
 	var pick := _option(picks, current, on_pick, tr("TIP_ARM_PICK"))
-	pick.custom_minimum_size.x = 250
+	pick.custom_minimum_size.x = 0
+	pick.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(pick)
+	stack.add_child(pick)
 
 ## Tarihî kadro portreleri yalnızca veri eşleşmesi varsa gösterilir; rastgele üretilen
 ## komutanlara başka bir gerçek kişinin fotoğrafı asla düşmez.
@@ -510,7 +620,24 @@ func _commander_portrait(cm: Commander, size: Vector2) -> Control:
 	var image_path := str(_portrait_map.get("%s|%s" % [cm.owner, cm.name], ""))
 	if image_path.is_empty() or not ResourceLoader.exists(image_path):
 		return null
-	var tex := ResourceLoader.load(image_path) as Texture2D
+	var tex: Texture2D = _portrait_textures.get(image_path)
+	var invalid_import := false
+	if FileAccess.file_exists(image_path + ".import"):
+		var imported := ConfigFile.new()
+		if imported.load(image_path + ".import") == OK and not bool(imported.get_value("remap", "valid", true)):
+			invalid_import = true
+	if tex == null:
+		if invalid_import:
+			# TUR_210.jpg is the exact mapped portrait but contains PNG bytes. Godot
+			# rejected the extension-based import; decode that verified buffer only.
+			var bytes := FileAccess.get_file_as_bytes(image_path)
+			if bytes.size() < 8 or bytes.slice(0, 8) != PackedByteArray([137, 80, 78, 71, 13, 10, 26, 10]): return null
+			var image := Image.new()
+			if image.load_png_from_buffer(bytes) != OK: return null
+			tex = ImageTexture.create_from_image(image)
+		else:
+			tex = ResourceLoader.load(image_path) as Texture2D
+		_portrait_textures[image_path] = tex
 	if tex == null:
 		return null
 	var frame := PanelContainer.new()
@@ -525,30 +652,67 @@ func _commander_portrait(cm: Commander, size: Vector2) -> Control:
 	frame.add_child(image)
 	return frame
 
-func _division_row(col: VBoxContainer, c: Country, d: Division, action: Control) -> void:
+func _division_grid(parent: Container, grid_name: String) -> GridContainer:
+	var grid := PanelLayout.grid(2)
+	grid.name = grid_name
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 8)
+	parent.add_child(grid)
+	return grid
+
+func _division_row(col: Container, c: Country, d: Division, action: Control) -> void:
 	var s := Military.div_stats(d)
 	var pc := PanelContainer.new()
-	pc.theme_type_variation = "PanelFlat"
-	UiTheme.pad(pc, 14, 8)
+	pc.custom_minimum_size = Vector2(186, 166)
+	pc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pc.set_meta("division_id", d.id)
+	ForceSelectionCard.apply(pc, units != null and d in units.selected)
 	col.add_child(pc)
+	pc.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_select_members([d], event.shift_pressed or event.ctrl_pressed, event.ctrl_pressed)
+			pc.accept_event())
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 8)
+	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pc.add_child(stack)
+	var art := UiTheme.icon_texture(DivisionPanel._template_icon(c, d.template), 74)
+	art.name = "DivisionThumbnail"
+	art.custom_minimum_size = Vector2(0, 74)
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_child(art)
 	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 12)
-	pc.add_child(hb)
+	hb.add_theme_constant_override("separation", 6)
+	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(hb)
+	var checkbox := ForceSelectionCard.checkbox(units != null and d in units.selected, func() -> void: _select_members([d], true, true))
+	checkbox.name = "SelectionCheckbox"
+	hb.add_child(checkbox)
+	_selection_cards.append({"panel": pc, "checkbox": checkbox, "division": d})
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", -2)
+	v.add_theme_constant_override("separation", 2)
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hb.add_child(v)
-	var n := UiTheme.make_label(d.name, 15, UiTheme.TEXT)
-	n.clip_text = true
+	var n := UiTheme.make_label(d.name, 16, UiTheme.TEXT)
+	n.add_theme_font_override("font", UiTheme.bold_font())
+	n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	n.max_lines_visible = 2
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(n)
 	var st := World.state_of_province(d.province)
-	v.add_child(_dim("%s  ·  %s" % [Military.template_name(c, d.template), st.display_name() if st else "—"]))
+	var description := "%s  ·  %s" % [Military.template_name(c, d.template), st.display_name() if st else "—"]
+	var sub := UiTheme.make_label(description, 13, UiTheme.TEXT_DIM)
+	sub.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	sub.custom_minimum_size.x = 1
+	sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(sub)
 	var bars := VBoxContainer.new()
 	bars.add_theme_constant_override("separation", 3)
-	bars.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(bars)
-	var ob := _bar(d.org / maxf(s["org"], 1.0), Color(0.45, 0.85, 0.35), 80.0, 5.0)
-	var sb := _bar(d.strength, Color(0.95, 0.78, 0.3), 80.0, 5.0)
+	stack.add_child(bars)
+	var ob := PanelLayout.progress(d.org / maxf(s["org"], 1.0), Color(0.45, 0.85, 0.35), 5.0)
+	var sb := PanelLayout.progress(d.strength, Color(0.95, 0.78, 0.3), 5.0)
 	bars.add_child(ob)
 	bars.add_child(sb)
 	bars.tooltip_text = tr("TIP_ORG") % [int(d.org), int(s["org"])] + "\n" + tr("TIP_STR") % roundi(d.strength * 100)
@@ -556,12 +720,17 @@ func _division_row(col: VBoxContainer, c: Country, d: Division, action: Control)
 	var status := tr("DIV_TRAINING") % d.training if d.training > 0 else (tr("DIV_COMBAT") if d.in_combat else (tr("DIV_MOVING") if d.is_moving() else tr("DIV_IDLE")))
 	if not d.supplied:
 		status += " · " + tr("DIV_NO_SUPPLY")
+	pc.tooltip_text = d.name + "\n" + description + "\n" + bars.tooltip_text + "\n" + status
 	var sl := UiTheme.make_label(status, 13, UiTheme.BAD if not d.supplied or d.in_combat else UiTheme.TEXT_DIM)
-	sl.custom_minimum_size.x = 96
-	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(sl)
-	action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(action)
+	sl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	sl.custom_minimum_size.x = 1
+	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(sl)
+	action.custom_minimum_size = Vector2(0, 34)
+	action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action.mouse_filter = Control.MOUSE_FILTER_STOP
+	stack.add_child(action)
 
 ## Açılır liste: items [[etiket, değer], ...]; seçilince cb(değer)
 func _option(items: Array, current: Variant, cb: Callable, tip: String = "") -> OptionButton:
@@ -656,8 +825,9 @@ func _build_templates(c: Country) -> void:
 	if _edit < 0 and not c.templates.is_empty():
 		_edit = 0
 	PanelLayout.section(_body, tr("ARM_TEMPLATES") % c.templates.size())
+	var templates := _division_grid(_body, "ArmyTemplateGrid")
 	for i in c.templates.size():
-		_template_row(c, i)
+		_template_row(c, i, templates)
 	var newb := Button.new()
 	newb.text = tr("ARMY_NEW_TEMPLATE")
 	newb.icon = UiTheme.trimmed(UiTheme.icon("plus"))
@@ -674,7 +844,7 @@ func _build_templates(c: Country) -> void:
 	if _edit >= 0 and _edit < c.templates.size():
 		_build_designer(c, _edit)
 
-func _template_row(c: Country, i: int) -> void:
+func _template_row(c: Country, i: int, parent: Container = null) -> void:
 	var s := Military.stats(c, i)
 	var t: Dictionary = c.templates[i]
 	var main := "infantry"
@@ -683,9 +853,39 @@ func _template_row(c: Country, i: int) -> void:
 		if int(t["battalions"][b]) > best:
 			best = int(t["battalions"][b])
 			main = b
-	var col := PanelLayout.row(_body, bat_icon(main), t["name"],
-		tr("ARMY_STATS") % [int(s["soft"]), int(s["hard"]), int(s["defense"]), int(s["breakthrough"]), int(s["org"]), snappedf(s["speed"], 0.1), int(s["width"])],
-		"", "SlotGold" if i == _edit else "Row")
+	var panel := PanelContainer.new()
+	panel.name = "TemplateSelection_%d" % i
+	panel.set_meta("template_id", i)
+	panel.custom_minimum_size.x = 186
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ForceSelectionCard.apply(panel, i == _edit)
+	(parent if parent != null else _body).add_child(panel)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 8)
+	panel.add_child(col)
+	var select := Button.new()
+	select.name = "TemplateSelectButton"
+	select.text = str(t["name"])
+	select.icon = UiTheme.trimmed(bat_icon(main))
+	select.expand_icon = true
+	select.add_theme_constant_override("icon_max_width", 40)
+	select.add_theme_constant_override("h_separation", 8)
+	select.add_theme_font_size_override("font_size", UiTheme.fs(17))
+	select.add_theme_font_override("font", UiTheme.bold_font())
+	select.add_theme_color_override("font_color", UiTheme.ACCENT if i == _edit else UiTheme.TEXT)
+	select.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	select.custom_minimum_size = Vector2(0, 72)
+	select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	select.tooltip_text = tr("TIP_EDIT_TEMPLATE")
+	select.pressed.connect(func() -> void:
+		_edit = i
+		refresh())
+	Audio.ui_bind(select, "ui_tab")
+	col.add_child(select)
+	var stats := UiTheme.make_label(tr("ARMY_STATS") % [int(s["soft"]), int(s["hard"]), int(s["defense"]), int(s["breakthrough"]), int(s["org"]), snappedf(s["speed"], 0.1), int(s["width"])], 13, UiTheme.TEXT_DIM)
+	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stats.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(stats)
 	# tabur dizilişi (küçük simgeler)
 	var strip := HFlowContainer.new()
 	strip.add_theme_constant_override("h_separation", 1)
@@ -711,7 +911,7 @@ func _template_row(c: Country, i: int) -> void:
 			tip += "\n• %s" % (tr("UI_MANPOWER") if k == "manpower" else Economy.equipment_name(k))
 	ctl.add_child(PanelLayout.small_button(tr("ARMY_DEPLOY"), func() -> void:
 		deploy_requested.emit(i), short.is_empty(), tip))
-	PanelLayout.row_action(col, ctl)
+	col.add_child(ctl)
 
 func _build_designer(c: Country, i: int) -> void:
 	var t: Dictionary = c.templates[i]

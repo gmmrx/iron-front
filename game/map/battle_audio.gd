@@ -2,7 +2,8 @@ class_name BattleAudio
 extends Node3D
 ## 3D muharebe sesleri: kara muharebelerinde tüfek/makineli/top, deniz muharebelerinde gemi topu,
 ## hava çatışmalarında uçak geçişi. Kaynaklar dünya konumunda; kamera (dinleyici) yaklaştıkça duyulur,
-## uzak zoom'da kendiliğinden susar (mesafe zayıflaması). Sesler tools/make_audio.py ile üretilir.
+## uzak zoom'da kendiliğinden susar (mesafe zayıflaması). Versioned sample-free
+## effects: tools/build_ww2_sfx.py; only nearby emitters request a cached variation.
 
 const POOL := 14
 const MAX_DIST := 520.0        ## dünya birimi; bu mesafenin ötesinde ses yok
@@ -10,15 +11,13 @@ const TICK := 0.22
 
 var map: MapView3D
 var _players: Array[AudioStreamPlayer3D] = []
-var _streams := {}
 var _next := 0
 var _acc := 0.0
 
 func _ready() -> void:
-	for n in ["rifle_crack", "mg_burst", "artillery_boom", "explosion", "naval_gun", "plane_flyby"]:
-		_streams[n] = load("res://assets/audio/%s.wav" % n)
 	for i in POOL:
 		var p := AudioStreamPlayer3D.new()
+		p.bus = "SFX"
 		p.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 		p.unit_size = 70.0
 		p.max_distance = MAX_DIST
@@ -28,7 +27,7 @@ func _ready() -> void:
 		_players.append(p)
 
 func _process(delta: float) -> void:
-	if not World.in_game or GameClock.paused:
+	if not World.in_game or GameClock.paused or Audio.sfx_linear() <= 0.001:
 		return
 	_acc += delta
 	if _acc < TICK:
@@ -84,11 +83,14 @@ func _process(delta: float) -> void:
 			budget -= 1
 
 func _emit(name: String, c: Vector2, db: float, height: float = 1.5) -> void:
+	if Audio.sfx_linear() <= 0.001: return
+	var stream: AudioStream = Audio.effect_stream(name)
+	if stream == null: return
 	var p := _players[_next]
 	_next = (_next + 1) % POOL
 	var y := (map.height_at(c) if map else 0.0) + height
 	p.global_position = Vector3(c.x + randf_range(-6, 6), y, c.y + randf_range(-6, 6))
-	p.stream = _streams[name]
-	p.volume_db = db
+	p.stream = stream
+	p.volume_db = db + Audio.sfx_db
 	p.pitch_scale = randf_range(0.92, 1.08)
 	p.play()

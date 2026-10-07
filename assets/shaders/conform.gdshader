@@ -12,7 +12,7 @@ uniform float roughness = 0.8;
 uniform float metallic = 0.0;
 uniform sampler2D height_tex : filter_linear, repeat_disable;
 uniform vec2 map_size = vec2(5120.0, 4348.0);
-uniform float height_scale = 0.012;
+uniform float height_scale = 0.0;
 uniform float lift = 0.3;
 uniform sampler2D coast_tex : filter_linear, repeat_disable;   // borders.png (B = işaretli kıyı mesafesi)
 uniform bool clip_water = false;   // şehirler: su üstüne taşan kısımları kırp (limanlar hariç)
@@ -35,6 +35,7 @@ float vnoise(vec2 p) {
 }
 
 float ground(vec2 xz) {
+	if (height_scale == 0.0) { return 0.0; }
 	return textureLod(height_tex, xz / map_size, 0.0).r * height_scale;
 }
 

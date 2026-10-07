@@ -22,16 +22,17 @@ static func get_flag(c: Country) -> Texture2D:
 	return _cache[c.tag]
 
 ## Listelerde tek boy bayrak (3:2): her ülkenin bayrağı aynı dikdörtgende, yan yana eşit görünür
-static func uniform(c: Country) -> Texture2D:
+static func uniform(c: Country, width := W) -> Texture2D:
 	if c == null:
 		return null
-	if not _uniform.has(c.tag):
+	var key := c.tag + ":" + str(width)
+	if not _uniform.has(key):
 		var img: Image = get_flag(c).get_image().duplicate()
 		if img.is_compressed():
 			img.decompress()
-		img.resize(W, H, Image.INTERPOLATE_LANCZOS)
-		_uniform[c.tag] = ImageTexture.create_from_image(img)
-	return _uniform[c.tag]
+		img.resize(width, roundi(width * 2.0 / 3.0), Image.INTERPOLATE_LANCZOS)
+		_uniform[key] = ImageTexture.create_from_image(img)
+	return _uniform[key]
 
 static func _render(c: Country, out_w: int = W, out_h: int = H) -> Image:
 	var ss := SS if out_w <= W else 2

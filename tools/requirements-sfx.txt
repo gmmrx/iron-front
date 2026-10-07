@@ -1,0 +1,2 @@
+# Tested on Python 3.11; no external audio service, ffmpeg or model is needed.
+numpy>=1.26,<3

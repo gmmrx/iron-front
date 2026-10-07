@@ -1,6 +1,10 @@
 {
  "_comment": "Teknolojiler. cost: gün (araştırma hızı 1'de). year: bu yıldan önce araştırılırsa yıl başına +%150 süre. effects: modifier toplamları; unlock: ekipman/tabur.",
  "categories": {
+  "governance": {
+   "en": "National Projects",
+   "tr": "Ulusal Projeler"
+  },
   "infantry": {
    "en": "Infantry",
    "tr": "Piyade"
@@ -34,6 +38,18 @@
    "tr": "Kara Doktrini"
   }
  },
+ "government_projects": {
+  "_comment": "Explicit player-directed regime transitions. One existing research slot, 180 calendar days, no technology speed/ahead/bonus/stored-day acceleration. 100 influence is charged exactly once on start and never refunded on cancellation. Only one transition per country may run; while running its temporary spirit affects actual stability, home-front support and daily influence income. Completed projects can be repeated after moving to another regime; they are not permanent technology modifiers or endless refinements. No war, faction, territory or tension effects.",
+  "duration_days": 180,
+  "political_power_cost": 100,
+  "minimum_stability": 0.35,
+  "requires_peace": true,
+  "temporary_spirit": {
+   "name": {"en": "Political Transition", "tr": "Yönetim Geçişi"},
+   "desc": {"en": "Reorganizing the government temporarily disrupts institutions, public confidence and political administration. Removed when the transition completes or is cancelled.", "tr": "Yönetimin yeniden düzenlenmesi kurumları, kamu güvenini ve siyasi idareyi geçici olarak aksatır. Geçiş tamamlanınca veya iptal edilince kaldırılır."},
+   "mods": {"stability": -0.10, "war_support": -0.05, "political_power_gain": -0.15}
+  }
+ },
  "repeatable": {
   "_comment": "Endless research: once every technology of a branch is researched, the branch goes on with refinement levels (rep_<branch>_<n>). Level n is dated first_year + n - 1 (first_year = one year after the last historical technology), so the year penalty keeps refinements after the historical tree. Cost: cost * (1 + cost_growth)^(n-1): 180 days is just above the last historical tier (170) so a refinement is never cheaper than an invention, and +15% per level makes each level take longer. Gain: effects * gain_decay^(n-1): each level gives 15% less, so a branch never runs out but its total stays bounded (at most 1 / (1 - 0.85) = 6.7 times the first level).",
   "cost": 180,
@@ -52,6 +68,30 @@
   }
  },
  "techs": {
+  "government_democratic_transition": {
+   "cat": "governance", "kind": "government_project", "target_ideology": "democratic",
+   "year": 1936, "cost": 180, "req": [], "effects": {},
+   "name": {"en": "Democratic Transition", "tr": "Demokratik Yönetime Geçiş"},
+   "desc": {"en": "Reorganize the state around representative government and scheduled elections. The transition costs influence and temporarily disrupts national administration; it does not automatically change alliances or start wars.", "tr": "Devleti temsili yönetim ve düzenli seçimler etrafında yeniden düzenleyin. Geçiş nüfuz harcar ve ulusal idareyi geçici olarak aksatır; ittifakları değiştirmez, savaş başlatmaz."}
+  },
+  "government_fascism_transition": {
+   "cat": "governance", "kind": "government_project", "target_ideology": "fascism",
+   "year": 1936, "cost": 180, "req": [], "effects": {},
+   "name": {"en": "Fascist Regime Transition", "tr": "Faşist Yönetime Geçiş"},
+   "desc": {"en": "Replace the current government with a fascist regime. Institutional disruption temporarily reduces stability, home-front support and influence income. Completion changes political rules but grants no military strength, starts no war, changes no alliance and transfers no territory.", "tr": "Mevcut yönetimi faşist bir rejimle değiştirin. Kurumsal sarsıntı istikrarı, iç cephe desteğini ve nüfuz kazancını geçici olarak düşürür. Tamamlanma siyasi kuralları değiştirir; askeri güç vermez, savaş başlatmaz, ittifak değiştirmez ve toprak aktarmaz."}
+  },
+  "government_communism_transition": {
+   "cat": "governance", "kind": "government_project", "target_ideology": "communism",
+   "year": 1936, "cost": 180, "req": [], "effects": {},
+   "name": {"en": "Communist Regime Transition", "tr": "Komünist Yönetime Geçiş"},
+   "desc": {"en": "Reorganize the political system under a communist regime. The transition consumes influence and temporarily reduces administrative cohesion and public support. It grants no automatic war, alliance, annexation or technology bonus.", "tr": "Siyasi sistemi komünist bir rejim altında yeniden düzenleyin. Geçiş nüfuz harcar; idari uyumu ve kamu desteğini geçici olarak düşürür. Otomatik savaş, ittifak, ilhak veya teknoloji bonusu vermez."}
+  },
+  "government_neutrality_transition": {
+   "cat": "governance", "kind": "government_project", "target_ideology": "neutrality",
+   "year": 1936, "cost": 180, "req": [], "effects": {},
+   "name": {"en": "Non-Aligned Government Transition", "tr": "Bağlantısız Yönetime Geçiş"},
+   "desc": {"en": "Reorganize the state under a non-aligned government. Influence funding and temporary institutional disruption are required. Existing diplomatic obligations and wars are not removed or added by the project.", "tr": "Devleti bağlantısız bir yönetim altında yeniden düzenleyin. Nüfuz finansmanı ve geçici kurumsal sarsıntı gerekir. Mevcut diplomatik yükümlülükleri ve savaşları kaldırmaz veya yenilerini eklemez."}
+  },
   "infantry_weapons_1": {
    "cat": "infantry",
    "year": 1936,

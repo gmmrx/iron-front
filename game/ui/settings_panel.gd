@@ -9,6 +9,7 @@ signal closed
 const TRACKS := ["main_theme", "march", "peace_1", "peace_2", "tension", "war_world", "war_front", "war_hold"]
 
 var _music_box: VBoxContainer
+var command_style := false # In-game ESC inherits the command-panel skin, not the main menu.
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -18,6 +19,8 @@ func _ready() -> void:
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	var panel := PanelContainer.new()
+	panel.name = "SettingsWindow"
+	if command_style: CommandPanelSkin.apply(panel)
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
@@ -32,7 +35,7 @@ func _ready() -> void:
 	var hb := HBoxContainer.new()
 	hp.add_child(hb)
 	var t := UiTheme.make_label(tr("PAUSE_SETTINGS").to_upper(), 24, UiTheme.ACCENT)
-	t.add_theme_font_override("font", UiTheme.title_font())
+	t.add_theme_font_override("font", UiTheme.bold_font() if command_style else UiTheme.title_font())
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hb.add_child(t)
 	hb.add_child(UiTheme.icon_button("close", tr("TIP_CLOSE"), _close, 30))
@@ -87,7 +90,20 @@ func _ready() -> void:
 	PanelLayout.section(right, tr("SET_SECTION_MUSIC"))
 	_music_box = VBoxContainer.new()
 	_music_box.add_theme_constant_override("separation", 3)
-	right.add_child(_music_box)
+	if command_style:
+		# The in-game overlay keeps its header and Done control on-screen at
+		# 720p; only the long track list scrolls. Playback/settings stay intact.
+		var music_scroll := ScrollContainer.new()
+		music_scroll.name = "SettingsMusicScroll"
+		music_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		music_scroll.custom_minimum_size.y = minf(300.0, maxf(180.0, get_viewport_rect().size.y - 420.0))
+		music_scroll.follow_focus = true
+		right.add_child(music_scroll)
+		DragScroll.attach(music_scroll)
+		_music_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		music_scroll.add_child(_music_box)
+	else:
+		right.add_child(_music_box)
 	_build_music()
 	var done := PanelLayout.small_button(tr("SET_DONE"), _close)
 	done.custom_minimum_size = Vector2(220, 42)

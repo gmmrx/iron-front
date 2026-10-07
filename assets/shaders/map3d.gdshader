@@ -1,12 +1,11 @@
-// 3D harita shader'ı: yükseklik haritasıyla kabartılmış arazi + siyasi katman.
+// Düz harita yüzeyi: yükseklik verisi yalnız boyalı arazi detayı + siyasi katman için.
 // Renk hesapları sRGB uzayında yapılır, sonda lineere çevrilir.
-// terrain_tex  : terrain.png (sRGB ham, mipmap)
+// terrain_tex  : terrain.png (RGB=sRGB ham, A=1 doğal / 0 temiz şehir parseli, mipmap)
 // height_tex   : yükseklik (metre, RF)
 // province_tex : province id (R + G*256), nearest
 // border_tex   : mesafe alanları (R=province, G=state, B=kıyı, A=nehir+2), 1/8 texel birimi
 // data_tex     : province başına veri (R=sahip, G=kontrol eden, B/A=eyalet id), 256 genişlik
 // palette_tex  : ülke renkleri (x = ülke indeksi)
-// label_tex    : ülke adı katmanı (önceden çarpılmış alfa)
 shader_type spatial;
 render_mode cull_back, diffuse_lambert, specular_schlick_ggx;
 
@@ -15,13 +14,16 @@ uniform sampler2D height_tex : filter_linear, repeat_enable;
 uniform sampler2D province_tex : filter_nearest, repeat_disable;
 uniform sampler2D border_tex : filter_linear, repeat_enable;
 uniform sampler2D data_tex : filter_nearest, repeat_disable;
+uniform sampler2D recon_tex : filter_nearest, repeat_disable;
+uniform bool recon_enabled = false;
 uniform sampler2D palette_tex : filter_nearest, repeat_disable;
-uniform sampler2D label_tex : filter_linear, repeat_disable;
 uniform sampler2D water_tex : filter_linear_mipmap, repeat_enable;   // L = derinlik tonu, A = taban gölgesi
 uniform float cloud_amount = 0.0;   // uzak zoom'da bulut gölgeleri (0..1)
 // yakın zoom detayı: 7 katmanlı doku dizisi (farmland, grass, forest, rock, sand, snow, steppe)
 uniform sampler2DArray detail_albedo : filter_linear_mipmap_anisotropic, repeat_enable;
+#if CURRENT_RENDERER != RENDERER_COMPATIBILITY
 uniform sampler2DArray detail_normal : filter_linear_mipmap_anisotropic, repeat_enable;
+#endif
 uniform sampler2D biome_tex : filter_linear, repeat_enable;   // RGBA = orman, tarla, çöl, bozkır
 uniform float detail_tile = 14.0;       // bir doku tekrarının dünya birimi
 uniform vec3 detail_avg[7];             // katmanların ortalama renkleri (renk oranı için)
@@ -29,6 +31,12 @@ uniform vec2 map_size = vec2(5120.0, 4348.0);
 uniform bool proj_miller = false;       // dünya haritası: enlem Miller tersinden
 uniform float proj_y_top = 0.0;
 uniform float proj_px_per_rad = 1.0;
+uniform float proj_lon_min = 0.0;        // haritanın sol kenarının boylamı (derece)
+// gece ve gündüz (DayNight): güneşin tepede olduğu nokta, gecenin gücü, 3D ışığın kısılma katı (zeminde geri alınır)
+uniform vec2 sun_lonlat = vec2(0.0, 0.0);
+uniform float night_strength = 0.0;
+uniform float light_comp = 1.0;
+uniform vec3 night_tint = vec3(0.42, 0.48, 0.66);
 
 // kış örtüsü için yumuşak değer gürültüsü
 float whash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -47,7 +55,7 @@ float latitude(vec2 uv) {
 	float y = proj_y_top - uv.y * map_size.y / proj_px_per_rad;
 	return degrees(2.5 * atan(exp(0.8 * y)) - 0.625 * PI);
 }
-uniform float height_scale = 0.012; // dünya birimi / metre (abartılı)
+uniform float relief_scale = 0.012; // yalnız 2D gölge/eğim: mesh ve model yüksekliği değil
 uniform float winter_north = 0.0;   // 0..1 kış şiddeti (kuzey yarıküre)
 uniform float winter_south = 0.0;
 uniform int map_mode = 0; // 0 siyasi, 1 arazi, 2 eyaletler, 3 yollar (soluk siyasi)
@@ -56,6 +64,11 @@ uniform int selected_province = 0;
 uniform int selected_state = 0;
 uniform int player_country = 0;
 uniform int highlight_country = 0;
+uniform float highlight_fade = 1.0;     // seçili ülkenin ışığı (0..1): sınırı neon yanar, karartmadan muaf
+uniform int highlight_prev = 0;         // ülke değişirken önceki seçim: ışığı söner (karartma hiç kalkmaz: flaş yok)
+uniform float prev_fade = 0.0;
+uniform float dim_amount = 1.0;         // seçili olmayan her yerin kararması (0..1)
+uniform vec3 neon_color = vec3(1.0, 0.58, 0.14);
 uniform sampler2D mark_tex : filter_nearest, repeat_disable;   // province başına işaret (R: 0 yok, 0.5 uygun değil, 1 uygun)
 uniform bool marks_enabled = false;   // ülke seçim ekranında vurgulanan ülke (0 = yok)
 
@@ -69,11 +82,7 @@ uniform float fill_inner = 0.28;       // siyasi kipte ülke renginin ülke içi
 uniform float fill_edge = 0.97;        // sınırdaki örtücülük (renk sınıra doğru koyulaşır)
 uniform sampler2D fog_mask : filter_linear, repeat_enable;   // savaş sisi: R = keşfedilmemiş payı (CloudFog maskesi)
 uniform bool fog_enabled = false;
-
-float height_at(vec2 uv) {
-	if (wrap_x) { uv.x = fract(uv.x); }
-	return textureLod(height_tex, uv, 0.0).r * height_scale;
-}
+uniform float fog_fade = 1.0;          // savaş sisi renginin girişi (bulutla birlikte yavaşça); 1 = olağan
 
 varying vec2 g_uv;   // tüm harita UV'si (mesh parçalı olduğundan dünya konumundan)
 
@@ -81,15 +90,8 @@ void vertex() {
 	vec2 wxz = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
 	vec2 guv = wxz / map_size;
 	g_uv = guv;
-	VERTEX.y = height_at(guv);
-	vec2 hs = vec2(textureSize(height_tex, 0));
-	vec2 t = 1.0 / hs;
-	float step_world = map_size.x / hs.x * 2.0; // iki texel arası dünya mesafesi
-	float hl = height_at(guv - vec2(t.x, 0.0));
-	float hr = height_at(guv + vec2(t.x, 0.0));
-	float hu = height_at(guv - vec2(0.0, t.y));
-	float hd = height_at(guv + vec2(0.0, t.y));
-	NORMAL = normalize(vec3(hl - hr, step_world, hu - hd));
+	VERTEX.y = 0.0;
+	NORMAL = vec3(0.0, 1.0, 0.0);
 }
 
 int province_at(vec2 uv) {
@@ -105,6 +107,13 @@ vec4 pdata(int id) {
 
 int owner_of(int id) {
 	return int(round(pdata(id).r * 255.0));
+}
+
+// siyasi kipteki sahip: bölgeyi elinde tutan (land_color ile aynı)
+int pol_owner(int id) {
+	vec4 d = pdata(id);
+	int held = int(round(d.g * 255.0));
+	return ((map_mode == 0 || map_mode == 3) && held > 0) ? held : int(round(d.r * 255.0));
 }
 
 int state_of(int id) {
@@ -232,16 +241,17 @@ vec3 field_color(vec2 wp, float tpp, out float edge_px) {
 }
 
 #include "res://assets/shaders/clouds.gdshaderinc"
+#include "res://assets/shaders/occupation_ink.gdshaderinc"
 
-// piksel başına arazi normali (dünya uzayı), yükseklik dokusundan
+// Boyalı kabartmanın sanal normali: silüet, derinlik ve model konumu değişmez.
 vec3 height_normal(vec2 uv) {
 	vec2 hs = vec2(textureSize(height_tex, 0));
 	vec2 t = 1.0 / hs;
 	float step_world = map_size.x / hs.x * 2.0;
-	float hl = texture(height_tex, uv - vec2(t.x, 0.0)).r * height_scale;
-	float hr = texture(height_tex, uv + vec2(t.x, 0.0)).r * height_scale;
-	float hu = texture(height_tex, uv - vec2(0.0, t.y)).r * height_scale;
-	float hd = texture(height_tex, uv + vec2(0.0, t.y)).r * height_scale;
+	float hl = texture(height_tex, uv - vec2(t.x, 0.0)).r * relief_scale;
+	float hr = texture(height_tex, uv + vec2(t.x, 0.0)).r * relief_scale;
+	float hu = texture(height_tex, uv - vec2(0.0, t.y)).r * relief_scale;
+	float hd = texture(height_tex, uv + vec2(0.0, t.y)).r * relief_scale;
 	return normalize(vec3(hl - hr, step_world, hu - hd));
 }
 
@@ -282,7 +292,9 @@ void sample_detail(vec2 uv, float w[7], out vec3 ratio, out vec2 dn) {
 		if (w[i] > 0.02) {
 			c += texture(detail_albedo, vec3(duv, float(i))).rgb * w[i];
 			avg += detail_avg[i] * w[i];
+#if CURRENT_RENDERER != RENDERER_COMPATIBILITY
 			dn += (texture(detail_normal, vec3(duv, float(i))).rg * 2.0 - 1.0) * w[i];
+#endif
 		}
 	}
 	// ikinci ölçek: tekrar desenini kırmak için daha büyük ölçekte hafif çarpan
@@ -304,7 +316,7 @@ float coast_sd(vec2 uv) {
 }
 
 // kara rengi: siyasi/arazi/eyalet modu + nehir + sınırlar + seçim
-vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 dratio, float close, vec3 nrm) {
+vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 dratio, float close, vec3 nrm, float site) {
 	vec4 d = pdata(pid);
 	int owner = int(round(d.r * 255.0));
 	// siyasi kiplerde bölge onu elinde tutanın renginde (ele geçen yer doğrudan alınır; çizgili işgal gösterimi yok)
@@ -316,13 +328,13 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	float prov_px = bd.r / tpp;
 	float state_px = bd.g / tpp;
 	vec3 cc = texelFetch(palette_tex, ivec2(owner, 0), 0).rgb;
-	// Siyasi kip sade: parsel, sırt, orman kümesi ve detay dokusu yok; yalnız yumuşak kabartma ve ülke rengi.
-	// Ayrıntılı zemin Arazi (ve Eyaletler/Yollar) kipinde.
-	float soft = map_mode == 0 ? 1.0 : 0.0;
+	// Siyasi kipte yakın zoom'da da boyalı parsel/orman/sırt detayları; uzakta eski sade ülke rengi korunur.
+	float soft = map_mode == 0 ? 1.0 - close * 0.75 : 0.0;
 	vec4 bio = texture(biome_tex, uv);
 	float h_m = texture(height_tex, uv).r;
 	float slope = 1.0 - nrm.y;
-	float farm = bio.g * (1.0 - smoothstep(650.0, 1150.0, h_m)) * (1.0 - smoothstep(0.10, 0.25, slope));
+	float natural = 1.0 - site;
+	float farm = bio.g * (1.0 - smoothstep(650.0, 1150.0, h_m)) * (1.0 - smoothstep(0.10, 0.25, slope)) * natural;
 	// yakın zoom: makro arazi rengi detay dokusuyla işlenir (orman, kaya...); tarlada parseller aşağıda
 	terr = mix(terr, clamp(terr * dratio, 0.0, 1.0), close * (1.0 - farm * 0.8) * (1.0 - soft));
 	// koyu, doygun, kontrastlı arazi
@@ -352,9 +364,9 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	}
 	// arazi örtüsü (boyalı harita): orman koyu yeşil, yakında tepe kümeleri; bozkır haki toprak ve kuru ot; çöl kum
 	vec2 wp = uv * map_size;
-	float forest = bio.r * (1.0 - smoothstep(1700.0, 2400.0, h_m));
-	float steppe = bio.a * (1.0 - farm);
-	float desert = bio.b * (1.0 - farm);
+	float forest = bio.r * (1.0 - smoothstep(1700.0, 2400.0, h_m)) * natural;
+	float steppe = bio.a * (1.0 - farm) * natural;
+	float desert = bio.b * (1.0 - farm) * natural;
 	if (forest > 0.02) {
 		float canopy = 1.0;
 		if (soft < 0.5) {
@@ -373,7 +385,7 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 		terr = mix(terr, vec3(0.80, 0.70, 0.48), desert * 0.5);
 	}
 	// dağlar: yaylada toprak-haki, dik yamaçta ve yüksekte gri-kahve kaya
-	float mount = clamp(smoothstep(0.08, 0.40, slope) * 0.75 + smoothstep(700.0, 2000.0, h_m) * 0.45, 0.0, 0.85);
+	float mount = clamp(smoothstep(0.08, 0.40, slope) * 0.75 + smoothstep(700.0, 2000.0, h_m) * 0.45, 0.0, 0.85) * natural;
 	float rock = clamp(smoothstep(0.28, 0.6, slope) * 0.8 + smoothstep(1800.0, 2600.0, h_m) * 0.6, 0.0, 1.0);
 	vec3 mcol = mix(vec3(0.50, 0.44, 0.30), vec3(0.53, 0.49, 0.43), rock) * (0.85 + 0.3 * dot(terr, vec3(0.33)));
 	terr = mix(terr, mcol, mount * mix(0.5, 0.8, rock) * (1.0 - forest * 0.6));
@@ -383,6 +395,11 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	snow_line -= (latitude(uv) > 0.0 ? winter_north : winter_south) * 900.0;
 	float snow = smoothstep(snow_line - 150.0, snow_line + 300.0, h_m) * (1.0 - smoothstep(0.55, 0.95, slope) * 0.55);
 	terr = mix(terr, vec3(0.93, 0.94, 0.96), snow * 0.92);
+	// Yerel, doğal tonlu temiz zemin; altında tepe/orman/tarla çizgileri okunmaz.
+	// Kurak ve karlı bölgenin rengi kalır, açıklık suya/siyasi sınırlara dokunmaz.
+	vec3 site_ground = mix(vec3(0.46, 0.48, 0.36), vec3(0.59, 0.54, 0.38), clamp(bio.b + bio.a * 0.6, 0.0, 1.0));
+	site_ground = mix(site_ground, vec3(0.85, 0.87, 0.89), snow * 0.88);
+	terr = mix(terr, site_ground, site);
 	// kabartma gölgesi (gravür gibi): kuzeybatıdan sabit ışık, düzlükte 1; yamaçta eğim yönünde sırt ve dereler
 	vec3 L = normalize(vec3(-1.0, 1.25, -1.0));
 	float hills = smoothstep(0.03, 0.12, slope) * (1.0 - farm) * 0.35;
@@ -446,7 +463,18 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 	// siyasi kiplerde uzakta söner (kıta görünümünde yalnız ülkeler)
 	float rfar = (map_mode == 0 || map_mode == 3) ? 1.0 - smoothstep(0.7, 1.2, tpp) : 1.0 - smoothstep(1.6, 3.2, tpp);
 	float rv = (1.0 - smoothstep(-0.15, 0.55, river_tx / tpp)) * rfar;
-	col = mix(col, vec3(0.27, 0.45, 0.58), rv * 0.85);
+		col = mix(col, vec3(0.27, 0.45, 0.58), rv * 0.85);
+
+		// Existing occupied-state semantics: original owner is the fill, controller supplies sparse ink.
+		// Draw borders afterward, so fine country/state lines are never painted over by the hatch.
+		int ctl = int(round(d.g * 255.0));
+		float hatch_footprint = max(fwidth(dot(uv * map_size, vec2(0.70710678))), 0.0001);
+		if (ctl > 0 && ctl != owner && map_mode == 2) {
+			vec3 occupier = texelFetch(palette_tex, ivec2(ctl, 0), 0).rgb;
+			vec3 ink = mix(occupier, vec3(0.13, 0.115, 0.09), 0.35) * mix(0.70, 0.92, clamp(lum * 1.5, 0.0, 1.0));
+			float shore_inset = smoothstep(0.05, 0.45, (bt.b * 255.0 - 128.0) / 8.0);
+			col = mix(col, ink, occupation_ink(uv * map_size, hatch_footprint) * 0.58 * shore_inset);
+		}
 
 	// province ve eyalet sınırları: çevredeki pikseller başka bölgedeyse çizgi — her zoom'da kesintisiz, ekran pikseli
 	// genişliğinde (mesafe alanı ince çizgide kesik kesik kalıyordu). Province (fare vurgusunun birimi): ince, açık ton;
@@ -500,14 +528,6 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 		}
 	}
 
-	// işgal: kontrol eden ülkenin renginde çapraz çizgiler (yalnız siyasi olmayan kiplerde; siyasi kipte zaten onun renginde)
-	int ctl = int(round(d.g * 255.0));
-	if (ctl > 0 && ctl != owner && map_mode == 2) {
-		vec3 oc = texelFetch(palette_tex, ivec2(ctl, 0), 0).rgb;
-		vec2 wp2 = uv * map_size;
-		float stripe = step(0.5, fract((wp2.x + wp2.y) / max(6.0 * tpp, 3.0)));
-		col = mix(col, oc * mix(1.0, 0.5 + lum * 1.1, 0.4), stripe * 0.75);
-	}
 	if (owner == player_country && map_mode == 0) { col *= 1.04; }
 	if (marks_enabled) {
 		float mk = texelFetch(mark_tex, ivec2(pid % 256, pid / 256), 0).r;
@@ -518,13 +538,8 @@ vec3 land_color(vec2 uv, int pid, vec3 terr, vec4 bt, float tpp, float t, vec3 d
 			col *= 0.6;
 		}
 	}
-	if (highlight_country > 0) {
-		if (owner == highlight_country) {
-			col = mix(col, vec3(1.0), 0.12 + 0.05 * sin(t * 2.5));
-		} else {
-			col *= 0.72;
-		}
-	}
+	// seçili ülke hafif aydınlanır (öbür yerler fragment'te kararır); ülke değişirken eskisi söner, yenisi yanar
+	col *= 1.0 + 0.1 * ((owner == highlight_country ? highlight_fade : 0.0) + (owner == highlight_prev ? prev_fade : 0.0));
 	if (pid == hovered_province) { col = mix(col, vec3(1.0), 0.14); }
 	if (sid == selected_state && selected_state > 0) {
 		float pulse = 0.5 + 0.5 * sin(t * 3.0);
@@ -576,7 +591,9 @@ void fragment() {
 	if (wrap_x) { uv.x = fract(uv.x); }
 	// siyasi kipte uzakta zemin bulanık örneklenir: yarı saydam ülke renginin altında benek değil geniş ton farkı
 	vec4 tdd = map_mode == 0 ? dd * mix(5.0, 1.0, political_relief(tpp)) : dd;
-	vec3 terr = textureGrad(terrain_tex, uv, tdd.xy, tdd.zw).rgb;
+	vec4 terrain_sample = textureGrad(terrain_tex, uv, tdd.xy, tdd.zw);
+	vec3 terr = terrain_sample.rgb;
+	float site = clamp(1.0 - terrain_sample.a, 0.0, 1.0);
 	vec4 bt = texture(border_tex, uv);
 
 	// kıyı: piksel ızgarası yerine işaretli mesafe alanının sıfır çizgisi (pürüzsüz)
@@ -602,16 +619,17 @@ void fragment() {
 	if (!has_land) { land_a = 0.0; }
 
 	// yakın zoom detay katmanı
-	float close = 1.0 - smoothstep(0.25, 0.95, tpp);
-	vec3 n_land = height_normal(uv);
+	float close = 1.0 - smoothstep(0.12, 0.45, tpp);
+	float detail_close = close * (1.0 - site);
+	vec3 n_land = normalize(mix(height_normal(uv), vec3(0.0, 1.0, 0.0), site));
 	vec3 dratio = vec3(1.0);
 	vec2 dn = vec2(0.0);
-	if (close > 0.001 && land_a > 0.0 && map_mode != 0) {
+	if (detail_close > 0.001 && land_a > 0.0) {
 		float w[7];
 		detail_weights(uv, n_land, w);
 		sample_detail(uv, w, dratio, dn);
 	}
-	n_land = normalize(n_land + vec3(dn.x, 0.0, -dn.y) * 0.45 * close * (map_mode == 0 ? 0.0 : 1.0));
+	n_land = normalize(n_land + vec3(dn.x, 0.0, -dn.y) * 0.45 * detail_close * (map_mode == 0 ? 0.0 : 1.0));
 
 	// su normali: analitik dalgalar (yakında)
 	vec2 wp = uv * map_size;
@@ -632,7 +650,7 @@ void fragment() {
 		col = mix(col, vec3(0.55, 0.66, 0.76), fres * 0.35);
 	}
 	col *= water_brightness;
-	if (land_a > 0.0) { col = mix(col, land_color(uv, land_pid, terr, bt, tpp, TIME, dratio, close, n_land) * land_brightness, land_a); }
+	if (land_a > 0.0) { col = mix(col, land_color(uv, land_pid, terr, bt, tpp, TIME, dratio, detail_close, n_land, site) * land_brightness, land_a); }
 	// siyasi kipte uzakta ışık da düz zemine vurur: dağların gölgesi ancak yaklaşınca belirir
 	vec3 n_lit = map_mode == 0 ? normalize(mix(vec3(0.0, 1.0, 0.0), n_land, political_relief(tpp))) : n_land;
 	vec3 n_final = normalize(mix(n_water, n_lit, land_a));
@@ -640,6 +658,46 @@ void fragment() {
 	// kıyı çizgisi
 	col = mix(col, col * 0.45, line(abs(sd) / tpp, 0.7) * 0.6);
 
+	// ülke seçimi: öbür her yer (deniz dahil) kararır; seçili ülkenin kara sınırı ve kıyısı neon gibi yanar — içte ince
+	// parlak çekirdek, iki yana taşan hale (EMISSION: ortamın glow'u parlatır). Komşu sorgusu yalnız eyalet sınırı ya da
+	// kıyı yakınında (ülke sınırı eyalet sınırlarının alt kümesi)
+	if ((highlight_country > 0 || highlight_prev > 0) && dim_amount > 0.001) {
+		int po = pol_owner(pid);
+		bool mine_a = po == highlight_country;
+		bool mine_b = po == highlight_prev;
+		float lit = max(mine_a ? highlight_fade : 0.0, mine_b ? prev_fade : 0.0);
+		col *= mix(1.0, mix(0.42, 1.0, lit), dim_amount);
+		float gpx = mix(5.0, 3.5, smoothstep(1.0, 4.0, tpp));      // hale yarı genişliği (ekran pikseli)
+		float near_b = min(bt.g * (255.0 / 8.0) / tpp, abs(sd) / tpp);
+		if (near_b < gpx + 2.0) {
+			vec2 upx = vec2(length(dFdx(uv)), length(dFdy(uv)));
+			vec2 core = vec2(0.0);                                  // x: seçili ülke, y: önceki (geçişte)
+			vec2 halo = vec2(0.0);
+			for (int i = 0; i < 8; i++) {
+				float a = float(i) * 0.785398;
+				vec2 dir8 = vec2(cos(a), sin(a));
+				int o1 = pol_owner(province_at(uv + dir8 * upx * 1.4));
+				int o2 = pol_owner(province_at(uv + dir8 * upx * gpx));
+				if ((o1 == highlight_country) != mine_a) { core.x += 0.25; }
+				if ((o2 == highlight_country) != mine_a) { halo.x += 0.125; }
+				if (highlight_prev > 0) {
+					if ((o1 == highlight_prev) != mine_b) { core.y += 0.25; }
+					if ((o2 == highlight_prev) != mine_b) { halo.y += 0.125; }
+				}
+			}
+			core = clamp(core, 0.0, 1.0) * vec2(mine_a ? 1.0 : 0.55, mine_b ? 1.0 : 0.55);
+			halo = clamp(halo * 1.6, 0.0, 1.0) * vec2(mine_a ? 0.7 : 0.45, mine_b ? 0.7 : 0.45);
+			vec2 k = vec2(highlight_fade, prev_fade) * dim_amount * (0.9 + 0.1 * sin(T * 2.2));
+			float c = dot(core, k);
+			float h = dot(halo, k);
+			col = mix(col, neon_color, clamp(c * 0.75 + h * 0.3, 0.0, 1.0));
+			EMISSION = neon_color * neon_color * (c * 2.2 + h * 0.8);     // doygun turuncu-altın ışık
+		}
+	}
+
+	// cephe: bizim taraf ile düşmanın elindeki bölgelerin sınırı yerin altından yanan bir damar gibi — ince parlak çekirdek,
+	// iki yana taşan kızıl hale, boyunca akan ışık (EMISSION: ortamın glow'u parlatır). Komşu sorgusu yalnız eyalet
+	// sınırının yakınında (cephe eyalet sınırlarının alt kümesi)
 	// bulut gölgeleri (bulut katmanıyla aynı gürültü)
 	if (cloud_amount > 0.001) {
 		float cl = weather_cloud(uv * map_size + vec2(-40.0, -25.0), TIME);
@@ -649,18 +707,34 @@ void fragment() {
 	// Only a subtle unexplored tint. Terrain stays visible; Military hides units separately.
 	if (fog_enabled) {
 		float fu = texture(fog_mask, uv).r;
-		float billow = cloud_fbm(uv * map_size, TIME);
-		vec3 mist = mix(vec3(0.40, 0.48, 0.55), vec3(0.65, 0.70, 0.73), billow);
-		col = mix(col, mist, smoothstep(0.05, 0.85, fu) * 0.08);
+		vec3 mist = vec3(0.53, 0.59, 0.64);
+		col = mix(col, mist, smoothstep(0.05, 0.85, fu) * 0.08 * fog_fade);
 	}
 
 	// ülke adları (SubViewport'ta çizilir, araziye boyanır)
 
 
+	// gece ve gündüz: güneşin bu noktadaki yüksekliği; gece koyu mavimsi, terminatörde ince sıcak alacakaranlık
+	if (proj_miller && night_strength > 0.001) {
+		float la = radians(latitude(uv));
+		float lo = radians(proj_lon_min + uv.x * 360.0);
+		vec2 s = radians(sun_lonlat);
+		float h = sin(la) * sin(s.y) + cos(la) * cos(s.y) * cos(lo - s.x);
+		float night = (1.0 - smoothstep(-0.10, 0.06, h)) * night_strength;
+		float dusk = (1.0 - smoothstep(0.0, 0.08, abs(h + 0.02))) * night_strength;
+		col *= mix(vec3(1.0), night_tint, night);
+		col *= mix(vec3(1.0), vec3(1.08, 0.94, 0.82), dusk * 0.6);
+	}
+	// 3D ışık yakında gece kısıldı: zemin kendi saatinin parlaklığında kalır (renk burada sRGB, ışık doğrusal)
+	col /= srgb_out ? max(light_comp, 0.05) : pow(max(light_comp, 0.05), 1.0 / 2.2);
+
 	// harita kenarı
 	vec2 e = min(uv, 1.0 - uv);
 	if (wrap_x) { e.x = 1.0; }   // sarmalanan haritada doğu-batı kenarı yok
 	col *= mix(0.45, 1.0, smoothstep(0.0, 0.02, min(e.x, e.y)));
+	if (recon_enabled && texelFetch(recon_tex, ivec2(pid % 256, pid / 256), 0).r > 0.5) {
+		col = mix(col, vec3(0.20, 0.95, 0.32), 0.42 + 0.10 * sin(TIME * 3.0));
+	}
 	ALBEDO = srgb_out ? clamp(col, 0.0, 1.0) : pow(clamp(col, 0.0, 1.0), vec3(2.2));
 	ROUGHNESS = mix(0.12, 0.95, land_a);
 	SPECULAR = mix(0.6, 0.12, land_a);

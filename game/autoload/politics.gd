@@ -5,8 +5,12 @@ extends Node
 signal focus_completed(tag: String, focus_id: String)
 signal event_fired(tag: String, event_id: String, from_tag: String)   ## oyuncu için açılır pencere
 signal politics_changed(tag: String)
+signal advisor_hired(tag: String, id: String)
+signal advisor_dismissed(tag: String, id: String)
+signal decision_taken(tag: String, id: String)
 
 const FOCUS_PATH := "res://data/common/focuses.json"
+const FOCUS_ENABLED := false # Devlet Programı is retired; Research is the only progression system.
 const EVENTS_PATH := "res://data/common/events.json"
 const SPIRITS_PATH := "res://data/common/spirits.json"
 
@@ -39,7 +43,7 @@ func _ready() -> void:
 	advisor_cost = float(_data["advisor_cost"])
 	max_advisors = int(_data["max_advisors"])
 	faction_names = _data["factions"]
-	World.daily_update.connect(_on_day)
+	GameClock.hour_late.connect(_staged_day)       # günlük iş günün kendi saatinde (GameClock.DAY_STAGE)
 	reset()
 
 var fired_events: Array = []       ## tarihli olaylardan tetiklenenler (bir kez)
@@ -91,6 +95,27 @@ func stability(c: Country) -> float:
 func party_stability_bonus(c: Country) -> float:
 	return PARTY_STABILITY * float(c.popularity.get(c.ideology, 0.0))
 
+## A researched government change, not a Focus effect. Identity/history (leader, party, war, faction) stays intact.
+func change_ideology(c: Country, ideology: String) -> bool:
+	var allowed: Array[String] = ["democratic", "fascism", "communism", "neutrality"]
+	if c == null or ideology not in allowed or c.ideology == ideology: return false
+	var weights := {}
+	var other_sum := 0.0
+	for id: String in allowed:
+		var value := float(c.popularity.get(id, 0.0))
+		weights[id] = clampf(value, 0.0, 1.0) if is_finite(value) else 0.0
+		if id != ideology: other_sum += float(weights[id])
+	var ruling := clampf(float(weights[ideology]), 0.55, 1.0)
+	var popularity := {}
+	for id: String in allowed:
+		popularity[id] = ruling if id == ideology else ((1.0 - ruling) * float(weights[id]) / other_sum if other_sum > 0.000001 else (1.0 - ruling) / 3.0)
+	c.ideology = ideology
+	c.popularity = popularity
+	c.election_months = 48 if ideology == "democratic" else 0
+	c.next_election = (GameClock.year + 4) * 10000 + GameClock.month * 100 + GameClock.day if ideology == "democratic" else 0
+	politics_changed.emit(c.tag)
+	return true
+
 ## Etkin savaş desteği (0..1): taban + modifier + dünya gerginliği (%1 başına +%0,4, en çok +%40)
 ## + savaş durumu (savunma savaşı +%20, saldırı savaşı −%20)
 func war_support(c: Country) -> float:
@@ -130,6 +155,7 @@ func date_int(s: String) -> int:
 	return _date(s)
 
 func can_start_focus(c: Country, id: String) -> bool:
+	if not FOCUS_ENABLED: return false
 	var fo := focus_def(c, id)
 	if fo.is_empty() or id in c.focus_done or c.focus_current != "":
 		return false
@@ -159,6 +185,7 @@ func start_focus(c: Country, id: String) -> bool:
 ## Odağı beklemeden tamamla (tarih çizelgesi: tarihî adım tam gününde): etkileri uygulanır. with_effects = false ise
 ## yalnız yapılmış sayılır (yapay zekâ kendisi seçmesin, ardılları açılsın)
 func complete_focus_now(c: Country, id: String, with_effects := true) -> void:
+	if not FOCUS_ENABLED: return
 	if id in c.focus_done or focus_def(c, id).is_empty():
 		return
 	if c.focus_current == id:
@@ -174,7 +201,14 @@ func complete_focus_now(c: Country, id: String, with_effects := true) -> void:
 func cancel_focus(c: Country) -> void:
 	c.focus_current = ""
 	c.focus_progress = 0.0
-	politics_changed.emit(c.tag)
+	if FOCUS_ENABLED: politics_changed.emit(c.tag)
+
+## Preserve legacy field names/done IDs, but loaded or manually assigned active programs cannot resume.
+## Already-applied factories/stats and untagged spirit/research bonuses have no provenance; do not undo them.
+func sanitize_focus(c: Country) -> void:
+	if FOCUS_ENABLED or c == null: return
+	c.focus_current = ""
+	c.focus_progress = 0.0
 
 # ------------------------------------------------------------------ koşullar
 func check_all(c: Country, conds: Array) -> bool:
@@ -194,7 +228,7 @@ func check(c: Country, cond: Dictionary) -> bool:
 			"date":
 				if World.date_value() < _date(v): return false
 			"has_focus":
-				if not v in c.focus_done: return false
+				if not FOCUS_ENABLED or not v in c.focus_done: return false
 			"exists":
 				var t: Country = World.countries.get(v)
 				if t == null or not t.exists(): return false
@@ -322,6 +356,7 @@ func _news(key: String, tags: Array) -> void:
 
 ## Büyük güçlerin tamamladığı devlet programları dünya olayları menüsüne (oyuncununki kendi bildiriminde)
 func _program_news(c: Country, id: String) -> void:
+	if not FOCUS_ENABLED: return
 	if not c.is_major() or c.tag == World.player_tag:
 		return
 	var fo := focus_def(c, id)
@@ -424,19 +459,23 @@ func choose_option(c: Country, id: String, option: int, from_tag: String) -> voi
 
 # ------------------------------------------------------------------ danışman / karar
 func can_hire(c: Country, id: String) -> bool:
-	return not id in c.advisors and c.advisors.size() < max_advisors and c.political_power >= advisor_cost
+	return c != null and advisor_defs.has(id) and not id in c.advisors and c.advisors.size() < max_advisors and c.political_power >= advisor_cost
 
 func hire(c: Country, id: String) -> void:
 	if can_hire(c, id):
 		c.political_power -= advisor_cost
 		c.advisors.append(id)
 		politics_changed.emit(c.tag)
+		advisor_hired.emit(c.tag, id)
 
 func dismiss(c: Country, id: String) -> void:
+	if c == null or id not in c.advisors: return
 	c.advisors.erase(id)
 	politics_changed.emit(c.tag)
+	advisor_dismissed.emit(c.tag, id)
 
 func can_take_decision(c: Country, id: String) -> bool:
+	if c == null or not decisions.has(id): return false
 	var d: Dictionary = decisions[id]
 	if c.decisions_active.has(id) or c.political_power < float(d["cost"]):
 		return false
@@ -449,8 +488,13 @@ func take_decision(c: Country, id: String) -> void:
 	c.decisions_active[id] = World.day_count + int(decisions[id]["days"])
 	c.spirits.append(id)
 	politics_changed.emit(c.tag)
+	decision_taken.emit(c.tag, id)
 
 # ------------------------------------------------------------------ günlük
+func _staged_day() -> void:
+	if GameClock.hour == int(GameClock.DAY_STAGE["politics"]):
+		_on_day()
+
 func _on_day() -> void:
 	var __t := Time.get_ticks_usec()
 	_on_day_impl()
@@ -460,7 +504,9 @@ func _on_day_impl() -> void:
 	for c: Country in World.countries.values():
 		if not c.exists():
 			continue
-		if c.focus_current != "":
+		if not FOCUS_ENABLED:
+			sanitize_focus(c)
+		elif c.focus_current != "":
 			c.focus_progress += 1.0
 			var fo := focus_def(c, c.focus_current)
 			if fo.is_empty():

@@ -27,9 +27,9 @@ var _reflow_pending := false
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size.x = 420.0
-	add_theme_stylebox_override("panel", UiTheme.textured("tooltip", 10, 13))
+	add_theme_stylebox_override("panel", preload("res://game/ui/tooltip_surface.gd").new())
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 6)
+	v.add_theme_constant_override("separation", 9)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(v)
 
@@ -46,14 +46,14 @@ func _ready() -> void:
 	titles.add_theme_constant_override("separation", -3)
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_title = UiTheme.make_label("", 22, UiTheme.ACCENT)
-	_title.add_theme_font_override("font", UiTheme.title_font())
+	_title.add_theme_font_override("font", UiTheme.get_theme().default_font)
 	_subtitle = UiTheme.make_label("", 15, UiTheme.TEXT_DIM)
 	titles.add_child(_title)
 	titles.add_child(_subtitle)
 	head.add_child(titles)
 	v.add_child(head)
 
-	var rule := HSeparator.new()
+	var rule := SelectionSkin.divider()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(rule)
 	_political = _section(v, 17)                # sahiplik / kısa açıklama: başlığın hemen altında
@@ -223,7 +223,7 @@ func _region_cells(p: Province, st: StateRegion) -> void:
 	_cell(g, UiTheme.building_icon("infrastructure"), Economy.building_name("infrastructure"), "%d / %d" % [infra, imax], _ratio_color(float(infra) / maxf(imax, 1), 0.6, 0.2))
 	_cell(g, UiTheme.icon("construction"), tr("UI_SLOTS"), "%d / %d" % [st.used_slots(), st.building_slots], UiTheme.TEXT)
 	var bg: GridContainer = null
-	for b: String in ["civilian_factory", "military_factory", "dockyard", "synthetic_refinery", "air_base", "naval_base", "anti_air"]:
+	for b: String in ["civilian_factory", "military_factory", "air_base", "naval_base", "anti_air"]:
 		var lv := st.building_level(b)
 		if lv <= 0:
 			continue
@@ -559,6 +559,53 @@ static func _decode(s: String) -> String:
 
 ## Ctrl basılıyken bir ülkenin üzerinde: ülkenin genel durumu (eyalet paneli gibi ikonlu). Ctrl + tık o ülkenin
 ## siyaset ekranını açar (birlik seçiliyken Ctrl + tık hareket emridir: can_open false).
+## Ülke seçim ekranı: yalnız ülke ve lider (bayrak, ad, ideoloji/parti, lider portresi ve adı)
+func show_country_brief(tag: String, screen_pos: Vector2) -> void:
+	var c: Country = World.countries.get(tag)
+	if c == null:
+		visible = false
+		return
+	var key := "b" + tag
+	if key == _shown_key and visible:
+		_position_card(screen_pos)
+		return
+	_shown_key = key
+	_shown_ms = Time.get_ticks_msec()
+	_clear_extra()
+	_flag.texture = FlagFactory.get_flag(c)
+	_title.text = c.display_name()
+	_subtitle.text = ("%s  ·  %s" % [tr("IDEOLOGY_" + c.ideology), c.party_name()]) if c.party_name() != "" else tr("IDEOLOGY_" + c.ideology)
+	var por := UiTheme.portrait(c)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 10)
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_extra.add_child(head)
+	if por:
+		var frame := PanelContainer.new()
+		frame.theme_type_variation = "SlotGold"
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.add_child(frame)
+		var pt := TextureRect.new()
+		pt.texture = por
+		pt.custom_minimum_size = Vector2(64, 80)
+		pt.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pt.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		pt.clip_contents = true
+		pt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_child(pt)
+	var ln := UiTheme.make_label(c.leader_name(), 18, UiTheme.TEXT)
+	ln.add_theme_font_override("font", UiTheme.bold_font())
+	ln.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	ln.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(ln)
+	_political.text = ""
+	_facts.text = ""
+	_economy.text = ""
+	_military.text = ""
+	_hint.text = ""
+	_show_sections()
+	_position_card(screen_pos)
+
 func show_country(tag: String, screen_pos: Vector2, can_open := true) -> void:
 	var c: Country = World.countries.get(tag)
 	if c == null:
@@ -696,7 +743,7 @@ func show_country(tag: String, screen_pos: Vector2, can_open := true) -> void:
 			s.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			sp.add_child(s)
 	# sürdürülen program
-	if c.focus_current != "":
+	if Politics.FOCUS_ENABLED and c.focus_current != "":
 		var fo := Politics.focus_def(c, c.focus_current)
 		if not fo.is_empty():
 			var fr := HBoxContainer.new()

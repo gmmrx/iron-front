@@ -105,6 +105,10 @@ func test_arrow_geometry_and_color() -> void:
 	var arr := _arrow_arrays(ul)
 	if check(not arr.is_empty(), "ok çizildi"):
 		_check_arrow(arr, UnitLayer.move_color("TUR"), pts[pts.size() - 1], target, "hareket")
+	# hiçbir şey değişmediyse geçen karenin örgüsü kalır (savaş ilanı/kontrol değişince yeniden kurulur: aşağıda)
+	var first := ul._arrows.mesh
+	ul._draw_arrows()
+	check(ul._arrows.mesh == first, "değişmeyen seçimde ok yeniden kurulmaz")
 	# düşman toprağına: kırmızı
 	var foe := ""
 	for n in World.land_neighbors(target):
@@ -125,18 +129,29 @@ func test_arrow_geometry_and_color() -> void:
 	ul.free()
 	pm.free()
 
+## Ok başının sivri ucu: beklenen noktaya en yakın köşe
+func _arrow_tip(verts: PackedVector3Array, want: Vector2) -> Vector3:
+	var best := INF
+	var out := Vector3.ZERO
+	for v in verts:
+		var dd := Vector2(v.x, v.z).distance_to(want)
+		if dd < best:
+			best = dd
+			out = v
+	return out
+
 func _check_arrow(arr: Array, col: Color, tip: Vector2, target: int, ctx: String) -> void:
 	var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
 	var cols: PackedColorArray = arr[Mesh.ARRAY_COLOR]
 	var uvs: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV]
-	var uv2: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV2]
+	var uv2: PackedVector2Array = arr[Mesh.ARRAY_TEX_UV2] if arr[Mesh.ARRAY_TEX_UV2] != null else PackedVector2Array()   # yeni ok UV2 kullanmıyor
 	gt(verts.size(), 6, ctx + ": köşe sayısı")
 	eq(verts.size() % 3, 0, ctx + ": üçgen listesi (köşe sayısı 3'ün katı)")
-	var wrong := 0
-	for c in cols:                           # köşe rengi 8 bit saklanır (aşağı kırpılır)
-		if absf(c.r - col.r) > 0.005 or absf(c.g - col.g) > 0.005 or absf(c.b - col.b) > 0.005:
-			wrong += 1
-	eq(wrong, 0, ctx + ": yanlış renkli köşe (ör. %s, beklenen %s)" % [str(cols[0]) if cols.size() > 0 else "-", str(col)])
+	var fill := 0
+	for c in cols:                           # köşe rengi 8 bit saklanır (aşağı kırpılır); okun koyu dış çizgisi de var
+		if absf(c.r - col.r) <= 0.005 and absf(c.g - col.g) <= 0.005 and absf(c.b - col.b) <= 0.005:
+			fill += 1
+	gt(float(fill), 2.0, ctx + ": okun dolgusu beklenen renkte (beklenen %s)" % str(col))
 	var uv_bad := 0
 	for uv in uvs:
 		if uv.x < -0.001 or uv.x > 1.001 or uv.y < -0.001 or uv.y > 1.001:
@@ -147,9 +162,9 @@ func _check_arrow(arr: Array, col: Color, tip: Vector2, target: int, ctx: String
 		if u.x < -0.001 or not is_finite(u.x):
 			s_bad += 1
 	eq(s_bad, 0, ctx + ": gövde mesafesi (UV2) geçersiz")
-	# okun sonu (ok başı yok, akan işaretler): son şeridin iki uç köşesinin ortası rota sonunda, hedef bölgede
-	var end := (verts[verts.size() - 2] + verts[verts.size() - 1]) * 0.5
-	near(Vector2(end.x, end.z).distance_to(tip), 0.0, 0.01, ctx + ": okun sonu rota sonunda")
+	# okun ucu (ok başının sivri köşesi) rota sonunda, hedef bölgede
+	var end := _arrow_tip(verts, tip)
+	near(Vector2(end.x, end.z).distance_to(tip), 0.0, 0.01, ctx + ": okun ucu rota sonunda")
 	eq(Probe.province_at(Vector2(end.x, end.z)), target, ctx + ": okun sonu hedef bölgede")
 
 # ------------------------------------------------------------------ hava durumu
@@ -439,9 +454,10 @@ func test_order_keeps_counter_in_place() -> void:
 	var arr := _arrow_arrays(ul)
 	if check(not arr.is_empty(), "ok çizildi"):
 		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
-		var tip := (verts[verts.size() - 2] + verts[verts.size() - 1]) * 0.5
 		var last: int = d.path[d.path.size() - 1]
-		near(Vector2(tip.x, tip.z).distance_to(World.province(last).center + Vector2(10.0, 0.0)), 0.0, 0.01, "ok varış noktasında biter")
+		var want := World.province(last).center + Vector2(10.0, 0.0)
+		var tip := _arrow_tip(verts, want)
+		near(Vector2(tip.x, tip.z).distance_to(want), 0.0, 0.01, "ok varış noktasında biter")
 	ul._arrows.free()
 	ul.free()
 	pm.free()
@@ -484,7 +500,7 @@ func test_counters_do_not_overlap() -> void:
 	_tree().root.add_child(ul)
 	cam.current = true
 	var p1 := World.province(d1.province).center
-	cam.distance = 200.0
+	cam.distance = 120.0
 	cam.target = Vector3(p1.x, 0.0, p1.y)      # focus_on harita sınırına kıstırır (testte harita boyu yok)
 	cam._apply()
 	ul._process(0.5)
@@ -803,7 +819,7 @@ func test_crowded_stack_is_a_deck() -> void:
 	sc.spot = p0                                  # bütün Türk yığınları aynı noktada
 	for d in mine:
 		sc.pids[d.province] = true
-	cam.distance = 200.0
+	cam.distance = 120.0
 	cam.target = Vector3(p0.x, 0.0, p0.y)
 	cam._apply()
 	ul._process(0.5)

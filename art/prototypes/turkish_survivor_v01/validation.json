@@ -1,0 +1,31 @@
+{
+  "source": "/Users/bugra/Desktop/work/topdown-shoow/assets/aa/CHAR_Survivor.glb",
+  "source_sha256": "f8a63e531ec02ec246e03827323126e35bcdb2d0eed7b317a87d1cb7250ae4cc",
+  "body_unchanged": true,
+  "source_vertices": 7053,
+  "bones": 66,
+  "animations": [
+    "Block_Tool",
+    "Chop",
+    "Chop_Down",
+    "Consume",
+    "Crouch_Idle_Tool",
+    "Death",
+    "Equip_Tool",
+    "Hit",
+    "Holster_Tool",
+    "Idle",
+    "Idle_Tool",
+    "Jump",
+    "Melee_Combo",
+    "Place",
+    "Run",
+    "Run_Back",
+    "Run_Tool",
+    "Walk",
+    "Walk_Back",
+    "Walk_Tool"
+  ],
+  "clothing_objects": 72,
+  "clothing_vertices": 20328
+}

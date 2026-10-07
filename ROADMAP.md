@@ -41,7 +41,7 @@ across the stages.
    wears war support; ✔ a wing forms at the base nearest the capital and moves to a base in range; ✔ reconnaissance
    (reveals the zone through the fog)
 3. ◐ **Economy and politics cut down**: ✔ left menu down to six buttons (plus Recon); ✔ only WWII participants play
-   and move (`data/common/participants.json`); ✔ no construction, buildings fixed and hidden; ☐ only manpower, industry and morale;
+   and move (`data/common/participants.json`); ✔ no construction, buildings fixed (shown, hidden under the fog); ✔ fuel and equipment stock off (losses made good with manpower); supply stays (the balance test needs it); ✔ no dockyards or synthetic refineries: ships bought with SP in ports with a naval base (the computer too, up to its 1936 navy + 8% a year); ✔ research back in the menu, a few minutes per technology in a scenario; ✔ influence motivates troops (Motivate command); ✔ alerts show the next step (never idle); ☐ one morale instead of stability and war support;
    ✔ units bought directly in cities with industry points (SP, `data/common/recruit.json`), paid recon flights; ☐ event and discovery cards
 4. ◐ **Scenarios and victory**: ✔ scenario file (start save, duration, sides, key cities), main menu Scenarios screen,
    no time limit (the war ends when a side gives up), AI weighs key cities; ✔ first

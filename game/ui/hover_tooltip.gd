@@ -13,16 +13,16 @@ func _ready() -> void:
 	top_level = true
 	z_index = 100
 	custom_minimum_size.x = 400.0
-	add_theme_stylebox_override("panel", UiTheme.textured("tooltip", 10, 14))
+	add_theme_stylebox_override("panel", preload("res://game/ui/tooltip_surface.gd").new())
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 6)
+	v.add_theme_constant_override("separation", 9)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(v)
 	_title = UiTheme.make_label("", 20, UiTheme.ACCENT)
-	_title.add_theme_font_override("font", UiTheme.title_font())
+	_title.add_theme_font_override("font", UiTheme.get_theme().default_font)
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(_title)
-	var rule := HSeparator.new()
+	var rule := SelectionSkin.divider()
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(rule)
 	_body = RichTextLabel.new()
@@ -80,6 +80,16 @@ func _set_content(text: String) -> void:
 	_shortcut.text = shortcut
 	_shortcut.visible = shortcut != ""
 	reset_size()
+	_settle_size()
+
+func _settle_size() -> void:
+	# Wrapped text first measures against the old/zero width; shrink after layout settles.
+	await get_tree().process_frame
+	reset_size()
+	await get_tree().process_frame
+	reset_size()
+	if is_instance_valid(_target):
+		_position_at_mouse()
 
 func _position_at_mouse() -> void:
 	var vp := get_viewport_rect().size

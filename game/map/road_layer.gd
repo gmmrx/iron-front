@@ -24,6 +24,7 @@ var _lines := {}                      ## Vector2i karo -> [ana yollar, tali yoll
 var _built := {}                      ## Vector2i karo -> MeshInstance3D (boşsa null)
 var _mats: Array[ShaderMaterial] = []
 var _last_d := -1.0
+var _terrain_step := -1.0
 
 func _ready() -> void:
 	for k in 3:
@@ -68,6 +69,11 @@ func _process(_delta: float) -> void:
 	visible = active and d < RANGE and World.in_game
 	if not visible:
 		return
+	# Roads must sample the same triangulated height grid as the terrain LOD.
+	if map and _terrain_step != map.terrain_spacing():
+		_terrain_step = map.terrain_spacing()
+		for mat: ShaderMaterial in _mats:
+			mat.set_shader_parameter("mesh_step", _terrain_step)
 	if absf(d - _last_d) > 0.5:
 		_last_d = d
 		var vh := get_viewport().get_visible_rect().size.y

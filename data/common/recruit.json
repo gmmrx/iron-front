@@ -1,14 +1,26 @@
 {
- "_comment": "Asker alma ve sanayi puanı (SP). Gelir: oyuncunun kontrol ettiği eyaletlerdeki her askerî fabrika günde 1, sivil fabrika 0,4 SP (bombalanmış pay düşülür). Neden: Sovyetler 1941'de ~61 askerî + 74 sivil fabrikayla günde ~90 SP alır; piyade tümeni 120 SP olunca günde bir tümene yakın asker çıkar, cephe kayıpları yerine konabilir ama kayıp kolay telafi edilmez. Zırhlı tümen 2,5 piyade (pahalı ama yarma gücü). Kanat 100 uçak: avcı ucuz, bombardıman pahalı. Keşif uçuşu 15 SP: yakıt ve risk, bedava ve sınırsız olmasın. Eğitim günleri: birlik o şehirde bu kadar gün yürüyemez. İnsan gücü şablonun taburlarından (tümen başına ~8-10 bin).",
+ "_comment": "Asker alma ve sanayi puanı (SP). Gelir: oyuncunun kontrol ettiği eyaletlerdeki her askerî fabrika günde 1, sivil fabrika 0,4 SP (bombalanmış pay düşülür). Neden: Sovyetler 1941'de ~61 askerî + 74 sivil fabrikayla günde ~90 SP alır; piyade tümeni 120 SP olunca günde bir tümene yakın asker çıkar, cephe kayıpları yerine konabilir ama kayıp kolay telafi edilmez. Zırhlı tümen 2,5 piyade (pahalı ama yarma gücü). Kanat 100 uçak: avcı ucuz, bombardıman pahalı. Keşif uçuşu 15 SP: yakıt ve risk, bedava ve sınırsız olmasın. Gece keşif menzili yarıya iner (night_recon_range 0,5): karanlıkta yalnız ateş ve ışıklar görülür, uçak alçaktan ve yakından bakmak zorunda. Eğitim günleri: birlik o şehirde bu kadar gün yürüyemez. Gemiler (tersane yok): deniz üssü olan eyaletin limanında alınır, o limandaki yedek filoya katılır. Fiyat ekipman bedelinin %7'si (muhrip 580 → 41, denizaltı 430 → 30, kruvazör 1730 → 121, zırhlı 4800 → 336): birkaç muhrip bir piyade tümeni eder, donanma orduyla aynı parayı paylaşır. İnsan gücü şablonun taburlarından (tümen başına ~8-10 bin).",
  "income": {"military_factory": 1.0, "civilian_factory": 0.4},
  "start_sp": 300,
  "recon_sp": 15,
  "recon_days": 1,
+ "night_recon_range": 0.5,
+ "motivate": {
+  "_comment": "Teşvik: nüfuz harcayıp seçili tümenleri bir süre güçlendirmek (askerler motive olur). Tümen başına 10 nüfuz: günde ~2 nüfuz gelen ülke birkaç dakikada bir küçük bir grubu teşvik edebilir, cephenin hepsini sürekli değil; kararı nereye harcayacağın. Etki 48 oyun saati: bir taarruzun ya da bir savunmanın en sıkı günü. Bütünlüğün %30'u hemen döner (yorgun birlik yeniden saldırabilir), saldırı ve savunma +%15 (komşudaki topçu desteği kadar: belirleyici değil, öne geçirir). Süresi bitmeden aynı tümen yeniden teşvik edilmez.",
+  "pp_per_division": 10,
+  "org": 0.3,
+  "bonus": 0.15,
+  "hours": 48
+ },
  "units": {
   "infantry": {"template": 0, "sp": 120, "days": 7, "icon": "army"},
   "armor": {"template": 1, "sp": 300, "days": 10, "icon": "equipment_light_tank_equipment"},
   "fighter": {"wing": "fighter", "sp": 150, "days": 5, "icon": "equipment_fighter_equipment"},
   "cas": {"wing": "cas", "sp": 180, "days": 5, "icon": "equipment_cas_equipment"},
-  "bomber": {"wing": "bomber", "sp": 240, "days": 6, "icon": "equipment_tactical_bomber_equipment"}
+  "bomber": {"wing": "bomber", "sp": 240, "days": 6, "icon": "equipment_tactical_bomber_equipment"},
+  "destroyer": {"ship": "destroyer", "sp": 41, "icon": "equipment_destroyer"},
+  "submarine": {"ship": "submarine", "sp": 30, "icon": "equipment_submarine"},
+  "cruiser": {"ship": "cruiser", "sp": 121, "icon": "equipment_cruiser"},
+  "battleship": {"ship": "battleship", "sp": 336, "icon": "equipment_battleship"}
  }
 }

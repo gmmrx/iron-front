@@ -3,7 +3,7 @@ extends Node3D
 ## Sade, dönem uyumlu yol köprüsü: taş ayaklar, koyu çelik kuleler ve askı kabloları.
 ## Yerel X köprü boyu, Y yükseklik, Z yol genişliğidir; StraitLayer harita yönüne döndürür.
 
-const RANGE := 1100.0
+const RANGE := 380.0
 
 func build(span_length: float, road_width := 3.6) -> void:
 	var L := maxf(span_length, 4.0)

@@ -1,5 +1,5 @@
 {
- "_comment": "Senaryolar. start: başlangıç kaydı data/scenarios/<start>.json (game/dev/war_demo.gd --after=0 ile üretilen izleme kaydı: bütün ülkeler yapay zekâda, oyuncu seçtiği tarafı alır). sides: ilki saldıran. key_cities: data/map/cities.json id'leri; yapay zekânın öncelikli hedefleri ve senaryonun kalbi. Süre yok: savaş taraflardan biri teslim olana ya da yok olana kadar sürer.",
+ "_comment": "Senaryolar. research_speed: senaryoda araştırma bu kat hızlı (teknolojiler 100-170 gün; senaryo 30-45 dakika, varsayılan hızda bir oyun günü ~16 sn: 4 kat hızla bir teknoloji yuvada ~8-9 dakikada biter, 2-3 yuvayla oyuncu birkaç dakikada bir yeni araştırma seçer). start: başlangıç kaydı data/scenarios/<start>.json (game/dev/war_demo.gd --after=0 ile üretilen izleme kaydı: bütün ülkeler yapay zekâda, oyuncu seçtiği tarafı alır). sides: ilki saldıran. key_cities: data/map/cities.json id'leri; yapay zekânın öncelikli hedefleri ve senaryonun kalbi. Süre yok: savaş taraflardan biri teslim olana ya da yok olana kadar sürer.",
  "scenarios": [
   {
    "id": "east_1941",
@@ -20,6 +20,7 @@
      "tag": "SOV"
     }
    ],
+   "research_speed": 4.0,
    "key_cities": [
     8,
     29,

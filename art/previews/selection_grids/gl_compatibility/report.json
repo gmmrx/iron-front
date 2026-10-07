@@ -1,0 +1,136 @@
+{
+	"cases": [
+		{
+			"cards": [
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_20",
+					"rect": [
+						144.0,
+						517.0,
+						295.0,
+						174.0
+					],
+					"selected": true
+				},
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_71",
+					"rect": [
+						445.0,
+						517.0,
+						294.0,
+						174.0
+					],
+					"selected": false
+				},
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_72",
+					"rect": [
+						144.0,
+						697.0,
+						295.0,
+						174.0
+					],
+					"selected": false
+				}
+			],
+			"grid_columns": 2,
+			"minimum": [
+				627.0,
+				579.0
+			],
+			"operations_scrolled": [
+				144.0,
+				421.0,
+				595.0,
+				269.0
+			],
+			"operations_viewport": [
+				144.0,
+				439.0,
+				595.0,
+				251.0
+			],
+			"page": "air",
+			"panel": [
+				128.0,
+				127.0,
+				627.0,
+				579.0
+			],
+			"resolution": [
+				1280,
+				720
+			],
+			"selected_detail": [
+				144.0,
+				879.0,
+				595.0,
+				269.0
+			]
+		},
+		{
+			"cards": [
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_20",
+					"rect": [
+						144.0,
+						517.0,
+						295.0,
+						174.0
+					],
+					"selected": true
+				},
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_71",
+					"rect": [
+						445.0,
+						517.0,
+						294.0,
+						174.0
+					],
+					"selected": false
+				},
+				{
+					"grid": "AirRosterGrid",
+					"name": "WingSelection_72",
+					"rect": [
+						144.0,
+						697.0,
+						295.0,
+						174.0
+					],
+					"selected": false
+				}
+			],
+			"grid_columns": 2,
+			"minimum": [
+				627.0,
+				939.0
+			],
+			"page": "air",
+			"panel": [
+				128.0,
+				127.0,
+				627.0,
+				939.0
+			],
+			"resolution": [
+				1920,
+				1080
+			],
+			"selected_detail": [
+				144.0,
+				879.0,
+				595.0,
+				269.0
+			]
+		}
+	],
+	"errors": [],
+	"renderer": "gl_compatibility"
+}

@@ -13,7 +13,7 @@ const LIB_PATH := "res://assets/models/industry.gltf"
 const PART_SHADER := preload("res://assets/shaders/building_part.gdshader")
 const BUILDING_SHADER := preload("res://assets/shaders/building.gdshader")
 const SCALE := 5.2                 ## model birimi → dünya birimi (tesis ≈ 5 dünya birimi: dört-beş şehir evi)
-const RANGE := 700.0               ## kamera uzaklığı üst sınırı (dünya birimi)
+const RANGE := 350.0               ## tesis modelleri yalnız yakın diorama görüşünde
 const CHUNK := 384.0
 const MIN_GAP := 5.6               ## iki tesis arası en az uzaklık
 ## bina türü -> [model adları (çeşit), en çok tesis, kıyı mı]
