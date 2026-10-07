@@ -2,16 +2,16 @@
 
 # Nasıl oynanır
 
-## Senaryolar
-Ana menüde **Senaryolar**'ı, sonra bir senaryonun bir tarafını seç. Senaryo savaşın hazır bir anından başlar. Süre yoktur:
-savaş taraflardan biri teslim olana ya da yok olana kadar sürer. İki taraf barış yaparsa anahtar şehir puanlarının daha
-çoğunu tutan taraf kazanmış sayılır.
-- **Anahtar şehirler** iki tarafın da uğruna savaştığı yerlerdir; bilgisayar saldıracağı yeri seçerken onlara ek ağırlık
-  verir, anahtar şehrin kartı bunu söyler.
-- Kendi tarafını yeni oyun varsayılanlarıyla oynarsın (elle ticaret, elle kanatlar, "son askere kadar"); öbür bütün
-  ülkeleri bilgisayar yönetir.
-- **Doğu Cephesi, 1941**: 22 Haziran 1941, Almanya Sovyetler Birliği'ne karşı. Anahtar şehirler: Moskova 50, Leningrad
-  15, Kiev 15, Minsk 10, Kharkov 10, Odessa, Dnipropetrovsk, Stalino ve Rostov 5'er.
+## Oyuna başlamak
+Ana menüde **Yeni oyun**'u, sonra İkinci Dünya Savaşı'na katılan ülkelerden birini seç. Oyun 1 Ocak 1936'da başlar,
+bitiş tarihi yoktur; öbür bütün ülkeleri bilgisayar yönetir. Senaryolar (savaşın hazır bir anı) artık menüde yok. Oyun
+başkentinde sabah 07:00'de başlar.
+
+**Öğretici** (ana menü): yaklaşık on dakika, Ocak 1936'da İtalya, Etiyopya'yla savaşta (savaş o gün sürüyordu). Alttaki
+küçük rehber kartı her seferinde tek bir şey söyler: haritayı kaydır ve yaklaş, asker seç, Shift ile saldırı tahminini
+oku, saldır, saati başlat, çarpışan askerleri teşvik et, bir bölge al, şehirde asker al, uyarı şeridi. Her adım sen onu
+yapınca geçer (rehber senin yerine hiçbir şey yapmaz); **Göster** kamerayı oraya götürür, **Adımı geç** ve
+**Öğreticiyi bitir** hep oradadır. Bitince oyun olduğu gibi sürer. Adımlar: `data/common/tutorial.json`.
 
 ## Oyun döngüsü
 1. **Keşfet**: toprağının ve sınırın bir bölge ötesinin dışında harita karanlıktır. **K**'ya (ya da Keşif düğmesine) basıp
@@ -24,7 +24,9 @@ savaş taraflardan biri teslim olana ya da yok olana kadar sürer. İki taraf ba
    SP'yi ve günlük geliri gösterir). Bir şehri alırsan fabrikaları senin için çalışır; bombalanan fabrika vermez.
 
 ## Başlangıç (serbest oyun)
-1. Ana menüde **Yeni oyun** → haritadan ya da listeden bir ülke seç → **Oyna**.
+1. Ana menüde **Yeni oyun** → üstteki kutulardan ya da haritadan bir ülke seç: haritanın geri kalanı kararır, ülkenin
+   sınırı yanar ve kamera ona süzülür; solda lider ve ülkenin sayıları gelir → **Oyna**: seçim panelleri yukarı çekilir,
+   kamera başkentine iner, oyun panelleri yukarıdan iner.
 2. Oyun **duraklatılmış** başlar (1 Ocak 1936). Boşluk ile başlat/durdur, 1–5 ile hız seç.
 3. Oyun İngilizce açılır; Türkçe için **Ayarlar → Dil** (ana menü ya da Esc menüsü).
 

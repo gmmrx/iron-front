@@ -1,10 +1,8 @@
 {
-  "_comment": "cost: fabrika-gün (bir sivil fabrikanın bir günlük işi; civ_factory_output = 1). Sivil/askerî fabrika ve tersane oranı 3:2:1,8; bir projede en çok 12 fabrika (bir şantiyede verimli çalışan ekip sınırı); shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
+  "_comment": "cost: fabrika-gün (bir sivil fabrikanın bir günlük işi; civ_factory_output = 1). Sivil ve askerî fabrika oranı 3:2 (tersane ve sentetik rafineri kaldırıldı: gemi deniz üssünde SP ile alınır, yakıt kapalı); bir projede en çok 12 fabrika (bir şantiyede verimli çalışan ekip sınırı); shared_slots: eyalet bina slotu kullanır; max: eyalet başına üst sınır; coastal: kıyı eyaleti gerekir.",
   "buildings": {
     "civilian_factory": {"cost": 2160, "shared_slots": true, "max": 20, "name": {"en": "Civilian Factory", "tr": "Sivil Fabrika"}},
     "military_factory": {"cost": 1440, "shared_slots": true, "max": 20, "name": {"en": "Military Factory", "tr": "Askeri Fabrika"}},
-    "dockyard": {"cost": 1280, "shared_slots": true, "max": 20, "coastal": true, "name": {"en": "Dockyard", "tr": "Tersane"}},
-    "synthetic_refinery": {"cost": 3000, "shared_slots": true, "max": 3, "name": {"en": "Synthetic Refinery", "tr": "Sentetik Rafineri"}},
     "infrastructure": {"cost": 1100, "shared_slots": false, "max": 5, "name": {"en": "Infrastructure", "tr": "Altyapı"}},
     "air_base": {"cost": 300, "shared_slots": false, "max": 10, "name": {"en": "Air Base", "tr": "Hava Üssü"}},
     "naval_base": {"cost": 450, "shared_slots": false, "max": 10, "coastal": true, "name": {"en": "Naval Base", "tr": "Deniz Üssü"}},

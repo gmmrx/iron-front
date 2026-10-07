@@ -5,7 +5,8 @@
 1936–1948 arası geçen, 82 ülkeyle oynanabilen bir 2. Dünya Savaşı büyük strateji oyunu. Godot 4.7.2, GDScript,
 veri güdümlü (`data/common/*.json`). Web sürümü: https://gmmrx.github.io/iron-front/ (main'e her push'ta yeniden yayınlanır).
 Oyun wikisi: `docs/wiki/` (Türkçesi `docs/wiki/tr/`), yol haritası: `ROADMAP.md` (Türkçesi `ROADMAP.tr.md`).
-**Oyun tasarımı kuralları: `docs/DESIGN.md`** (Türkçesi `docs/TASARIM.md`). Oyun kısa senaryolara indiriliyor; o sayfanın
+**Oyun tasarımı kuralları: `docs/DESIGN.md`** (Türkçesi `docs/TASARIM.md`). Oyun 1936'dan sonu açık serbest oyun (yalnız
+savaşın katılımcıları, senaryo yok); o sayfanın
 izin vermediği hiçbir şey yapılmaz.
 Kullanıcıyla Türkçe konuş. Oyunun ve belgelerin ana dili İngilizcedir.
 

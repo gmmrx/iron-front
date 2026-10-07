@@ -39,6 +39,7 @@ func run(tree: SceneTree, args: Dictionary) -> int:
 	else:
 		Game.new_game()
 		World.start_game(args.get("play", "DEN"))
+		Game.observer = args.has("observer")
 		var wt: PackedStringArray = str(args.get("war", "GER,DEN")).split(",")
 		(World.countries[wt[0]] as Country).war_goals[wt[1]] = "ready"
 		Diplomacy.declare_war(wt[0], wt[1])

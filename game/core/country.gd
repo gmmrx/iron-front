@@ -72,13 +72,25 @@ var election_months := 0                    ## seçim aralığı (0 = seçim yok
 var next_election := 0                      ## sonraki seçim tarihi (YYYYMMDD)
 
 ## Toplam modifier: milli ruhlar + danışmanlar + araştırma + yasalar
+## Değiştirici toplamı. Savaşta tümen ve saat başına binlerce kez sorulur (siper, savunma, hız…): toplam, kaynakların
+## (ulusal durumlar, danışmanlar, yasalar, teknoloji) imzası değişmedikçe önbellekten gelir. İmza yerel hash'lerdir:
+## kaynak dizileri doğrudan değiştirilse de (testler, olay etkileri) önbellek bir sonraki soruda yenilenir.
+var _mod_cache := {}
+var _mod_sig := 0
 func mod(key: String) -> float:
+	var sig := hash([spirits.hash(), advisors.hash(), laws.hash(), tech_mods.hash()])
+	if sig != _mod_sig:
+		_mod_sig = sig
+		_mod_cache.clear()
+	elif _mod_cache.has(key):
+		return _mod_cache[key]
 	var total := float(tech_mods.get(key, 0.0))
 	for sp in spirits:
 		total += float(Politics.spirit_mods(sp).get(key, 0.0))
 	for ad in advisors:
 		total += float(Politics.advisor_mods(ad).get(key, 0.0))
 	total += Economy.law_sum(self, key)
+	_mod_cache[key] = total
 	return total
 
 func exists() -> bool:

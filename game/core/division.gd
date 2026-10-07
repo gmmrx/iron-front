@@ -18,6 +18,7 @@ var supplied := true
 var training := 0                      ## kalan eğitim günü (hareket edemez)
 var xp := 0.15                         ## tecrübe 0..1: Yeşil · Eğitimli · Düzenli · Kıdemli · Seçkin
 var planning := 0.0                    ## 0..1 → en çok +%20 saldırı (cephede bekledikçe birikir)
+var motivated_until := 0               ## teşvikin bittiği saat (World.day_count * 24 + saat; Military.motivate)
 var army := 0                          ## bağlı olduğu ordu (0 = yok)
 var hold := false                      ## "son askere kadar savun": organizasyon bitince geri çekilmez (oyuncu seçer)
 var manual := false                    ## oyuncu doğrudan emir verdi: orduda kalır ama ordu planı onu oynatmaz

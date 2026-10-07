@@ -3,10 +3,10 @@ extends RefCounted
 ## Yan panel şablonu ve ortak parçalar: başlık bandı (ikon + başlık + kapat), tam boy kaydırmalı
 ## gövde, oyulmuş bölüm çubukları, gömük ikon yuvaları, istatistik satırları, sekmeler, pasta grafik.
 
-const SIDE_TOP := 96.0        ## yan panellerin üst kenarı (üst satırın altı)
-const SIDE_LEFT := 84.0       ## yan panellerin sol kenarı (sol menü tepsisinin sağı)
+const SIDE_TOP := 127.0       ## yan panellerin üst kenarı (portrenin ve üst satırın altı: TopBar.MENU_TOP)
+const SIDE_LEFT := 128.0      ## yan panellerin sol kenarı: kaynak çubuğuyla aynı hizada (TopBar: EDGE + portre eni ~110 + 6)
 const SIDE_RIGHT := 12.0
-const WIDTH_SCALE := 1.4      ## paneller tasarım genişliğinden bu kadar geniş açılır (okunur yazı boyu için)
+const WIDTH_SCALE := 1.25     ## paneller tasarım genişliğinden bu kadar geniş açılır (okunur yazı boyu için)
 const SIDE_BOTTOM := 14.0
 
 ## Paneli çerçevele: başlık + kaydırmalı gövde. Gövde VBox'ı döner. Panelde meta "scroll" ve "body" saklanır.
@@ -17,10 +17,11 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	width = 1200.0 if fullscreen else width * WIDTH_SCALE
 	panel.custom_minimum_size.x = width
 	panel.set_meta("framed", true)
+	CommandPanelSkin.apply(panel)
 	if fullscreen:
 		panel.set_meta("fullscreen", true)
 	var root := VBoxContainer.new()
-	root.add_theme_constant_override("separation", 6)
+	root.add_theme_constant_override("separation", 10)
 	panel.add_child(root)
 	var head := PanelContainer.new()
 	head.theme_type_variation = "Header"
@@ -29,11 +30,11 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	hb.add_theme_constant_override("separation", 8)
 	head.add_child(hb)
 	if icon_name != "":
-		var tex := UiTheme.icon(icon_name)
+		var tex := CommandPanelSkin.icon(icon_name)
 		if tex:
-			hb.add_child(UiTheme.icon_texture(tex, 32))
-	var t := UiTheme.make_label(title.to_upper(), 22, UiTheme.ACCENT)
-	t.add_theme_font_override("font", UiTheme.title_font())
+			hb.add_child(UiTheme.icon_texture(UiTheme.trimmed(tex), 38))
+	var t := UiTheme.make_label(title.to_upper(), 26, UiTheme.ACCENT)
+	t.add_theme_font_override("font", UiTheme.bold_font())
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	t.name = "Title"
@@ -42,7 +43,7 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 		if panel.has_method("close"):
 			panel.call("close")
 		else:
-			panel.visible = false, 30)
+			panel.visible = false, 36)
 	hb.add_child(close)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -57,11 +58,25 @@ static func frame(panel: PanelContainer, title: String, icon_name: String = "", 
 	panel.set_meta("scroll", scroll)
 	panel.set_meta("body", body)
 	panel.visibility_changed.connect(func() -> void:
-		if panel.visible: fit_full.call_deferred(panel))
+		if panel.visible: queue_fit(panel))
 	# kök görünüm sahneden uzun yaşar: sahne yeniden kurulunca (dil değişimi, kayıttan açma) silinen panel atlanır
+	var panel_reference: WeakRef = weakref(panel)
 	panel.get_viewport().size_changed.connect(func() -> void:
-		if is_instance_valid(panel) and panel.visible: fit_full(panel))
+		var alive := panel_reference.get_ref() as Control
+		if is_instance_valid(alive) and alive.visible: fit_full(alive))
 	return body
+
+## Collapse repeated minimum-size notifications and never defer a freed Control argument.
+static func queue_fit(panel: Control) -> void:
+	if not is_instance_valid(panel) or bool(panel.get_meta("fit_pending", false)): return
+	panel.set_meta("fit_pending", true)
+	var ref: WeakRef = weakref(panel)
+	var apply := func() -> void:
+		var alive: Control = ref.get_ref()
+		if is_instance_valid(alive):
+			alive.set_meta("fit_pending", false)
+			fit_full(alive)
+	apply.call_deferred()
 
 static func set_title(panel: Control, title: String) -> void:
 	var l := panel.find_child("Title", true, false) as Label
@@ -87,9 +102,10 @@ static func fit_full(panel: Control) -> void:
 static func section(parent: Container, text: String) -> PanelContainer:
 	var bar := PanelContainer.new()
 	bar.theme_type_variation = "Section"
-	var l := UiTheme.make_label(text.to_upper(), 14, Color("d9c38c"))
+	var l := UiTheme.make_label(text.to_upper(), 17, Color("e7c47e"))
 	l.add_theme_font_override("font", UiTheme.bold_font())
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bar.add_child(l)
 	parent.add_child(bar)
 	return bar
@@ -126,19 +142,23 @@ static func tabs(parent: Container, names: Array, on_select: Callable, selected:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	var group := ButtonGroup.new()
+	group.allow_unpress = false
 	for i in names.size():
 		var b := Button.new()
 		b.theme_type_variation = "Tab"
 		b.toggle_mode = true
 		b.button_group = group
 		b.text = str(names[i])
-		b.focus_mode = Control.FOCUS_NONE
+		b.focus_mode = Control.FOCUS_ALL
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.clip_text = true
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		b.tooltip_text = str(names[i])
 		# oyun menüsü sekmesi: yüksek, kalın yazı
-		b.custom_minimum_size.y = 50
+		b.custom_minimum_size.y = 56
 		b.add_theme_font_size_override("font_size", UiTheme.fs(19))
 		b.add_theme_font_override("font", UiTheme.title_font())
-		b.button_pressed = i == selected
+		b.set_pressed_no_signal(i == selected)
 		b.pressed.connect(func() -> void: on_select.call(i))
 		row.add_child(b)
 	parent.add_child(row)
@@ -175,8 +195,8 @@ static func fixed(panel: PanelContainer) -> VBoxContainer:
 	# sabit alan açıldıktan sonra dolunca (araştırma yuvaları, hücreler) panel yeniden sığdırılır: yoksa kaydırma alanı
 	# eski boyda kalır, panel ekranın altına taşar ve son satırlar görünmez
 	box.minimum_size_changed.connect(func() -> void:
-		if panel.visible:
-			fit_full.call_deferred(panel))
+		if is_instance_valid(panel) and panel.visible:
+			queue_fit(panel))
 	return box
 
 ## Özet hücreleri: [[ikon, başlık, ipucu], ...] -> değer etiketleri (sonradan .text ile güncellenir)
@@ -232,7 +252,7 @@ static func row(parent: Container, tex: Texture2D, title: String, sub: String = 
 	pc.tooltip_text = tip
 	pc.mouse_filter = Control.MOUSE_FILTER_STOP if tip != "" else Control.MOUSE_FILTER_PASS
 	# satır iç boşluğu (yuva dokusu kullanan satırlarda da): içerik kenara yapışmasın
-	var base := UiTheme.get_theme().get_stylebox("panel", variant)
+	var base := CommandPanelSkin.get_theme().get_stylebox("panel", variant)
 	if base:
 		var sbp: StyleBox = base.duplicate()
 		sbp.content_margin_left = 12

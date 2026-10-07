@@ -18,11 +18,15 @@ var _root: VBoxContainer
 var _law_group := "conscription"
 var _tag := ""                    ## gösterilen ülke ("" = oyuncu)
 var _title: Label
+var _scroll_positions: Dictionary = {}
+var _scroll_country := ""
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	visible = false
 	_root = PanelLayout.frame(self, tr("POLITICS_TITLE"), "politics", -1.0)     # tam ekran, üç sütun
+	_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	(get_meta("scroll") as ScrollContainer).vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_title = find_child("Title", true, false) as Label
 	Politics.politics_changed.connect(func(t: String) -> void:
 		if visible and t == _country_tag(): refresh())
@@ -50,6 +54,8 @@ func _foreign() -> bool:
 
 func close() -> void:
 	visible = false
+	_scroll_country = ""
+	_scroll_positions.clear()
 
 func refresh() -> void:
 	if _foreign() and not World.countries.has(_tag):
@@ -57,17 +63,24 @@ func refresh() -> void:
 	var c: Country = World.countries.get(_country_tag())
 	if c == null:
 		return
+	if _scroll_country == c.tag:
+		_capture_scroll_positions()
+	else:
+		_scroll_positions.clear()
+	_scroll_country = c.tag
 	for ch in _root.get_children():
+		_root.remove_child(ch)
 		ch.queue_free()
 	if _title:
 		_title.text = (tr("POLITICS_TITLE") + ("  —  " + c.display_name() if _foreign() else "")).to_upper()
 	if _foreign():
 		_foreign_banner(c)
-	var cols := PanelLayout.columns(_root, [1.0, 1.35, 1.0])
+	var cols := _scroll_columns([1.05, 1.1, 1.0])
 	_body = cols[0]
 	_body.add_theme_constant_override("separation", 10)
 	_leader_block(c)
 	_gauges(c)
+	_effects(c)
 	_body = cols[1]
 	_body.add_theme_constant_override("separation", 14)     # orta sütun: ulusal durumlar ve yasalar arası nefes
 	_spirits(c)
@@ -75,18 +88,56 @@ func refresh() -> void:
 	_body = cols[2]
 	_advisors(c)
 	_decisions(c)
-	if _foreign():
-		_foreign_focus(c)
+	PanelLayout.queue_fit(self)
+	_restore_scroll_positions()
+
+func _capture_scroll_positions() -> void:
+	for child: Node in _root.find_children("PoliticsColumn*", "ScrollContainer", true, false):
+		var scroll := child as ScrollContainer
+		_scroll_positions[String(scroll.name)] = int(scroll.get_meta("scroll_restore_value")) if scroll.has_meta("scroll_restore_value") else scroll.scroll_vertical
+
+func _restore_scroll_positions() -> void:
+	for child: Node in _root.find_children("PoliticsColumn*", "ScrollContainer", true, false):
+		var name := String(child.name)
+		if _scroll_positions.has(name):
+			child.set_meta("scroll_restore_value", int(_scroll_positions[name]))
+			PoliticsPanel._restore_column_scroll.call_deferred(weakref(child), int(_scroll_positions[name]))
+
+static func _restore_column_scroll(reference: WeakRef, value: int, after_layout := false) -> void:
+	var scroll: ScrollContainer = reference.get_ref() as ScrollContainer
+	if not is_instance_valid(scroll) or scroll.is_queued_for_deletion(): return
+	# Sorting the rebuilt nested cards can queue a second container layout pass.
+	if not after_layout:
+		PoliticsPanel._restore_column_scroll.call_deferred(reference, value, true)
 		return
-	var fb := Button.new()
-	fb.text = tr("POL_OPEN_FOCUS")
-	fb.icon = UiTheme.trimmed(UiTheme.icon("politics"))
-	fb.expand_icon = true
-	fb.add_theme_constant_override("icon_max_width", 22)
-	fb.custom_minimum_size.y = 40
-	fb.focus_mode = Control.FOCUS_NONE
-	fb.pressed.connect(func() -> void: focus_requested.emit())
-	_body.add_child(fb)
+	scroll.scroll_vertical = value
+	scroll.remove_meta("scroll_restore_value")
+
+## Each dossier column scrolls independently; long decisions never push the leader off screen.
+func _scroll_columns(ratios: Array) -> Array[VBoxContainer]:
+	var row := HBoxContainer.new()
+	row.name = "PoliticsColumns"
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 14)
+	_root.add_child(row)
+	var result: Array[VBoxContainer] = []
+	for i in ratios.size():
+		var scroll := ScrollContainer.new()
+		scroll.name = "PoliticsColumn%d" % i
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.size_flags_stretch_ratio = float(ratios[i])
+		row.add_child(scroll)
+		DragScroll.attach(scroll)
+		var col := VBoxContainer.new()
+		col.name = "PoliticsColumnBody%d" % i
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.add_theme_constant_override("separation", 14)
+		scroll.add_child(col)
+		result.append(col)
+	return result
 
 ## Başka ülke: kimin ekranına bakıldığı, bizimle ilişkisi ve diplomasiye / kendi ülkemize dönüş
 func _foreign_banner(c: Country) -> void:
@@ -113,41 +164,17 @@ func _foreign_banner(c: Country) -> void:
 		refresh())
 	hb.add_child(back)
 
-## Başka ülke: sürdürdüğü devlet programı ve tamamladıkları
-func _foreign_focus(c: Country) -> void:
-	PanelLayout.section(_body, tr("POL_THEIR_FOCUS"))
-	if c.focus_current != "":
-		var fo := Politics.focus_def(c, c.focus_current)
-		if not fo.is_empty():
-			var days := float(fo["days"])
-			var ftex := UiTheme.focus_icon(c.focus_current)
-			var r := PanelLayout.row(_body, ftex if ftex else UiTheme.icon("politics"),
-				Politics.loc(fo["name"]), tr("CTRY_DAYS_LEFT") % maxi(0, int(days - c.focus_progress)))
-			r.add_child(PanelLayout.bar(clampf(c.focus_progress / maxf(days, 1.0), 0.0, 1.0), UiTheme.ACCENT, 200.0, 5.0))
-	else:
-		_body.add_child(UiTheme.make_label(tr("POL_NO_FOCUS"), 15, UiTheme.TEXT_DIM))
-	if not c.focus_done.is_empty():
-		var names: Array[String] = []
-		for id: String in c.focus_done.slice(maxi(0, c.focus_done.size() - 6)):
-			var fd := Politics.focus_def(c, id)
-			if not fd.is_empty():
-				names.append(Politics.loc(fd["name"]))
-		PanelLayout.detail(_body, tr("POL_FOCUS_DONE") % [c.focus_done.size(), ", ".join(names)], 14)
-
 # ------------------------------------------------------------------ lider, parti, ideoloji
 func _leader_block(c: Country) -> void:
 	# lider kartı: iç boşluklu çerçeve içinde portre, ad/parti/ideoloji/seçim, popülerlik pastası
-	var card := PanelContainer.new()
-	card.theme_type_variation = "PanelFlat"
-	UiTheme.pad(card, 14, 12)
-	_body.add_child(card)
+	var content := CommandPanelSkin.section(_body, c.display_name(), "politics")
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
-	card.add_child(row)
+	content.add_child(row)
 	var flag := PanelContainer.new()
 	flag.theme_type_variation = "SlotGold"
 	var por := UiTheme.portrait(c)
-	flag.custom_minimum_size = Vector2(128, 160) if por else Vector2(180, 120)
+	flag.custom_minimum_size = Vector2(112, 144) if por else Vector2(132, 88)
 	var ft := TextureRect.new()
 	ft.texture = por if por else FlagFactory.get_flag(c)
 	ft.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -170,19 +197,30 @@ func _leader_block(c: Country) -> void:
 	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(info)
 	var name := UiTheme.make_label(c.leader_name(), 24, UiTheme.ACCENT)
-	name.add_theme_font_override("font", UiTheme.title_font())
+	name.add_theme_font_override("font", UiTheme.bold_font())
 	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name)
-	info.add_child(UiTheme.make_label(c.party_name() if c.party_name() != "" else tr("POL_NO_PARTY"), 16, UiTheme.TEXT))
+	var party := UiTheme.make_label(c.party_name() if c.party_name() != "" else tr("POL_NO_PARTY"), 17, UiTheme.TEXT)
+	party.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(party)
 	var ideo := UiTheme.make_label(tr("IDEOLOGY_" + c.ideology), 16, IDEO_COLORS[c.ideology].lightened(0.35))
 	ideo.add_theme_font_override("font", UiTheme.bold_font())
+	ideo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(ideo)
 	var el := tr("POL_NO_ELECTIONS")
 	if c.election_months > 0 and c.next_election > 0:
 		el = tr("POL_NEXT_ELECTION") % [_fmt_date(c.next_election), c.election_months / 12]
-	info.add_child(UiTheme.make_label(el, 15, UiTheme.TEXT_DIM))
+	var election := UiTheme.make_label(el, 16, UiTheme.TEXT_DIM)
+	election.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(election)
 	# pasta + açıklama
-	var pie := PanelLayout.Pie.new(116.0)
+	var heading := UiTheme.make_label(tr("POL_POPULARITY"), 16, UiTheme.ACCENT)
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(heading)
+	var shares := HBoxContainer.new()
+	shares.add_theme_constant_override("separation", 12)
+	content.add_child(shares)
+	var pie := PanelLayout.Pie.new(100.0)
 	pie.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var parts := []
 	var tip := tr("POL_POPULARITY") + "\n"
@@ -193,9 +231,10 @@ func _leader_block(c: Country) -> void:
 	tip += "\n" + tr("POL_POP_TIP") % roundi(Politics.party_stability_bonus(c) * 100)
 	pie.set_parts(parts)
 	pie.tooltip_text = tip
-	row.add_child(pie)
+	shares.add_child(pie)
 	var legend := VBoxContainer.new()
 	legend.add_theme_constant_override("separation", 2)
+	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for i in IDEO_ORDER:
 		var lr := HBoxContainer.new()
@@ -205,18 +244,22 @@ func _leader_block(c: Country) -> void:
 		sw.custom_minimum_size = Vector2(10, 10)
 		sw.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		lr.add_child(sw)
-		var lab := UiTheme.make_label("%d%%" % roundi(float(c.popularity.get(i, 0.0)) * 100), 15, UiTheme.ACCENT if i == c.ideology else UiTheme.TEXT)
+		var lab := UiTheme.make_label("%s  %d%%" % [tr("IDEOLOGY_" + i), roundi(float(c.popularity.get(i, 0.0)) * 100)], 16, UiTheme.ACCENT if i == c.ideology else UiTheme.TEXT)
 		lab.add_theme_font_override("font", UiTheme.bold_font())
+		lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		lab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lr.add_child(lab)
 		legend.add_child(lr)
 	legend.tooltip_text = tip
 	legend.mouse_filter = Control.MOUSE_FILTER_STOP
-	row.add_child(legend)
+	shares.add_child(legend)
 
 # ------------------------------------------------------------------ göstergeler
 func _gauges(c: Country) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	var row := GridContainer.new()
+	row.columns = 3 if get_viewport_rect().size.x >= 1900.0 else 2
+	row.add_theme_constant_override("h_separation", 8)
+	row.add_theme_constant_override("v_separation", 8)
 	_body.add_child(row)
 	var s := Politics.stability(c)
 	var w := Politics.war_support(c)
@@ -228,21 +271,13 @@ func _gauges(c: Country) -> void:
 	var ws_tip := tr("POL_WS_BREAKDOWN") % [roundi(c.war_support * 100), _signed(c.mod("war_support")), _signed(Politics.tension_war_support()),
 		_signed(Politics.war_state_support(c)), roundi(w * 100), roundi(Diplomacy.capitulation_threshold(c) * 100)]
 	_gauge(row, "war_support", tr("POL_WS_SHORT"), "%d%%" % roundi(w * 100), "", ws_tip, w)
-	# ayrıntılar sayfada da (iyi yeşil, kötü kırmızı)
-	for tip: String in [tr("TIP_POLITICAL_POWER") % [c.daily_political_power_gain()], st_tip, ws_tip]:
-		var box := PanelContainer.new()
-		box.theme_type_variation = "Row"
-		UiTheme.pad(box, 16, 12)
-		_body.add_child(box)
-		var lines := tip.split("\n")
-		var col := VBoxContainer.new()
-		col.add_theme_constant_override("separation", 6)
-		box.add_child(col)
-		var head := UiTheme.make_label(lines[0], 16, UiTheme.ACCENT)
-		head.add_theme_font_override("font", UiTheme.bold_font())
-		col.add_child(head)
-		lines.remove_at(0)
-		PanelLayout.detail(col, "\n".join(lines), 14)
+
+## Actual combined national modifiers (spirits, advisers, technologies and laws).
+func _effects(c: Country) -> void:
+	var content := CommandPanelSkin.section(_body, tr("FOCUS_EFFECTS").trim_suffix(":"), "stability")
+	for key: String in ["stability", "war_support", "political_power_gain", "factory_output", "construction_speed", "research_speed", "recruitable_population"]:
+		var value := c.mod(key)
+		PanelLayout.stat(content, tr("MOD_" + key), _signed(value), "", UiTheme.GOOD if value > 0.0 else (UiTheme.BAD if value < 0.0 else UiTheme.TEXT_DIM))
 
 func _fmt_date(d: int) -> String:
 	return "%d %s %d" % [d % 100, tr("MONTH_%d" % (d / 100 % 100)), d / 10000]
@@ -253,7 +288,7 @@ func _signed(v: float) -> String:
 func _gauge(parent: Container, icon: String, title: String, value: String, sub: String, tip: String, ratio: float) -> void:
 	var cell := PanelContainer.new()
 	cell.theme_type_variation = "Slot"
-	UiTheme.pad(cell, 12, 10)
+	cell.add_theme_stylebox_override("panel", CommandPanelSkin.box("inset", 10))
 	cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cell.tooltip_text = tip
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -262,64 +297,128 @@ func _gauge(parent: Container, icon: String, title: String, value: String, sub: 
 	hb.add_theme_constant_override("separation", 10)
 	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cell.add_child(hb)
-	var tex := UiTheme.icon(icon)
+	var tex := CommandPanelSkin.icon(icon)
 	if tex:
-		var gic := UiTheme.icon_texture(tex, 40)
+		var gic := UiTheme.icon_texture(tex, 44 if get_viewport_rect().size.x >= 1900.0 else 34)
 		gic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		hb.add_child(gic)
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 0)
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hb.add_child(col)
-	col.add_child(UiTheme.make_label(title, 13, UiTheme.TEXT_DIM))
+	var caption := UiTheme.make_label(title, 16, UiTheme.TEXT_DIM)
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	col.add_child(caption)
 	# değer yazısı iyi/kötü renginde (ayrı çubuk yok: yüzde zaten yazıyor)
 	var vcol := UiTheme.TEXT
 	if ratio >= 0.0:
 		vcol = UiTheme.GOOD if ratio >= 0.5 else (Color(0.93, 0.78, 0.4) if ratio >= 0.25 else UiTheme.BAD)
-	var v := UiTheme.make_label(value + ("  " + sub if sub != "" else ""), 20, vcol)
+	var v := UiTheme.make_label(value, 24, vcol)
 	v.add_theme_font_override("font", UiTheme.bold_font())
 	col.add_child(v)
+	if sub != "":
+		var rate := UiTheme.make_label(sub, 16, UiTheme.TEXT_DIM)
+		rate.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		col.add_child(rate)
 
 # ------------------------------------------------------------------ milli ruhlar
 func _spirits(c: Country) -> void:
-	PanelLayout.section(_body, tr("POL_SPIRITS"))
-	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 16)
-	flow.add_theme_constant_override("v_separation", 14)
-	_body.add_child(flow)
+	var content := CommandPanelSkin.section(_body, tr("POL_SPIRITS"), "stability")
+	content.name = "NationalConditions"
+	var grid := GridContainer.new()
+	grid.name = "NationalConditionCards"
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
+	content.add_child(grid)
+	var illustrated := 0
 	for sp in c.spirits:
 		var def: Dictionary = Politics.spirits.get(sp, Politics.decisions.get(sp, {}))
 		if def.is_empty():
 			continue
-		var tip := Politics.loc(def["name"]) + "\n" + Politics.describe_mods(def.get("mods", {}))
+		var mods: Dictionary = def.get("mods", {})
+		var effects := Politics.describe_mods(mods)
+		var tip := Politics.loc(def["name"]) + "\n" + effects
 		if def.has("expires"):
 			tip += "\n" + tr("POL_SPIRIT_EXPIRES") % def["expires"]
-		var negative := false
-		for k: String in def.get("mods", {}):
-			if float(def["mods"][k]) < 0.0 and k != "consumer_goods_mod":
-				negative = true
-		var tex := UiTheme.spirit_icon(sp)
-		if tex == null:
-			tex = UiTheme.icon("stability" if not negative else "war_support")
-		var card := VBoxContainer.new()
-		card.add_theme_constant_override("separation", 2)
-		card.custom_minimum_size.x = 112
+		var state := _spirit_state(mods)
+		var tex := _national_illustration(sp)
+		# One illustrated inset per condition, not another framed slot inside a box.
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", CommandPanelSkin.box("card", 8))
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card.set_meta("national_spirit", sp)
+		card.set_meta("spirit_state", state)
 		card.tooltip_text = tip
 		card.mouse_filter = Control.MOUSE_FILTER_STOP
-		var s := PanelLayout.slot(tex, 76, "", "SlotBad" if negative else "Slot")
-		s.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		s.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(s)
-		var nl := UiTheme.make_label(Politics.loc(def["name"]), 12, UiTheme.BAD.lightened(0.3) if negative else UiTheme.TEXT)
+		grid.add_child(card)
+		var stack := VBoxContainer.new()
+		stack.add_theme_constant_override("separation", 7)
+		stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(stack)
+		var art := TextureRect.new()
+		art.name = "Illustration"
+		art.texture = tex
+		var side := 96 if get_viewport_rect().size.x >= 1700.0 else 84
+		art.custom_minimum_size = Vector2(side, side)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(art)
+		var accent := ColorRect.new()
+		accent.custom_minimum_size.y = 2
+		accent.color = Color("829365") if state > 0 else (Color("967454") if state < 0 else Color("9a8150"))
+		accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		stack.add_child(accent)
+		var nl := UiTheme.make_label(Politics.loc(def["name"]), 16, UiTheme.TEXT)
+		nl.add_theme_font_override("font", UiTheme.bold_font())
 		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		nl.custom_minimum_size.x = 112
+		nl.max_lines_visible = 3
+		nl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(nl)
-		flow.add_child(card)
-	if c.spirits.is_empty():
-		_body.add_child(UiTheme.make_label(tr("POL_NO_SPIRITS"), 15, UiTheme.TEXT_DIM))
+		stack.add_child(nl)
+		var lines := effects.split("\n", false)
+		if not lines.is_empty():
+			var summary := UiTheme.make_label(lines[0], 15, UiTheme.TEXT_DIM)
+			summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			summary.max_lines_visible = 2
+			summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			summary.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			stack.add_child(summary)
+		illustrated += 1
+	if illustrated == 0:
+		content.add_child(UiTheme.make_label(tr("POL_NO_SPIRITS"), 17, UiTheme.TEXT_DIM))
+
+## Dossier illustrations must not fall back to glossy HUD status pictograms.
+## UiTheme's cached alpha trim only handles padded icons_new images; printed
+## painted-atlas frames retain their full region. No bitmap is changed/read back.
+static func _national_illustration(id: String) -> Texture2D:
+	var texture: Texture2D
+	if id == Research.GOVERNMENT_SPIRIT:
+		texture = load("res://assets/ui/command_panels/statecraft_v1.png") as Texture2D
+	elif id == "army_in_reorganization":
+		texture = CommandPanelSkin.illustration("spirit_military_modernization")
+	else:
+		texture = UiTheme.spirit_icon(id)
+	if texture == null:
+		texture = CommandPanelSkin.illustration("spirit_national_unity")
+	return UiTheme.trimmed(texture)
+
+## Mixed tradeoffs remain neutral; colour never replaces the complete modifier tooltip.
+static func _spirit_state(mods: Dictionary) -> int:
+	var good := false
+	var bad := false
+	for key: String in mods:
+		if key == "export": continue # More exports are a policy tradeoff, not an unconditional bonus.
+		var effect := float(mods[key])
+		if key in ["consumer_goods_mod", "training_time"]: effect = -effect
+		good = good or effect > 0.0
+		bad = bad or effect < 0.0
+	return 0 if good == bad else (1 if good else -1)
 
 # ------------------------------------------------------------------ yasalar
 func _law_effects(d: Dictionary) -> String:
@@ -343,130 +442,160 @@ func _law_reqs(d: Dictionary) -> String:
 	return ", ".join(parts)
 
 func _laws(c: Country) -> void:
-	PanelLayout.section(_body, tr("POL_LAWS") % int(Economy.law_change_cost))
-	var cols := PanelLayout.columns(_body, [1.0, 1.0, 1.0], 18)
-	var k := 0
+	var content := CommandPanelSkin.section(_body, tr("POL_LAWS") % int(Economy.law_change_cost), "political_power")
+	if not Economy.law_groups.has(_law_group):
+		_law_group = Economy.law_groups.keys()[0]
+	# Current laws remain visible together. Their selectors only change this view,
+	# not the country's laws; actual choices and requirements follow below.
 	for g: String in Economy.law_groups:
-		var list := cols[k]
-		list.add_theme_constant_override("separation", 10)
-		k += 1
-		var gh := UiTheme.make_label(Economy.group_name(g), 15, UiTheme.ACCENT)
-		gh.add_theme_font_override("font", UiTheme.bold_font())
-		gh.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		list.add_child(gh)
-		for law: String in Economy.law_groups[g]["laws"]:
-			var d := Economy.law_def(g, law)
-			var current: bool = c.laws.get(g) == law
-			var block := Economy.law_block_reason(c, g, law)
-			var b := Button.new()
-			b.theme_type_variation = "Card"
-			b.focus_mode = Control.FOCUS_NONE
-			b.toggle_mode = true
-			b.set_pressed_no_signal(current)
-			b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			b.icon = UiTheme.trimmed(UiTheme.law_icon(law))
-			b.expand_icon = true
-			b.add_theme_constant_override("icon_max_width", 40)
-			b.custom_minimum_size = Vector2(0, 62)
-			b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			var reqs := _law_reqs(d)
-			b.text = Economy.law_name(g, law) + ("  ✓" if current else "")
-			b.add_theme_font_size_override("font_size", UiTheme.fs(14))
-			b.disabled = not current and (_foreign() or not Economy.can_change_law(c, g, law))
-			var tip := Economy.law_name(g, law) + "\n" + _law_effects(d).replace(", ", "\n")
-			if reqs != "":
-				tip += "\n" + tr("LAW_REQUIRES") % reqs
-			if _foreign():
-				pass
-			elif block != "" and not current:
-				tip += "\n⚠ " + tr(block)
-			elif not current:
-				tip += "\n" + tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)
-			b.tooltip_text = tip
-			b.pressed.connect(func() -> void:
-				if not current and not _foreign():
-					Economy.change_law(c, g, law)
-				refresh())
-			list.add_child(b)
-			if current:
-				var eff := PanelContainer.new()
-				eff.theme_type_variation = "Row"
-				list.add_child(eff)
-				PanelLayout.detail(eff, _law_effects(d).replace(", ", "\n"), 13)
+		var current_id: String = c.laws.get(g, "")
+		var select := Button.new()
+		Audio.ui_bind(select, "ui_tab")
+		select.theme_type_variation = "Card"
+		select.toggle_mode = true
+		select.set_pressed_no_signal(g == _law_group)
+		select.focus_mode = Control.FOCUS_NONE
+		select.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		select.clip_text = true
+		select.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		select.text = Economy.group_name(g) + " · " + Economy.law_name(g, current_id)
+		select.icon = UiTheme.trimmed(UiTheme.law_icon(current_id))
+		select.expand_icon = true
+		select.add_theme_constant_override("icon_max_width", 32)
+		select.add_theme_font_size_override("font_size", UiTheme.fs(17))
+		select.custom_minimum_size.y = 56
+		select.tooltip_text = Economy.group_name(g) + "\n" + Economy.law_name(g, current_id) + "\n" + _law_effects(Economy.law_def(g, current_id)).replace(", ", "\n")
+		select.set_meta("law_selector", g)
+		select.pressed.connect(func() -> void:
+			_law_group = g
+			refresh())
+		content.add_child(select)
+	var group := _law_group
+	var heading := UiTheme.make_label(Economy.group_name(group), 20, UiTheme.ACCENT)
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(heading)
+	for law: String in Economy.law_groups[group]["laws"]:
+		var d := Economy.law_def(group, law)
+		var current: bool = c.laws.get(group) == law
+		var block := Economy.law_block_reason(c, group, law)
+		var button := Button.new()
+		# Only a successful core law change emits its semantic confirmation.
+		button.set_meta("audio_silent", true)
+		button.theme_type_variation = "Card"
+		button.focus_mode = Control.FOCUS_NONE
+		button.toggle_mode = true
+		button.set_pressed_no_signal(current)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.icon = UiTheme.trimmed(UiTheme.law_icon(law))
+		button.expand_icon = true
+		button.add_theme_constant_override("icon_max_width", 46)
+		button.custom_minimum_size.y = 68
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.text = Economy.law_name(group, law) + ("  ✓" if current else "")
+		button.add_theme_font_size_override("font_size", UiTheme.fs(17))
+		button.disabled = _foreign() or (not current and not Economy.can_change_law(c, group, law))
+		button.set_meta("law_control", true)
+		button.set_meta("law_id", law)
+		var tip := Economy.law_name(group, law) + "\n" + _law_effects(d).replace(", ", "\n")
+		var reqs := _law_reqs(d)
+		if reqs != "": tip += "\n" + tr("LAW_REQUIRES") % reqs
+		if not _foreign() and not current:
+			tip += "\n⚠ " + tr(block) if block != "" else "\n" + tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)
+		button.tooltip_text = tip
+		button.pressed.connect(func() -> void:
+			if not current and not _foreign(): Economy.change_law(c, group, law)
+			refresh())
+		content.add_child(button)
+		if current:
+			PanelLayout.detail(content, _law_effects(d).replace(", ", "\n"), 16)
 
 # ------------------------------------------------------------------ danışmanlar
 func _advisors(c: Country) -> void:
-	PanelLayout.section(_body, tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors, int(Politics.advisor_cost)])
-	var slots := HBoxContainer.new()
-	slots.add_theme_constant_override("separation", 6)
-	_body.add_child(slots)
+	var content := CommandPanelSkin.section(_body, tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors, int(Politics.advisor_cost)], "political_power")
+	var slots := HFlowContainer.new()
+	slots.add_theme_constant_override("h_separation", 10)
+	slots.add_theme_constant_override("v_separation", 10)
+	content.add_child(slots)
 	for i in Politics.max_advisors:
 		if i < c.advisors.size():
 			var id: String = c.advisors[i]
 			var def: Dictionary = Politics.advisor_defs[id]
-			slots.add_child(PanelLayout.slot(UiTheme.advisor_icon(id), 64, Politics.loc(def["name"]) + "\n" + Politics.describe_mods(def["mods"]), "SlotGold"))
+			slots.add_child(PanelLayout.slot(CommandPanelSkin.illustration("advisor_" + id), 76, Politics.loc(def["name"]) + "\n" + Politics.describe_mods(def["mods"]), "SlotGold"))
 		else:
-			slots.add_child(PanelLayout.slot(null, 64, tr("POL_EMPTY_ADVISOR")))
+			slots.add_child(PanelLayout.slot(null, 76, tr("POL_EMPTY_ADVISOR")))
 	if _foreign():
 		for id: String in c.advisors:
 			var def: Dictionary = Politics.advisor_defs[id]
-			_row_button(UiTheme.advisor_icon(id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable())
+			_row_button(CommandPanelSkin.illustration("advisor_" + id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable(), content)
 		return
 	for id: String in Politics.advisor_defs:
 		if id in c.advisors:
 			continue
 		var def: Dictionary = Politics.advisor_defs[id]
-		_row_button(UiTheme.advisor_icon(id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
+		_row_button(CommandPanelSkin.illustration("advisor_" + id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
 			tr("POL_HIRE") % int(Politics.advisor_cost), Politics.can_hire(c, id), func() -> void:
 				Politics.hire(c, id)
-				refresh())
+				refresh(), content)
 	for id: String in c.advisors:
 		var def: Dictionary = Politics.advisor_defs[id]
-		_row_button(UiTheme.advisor_icon(id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
+		_row_button(CommandPanelSkin.illustration("advisor_" + id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
 			tr("POL_DISMISS"), true, func() -> void:
 				Politics.dismiss(c, id)
-				refresh())
+				refresh(), content)
 
-func _row_button(icon: Texture2D, title: String, desc: String, action: String, enabled: bool, cb: Callable) -> void:
+func _row_button(icon: Texture2D, title: String, desc: String, action: String, enabled: bool, cb: Callable, parent: Container = null) -> void:
 	var row := PanelContainer.new()
 	row.theme_type_variation = "PanelFlat"
+	row.tooltip_text = title + "\n" + desc
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 10)
+	row.add_child(stack)
 	var hb := HBoxContainer.new()
 	hb.add_theme_constant_override("separation", 8)
-	row.add_child(hb)
+	stack.add_child(hb)
 	if icon:
-		hb.add_child(UiTheme.icon_texture(icon, 36))
+		hb.add_child(UiTheme.icon_texture(icon, 48))
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", -2)
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hb.add_child(col)
-	var t := UiTheme.make_label(title, 16, UiTheme.TEXT)
+	var t := UiTheme.make_label(title, 18, UiTheme.TEXT)
 	t.add_theme_font_override("font", UiTheme.bold_font())
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	col.add_child(t)
-	var d := UiTheme.make_label(desc, 14, UiTheme.TEXT_DIM)
+	var d := UiTheme.make_label(desc, 16, UiTheme.TEXT_DIM)
 	d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if get_viewport_rect().size.x < 1700.0:
+		d.max_lines_visible = 1
+		d.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	col.add_child(d)
-	_body.add_child(row)
+	(parent if parent != null else _body).add_child(row)
 	if action == "":
 		return
 	var b := Button.new()
+	# Advisor/decision success is signalled by Politics, not by refresh or press.
+	b.set_meta("audio_silent", true)
 	b.text = action
 	b.disabled = not enabled
 	b.focus_mode = Control.FOCUS_NONE
-	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	b.add_theme_font_size_override("font_size", UiTheme.fs(15))
+	b.custom_minimum_size.y = 44
+	b.size_flags_horizontal = Control.SIZE_SHRINK_END
+	b.add_theme_font_size_override("font_size", UiTheme.fs(17))
+	b.tooltip_text = title + "\n" + desc
 	b.pressed.connect(cb)
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hb.add_child(b)
 
 # ------------------------------------------------------------------ kararlar
 func _decisions(c: Country) -> void:
-	PanelLayout.section(_body, tr("POL_DECISIONS"))
+	var content := CommandPanelSkin.section(_body, tr("POL_DECISIONS"), "political_power")
 	if _foreign():
 		for id: String in c.decisions_active:
 			var def: Dictionary = Politics.decisions.get(id, {})
 			if not def.is_empty():
-				_row_button(UiTheme.decision_icon(id), Politics.loc(def["name"]) + "  ✓", Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable())
+				_row_button(UiTheme.decision_icon(id), Politics.loc(def["name"]) + "  ✓", Politics.describe_mods(def["mods"]).replace("\n", "  "), "", false, Callable(), content)
 		if c.decisions_active.is_empty():
-			_body.add_child(UiTheme.make_label(tr("POL_NO_DECISIONS"), 15, UiTheme.TEXT_DIM))
+			content.add_child(UiTheme.make_label(tr("POL_NO_DECISIONS"), 17, UiTheme.TEXT_DIM))
 		return
 	for id: String in Politics.decisions:
 		var def: Dictionary = Politics.decisions[id]
@@ -477,4 +606,4 @@ func _decisions(c: Country) -> void:
 		_row_button(UiTheme.decision_icon(id), Politics.loc(def["name"]) + ("  ✓" if active else ""), desc,
 			tr("POL_TAKE") % int(def["cost"]), Politics.can_take_decision(c, id), func() -> void:
 				Politics.take_decision(c, id)
-				refresh())
+				refresh(), content)

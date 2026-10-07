@@ -154,9 +154,8 @@ func test_building_pick_hover_and_card() -> void:
 	check(tip_card._hint.visible, "oyuncunun yapısında tıklama ipucu")
 	_free_all([tip_card, pl, cam, pm])
 
-## Şehir iğnesi canlandırması: menzile girince yaylanarak tam boya çıkar, ekranın kenarındaki küçük durur, menzilden
-## çıkınca küçülüp kaybolur (canlandırma listesinden düşer)
-func test_city_pin_pops_and_fades() -> void:
+## Şehir ölçüsü dünya biriminde sabit: kamera, odak, hover ve görünürlük transform'u değiştirmez.
+func test_city_model_world_size_stays_fixed() -> void:
 	var pm := ProbeMap.new()
 	var cam := _camera()
 	var pl := _pins(pm, cam)
@@ -169,31 +168,37 @@ func test_city_pin_pops_and_fades() -> void:
 		_free_all([pl, cam, pm])
 		return
 	var at: Vector2 = pl._pins[cap][0]
-	cam.focus_on(at, 300.0)
-	for k in 90:
+	cam.focus_on(at, 100.0)
+	pl._process(1.0 / 60.0)
+	var node: MeshInstance3D = pl._halls[cap]
+	var baseline := node.transform
+	var c: City = pl._pins[cap][4]
+	near(node.mesh.get_aabb().size.x * node.scale.x, PinLayer.city_model_width(c), 0.001, "sabit dünya genişliği")
+	for d: float in [55.0, 90.0, 140.0, 180.0, 200.0]:
+		cam.focus_on(at, d)
 		pl._process(1.0 / 60.0)
-	near(pl._anim_s[cap], 1.0, 0.05, "ekranın ortasındaki iğne tam boy")
-	var peak := 0.0
-	cam.focus_on(at, 300.0)
-	pl._anim_s[cap] = 0.0
-	pl._anim_v[cap] = 0.0
-	for k in 40:
-		pl._process(1.0 / 60.0)
-		peak = maxf(peak, pl._anim_s[cap])
-	gt(peak, 1.02, "belirirken yaylanır (hafif aşar)")
-	# oturduktan sonra görünen bütün iğneler tam boy (kaydırırken küçülüp büyümez, yerinde durur)
-	for k in 90:
-		pl._process(1.0 / 60.0)
-	var off := 0
-	for i: int in pl._live.keys():
-		if absf(pl._anim_s[i] - 1.0) > 0.05:
-			off += 1
-	eq(off, 0, "tam boyda olmayan iğne")
+		check(node.visible, "yakın menzilde model görünür (%d)" % int(d))
+		check(node.transform.is_equal_approx(baseline), "zoom transform'u değiştirmez (%d)" % int(d))
+		near(pl._anim_s[cap], 1.0, 0.0, "yalnız görünürlük bayrağı; pop yok")
+	cam.focus_on(at + Vector2(35.0, 24.0), 100.0)
+	pl._process(0.1)
+	check(node.transform.is_equal_approx(baseline), "ekranın kenarına kayınca ölçü değişmez")
+	pl.hovered_city = cap
+	pl._write_pin(cap)
+	check(node.transform.is_equal_approx(baseline), "hover ölçüyü değiştirmez")
+	var model: Dictionary = pl._city_models.model_for(c)
+	for s: float in [0.0, 0.2, 1.0, 1.15]:
+		pl._write_hall(cap, c, s, model)
+		check(node.transform.is_equal_approx(baseline), "görünürlük parametresi transform'u ölçeklemez")
 	cam.focus_on(at, 3000.0)
-	for k in 90:
-		pl._process(1.0 / 60.0)
-	eq(pl._anim_s[cap], 0.0, "menzil dışında iğne kaybolur")
-	check(not pl._live.has(cap), "kaybolan iğne canlandırmadan düşer")
+	pl._process(1.0 / 60.0)
+	eq(pl._anim_s[cap], 0.0, "menzil dışında görünürlük kapalı")
+	check(not node.visible, "uzakta minyatür gizli")
+	check(node.transform.is_equal_approx(baseline), "gizlenirken model küçülmez")
+	check(not pl._live.has(cap), "gizli minyatür görünürler listesinden çıkar")
+	cam.focus_on(at, 100.0)
+	pl._process(1.0 / 60.0)
+	check(node.visible and node.transform.is_equal_approx(baseline), "yeniden görünürken aynı sabit model")
 	_free_all([pl, cam, pm])
 
 ## İğnenin ucundaki şehir ikonu: dosyası olmayan kademede başkent madalyonla, öbürleri toplu iğne başıyla; ikonlu
@@ -222,8 +227,8 @@ func test_city_pin_top_fallbacks() -> void:
 		check(pl._top_tex(town) == null, "ikonu olmayan köyde toplu iğne başı")
 	_free_all([pl, cam, pm])
 
-## Yalnız büyük şehirlerin (başkent, 10+ zafer puanı) iğnesi var; küçük şehirler yalnız adla
-func test_only_big_cities_have_pins() -> void:
+## Küçük kentler dahil her şehir yakın görüşte minyatür alır; uzak harita dolmaz.
+func test_every_city_has_near_miniature() -> void:
 	var pm := ProbeMap.new()
 	var cam := _camera()
 	var pl := _pins(pm, cam)
@@ -232,14 +237,56 @@ func test_only_big_cities_have_pins() -> void:
 		var c: City = pin[4]
 		if c != null and not (c.is_capital or c.victory_points >= 10):
 			small += 1
-	eq(small, 0, "küçük şehirde iğne")
-	var big := 0
+	gt(small, 0, "küçük şehirlerde de minyatür kaydı")
+	var represented := 0
 	for c: City in World.cities:
 		if PinLayer.has_pin(c):
-			big += 1
-	eq(pl._pins.size(), big, "her büyük şehrin iğnesi")
-	lt(float(big), World.cities.size() * 0.2, "iğneli şehirler azınlık")
+			represented += 1
+		check(PinLayer.city_range(c) <= 410.0, "şehir minyatürü yalnız yakın görüşte")
+	eq(pl._pins.size(), represented, "her şehrin minyatür kaydı")
+	eq(represented, World.cities.size(), "bütün şehirler temsil edilir")
 	_free_all([pl, cam, pm])
+
+func test_city_miniature_preserves_materials_and_ground_contact() -> void:
+	var pm := ProbeMap.new()
+	var cam := _camera()
+	var pl := _pins(pm, cam)
+	var c: City = World.cities[0]
+	var model: Dictionary = pl._city_models.model_for(c)
+	if not check(not model.is_empty(), "kent minyatürü veya eski model yedeği"):
+		_free_all([pl, cam, pm])
+		return
+	var shared: Dictionary = pl._city_models.model_for(c)
+	check(model["mesh"] == shared["mesh"], "kent mesh'i önbellekten paylaşılır")
+	var mesh: Mesh = model["mesh"]
+	var bounds := mesh.get_aabb()
+	near(float(model["height"]), bounds.size.y / bounds.size.x, 0.001, "yükseklik gerçek mesh sınırından")
+	near(float(model["bottom"]), -bounds.position.y / bounds.size.x, 0.001, "taban gerçek mesh sınırından")
+	for surface in mesh.get_surface_count():
+		check(mesh.surface_get_material(surface) != null, "yüzey %d kendi malzemesini korur" % surface)
+	cam.focus_on(c.position, 100.0)
+	pl._write_hall(0, c, 1.0, model)
+	var node: MeshInstance3D = pl._halls[0]
+	check(node.material_override == null, "tek malzeme bütün kenti ezmez")
+	near(node.position.y + bounds.position.y * node.scale.y, 0.0, 0.001, "minyatür tabanı haritaya oturur")
+	if not bool(model["legacy"]):
+		gt(mesh.get_surface_count(), 1, "kent cephe/çatı/zemin yüzeyleri ayrı")
+		lt(float(model["height"]), 0.6, "kent yatay ve kompakt siluette")
+	_free_all([pl, cam, pm])
+
+func test_city_miniature_keeps_nested_scene_transform() -> void:
+	var library = PinLayer.MINI_CITY_MODELS.new()
+	var root := Node3D.new()
+	root.transform = Transform3D(Basis(Vector3.UP, 0.4), Vector3(2.0, 1.0, 3.0))
+	var nested := Node3D.new()
+	nested.transform = Transform3D(Basis.IDENTITY.scaled(Vector3(1.3, 0.8, 0.9)), Vector3(-1.0, 0.4, 0.5))
+	root.add_child(nested)
+	var mesh_node := MeshInstance3D.new()
+	mesh_node.position = Vector3(0.2, 0.1, -0.3)
+	nested.add_child(mesh_node)
+	var expected := root.transform * nested.transform * mesh_node.transform
+	check(library._scene_transform(mesh_node).is_equal_approx(expected), "iç içe düğümlerin konum/dönüş/ölçeği korunur")
+	root.free()
 
 func test_building_hover_sounds_defined() -> void:
 	for b: String in PinLayer.BUILDINGS:
@@ -272,7 +319,7 @@ func test_army_commander_portrait_on_counter() -> void:
 	ul.map = pm
 	ul.camera = cam
 	_tree().root.add_child(ul)
-	cam.distance = 300.0
+	cam.distance = 120.0
 	ul._process(0.5)
 	var with_portrait := 0
 	var shown := 0
@@ -481,7 +528,7 @@ func test_army_rank_stars_instead_of_names() -> void:
 	ul.map = pm
 	ul.camera = cam
 	_tree().root.add_child(ul)
-	cam.distance = 300.0
+	cam.distance = 120.0
 	ul._process(0.5)
 	var ca: Dictionary = ul._counters[ul._div_key[mine[0].id]]
 	var loose: Dictionary = {}

@@ -754,7 +754,7 @@ static func _build() -> Theme:
 	t.set_color("caret_color", "LineEdit", ACCENT)
 	t.set_color("selection_color", "LineEdit", Color(ACCENT, 0.35))
 
-	var tip := skin("tooltip", 8, 10)
+	var tip := preload("res://game/ui/tooltip_surface.gd").new()
 	t.set_stylebox("panel", "TooltipPanel", tip)
 	t.set_color("font_color", "TooltipLabel", TEXT)
 	t.set_color("font_shadow_color", "TooltipLabel", Color(0, 0, 0, 0.9))

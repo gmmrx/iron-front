@@ -1,0 +1,40 @@
+extends "res://tests/test_case.gd"
+
+func test_selection_preserves_actions_and_data() -> void:
+	var selection := CountrySelect.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(selection)
+	check(selection._start.disabled, "no country selected: start disabled")
+	check(selection._none.visible and selection._none_title.visible, "empty state instruction visible")
+	eq(selection._cards.size(), 8, "all featured nations retained")
+	var started: Array[String] = []
+	selection.start_pressed.connect(func(tag: String) -> void: started.append(tag))
+	selection._cards["TUR"].pressed.emit()
+	eq(selection.selected, "TUR", "card selects Turkey")
+	check(selection._start.disabled, "start stays disabled while the country transition runs")
+	selection.reveal()                                     # kamera vardı: bilgiler geldi
+	check(not selection._start.disabled, "selected country enables start")
+	check(not selection._none.visible, "empty state hidden after selection")
+	eq(selection._name.text, World.countries["TUR"].display_name(), "live country name")
+	selection._start.pressed.emit()
+	eq(started, ["TUR"], "start emits selected tag")
+	selection.select("INVALID")
+	eq(selection.selected, "TUR", "invalid selection ignored")
+	selection.select_from_map("GER")
+	eq(selection.selected, "GER", "map selection preserved")
+	check(not selection._top_open, "map selection collapses featured cards")
+	selection.free()
+
+func test_scoped_surfaces_and_tooltips() -> void:
+	var style := SelectionSkin.panel()
+	check(style.texture != null, "reference frame asset exists")
+	eq(style.get_texture_margin(SIDE_LEFT), 32.0, "nine-slice preserves corner fittings")
+	check(ResourceLoader.exists(SelectionSkin.DIRECTORY + "campaign.png"), "campaign artwork exists")
+	var tooltip := HoverTooltip.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(tooltip)
+	tooltip.set_process(false)
+	tooltip._set_content("Başlık\nGerçek açıklama\nKısayol: K")
+	eq(tooltip._title.text, "Başlık", "live title retained")
+	eq(tooltip._shortcut.text, "Kısayol: K", "shortcut retained")
+	check(tooltip.get_theme_stylebox("panel").get_script() == preload("res://game/ui/tooltip_surface.gd"), "reference-art tooltip surface")
+	eq(tooltip.mouse_filter, Control.MOUSE_FILTER_IGNORE, "tooltip never intercepts input")
+	tooltip.free()

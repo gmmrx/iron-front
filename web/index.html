@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iron Front Web Demo</title>
+<style>
+  :root { --panel: rgba(16, 18, 20, 0.88); --line: #6b5a3a; --text: #e8dcc0; --dim: #a89c80; --accent: #e3b85a; }
+  html, body { margin: 0; height: 100%; background: #0d1014; color: var(--text); font: 14px/1.35 system-ui, sans-serif; overflow: hidden; }
+  #app { position: fixed; inset: 0; }
+  .hud { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px; }
+  #perf { top: 10px; right: 10px; font: 13px/1.4 ui-monospace, monospace; min-width: 150px; }
+  #perf b { color: var(--accent); }
+  #info { top: 10px; left: 10px; max-width: 360px; }
+  #info h1 { margin: 0 0 4px; font-size: 16px; color: var(--accent); letter-spacing: 0.5px; }
+  #info p { margin: 2px 0; color: var(--dim); }
+  #sel { bottom: 10px; left: 50%; transform: translateX(-50%); display: none; }
+  #tip { pointer-events: none; display: none; }
+  .key { color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="perf" class="hud">FPS <b id="fps">-</b><br>kare p95 <b id="p95">-</b> ms<br>çizim <b id="calls">-</b><br>pul <b id="units">-</b></div>
+<div id="info" class="hud">
+  <h1>Doğu Cephesi 1941 · web demo</h1>
+  <p>Sol tık: kendi pulunu seç · Sağ tık: oraya yürü / saldır</p>
+  <p>Sürükle: kaydır · Tekerlek: yakınlaş · Orta tuş: döndür</p>
+  <p><span class="key">Boşluk</span> duraklat · <span class="key">K</span> keşif (sonra tıkla)</p>
+  <p id="clock"></p>
+</div>
+<div id="sel" class="hud"></div>
+<div id="tip" class="hud"></div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

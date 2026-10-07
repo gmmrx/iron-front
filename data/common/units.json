@@ -209,6 +209,10 @@
  },
  "river_attack": -0.3,
  "amphibious_attack": -0.5,
+ "night": {
+  "_comment": "Gece (güneş ufkun altında; GameClock.night_at, alacakaranlıkta geçişli). Saldırı -%25: karanlıkta topçu gözetleyemez, birlikler birbirini kaybeder, saldırı yavaşlar; nehir geçişinden (-%30) biraz hafif, sert kıştan (-%15) ağır, çünkü her gece tekrarlar ve günün yarısı kadar sürer (24 saatlik bir muharebede ortalama ~-%12). Savunan cezasız: yerinde, mevzisinde. Görüş: gece birlik yalnız durduğu bölgeyi keşfeder, komşuları gün doğunca.",
+  "attack": -0.25
+ },
  "start_divisions": {
   "GER": 44,
   "SOV": 95,

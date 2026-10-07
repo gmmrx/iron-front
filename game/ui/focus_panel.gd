@@ -31,6 +31,12 @@ class Lines extends Control:
 		owner_panel._draw_lines(self)
 
 func _ready() -> void:
+	if not Politics.FOCUS_ENABLED:
+		visible = false
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_process(false)
+		set_process_input(false)
+		return # Keep a cheap inert compatibility object for old HUD callers; no tree/atlas work.
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# tam ekran: sol menünün sağından ekranın sağına, üst satırın altından alta
 	offset_left = PanelLayout.SIDE_LEFT
@@ -82,6 +88,9 @@ func _ready() -> void:
 		if visible: _update_status())
 
 func open() -> void:
+	if not Politics.FOCUS_ENABLED:
+		visible = false
+		return
 	visible = true
 	Audio.panel(true)
 	refresh()
@@ -176,6 +185,9 @@ func _clamp(p: Vector2, z: float) -> Vector2:
 	return out
 
 func _process(delta: float) -> void:
+	if not Politics.FOCUS_ENABLED:
+		visible = false
+		return
 	if not visible or _view == null:
 		return
 	var dir := Vector2.ZERO
@@ -222,6 +234,9 @@ func _update_status() -> void:
 		_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 
 func refresh() -> void:
+	if not Politics.FOCUS_ENABLED:
+		visible = false
+		return
 	_update_status()
 	for ch in _canvas.get_children():
 		ch.queue_free()

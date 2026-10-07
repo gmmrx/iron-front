@@ -66,6 +66,33 @@ static func decal() -> ArrayMesh:
 static func material() -> Material:
 	return _prepare()["mat"]
 
+## AirLayer batches aircraft across the map. Its world-sized MultiMesh AABB
+## contains the camera, so automatic distance-based mesh LOD stays at level zero.
+## Select a shared imported index buffer for those batches, preserving full
+## detail near the camera. Individual crash models retain automatic mesh LOD.
+static func batch_mesh(part: String, distance: float, viewport_height: float = 1080.0) -> ArrayMesh:
+	var k := _prepare()
+	var mesh: ArrayMesh = k[part]
+	var projected_distance := distance * 1080.0 / maxf(viewport_height, 1.0)
+	var level := 0 if projected_distance < 180.0 else (1 if projected_distance < 380.0 else 2)
+	if level == 0:
+		return mesh
+	var key := "%s_lod_%d" % [part, level]
+	if k.has(key):
+		return k[key]
+	var surface := RenderingServer.mesh_get_surface(mesh.get_rid(), 0)
+	var lods: Array = surface.get("lods", [])
+	if lods.is_empty():
+		return mesh
+	lods.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["edge_length"]) < float(b["edge_length"]))
+	var arr := mesh.surface_get_arrays(0)
+	var wide: bool = arr[Mesh.ARRAY_VERTEX].size() > 65535
+	arr[Mesh.ARRAY_INDEX] = _indices(lods[mini(level - 1, lods.size() - 1)]["index_data"], wide)
+	var reduced := ArrayMesh.new()
+	reduced.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	k[key] = reduced
+	return reduced
+
 static func _prepare() -> Dictionary:
 	if not _k.is_empty():
 		return _k
@@ -90,10 +117,17 @@ static func _prepare() -> Dictionary:
 	var dup := {}                                  # köşe -> temiz boyalı kopyası
 	var order: Array[Vector2i] = []                # [özgün köşe, panel]
 	var lods := {}
+	var prop_lods := {}
 	for l: Dictionary in surf.get("lods", []):
-		var li := _filter(_indices(l["index_data"], wide), is_prop, false)
+		var source_indices := _indices(l["index_data"], wide)
+		var li := _filter(source_indices, is_prop, false)
 		_clean_panels(li, verts, normals, dup, order)
 		lods[float(l["edge_length"])] = li
+		var pi := _filter(source_indices, is_prop, true)
+		# A tiny disconnected blade may disappear in the last imported LOD.
+		# Keep the last non-empty propeller rather than feeding an empty surface.
+		if not pi.is_empty():
+			prop_lods[float(l["edge_length"])] = pi
 	var bi := _filter(idx, is_prop, false)
 	_clean_panels(bi, verts, normals, dup, order)
 	var clean_uvs: Array = []
@@ -107,7 +141,7 @@ static func _prepare() -> Dictionary:
 	var p := arr.duplicate()
 	p[Mesh.ARRAY_INDEX] = _filter(idx, is_prop, true)
 	var prop_mesh := ArrayMesh.new()
-	prop_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, p)
+	prop_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, p, [], prop_lods)
 	_k["prop"] = prop_mesh
 	_k["decal"] = _build_decal(verts, normals, idx, is_prop)
 	root.free()

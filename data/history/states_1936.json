@@ -759,7 +759,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 2
    },
@@ -837,7 +836,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 4,
     "air_base": 1
@@ -1075,7 +1073,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 2,
     "infrastructure": 5,
     "naval_base": 5,
     "air_base": 3
@@ -1556,7 +1553,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 2,
     "air_base": 3
@@ -1594,7 +1590,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 7,
     "air_base": 3
@@ -1687,7 +1682,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 7,
     "air_base": 3
@@ -1902,7 +1896,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 3,
     "air_base": 3
@@ -2393,7 +2386,6 @@
    "category": "large_town",
    "slots": 5,
    "buildings": {
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 1
    },
@@ -2477,7 +2469,6 @@
    "slots": 6,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 2
    },
@@ -2605,7 +2596,6 @@
    "slots": 5,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 1
    },
@@ -2784,7 +2774,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 3,
     "air_base": 1
@@ -3680,7 +3669,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 4,
     "air_base": 1
@@ -3787,7 +3775,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 7,
     "air_base": 1
@@ -3912,7 +3899,6 @@
    "buildings": {
     "civilian_factory": 4,
     "military_factory": 2,
-    "dockyard": 3,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 1
@@ -3933,7 +3919,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 2,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 1
@@ -3993,7 +3978,6 @@
    "buildings": {
     "civilian_factory": 6,
     "military_factory": 2,
-    "dockyard": 2,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 1
@@ -4267,7 +4251,6 @@
    "slots": 4,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 2
    },
@@ -4402,7 +4385,6 @@
    "category": "city",
    "slots": 6,
    "buildings": {
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 1
    },
@@ -5163,7 +5145,6 @@
    "slots": 8,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 1
@@ -5799,7 +5780,6 @@
    "slots": 8,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 3
@@ -5849,7 +5829,6 @@
    "buildings": {
     "civilian_factory": 4,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 10,
     "air_base": 3
@@ -5929,7 +5908,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 10,
     "air_base": 1
@@ -6158,7 +6136,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 4,
     "air_base": 1
@@ -6490,7 +6467,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 1
@@ -6548,7 +6524,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 1
@@ -6708,7 +6683,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 10,
     "air_base": 1
@@ -6797,7 +6771,6 @@
    "slots": 6,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 7,
     "air_base": 1
@@ -6810,7 +6783,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 3
@@ -6963,7 +6935,6 @@
    "buildings": {
     "civilian_factory": 3,
     "military_factory": 2,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 10,
     "air_base": 1
@@ -6988,7 +6959,6 @@
    "buildings": {
     "civilian_factory": 4,
     "military_factory": 2,
-    "dockyard": 2,
     "infrastructure": 4,
     "naval_base": 10,
     "air_base": 1
@@ -7069,7 +7039,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 6,
     "air_base": 1
@@ -7193,7 +7162,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 9,
     "air_base": 1
@@ -7292,7 +7260,6 @@
    "buildings": {
     "civilian_factory": 3,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 5,
     "air_base": 1
@@ -7305,7 +7272,6 @@
    "buildings": {
     "civilian_factory": 3,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 6,
     "air_base": 3
@@ -7331,7 +7297,6 @@
    "buildings": {
     "civilian_factory": 4,
     "military_factory": 2,
-    "dockyard": 4,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 6
@@ -7452,7 +7417,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 2,
     "naval_base": 3,
     "air_base": 3
@@ -7537,7 +7501,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 1
    },
@@ -7559,7 +7522,6 @@
    "slots": 4,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 1
    },
@@ -7578,7 +7540,6 @@
    "slots": 2,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 1
    },
@@ -7735,7 +7696,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 6,
     "air_base": 3
@@ -7769,7 +7729,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 3
@@ -7782,7 +7741,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 3
@@ -7795,7 +7753,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 5,
     "air_base": 3
@@ -7808,7 +7765,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 2,
-    "dockyard": 2,
     "infrastructure": 4,
     "naval_base": 8,
     "air_base": 6
@@ -7821,7 +7777,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 6,
     "air_base": 3
@@ -7853,7 +7808,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 10,
     "air_base": 1
@@ -7997,7 +7951,6 @@
    "slots": 6,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 3
@@ -8660,7 +8613,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 3
@@ -8716,7 +8668,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 3
@@ -8784,7 +8735,6 @@
    "slots": 4,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 1
@@ -9276,7 +9226,6 @@
    "slots": 5,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 4,
     "air_base": 1
@@ -9709,7 +9658,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 3,
     "air_base": 1
@@ -9918,7 +9866,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 9,
     "air_base": 3
@@ -10023,7 +9970,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 6,
-    "dockyard": 5,
     "infrastructure": 4,
     "naval_base": 10,
     "air_base": 3
@@ -10036,7 +9982,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 7,
     "air_base": 1
@@ -10084,7 +10029,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 1
@@ -10138,7 +10082,6 @@
    "slots": 8,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 3,
     "air_base": 1
@@ -10657,7 +10600,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 5,
     "naval_base": 6,
     "air_base": 3
@@ -11664,7 +11606,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 3,
     "air_base": 3
@@ -12382,7 +12323,6 @@
    "buildings": {
     "civilian_factory": 1,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 2,
     "air_base": 3
@@ -12556,7 +12496,6 @@
    "slots": 5,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 4,
     "air_base": 1
@@ -13508,7 +13447,6 @@
    "buildings": {
     "civilian_factory": 2,
     "military_factory": 1,
-    "dockyard": 1,
     "infrastructure": 3,
     "naval_base": 6,
     "air_base": 3
@@ -13567,7 +13505,6 @@
    "buildings": {
     "civilian_factory": 3,
     "military_factory": 1,
-    "dockyard": 3,
     "infrastructure": 5,
     "naval_base": 10,
     "air_base": 1
@@ -14517,7 +14454,6 @@
    "slots": 4,
    "buildings": {
     "civilian_factory": 1,
-    "dockyard": 1,
     "infrastructure": 4,
     "naval_base": 2,
     "air_base": 3

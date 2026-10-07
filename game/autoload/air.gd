@@ -39,16 +39,19 @@ var wings: Array[AirWing] = []
 var fights: Dictionary = {}            ## bölge merkezi pid -> {"pos": Vector2, "intensity": float, "tags": [..]}
 var _next_id := 1
 var _bonus_cache: Dictionary = {}
+var _zone_wings: Dictionary = {}       ## görev bölgesi -> orada görevdeki kanatlar (bonus için; kanat/görev değişince kurulur)
+var _covering: Dictionary = {}         ## kara bölgesi -> onu kaplayan görev bölgeleri
+var _zones_ready := false
 var _dirty := false
 
 func _ready() -> void:
-	World.daily_update.connect(_on_day)
+	GameClock.hour_late.connect(_staged_day)       # günlük iş günün kendi saatinde (GameClock.DAY_STAGE)
 
 # ------------------------------------------------------------------ kurulum
 func reset() -> void:
 	wings.clear()
 	fights.clear()
-	_bonus_cache.clear()
+	_clear_bonus()
 	_next_id = 1
 	for st: StateRegion in World.states.values():
 		st.damage = 0.0
@@ -132,6 +135,7 @@ func disband(w: AirWing) -> void:
 		var eq: String = TYPES[w.type]["eq"]
 		c.stockpile[eq] = float(c.stockpile.get(eq, 0.0)) + w.planes
 	wings.erase(w)
+	_zones_ready = false
 	wings_changed.emit()
 
 ## Kanadı stoktan tamamla (üsteyken)
@@ -218,6 +222,7 @@ func remove_all(tag: String) -> void:
 	for w in wings.duplicate():
 		if w.owner == tag:
 			wings.erase(w)
+	_zones_ready = false
 	_dirty = true
 
 # ------------------------------------------------------------------ menzil, bölge
@@ -250,7 +255,7 @@ func set_mission(w: AirWing, m: AirWing.Mission, zone: int = -1) -> bool:
 	if m == AirWing.Mission.IDLE:
 		w.zone = 0
 	_dirty = true
-	_bonus_cache.clear()
+	_clear_bonus()
 	return true
 
 func rebase(w: AirWing, sid: int) -> bool:
@@ -260,6 +265,7 @@ func rebase(w: AirWing, sid: int) -> bool:
 	if w.zone > 0 and not in_range(w, w.zone):
 		w.mission = AirWing.Mission.IDLE
 		w.zone = 0
+		_zones_ready = false
 	_dirty = true
 	return true
 
@@ -311,6 +317,28 @@ func base_for_point(tag: String, at: Vector2) -> int:
 func recon_cost() -> float:
 	return float(Military.recruit_def()["recon_sp"])
 
+## Read-only target preview, using the same eligible wings and bases as assign.
+## Union base ranges once, instead of searching every wing for every province.
+func recon_targets(tag: String) -> Dictionary:
+	var c: Country = World.countries.get(tag)
+	var targets := {}
+	if c == null or c.sp < recon_cost(): return targets
+	var ranges := {}
+	var bases := bases_of(tag)
+	for wing: AirWing in wings_of(tag):
+		if wing.planes <= 0 or (wing.on_mission() and wing.mission != AirWing.Mission.RECON): continue
+		var reach := float(TYPES[wing.type]["range"])
+		for base: int in bases:
+			ranges[base] = maxf(float(ranges.get(base, 0.0)), reach)
+		if wing.base > 0: ranges[wing.base] = maxf(float(ranges.get(wing.base, 0.0)), reach)
+	for p: Province in World.provinces:
+		if p == null: continue
+		for base: int in ranges:
+			if distance_km(base_pos(base), p.center) <= float(ranges[base]):
+				targets[p.id] = 255
+				break
+	return targets
+
 ## Kanadın bu bölgeye uçabileceği, bölgeye en yakın kendi hava üssü (0: yok)
 func base_for(w: AirWing, pid: int) -> int:
 	var at := World.province(pid).center
@@ -345,27 +373,30 @@ func order(w: AirWing, pid: int) -> String:
 # ------------------------------------------------------------------ kara muharebesine etki
 ## Bölgede tag için saldırı/savunma çarpanı eki: hava üstünlüğü payı + yakın hava desteği (günlük önbellek)
 func bonus(pid: int, tag: String) -> float:
-	var key := "%d:%s" % [pid, tag]
+	var key := Vector2i(pid, tag.hash())      # metin biçimlemek her çağrıda pahalıydı (savaşta tümen başına sorulur)
 	if _bonus_cache.has(key):
 		return _bonus_cache[key]
 	var own_f := 0.0
 	var foe_f := 0.0
 	var own_g := 0.0
-	for w in wings:
-		if not w.on_mission() or not covers(w, pid):
-			continue
-		var friend := w.owner == tag or Diplomacy.are_allies(w.owner, tag)
-		var foe := not friend and Diplomacy.are_enemies(w.owner, tag)
-		if not friend and not foe:
-			continue
-		var t: Dictionary = TYPES[w.type]
-		var air := w.planes * (float(t["air"]) if w.mission == AirWing.Mission.SUPERIORITY else float(t["air"]) * 0.3)
-		if friend:
-			own_f += air
-			if w.mission == AirWing.Mission.CAS:
-				own_g += w.planes * float(t["ground"])
-		else:
-			foe_f += air
+	# yalnız bölgeyi kaplayan görev bölgelerindeki kanatlar (her soruda bütün kanatları ölçmek, önbellek silinince
+	# cephedeki her bölge için saniyelerce mesafe hesabı ediyordu: savaşta ~10 ms'lik kare)
+	for z: int in _zones_covering(pid):
+		for w: AirWing in _zone_wings[z]:
+			if not w.on_mission():
+				continue
+			var friend := w.owner == tag or Diplomacy.are_allies(w.owner, tag)
+			var foe := not friend and Diplomacy.are_enemies(w.owner, tag)
+			if not friend and not foe:
+				continue
+			var t: Dictionary = TYPES[w.type]
+			var air := w.planes * (float(t["air"]) if w.mission == AirWing.Mission.SUPERIORITY else float(t["air"]) * 0.3)
+			if friend:
+				own_f += air
+				if w.mission == AirWing.Mission.CAS:
+					own_g += w.planes * float(t["ground"])
+			else:
+				foe_f += air
 	var b := 0.0
 	if own_f + foe_f > 0.0:
 		b = clampf((own_f / (own_f + foe_f) - 0.5) * 0.5, -0.25, 0.25)
@@ -374,6 +405,31 @@ func bonus(pid: int, tag: String) -> float:
 	b += minf(own_g * 0.0012 * (0.3 + 0.7 * sup), 0.3)
 	_bonus_cache[key] = b
 	return b
+
+func _clear_bonus() -> void:
+	_bonus_cache.clear()
+	_zones_ready = false
+
+## pid'i kaplayan (merkezi ZONE_KM içinde olan) görev bölgeleri; covers() ile aynı ölçü
+func _zones_covering(pid: int) -> Array:
+	if not _zones_ready:
+		_zones_ready = true
+		_zone_wings.clear()
+		_covering.clear()
+		for w in wings:
+			if w.on_mission():
+				if not _zone_wings.has(w.zone):
+					_zone_wings[w.zone] = []
+				(_zone_wings[w.zone] as Array).append(w)
+	if _covering.has(pid):
+		return _covering[pid]
+	var out: Array = []
+	var c := World.province(pid).center
+	for z: int in _zone_wings:
+		if distance_km(World.province(z).center, c) <= ZONE_KM:
+			out.append(z)
+	_covering[pid] = out
+	return out
 
 ## Bölgedeki hava üstünlüğü payı (0..1, 0.5 = yok / eşit)
 func superiority(pid: int, tag: String) -> float:
@@ -390,11 +446,15 @@ func superiority(pid: int, tag: String) -> float:
 	return own / (own + foe) if own + foe > 0.0 else 0.5
 
 # ------------------------------------------------------------------ günlük
+func _staged_day() -> void:
+	if GameClock.hour == int(GameClock.DAY_STAGE["air"]):
+		_on_day()
+
 func _on_day() -> void:
 	if wings.is_empty() and not World.in_game:
 		return
 	var t0 := Time.get_ticks_usec()
-	_bonus_cache.clear()
+	_clear_bonus()
 	for c: Country in World.countries.values():
 		if c.exists():
 			_absorb(c)
@@ -484,6 +544,7 @@ func _air_combat() -> void:
 	for w in wings.duplicate():
 		if w.planes <= 0:
 			wings.erase(w)
+			_zones_ready = false
 			_dirty = true
 	_report_losses()
 	if had or not fights.is_empty():
@@ -526,6 +587,8 @@ func recon_provinces(tag: String) -> Array[int]:
 		if w.owner != tag and not Diplomacy.are_allies(w.owner, tag):
 			continue
 		var center := World.province(w.zone).center
+		# gece menzil düşer (recruit.json night_recon_range; alacakaranlıkta geçişli)
+		var reach := ZONE_KM * lerpf(1.0, float(Military.recruit_def().get("night_recon_range", 1.0)), GameClock.night_at(center))
 		var seen := {w.zone: true}
 		var frontier: Array[int] = [w.zone]
 		while not frontier.is_empty():
@@ -535,7 +598,7 @@ func recon_provinces(tag: String) -> Array[int]:
 				if seen.has(q) or World.province(q) == null:
 					continue
 				seen[q] = true
-				if distance_km(World.province(q).center, center) <= ZONE_KM:
+				if distance_km(World.province(q).center, center) <= reach:
 					frontier.append(q)
 	return out
 
@@ -690,5 +753,5 @@ func from_save(arr: Array, next_id: int) -> void:
 		w.recon_until = int(wd.get("ru", 0))
 		wings.append(w)
 	_next_id = next_id
-	_bonus_cache.clear()
+	_clear_bonus()
 	wings_changed.emit()

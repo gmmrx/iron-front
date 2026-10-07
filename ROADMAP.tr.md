@@ -38,7 +38,7 @@ yayılarak eklenir.
    savaş desteğini yıpratır; ✔ kanat başkente en yakın üste kurulur, görevde menzili yeten üsse geçer; ✔ keşif (bölgeyi
    sisten açar)
 3. ◐ **Ekonomi ve siyaset sadeleşir**: ✔ sol menü altı düğmeye indi (artı Keşif); ✔ yalnız savaşa katılan ülkeler
-   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit ve gizli; ☐ yalnız insan gücü, sanayi ve moral;
+   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit (gösterilir, sisin altında gizli); ✔ yakıt ve ekipman stoğu kapalı (kayıplar insan gücüyle yerine konur); ikmal kalır (denge testi gerektiriyor); ✔ tersane ve sentetik rafineri yok: gemi deniz üssü olan limanda SP ile alınır (bilgisayar da, 1936 donanması + yılda %8'e kadar); ✔ araştırma menüye döndü, senaryoda teknoloji başına birkaç dakika; ✔ nüfuz askerleri teşvik eder (Teşvik komutu); ✔ uyarılar sıradaki işi gösterir (boş kalmamak); ☐ istikrar ve savaş desteği yerine tek moral;
    ✔ birlik şehirde sanayi puanıyla doğrudan alınır (SP, `data/common/recruit.json`), keşif uçuşu ücretli; ☐ olay ve buluş kartları
 4. ◐ **Senaryolar ve zafer**: ✔ senaryo dosyası (başlangıç kaydı, süre, taraflar, anahtar şehirler), ana menüde
    Senaryolar ekranı, süre yok (savaş bir taraf teslim olunca biter), yapay zekâ anahtar şehirleri

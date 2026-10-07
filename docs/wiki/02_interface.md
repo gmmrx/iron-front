@@ -3,27 +3,28 @@
 # Interface
 
 ## Top bar (left to right)
+The top bar is built from the interface sheet `assets/ui/ui-sprite2.png` (cut into `assets/ui/sheet/` by
+`tools/slice_ui_sprite.py`): a framed portrait, the resource bar (icon on top, value under it, divided cells), the
+alert box of the same height next to it, and the date box. The menu buttons sit on a tray in the same frame. Values that
+grow every day (influence, industry points) show the daily gain in small green figures to the right of the value.
+
 | Indicator | What it tells you |
 |---|---|
 | Leader portrait / flag | The leader if a portrait file exists, otherwise the flag; click for country info |
-| Influence | +2 a day × (1 + bonuses + stability effect). Laws, advisors, decisions and diplomacy spend it |
+| Influence | +2 a day × (1 + bonuses + stability effect), the gain in green. Laws, advisors, decisions and diplomacy spend it |
 | Stability | Effective value; the tooltip breaks it down (base, national conditions/laws/advisors, ruling party popularity) |
 | Home front | Effective value; the tooltip breaks it down (base, bonuses, crisis index, war situation) and shows the surrender limit |
 | Manpower | Recruitable population (depends on the conscription law) |
-| Factories | Civilian / military; dockyards and resources in the tooltip |
-| Fuel, Supply, Convoys | Cells with bars: fuel stock, share of supplied divisions, convoy/import need |
+| Industry points | Recruiting and recon money, the daily gain in green; factories and resources in the tooltip |
+| Fuel, Supply, Convoys | Fuel stock, share of supplied divisions, convoy/import need |
 | Crisis, War | Crisis index; at war, the number of enemies and your surrender progress |
-| Command power, know-how | Separate box: command power (spent on the chain of command), land/naval/air know-how |
-| Date and speed | Top right; pause, speed buttons; five speeds 0.1× · 0.2× · 0.3× · 0.5× · 1× (1× = 5 game hours a second) |
-| World clock | The small globe left of the date: centred on your capital, the lit half follows the game hour and the season (day / night) |
-
-Land, naval and air know-how build up in battle but are **not spent on anything yet** (doctrines come later). Their cells
-are shown faded with a "not allowed" cursor, and the tooltip says why.
+| Date and speed | Top right; ❚❚ pauses, ▶ resumes (while the game runs it slows down one step), ▶▶ speeds up; the gold bar under the date shows the speed; five speeds 0.1× · 0.2× · 0.3× · 0.5× · 1× (1× = 5 game hours a second) |
+| World clock | The globe left of the date: centred on your capital, the lit half follows the game hour and the season (day / night) |
 
 The menu runs down the left edge of the screen with six buttons: politics, diplomacy, production, army, navy and air;
 each shows its shortcut letter. The program, research, world events, trade, construction and logistics screens are no
-longer in the menu (their shortcuts still open them) and are being cut down (roadmap stage 3). The tiles next to the top bar
-are alerts: an event waiting for an answer, enough industry points to recruit (opens the capital), idle air wings,
+longer in the menu (their shortcuts still open them) and are being cut down (roadmap stage 3). The tiles in the box next to the resource bar
+are alerts (the box is hidden when there are none): an event waiting for an answer, enough industry points to recruit (opens the capital), idle air wings,
 divisions out of supply, low manpower, risk of surrender. Map buildings (ports, air bases, factories) are fixed and shown
 on the map; a foreign state's buildings stay hidden under the fog until it is explored.
 
@@ -70,17 +71,28 @@ Large screens open full-screen and the map does not move while they are open.
 - **Event window**: title, picture, description, options (effects in the tooltip; an option whose condition is not met is locked).
 
 ## Map cards
-- Hover a land region: owner and relation to you (ours / ally / enemy), coast / port / river; **ground and weather**
+Map cards do not open by themselves: hold **Shift** for the card of what is under the cursor (region, building, fleet or
+route; with units selected also the order's arrival and attack estimate), hold **Ctrl** for the country card.
+- Shift over a land region: owner and relation to you (ours / ally / enemy), coast / port / river; **ground and weather**
   (terrain, weather — clear, mud, winter, hard winter —, march speed, the penalty for attacking here, frontage, supply,
   river and landing penalties, air superiority at war); **region** (population, victory points, infrastructure,
   building slots, buildings and resources as icon cells); the divisions there by country (in training too) and the
   battle there.
-- Hover a sea region: weather (winter sea), coasts and ports; **naval control** by country (coloured share bar), our
+- Shift over a sea region: weather (winter sea), coasts and ports; **naval control** by country (coloured share bar), our
   side's share, whether transports are safe, the fleets there.
 - Hold **Ctrl** over a country: leader portrait, relation, alliance, ideology bar, stability, home front, influence,
   population, factories, divisions, ships and aircraft (red when stronger than you, green when weaker), wars, national
   conditions and the current state program. **Ctrl + click** opens that country's politics screen, read-only.
 - Numbers are coloured: good green, bad red.
+
+## Day and night
+The sun moves with the game clock: where it is night the map is dark blue, with a thin warm band
+of dusk at the boundary, which slides smoothly across the map; its shape follows the season (long winter nights in the
+north). Up close the 3D models (soldiers, tanks, cities, ships) share the light of the place you are looking at.
+Clouds darken too, and at night the windows of the city miniatures light up one by one. At the fastest speeds the night
+is lighter so the map does not flicker. The game starts at 07:00 in your capital, and the clock in the top bar shows
+your capital's local time. Night counts in battle: attacking at night is −25% and a division sees only its own region
+(see [Warfare](05_warfare.md)).
 
 ## The map: pins
 The map is a general staff table: the 3D terrain stays, and everything on it is a pin stuck into it instead of a model.
@@ -95,7 +107,8 @@ city names and unit tags appear as you zoom in to a theatre, and up close each i
   province lines, and state lines only at theatre zoom; the relief, rivers and province lines come in as you zoom in
   (no fields, ridges or forest detail in this mode); the **Terrain** mode shows the detail at every
   zoom (ridges, forest texture and field patches keep a fixed size on screen, stronger relief); the **Terrain** mode
-  shows the ground in its own colours.
+  shows the ground in its own colours. The mode buttons are no longer on screen; the keys still switch: F1 political,
+  F2 terrain, F3 states, F4 routes.
 - **City**: far away a plain white name (gold for capitals). Only the big cities (capitals and cities worth 10+ victory
   points) have a model; the others stay a plain name at every zoom. Zoom in and a big city's town hall miniature (a domed
   building on a dark round plinth, `assets/models/city-hall.glb`) springs up on the map, its entrance towards the camera;

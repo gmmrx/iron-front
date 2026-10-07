@@ -1,0 +1,3364 @@
+{
+  "version": 2,
+  "sample_rate": 48000,
+  "seed": 1940,
+  "generator": "tools/build_ww2_sfx.py",
+  "license": "Original procedural synthesis; no third-party samples or music.",
+  "sounds": {
+    "ui_click": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile click; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_click_1.wav",
+        "res://assets/audio/ww2/ui_click_2.wav",
+        "res://assets/audio/ww2/ui_click_3.wav"
+      ]
+    },
+    "ui_hover": {
+      "gain_db": -12,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "ui: tactile hover; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_hover_1.wav",
+        "res://assets/audio/ww2/ui_hover_2.wav"
+      ]
+    },
+    "ui_open": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile open; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_open_1.wav",
+        "res://assets/audio/ww2/ui_open_2.wav",
+        "res://assets/audio/ww2/ui_open_3.wav"
+      ]
+    },
+    "ui_close": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile close; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_close_1.wav",
+        "res://assets/audio/ww2/ui_close_2.wav",
+        "res://assets/audio/ww2/ui_close_3.wav"
+      ]
+    },
+    "ui_tab": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile tab; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_tab_1.wav",
+        "res://assets/audio/ww2/ui_tab_2.wav"
+      ]
+    },
+    "ui_confirm": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile confirm; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_confirm_1.wav",
+        "res://assets/audio/ww2/ui_confirm_2.wav",
+        "res://assets/audio/ww2/ui_confirm_3.wav"
+      ]
+    },
+    "ui_toggle": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile toggle; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_toggle_1.wav",
+        "res://assets/audio/ww2/ui_toggle_2.wav"
+      ]
+    },
+    "ui_error": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "ui: tactile error; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/ui_error_1.wav",
+        "res://assets/audio/ww2/ui_error_2.wav"
+      ]
+    },
+    "menu_click": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile click; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_click_1.wav",
+        "res://assets/audio/ww2/menu_click_2.wav",
+        "res://assets/audio/ww2/menu_click_3.wav"
+      ]
+    },
+    "menu_hover": {
+      "gain_db": -12,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "menu: tactile hover; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_hover_1.wav",
+        "res://assets/audio/ww2/menu_hover_2.wav"
+      ]
+    },
+    "menu_open": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile open; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_open_1.wav",
+        "res://assets/audio/ww2/menu_open_2.wav",
+        "res://assets/audio/ww2/menu_open_3.wav"
+      ]
+    },
+    "menu_close": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile close; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_close_1.wav",
+        "res://assets/audio/ww2/menu_close_2.wav",
+        "res://assets/audio/ww2/menu_close_3.wav"
+      ]
+    },
+    "menu_tab": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile tab; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_tab_1.wav",
+        "res://assets/audio/ww2/menu_tab_2.wav"
+      ]
+    },
+    "menu_confirm": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile confirm; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_confirm_1.wav",
+        "res://assets/audio/ww2/menu_confirm_2.wav",
+        "res://assets/audio/ww2/menu_confirm_3.wav"
+      ]
+    },
+    "menu_toggle": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile toggle; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_toggle_1.wav",
+        "res://assets/audio/ww2/menu_toggle_2.wav"
+      ]
+    },
+    "menu_error": {
+      "gain_db": -6,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 45,
+      "description": "menu: tactile error; no musical notification tone",
+      "files": [
+        "res://assets/audio/ww2/menu_error_1.wav",
+        "res://assets/audio/ww2/menu_error_2.wav"
+      ]
+    },
+    "menu_new_game": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 180,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/menu_new_game_1.wav",
+        "res://assets/audio/ww2/menu_new_game_2.wav"
+      ]
+    },
+    "menu_tutorial": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 180,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/menu_tutorial_1.wav",
+        "res://assets/audio/ww2/menu_tutorial_2.wav"
+      ]
+    },
+    "menu_continue": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 180,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/menu_continue_1.wav",
+        "res://assets/audio/ww2/menu_continue_2.wav"
+      ]
+    },
+    "menu_settings": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 180,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/menu_settings_1.wav",
+        "res://assets/audio/ww2/menu_settings_2.wav"
+      ]
+    },
+    "menu_quit": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 180,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/menu_quit_1.wav",
+        "res://assets/audio/ww2/menu_quit_2.wav"
+      ]
+    },
+    "country_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/country_select_1.wav",
+        "res://assets/audio/ww2/country_select_2.wav"
+      ]
+    },
+    "game_start": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/game_start_1.wav",
+        "res://assets/audio/ww2/game_start_2.wav"
+      ]
+    },
+    "ui_speed": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/ui_speed_1.wav",
+        "res://assets/audio/ww2/ui_speed_2.wav"
+      ]
+    },
+    "ui_pause": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/ui_pause_1.wav",
+        "res://assets/audio/ww2/ui_pause_2.wav"
+      ]
+    },
+    "ui_resume": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/ui_resume_1.wav",
+        "res://assets/audio/ww2/ui_resume_2.wav"
+      ]
+    },
+    "unit_deselect": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/unit_deselect_1.wav",
+        "res://assets/audio/ww2/unit_deselect_2.wav"
+      ]
+    },
+    "notification_open": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 100,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notification_open_1.wav",
+        "res://assets/audio/ww2/notification_open_2.wav"
+      ]
+    },
+    "select_unit": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_unit_1.wav",
+        "res://assets/audio/ww2/select_unit_2.wav",
+        "res://assets/audio/ww2/select_unit_3.wav"
+      ]
+    },
+    "select_infantry": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_infantry_1.wav",
+        "res://assets/audio/ww2/select_infantry_2.wav",
+        "res://assets/audio/ww2/select_infantry_3.wav"
+      ]
+    },
+    "select_armor": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_armor_1.wav",
+        "res://assets/audio/ww2/select_armor_2.wav",
+        "res://assets/audio/ww2/select_armor_3.wav"
+      ]
+    },
+    "select_artillery": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_artillery_1.wav",
+        "res://assets/audio/ww2/select_artillery_2.wav",
+        "res://assets/audio/ww2/select_artillery_3.wav"
+      ]
+    },
+    "select_motorized": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_motorized_1.wav",
+        "res://assets/audio/ww2/select_motorized_2.wav",
+        "res://assets/audio/ww2/select_motorized_3.wav"
+      ]
+    },
+    "select_fleet": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_fleet_1.wav",
+        "res://assets/audio/ww2/select_fleet_2.wav",
+        "res://assets/audio/ww2/select_fleet_3.wav"
+      ]
+    },
+    "select_air": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 130,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/select_air_1.wav",
+        "res://assets/audio/ww2/select_air_2.wav",
+        "res://assets/audio/ww2/select_air_3.wav"
+      ]
+    },
+    "order_move": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 160,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/order_move_1.wav",
+        "res://assets/audio/ww2/order_move_2.wav",
+        "res://assets/audio/ww2/order_move_3.wav"
+      ]
+    },
+    "order_attack": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 160,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/order_attack_1.wav",
+        "res://assets/audio/ww2/order_attack_2.wav",
+        "res://assets/audio/ww2/order_attack_3.wav"
+      ]
+    },
+    "order_stop": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 160,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/order_stop_1.wav",
+        "res://assets/audio/ww2/order_stop_2.wav",
+        "res://assets/audio/ww2/order_stop_3.wav"
+      ]
+    },
+    "order_retreat": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 160,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/order_retreat_1.wav",
+        "res://assets/audio/ww2/order_retreat_2.wav",
+        "res://assets/audio/ww2/order_retreat_3.wav"
+      ]
+    },
+    "deploy": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 160,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/deploy_1.wav",
+        "res://assets/audio/ww2/deploy_2.wav",
+        "res://assets/audio/ww2/deploy_3.wav"
+      ]
+    },
+    "notify_info": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notify_info_1.wav",
+        "res://assets/audio/ww2/notify_info_2.wav"
+      ]
+    },
+    "notify_good": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notify_good_1.wav",
+        "res://assets/audio/ww2/notify_good_2.wav"
+      ]
+    },
+    "notify_bad": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notify_bad_1.wav",
+        "res://assets/audio/ww2/notify_bad_2.wav"
+      ]
+    },
+    "notify_warning": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notify_warning_1.wav",
+        "res://assets/audio/ww2/notify_warning_2.wav"
+      ]
+    },
+    "notify_urgent": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 3,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/notify_urgent_1.wav",
+        "res://assets/audio/ww2/notify_urgent_2.wav"
+      ]
+    },
+    "event": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/event_1.wav",
+        "res://assets/audio/ww2/event_2.wav"
+      ]
+    },
+    "war_declare": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 3,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/war_declare_1.wav",
+        "res://assets/audio/ww2/war_declare_2.wav"
+      ]
+    },
+    "war_declared_on": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 3,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/war_declared_on_1.wav",
+        "res://assets/audio/ww2/war_declared_on_2.wav"
+      ]
+    },
+    "war_world": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/war_world_1.wav",
+        "res://assets/audio/ww2/war_world_2.wav"
+      ]
+    },
+    "peace_signed": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 3,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/peace_signed_1.wav",
+        "res://assets/audio/ww2/peace_signed_2.wav"
+      ]
+    },
+    "alliance_formed": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/alliance_formed_1.wav",
+        "res://assets/audio/ww2/alliance_formed_2.wav"
+      ]
+    },
+    "guarantee_issued": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/guarantee_issued_1.wav",
+        "res://assets/audio/ww2/guarantee_issued_2.wav"
+      ]
+    },
+    "access_granted": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/access_granted_1.wav",
+        "res://assets/audio/ww2/access_granted_2.wav"
+      ]
+    },
+    "diplomacy_rejected": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/diplomacy_rejected_1.wav",
+        "res://assets/audio/ww2/diplomacy_rejected_2.wav"
+      ]
+    },
+    "war_justification": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/war_justification_1.wav",
+        "res://assets/audio/ww2/war_justification_2.wav"
+      ]
+    },
+    "capitulation": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 3,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/capitulation_1.wav",
+        "res://assets/audio/ww2/capitulation_2.wav"
+      ]
+    },
+    "battle_start": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 400,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/battle_start_1.wav",
+        "res://assets/audio/ww2/battle_start_2.wav"
+      ]
+    },
+    "government_change": {
+      "gain_db": -7,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 700,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/government_change_1.wav",
+        "res://assets/audio/ww2/government_change_2.wav"
+      ]
+    },
+    "build_queued": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/build_queued_1.wav",
+        "res://assets/audio/ww2/build_queued_2.wav"
+      ]
+    },
+    "production_line": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/production_line_1.wav",
+        "res://assets/audio/ww2/production_line_2.wav"
+      ]
+    },
+    "production_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/production_done_1.wav",
+        "res://assets/audio/ww2/production_done_2.wav"
+      ]
+    },
+    "trade_deal": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/trade_deal_1.wav",
+        "res://assets/audio/ww2/trade_deal_2.wav"
+      ]
+    },
+    "diplomacy": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/diplomacy_1.wav",
+        "res://assets/audio/ww2/diplomacy_2.wav"
+      ]
+    },
+    "law_change": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/law_change_1.wav",
+        "res://assets/audio/ww2/law_change_2.wav"
+      ]
+    },
+    "advisor_hire": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/advisor_hire_1.wav",
+        "res://assets/audio/ww2/advisor_hire_2.wav"
+      ]
+    },
+    "advisor_dismiss": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/advisor_dismiss_1.wav",
+        "res://assets/audio/ww2/advisor_dismiss_2.wav"
+      ]
+    },
+    "decision_take": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/decision_take_1.wav",
+        "res://assets/audio/ww2/decision_take_2.wav"
+      ]
+    },
+    "research_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_start_1.wav",
+        "res://assets/audio/ww2/research_start_2.wav"
+      ]
+    },
+    "research_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_done_1.wav",
+        "res://assets/audio/ww2/research_done_2.wav"
+      ]
+    },
+    "focus_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": false,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/focus_start_1.wav",
+        "res://assets/audio/ww2/focus_start_2.wav"
+      ]
+    },
+    "focus_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 1,
+      "queue": true,
+      "cooldown_ms": 200,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/focus_done_1.wav",
+        "res://assets/audio/ww2/focus_done_2.wav"
+      ]
+    },
+    "map_civilian_factory": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_civilian_factory.wav"
+      ]
+    },
+    "map_military_factory": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_military_factory.wav"
+      ]
+    },
+    "map_synthetic_refinery": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_synthetic_refinery.wav"
+      ]
+    },
+    "map_dockyard": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_dockyard.wav"
+      ]
+    },
+    "map_naval_base": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_naval_base.wav"
+      ]
+    },
+    "map_air_base": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_air_base.wav"
+      ]
+    },
+    "map_anti_air": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_anti_air.wav"
+      ]
+    },
+    "map_infrastructure": {
+      "gain_db": -15,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 350,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/map_infrastructure.wav"
+      ]
+    },
+    "rifle_crack": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/rifle_crack_1.wav",
+        "res://assets/audio/ww2/rifle_crack_2.wav",
+        "res://assets/audio/ww2/rifle_crack_3.wav"
+      ]
+    },
+    "mg_burst": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/mg_burst_1.wav",
+        "res://assets/audio/ww2/mg_burst_2.wav",
+        "res://assets/audio/ww2/mg_burst_3.wav"
+      ]
+    },
+    "artillery_boom": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/artillery_boom_1.wav",
+        "res://assets/audio/ww2/artillery_boom_2.wav",
+        "res://assets/audio/ww2/artillery_boom_3.wav"
+      ]
+    },
+    "explosion": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/explosion_1.wav",
+        "res://assets/audio/ww2/explosion_2.wav",
+        "res://assets/audio/ww2/explosion_3.wav"
+      ]
+    },
+    "naval_gun": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/naval_gun_1.wav",
+        "res://assets/audio/ww2/naval_gun_2.wav",
+        "res://assets/audio/ww2/naval_gun_3.wav"
+      ]
+    },
+    "plane_flyby": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/plane_flyby_1.wav",
+        "res://assets/audio/ww2/plane_flyby_2.wav",
+        "res://assets/audio/ww2/plane_flyby_3.wav"
+      ]
+    },
+    "tank_engine": {
+      "gain_db": -4,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "3D battlefield source, not a UI overlay",
+      "files": [
+        "res://assets/audio/ww2/tank_engine_1.wav",
+        "res://assets/audio/ww2/tank_engine_2.wav",
+        "res://assets/audio/ww2/tank_engine_3.wav"
+      ]
+    },
+    "research_anti_tank_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Anti-Tank Guns / select",
+      "files": [
+        "res://assets/audio/ww2/research_anti_tank_1_select.wav"
+      ]
+    },
+    "research_anti_tank_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Anti-Tank Guns / start",
+      "files": [
+        "res://assets/audio/ww2/research_anti_tank_1_start.wav"
+      ]
+    },
+    "research_anti_tank_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Anti-Tank Guns / done",
+      "files": [
+        "res://assets/audio/ww2/research_anti_tank_1_done.wav"
+      ]
+    },
+    "research_anti_tank_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Anti-Tank Guns / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_anti_tank_1_cancel.wav"
+      ]
+    },
+    "research_artillery_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Modernized Field Guns / select",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_1_select.wav"
+      ]
+    },
+    "research_artillery_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Modernized Field Guns / start",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_1_start.wav"
+      ]
+    },
+    "research_artillery_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Modernized Field Guns / done",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_1_done.wav"
+      ]
+    },
+    "research_artillery_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Modernized Field Guns / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_1_cancel.wav"
+      ]
+    },
+    "research_artillery_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Motor-Towed Artillery / select",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_2_select.wav"
+      ]
+    },
+    "research_artillery_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Motor-Towed Artillery / start",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_2_start.wav"
+      ]
+    },
+    "research_artillery_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Motor-Towed Artillery / done",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_2_done.wav"
+      ]
+    },
+    "research_artillery_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Motor-Towed Artillery / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_2_cancel.wav"
+      ]
+    },
+    "research_artillery_3_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Centralized Fire Direction / select",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_3_select.wav"
+      ]
+    },
+    "research_artillery_3_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Centralized Fire Direction / start",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_3_start.wav"
+      ]
+    },
+    "research_artillery_3_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Centralized Fire Direction / done",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_3_done.wav"
+      ]
+    },
+    "research_artillery_3_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Centralized Fire Direction / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_artillery_3_cancel.wav"
+      ]
+    },
+    "research_battleship_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Battleships / select",
+      "files": [
+        "res://assets/audio/ww2/research_battleship_1_select.wav"
+      ]
+    },
+    "research_battleship_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Battleships / start",
+      "files": [
+        "res://assets/audio/ww2/research_battleship_1_start.wav"
+      ]
+    },
+    "research_battleship_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Battleships / done",
+      "files": [
+        "res://assets/audio/ww2/research_battleship_1_done.wav"
+      ]
+    },
+    "research_battleship_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Battleships / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_battleship_1_cancel.wav"
+      ]
+    },
+    "research_bomber_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Tactical Bomber / select",
+      "files": [
+        "res://assets/audio/ww2/research_bomber_1_select.wav"
+      ]
+    },
+    "research_bomber_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Tactical Bomber / start",
+      "files": [
+        "res://assets/audio/ww2/research_bomber_1_start.wav"
+      ]
+    },
+    "research_bomber_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Tactical Bomber / done",
+      "files": [
+        "res://assets/audio/ww2/research_bomber_1_done.wav"
+      ]
+    },
+    "research_bomber_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Tactical Bomber / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_bomber_1_cancel.wav"
+      ]
+    },
+    "research_cas_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Close Air Support / select",
+      "files": [
+        "res://assets/audio/ww2/research_cas_1_select.wav"
+      ]
+    },
+    "research_cas_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Close Air Support / start",
+      "files": [
+        "res://assets/audio/ww2/research_cas_1_start.wav"
+      ]
+    },
+    "research_cas_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Close Air Support / done",
+      "files": [
+        "res://assets/audio/ww2/research_cas_1_done.wav"
+      ]
+    },
+    "research_cas_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Close Air Support / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_cas_1_cancel.wav"
+      ]
+    },
+    "research_computing_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Punched-Card Tabulators / select",
+      "files": [
+        "res://assets/audio/ww2/research_computing_1_select.wav"
+      ]
+    },
+    "research_computing_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Punched-Card Tabulators / start",
+      "files": [
+        "res://assets/audio/ww2/research_computing_1_start.wav"
+      ]
+    },
+    "research_computing_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Punched-Card Tabulators / done",
+      "files": [
+        "res://assets/audio/ww2/research_computing_1_done.wav"
+      ]
+    },
+    "research_computing_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Punched-Card Tabulators / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_computing_1_cancel.wav"
+      ]
+    },
+    "research_construction_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Prefabricated Structures / select",
+      "files": [
+        "res://assets/audio/ww2/research_construction_1_select.wav"
+      ]
+    },
+    "research_construction_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Prefabricated Structures / start",
+      "files": [
+        "res://assets/audio/ww2/research_construction_1_start.wav"
+      ]
+    },
+    "research_construction_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Prefabricated Structures / done",
+      "files": [
+        "res://assets/audio/ww2/research_construction_1_done.wav"
+      ]
+    },
+    "research_construction_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Prefabricated Structures / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_construction_1_cancel.wav"
+      ]
+    },
+    "research_construction_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Mechanized Earthmoving / select",
+      "files": [
+        "res://assets/audio/ww2/research_construction_2_select.wav"
+      ]
+    },
+    "research_construction_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Mechanized Earthmoving / start",
+      "files": [
+        "res://assets/audio/ww2/research_construction_2_start.wav"
+      ]
+    },
+    "research_construction_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Mechanized Earthmoving / done",
+      "files": [
+        "res://assets/audio/ww2/research_construction_2_done.wav"
+      ]
+    },
+    "research_construction_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Mechanized Earthmoving / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_construction_2_cancel.wav"
+      ]
+    },
+    "research_cruiser_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Cruisers / select",
+      "files": [
+        "res://assets/audio/ww2/research_cruiser_1_select.wav"
+      ]
+    },
+    "research_cruiser_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Cruisers / start",
+      "files": [
+        "res://assets/audio/ww2/research_cruiser_1_start.wav"
+      ]
+    },
+    "research_cruiser_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Cruisers / done",
+      "files": [
+        "res://assets/audio/ww2/research_cruiser_1_done.wav"
+      ]
+    },
+    "research_cruiser_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Cruisers / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_cruiser_1_cancel.wav"
+      ]
+    },
+    "research_destroyer_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Destroyers / select",
+      "files": [
+        "res://assets/audio/ww2/research_destroyer_1_select.wav"
+      ]
+    },
+    "research_destroyer_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Destroyers / start",
+      "files": [
+        "res://assets/audio/ww2/research_destroyer_1_start.wav"
+      ]
+    },
+    "research_destroyer_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Destroyers / done",
+      "files": [
+        "res://assets/audio/ww2/research_destroyer_1_done.wav"
+      ]
+    },
+    "research_destroyer_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Destroyers / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_destroyer_1_cancel.wav"
+      ]
+    },
+    "research_doctrine_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Combined-Arms Maneuver / select",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_1_select.wav"
+      ]
+    },
+    "research_doctrine_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Combined-Arms Maneuver / start",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_1_start.wav"
+      ]
+    },
+    "research_doctrine_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Combined-Arms Maneuver / done",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_1_done.wav"
+      ]
+    },
+    "research_doctrine_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Combined-Arms Maneuver / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_1_cancel.wav"
+      ]
+    },
+    "research_doctrine_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Methodical Battle / select",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_2_select.wav"
+      ]
+    },
+    "research_doctrine_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Methodical Battle / start",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_2_start.wav"
+      ]
+    },
+    "research_doctrine_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Methodical Battle / done",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_2_done.wav"
+      ]
+    },
+    "research_doctrine_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Methodical Battle / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_2_cancel.wav"
+      ]
+    },
+    "research_doctrine_3_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Armored Spearheads / select",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_3_select.wav"
+      ]
+    },
+    "research_doctrine_3_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Armored Spearheads / start",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_3_start.wav"
+      ]
+    },
+    "research_doctrine_3_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Armored Spearheads / done",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_3_done.wav"
+      ]
+    },
+    "research_doctrine_3_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Armored Spearheads / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_3_cancel.wav"
+      ]
+    },
+    "research_doctrine_4_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Elastic Defense / select",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_4_select.wav"
+      ]
+    },
+    "research_doctrine_4_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Elastic Defense / start",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_4_start.wav"
+      ]
+    },
+    "research_doctrine_4_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Elastic Defense / done",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_4_done.wav"
+      ]
+    },
+    "research_doctrine_4_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Elastic Defense / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_doctrine_4_cancel.wav"
+      ]
+    },
+    "research_fighter_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Monoplane Fighter / select",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_1_select.wav"
+      ]
+    },
+    "research_fighter_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Monoplane Fighter / start",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_1_start.wav"
+      ]
+    },
+    "research_fighter_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Monoplane Fighter / done",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_1_done.wav"
+      ]
+    },
+    "research_fighter_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Monoplane Fighter / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_1_cancel.wav"
+      ]
+    },
+    "research_fighter_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Improved Fighter / select",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_2_select.wav"
+      ]
+    },
+    "research_fighter_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Fighter / start",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_2_start.wav"
+      ]
+    },
+    "research_fighter_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Improved Fighter / done",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_2_done.wav"
+      ]
+    },
+    "research_fighter_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Fighter / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_fighter_2_cancel.wav"
+      ]
+    },
+    "research_government_communism_transition_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Communist Regime Transition / select",
+      "files": [
+        "res://assets/audio/ww2/research_government_communism_transition_select.wav"
+      ]
+    },
+    "research_government_communism_transition_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Communist Regime Transition / start",
+      "files": [
+        "res://assets/audio/ww2/research_government_communism_transition_start.wav"
+      ]
+    },
+    "research_government_communism_transition_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Communist Regime Transition / done",
+      "files": [
+        "res://assets/audio/ww2/research_government_communism_transition_done.wav"
+      ]
+    },
+    "research_government_communism_transition_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Communist Regime Transition / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_government_communism_transition_cancel.wav"
+      ]
+    },
+    "research_government_democratic_transition_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Democratic Transition / select",
+      "files": [
+        "res://assets/audio/ww2/research_government_democratic_transition_select.wav"
+      ]
+    },
+    "research_government_democratic_transition_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Democratic Transition / start",
+      "files": [
+        "res://assets/audio/ww2/research_government_democratic_transition_start.wav"
+      ]
+    },
+    "research_government_democratic_transition_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Democratic Transition / done",
+      "files": [
+        "res://assets/audio/ww2/research_government_democratic_transition_done.wav"
+      ]
+    },
+    "research_government_democratic_transition_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Democratic Transition / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_government_democratic_transition_cancel.wav"
+      ]
+    },
+    "research_government_fascism_transition_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Fascist Regime Transition / select",
+      "files": [
+        "res://assets/audio/ww2/research_government_fascism_transition_select.wav"
+      ]
+    },
+    "research_government_fascism_transition_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Fascist Regime Transition / start",
+      "files": [
+        "res://assets/audio/ww2/research_government_fascism_transition_start.wav"
+      ]
+    },
+    "research_government_fascism_transition_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Fascist Regime Transition / done",
+      "files": [
+        "res://assets/audio/ww2/research_government_fascism_transition_done.wav"
+      ]
+    },
+    "research_government_fascism_transition_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Fascist Regime Transition / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_government_fascism_transition_cancel.wav"
+      ]
+    },
+    "research_government_neutrality_transition_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Non-Aligned Government Transition / select",
+      "files": [
+        "res://assets/audio/ww2/research_government_neutrality_transition_select.wav"
+      ]
+    },
+    "research_government_neutrality_transition_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Non-Aligned Government Transition / start",
+      "files": [
+        "res://assets/audio/ww2/research_government_neutrality_transition_start.wav"
+      ]
+    },
+    "research_government_neutrality_transition_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Non-Aligned Government Transition / done",
+      "files": [
+        "res://assets/audio/ww2/research_government_neutrality_transition_done.wav"
+      ]
+    },
+    "research_government_neutrality_transition_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Non-Aligned Government Transition / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_government_neutrality_transition_cancel.wav"
+      ]
+    },
+    "research_industry_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Precision Machine Tools / select",
+      "files": [
+        "res://assets/audio/ww2/research_industry_1_select.wav"
+      ]
+    },
+    "research_industry_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Precision Machine Tools / start",
+      "files": [
+        "res://assets/audio/ww2/research_industry_1_start.wav"
+      ]
+    },
+    "research_industry_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Precision Machine Tools / done",
+      "files": [
+        "res://assets/audio/ww2/research_industry_1_done.wav"
+      ]
+    },
+    "research_industry_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Precision Machine Tools / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_industry_1_cancel.wav"
+      ]
+    },
+    "research_industry_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Shadow Factories / select",
+      "files": [
+        "res://assets/audio/ww2/research_industry_2_select.wav"
+      ]
+    },
+    "research_industry_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Shadow Factories / start",
+      "files": [
+        "res://assets/audio/ww2/research_industry_2_start.wav"
+      ]
+    },
+    "research_industry_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Shadow Factories / done",
+      "files": [
+        "res://assets/audio/ww2/research_industry_2_done.wav"
+      ]
+    },
+    "research_industry_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Shadow Factories / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_industry_2_cancel.wav"
+      ]
+    },
+    "research_industry_3_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Flow Production / select",
+      "files": [
+        "res://assets/audio/ww2/research_industry_3_select.wav"
+      ]
+    },
+    "research_industry_3_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Flow Production / start",
+      "files": [
+        "res://assets/audio/ww2/research_industry_3_start.wav"
+      ]
+    },
+    "research_industry_3_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Flow Production / done",
+      "files": [
+        "res://assets/audio/ww2/research_industry_3_done.wav"
+      ]
+    },
+    "research_industry_3_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Flow Production / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_industry_3_cancel.wav"
+      ]
+    },
+    "research_infantry_weapons_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Bolt-Action Rifles / select",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_1_select.wav"
+      ]
+    },
+    "research_infantry_weapons_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Bolt-Action Rifles / start",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_1_start.wav"
+      ]
+    },
+    "research_infantry_weapons_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Bolt-Action Rifles / done",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_1_done.wav"
+      ]
+    },
+    "research_infantry_weapons_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Bolt-Action Rifles / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_1_cancel.wav"
+      ]
+    },
+    "research_infantry_weapons_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Light Machine Guns / select",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_2_select.wav"
+      ]
+    },
+    "research_infantry_weapons_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Light Machine Guns / start",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_2_start.wav"
+      ]
+    },
+    "research_infantry_weapons_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Light Machine Guns / done",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_2_done.wav"
+      ]
+    },
+    "research_infantry_weapons_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Light Machine Guns / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_2_cancel.wav"
+      ]
+    },
+    "research_infantry_weapons_3_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Semi-Automatic Rifles / select",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_3_select.wav"
+      ]
+    },
+    "research_infantry_weapons_3_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Semi-Automatic Rifles / start",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_3_start.wav"
+      ]
+    },
+    "research_infantry_weapons_3_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Semi-Automatic Rifles / done",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_3_done.wav"
+      ]
+    },
+    "research_infantry_weapons_3_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Semi-Automatic Rifles / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_infantry_weapons_3_cancel.wav"
+      ]
+    },
+    "research_light_tank_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Improved Light Tank / select",
+      "files": [
+        "res://assets/audio/ww2/research_light_tank_2_select.wav"
+      ]
+    },
+    "research_light_tank_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Light Tank / start",
+      "files": [
+        "res://assets/audio/ww2/research_light_tank_2_start.wav"
+      ]
+    },
+    "research_light_tank_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Improved Light Tank / done",
+      "files": [
+        "res://assets/audio/ww2/research_light_tank_2_done.wav"
+      ]
+    },
+    "research_light_tank_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Light Tank / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_light_tank_2_cancel.wav"
+      ]
+    },
+    "research_medium_tank_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Medium Tank / select",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_1_select.wav"
+      ]
+    },
+    "research_medium_tank_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Medium Tank / start",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_1_start.wav"
+      ]
+    },
+    "research_medium_tank_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Medium Tank / done",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_1_done.wav"
+      ]
+    },
+    "research_medium_tank_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Medium Tank / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_1_cancel.wav"
+      ]
+    },
+    "research_medium_tank_2_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Improved Medium Tank / select",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_2_select.wav"
+      ]
+    },
+    "research_medium_tank_2_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Medium Tank / start",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_2_start.wav"
+      ]
+    },
+    "research_medium_tank_2_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Improved Medium Tank / done",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_2_done.wav"
+      ]
+    },
+    "research_medium_tank_2_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Improved Medium Tank / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_medium_tank_2_cancel.wav"
+      ]
+    },
+    "research_motorization_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Motorization / select",
+      "files": [
+        "res://assets/audio/ww2/research_motorization_select.wav"
+      ]
+    },
+    "research_motorization_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Motorization / start",
+      "files": [
+        "res://assets/audio/ww2/research_motorization_start.wav"
+      ]
+    },
+    "research_motorization_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Motorization / done",
+      "files": [
+        "res://assets/audio/ww2/research_motorization_done.wav"
+      ]
+    },
+    "research_motorization_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Motorization / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_motorization_cancel.wav"
+      ]
+    },
+    "research_radar_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Radar / select",
+      "files": [
+        "res://assets/audio/ww2/research_radar_1_select.wav"
+      ]
+    },
+    "research_radar_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Radar / start",
+      "files": [
+        "res://assets/audio/ww2/research_radar_1_start.wav"
+      ]
+    },
+    "research_radar_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Radar / done",
+      "files": [
+        "res://assets/audio/ww2/research_radar_1_done.wav"
+      ]
+    },
+    "research_radar_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Radar / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_radar_1_cancel.wav"
+      ]
+    },
+    "research_radio_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Radio / select",
+      "files": [
+        "res://assets/audio/ww2/research_radio_select.wav"
+      ]
+    },
+    "research_radio_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Radio / start",
+      "files": [
+        "res://assets/audio/ww2/research_radio_start.wav"
+      ]
+    },
+    "research_radio_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Radio / done",
+      "files": [
+        "res://assets/audio/ww2/research_radio_done.wav"
+      ]
+    },
+    "research_radio_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Radio / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_radio_cancel.wav"
+      ]
+    },
+    "research_submarine_1_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Submarines / select",
+      "files": [
+        "res://assets/audio/ww2/research_submarine_1_select.wav"
+      ]
+    },
+    "research_submarine_1_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Submarines / start",
+      "files": [
+        "res://assets/audio/ww2/research_submarine_1_start.wav"
+      ]
+    },
+    "research_submarine_1_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Submarines / done",
+      "files": [
+        "res://assets/audio/ww2/research_submarine_1_done.wav"
+      ]
+    },
+    "research_submarine_1_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Submarines / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_submarine_1_cancel.wav"
+      ]
+    },
+    "research_support_weapons_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Support Weapons / select",
+      "files": [
+        "res://assets/audio/ww2/research_support_weapons_select.wav"
+      ]
+    },
+    "research_support_weapons_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Support Weapons / start",
+      "files": [
+        "res://assets/audio/ww2/research_support_weapons_start.wav"
+      ]
+    },
+    "research_support_weapons_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Support Weapons / done",
+      "files": [
+        "res://assets/audio/ww2/research_support_weapons_done.wav"
+      ]
+    },
+    "research_support_weapons_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Support Weapons / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_support_weapons_cancel.wav"
+      ]
+    },
+    "research_synthetic_oil_select": {
+      "gain_db": -7,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "Synthetic Rubber / select",
+      "files": [
+        "res://assets/audio/ww2/research_synthetic_oil_select.wav"
+      ]
+    },
+    "research_synthetic_oil_start": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Synthetic Rubber / start",
+      "files": [
+        "res://assets/audio/ww2/research_synthetic_oil_start.wav"
+      ]
+    },
+    "research_synthetic_oil_done": {
+      "gain_db": -5,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 220,
+      "description": "Synthetic Rubber / done",
+      "files": [
+        "res://assets/audio/ww2/research_synthetic_oil_done.wav"
+      ]
+    },
+    "research_synthetic_oil_cancel": {
+      "gain_db": -5,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 220,
+      "description": "Synthetic Rubber / cancel",
+      "files": [
+        "res://assets/audio/ww2/research_synthetic_oil_cancel.wav"
+      ]
+    },
+    "research_category_air_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_air_select.wav"
+      ]
+    },
+    "research_category_air_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_air_start.wav"
+      ]
+    },
+    "research_category_air_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_air_done.wav"
+      ]
+    },
+    "research_category_air_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_air_cancel.wav"
+      ]
+    },
+    "research_category_armor_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_armor_select.wav"
+      ]
+    },
+    "research_category_armor_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_armor_start.wav"
+      ]
+    },
+    "research_category_armor_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_armor_done.wav"
+      ]
+    },
+    "research_category_armor_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_armor_cancel.wav"
+      ]
+    },
+    "research_category_artillery_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_artillery_select.wav"
+      ]
+    },
+    "research_category_artillery_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_artillery_start.wav"
+      ]
+    },
+    "research_category_artillery_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_artillery_done.wav"
+      ]
+    },
+    "research_category_artillery_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_artillery_cancel.wav"
+      ]
+    },
+    "research_category_doctrine_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_doctrine_select.wav"
+      ]
+    },
+    "research_category_doctrine_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_doctrine_start.wav"
+      ]
+    },
+    "research_category_doctrine_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_doctrine_done.wav"
+      ]
+    },
+    "research_category_doctrine_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_doctrine_cancel.wav"
+      ]
+    },
+    "research_category_electronics_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_electronics_select.wav"
+      ]
+    },
+    "research_category_electronics_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_electronics_start.wav"
+      ]
+    },
+    "research_category_electronics_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_electronics_done.wav"
+      ]
+    },
+    "research_category_electronics_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_electronics_cancel.wav"
+      ]
+    },
+    "research_category_governance_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_governance_select.wav"
+      ]
+    },
+    "research_category_governance_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_governance_start.wav"
+      ]
+    },
+    "research_category_governance_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_governance_done.wav"
+      ]
+    },
+    "research_category_governance_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_governance_cancel.wav"
+      ]
+    },
+    "research_category_industry_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_industry_select.wav"
+      ]
+    },
+    "research_category_industry_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_industry_start.wav"
+      ]
+    },
+    "research_category_industry_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_industry_done.wav"
+      ]
+    },
+    "research_category_industry_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_industry_cancel.wav"
+      ]
+    },
+    "research_category_infantry_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_infantry_select.wav"
+      ]
+    },
+    "research_category_infantry_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_infantry_start.wav"
+      ]
+    },
+    "research_category_infantry_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_infantry_done.wav"
+      ]
+    },
+    "research_category_infantry_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_infantry_cancel.wav"
+      ]
+    },
+    "research_category_naval_select": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_naval_select.wav"
+      ]
+    },
+    "research_category_naval_start": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_naval_start.wav"
+      ]
+    },
+    "research_category_naval_done": {
+      "gain_db": -6.0,
+      "bus": "sfx",
+      "priority": 2,
+      "queue": true,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_naval_done.wav"
+      ]
+    },
+    "research_category_naval_cancel": {
+      "gain_db": -6.0,
+      "bus": "ui",
+      "priority": 0,
+      "queue": false,
+      "cooldown_ms": 90,
+      "description": "",
+      "files": [
+        "res://assets/audio/ww2/research_category_naval_cancel.wav"
+      ]
+    }
+  },
+  "research": {
+    "anti_tank_1": {
+      "select": "research_anti_tank_1_select",
+      "start": "research_anti_tank_1_start",
+      "done": "research_anti_tank_1_done",
+      "cancel": "research_anti_tank_1_cancel"
+    },
+    "artillery_1": {
+      "select": "research_artillery_1_select",
+      "start": "research_artillery_1_start",
+      "done": "research_artillery_1_done",
+      "cancel": "research_artillery_1_cancel"
+    },
+    "artillery_2": {
+      "select": "research_artillery_2_select",
+      "start": "research_artillery_2_start",
+      "done": "research_artillery_2_done",
+      "cancel": "research_artillery_2_cancel"
+    },
+    "artillery_3": {
+      "select": "research_artillery_3_select",
+      "start": "research_artillery_3_start",
+      "done": "research_artillery_3_done",
+      "cancel": "research_artillery_3_cancel"
+    },
+    "battleship_1": {
+      "select": "research_battleship_1_select",
+      "start": "research_battleship_1_start",
+      "done": "research_battleship_1_done",
+      "cancel": "research_battleship_1_cancel"
+    },
+    "bomber_1": {
+      "select": "research_bomber_1_select",
+      "start": "research_bomber_1_start",
+      "done": "research_bomber_1_done",
+      "cancel": "research_bomber_1_cancel"
+    },
+    "cas_1": {
+      "select": "research_cas_1_select",
+      "start": "research_cas_1_start",
+      "done": "research_cas_1_done",
+      "cancel": "research_cas_1_cancel"
+    },
+    "computing_1": {
+      "select": "research_computing_1_select",
+      "start": "research_computing_1_start",
+      "done": "research_computing_1_done",
+      "cancel": "research_computing_1_cancel"
+    },
+    "construction_1": {
+      "select": "research_construction_1_select",
+      "start": "research_construction_1_start",
+      "done": "research_construction_1_done",
+      "cancel": "research_construction_1_cancel"
+    },
+    "construction_2": {
+      "select": "research_construction_2_select",
+      "start": "research_construction_2_start",
+      "done": "research_construction_2_done",
+      "cancel": "research_construction_2_cancel"
+    },
+    "cruiser_1": {
+      "select": "research_cruiser_1_select",
+      "start": "research_cruiser_1_start",
+      "done": "research_cruiser_1_done",
+      "cancel": "research_cruiser_1_cancel"
+    },
+    "destroyer_1": {
+      "select": "research_destroyer_1_select",
+      "start": "research_destroyer_1_start",
+      "done": "research_destroyer_1_done",
+      "cancel": "research_destroyer_1_cancel"
+    },
+    "doctrine_1": {
+      "select": "research_doctrine_1_select",
+      "start": "research_doctrine_1_start",
+      "done": "research_doctrine_1_done",
+      "cancel": "research_doctrine_1_cancel"
+    },
+    "doctrine_2": {
+      "select": "research_doctrine_2_select",
+      "start": "research_doctrine_2_start",
+      "done": "research_doctrine_2_done",
+      "cancel": "research_doctrine_2_cancel"
+    },
+    "doctrine_3": {
+      "select": "research_doctrine_3_select",
+      "start": "research_doctrine_3_start",
+      "done": "research_doctrine_3_done",
+      "cancel": "research_doctrine_3_cancel"
+    },
+    "doctrine_4": {
+      "select": "research_doctrine_4_select",
+      "start": "research_doctrine_4_start",
+      "done": "research_doctrine_4_done",
+      "cancel": "research_doctrine_4_cancel"
+    },
+    "fighter_1": {
+      "select": "research_fighter_1_select",
+      "start": "research_fighter_1_start",
+      "done": "research_fighter_1_done",
+      "cancel": "research_fighter_1_cancel"
+    },
+    "fighter_2": {
+      "select": "research_fighter_2_select",
+      "start": "research_fighter_2_start",
+      "done": "research_fighter_2_done",
+      "cancel": "research_fighter_2_cancel"
+    },
+    "government_communism_transition": {
+      "select": "research_government_communism_transition_select",
+      "start": "research_government_communism_transition_start",
+      "done": "research_government_communism_transition_done",
+      "cancel": "research_government_communism_transition_cancel"
+    },
+    "government_democratic_transition": {
+      "select": "research_government_democratic_transition_select",
+      "start": "research_government_democratic_transition_start",
+      "done": "research_government_democratic_transition_done",
+      "cancel": "research_government_democratic_transition_cancel"
+    },
+    "government_fascism_transition": {
+      "select": "research_government_fascism_transition_select",
+      "start": "research_government_fascism_transition_start",
+      "done": "research_government_fascism_transition_done",
+      "cancel": "research_government_fascism_transition_cancel"
+    },
+    "government_neutrality_transition": {
+      "select": "research_government_neutrality_transition_select",
+      "start": "research_government_neutrality_transition_start",
+      "done": "research_government_neutrality_transition_done",
+      "cancel": "research_government_neutrality_transition_cancel"
+    },
+    "industry_1": {
+      "select": "research_industry_1_select",
+      "start": "research_industry_1_start",
+      "done": "research_industry_1_done",
+      "cancel": "research_industry_1_cancel"
+    },
+    "industry_2": {
+      "select": "research_industry_2_select",
+      "start": "research_industry_2_start",
+      "done": "research_industry_2_done",
+      "cancel": "research_industry_2_cancel"
+    },
+    "industry_3": {
+      "select": "research_industry_3_select",
+      "start": "research_industry_3_start",
+      "done": "research_industry_3_done",
+      "cancel": "research_industry_3_cancel"
+    },
+    "infantry_weapons_1": {
+      "select": "research_infantry_weapons_1_select",
+      "start": "research_infantry_weapons_1_start",
+      "done": "research_infantry_weapons_1_done",
+      "cancel": "research_infantry_weapons_1_cancel"
+    },
+    "infantry_weapons_2": {
+      "select": "research_infantry_weapons_2_select",
+      "start": "research_infantry_weapons_2_start",
+      "done": "research_infantry_weapons_2_done",
+      "cancel": "research_infantry_weapons_2_cancel"
+    },
+    "infantry_weapons_3": {
+      "select": "research_infantry_weapons_3_select",
+      "start": "research_infantry_weapons_3_start",
+      "done": "research_infantry_weapons_3_done",
+      "cancel": "research_infantry_weapons_3_cancel"
+    },
+    "light_tank_2": {
+      "select": "research_light_tank_2_select",
+      "start": "research_light_tank_2_start",
+      "done": "research_light_tank_2_done",
+      "cancel": "research_light_tank_2_cancel"
+    },
+    "medium_tank_1": {
+      "select": "research_medium_tank_1_select",
+      "start": "research_medium_tank_1_start",
+      "done": "research_medium_tank_1_done",
+      "cancel": "research_medium_tank_1_cancel"
+    },
+    "medium_tank_2": {
+      "select": "research_medium_tank_2_select",
+      "start": "research_medium_tank_2_start",
+      "done": "research_medium_tank_2_done",
+      "cancel": "research_medium_tank_2_cancel"
+    },
+    "motorization": {
+      "select": "research_motorization_select",
+      "start": "research_motorization_start",
+      "done": "research_motorization_done",
+      "cancel": "research_motorization_cancel"
+    },
+    "radar_1": {
+      "select": "research_radar_1_select",
+      "start": "research_radar_1_start",
+      "done": "research_radar_1_done",
+      "cancel": "research_radar_1_cancel"
+    },
+    "radio": {
+      "select": "research_radio_select",
+      "start": "research_radio_start",
+      "done": "research_radio_done",
+      "cancel": "research_radio_cancel"
+    },
+    "submarine_1": {
+      "select": "research_submarine_1_select",
+      "start": "research_submarine_1_start",
+      "done": "research_submarine_1_done",
+      "cancel": "research_submarine_1_cancel"
+    },
+    "support_weapons": {
+      "select": "research_support_weapons_select",
+      "start": "research_support_weapons_start",
+      "done": "research_support_weapons_done",
+      "cancel": "research_support_weapons_cancel"
+    },
+    "synthetic_oil": {
+      "select": "research_synthetic_oil_select",
+      "start": "research_synthetic_oil_start",
+      "done": "research_synthetic_oil_done",
+      "cancel": "research_synthetic_oil_cancel"
+    }
+  },
+  "research_categories": {
+    "air": {
+      "select": "research_category_air_select",
+      "start": "research_category_air_start",
+      "done": "research_category_air_done",
+      "cancel": "research_category_air_cancel"
+    },
+    "armor": {
+      "select": "research_category_armor_select",
+      "start": "research_category_armor_start",
+      "done": "research_category_armor_done",
+      "cancel": "research_category_armor_cancel"
+    },
+    "artillery": {
+      "select": "research_category_artillery_select",
+      "start": "research_category_artillery_start",
+      "done": "research_category_artillery_done",
+      "cancel": "research_category_artillery_cancel"
+    },
+    "doctrine": {
+      "select": "research_category_doctrine_select",
+      "start": "research_category_doctrine_start",
+      "done": "research_category_doctrine_done",
+      "cancel": "research_category_doctrine_cancel"
+    },
+    "electronics": {
+      "select": "research_category_electronics_select",
+      "start": "research_category_electronics_start",
+      "done": "research_category_electronics_done",
+      "cancel": "research_category_electronics_cancel"
+    },
+    "governance": {
+      "select": "research_category_governance_select",
+      "start": "research_category_governance_start",
+      "done": "research_category_governance_done",
+      "cancel": "research_category_governance_cancel"
+    },
+    "industry": {
+      "select": "research_category_industry_select",
+      "start": "research_category_industry_start",
+      "done": "research_category_industry_done",
+      "cancel": "research_category_industry_cancel"
+    },
+    "infantry": {
+      "select": "research_category_infantry_select",
+      "start": "research_category_infantry_start",
+      "done": "research_category_infantry_done",
+      "cancel": "research_category_infantry_cancel"
+    },
+    "naval": {
+      "select": "research_category_naval_select",
+      "start": "research_category_naval_start",
+      "done": "research_category_naval_done",
+      "cancel": "research_category_naval_cancel"
+    }
+  }
+}

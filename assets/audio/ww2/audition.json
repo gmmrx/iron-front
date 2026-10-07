@@ -1,0 +1,66 @@
+[
+  {
+    "time": 0.15,
+    "cue": "menu_click_1"
+  },
+  {
+    "time": 0.75,
+    "cue": "menu_open_1"
+  },
+  {
+    "time": 1.48,
+    "cue": "ui_click_1"
+  },
+  {
+    "time": 2.09,
+    "cue": "select_infantry_1"
+  },
+  {
+    "time": 2.8,
+    "cue": "select_armor_1"
+  },
+  {
+    "time": 3.5,
+    "cue": "select_fleet_1"
+  },
+  {
+    "time": 4.2,
+    "cue": "select_air_1"
+  },
+  {
+    "time": 4.88,
+    "cue": "research_infantry_weapons_2_select"
+  },
+  {
+    "time": 5.65,
+    "cue": "research_infantry_weapons_2_done"
+  },
+  {
+    "time": 6.88,
+    "cue": "research_radar_1_done"
+  },
+  {
+    "time": 8.07,
+    "cue": "research_government_democratic_transition_start"
+  },
+  {
+    "time": 9.01,
+    "cue": "law_change_1"
+  },
+  {
+    "time": 9.73,
+    "cue": "war_declare_1"
+  },
+  {
+    "time": 11.46,
+    "cue": "peace_signed_1"
+  },
+  {
+    "time": 12.6,
+    "cue": "alliance_formed_1"
+  },
+  {
+    "time": 13.87,
+    "cue": "notify_urgent_1"
+  }
+]

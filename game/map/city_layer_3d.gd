@@ -17,9 +17,9 @@ const CELL := 3.0                   ## işgal ızgarası (dünya birimi)
 const CHUNK := 384.0
 const BUILDINGS_PATH := "res://assets/models/buildings.glb"
 ## kamera mesafesi (dünya birimi) üst sınırları
-const MODEL_RANGE := {"capital": 1450.0, "large": 1000.0, "medium": 700.0, "town": 480.0, "port": 700.0}
-const AIRBASE_RANGE := 900.0
-const LABEL_RANGE: Array[float] = [1600.0, 1000.0, 700.0, 450.0, 280.0]  ## tier 0..4 (başkent adı yıldızıyla birlikte)
+const MODEL_RANGE := {"capital": 700.0, "large": 500.0, "medium": 350.0, "town": 240.0, "port": 350.0}
+const AIRBASE_RANGE := 450.0
+const LABEL_RANGE: Array[float] = [1300.0, 650.0, 420.0, 240.0, 140.0]  ## tier 0..4: uzakta yalnız başkent ve büyük şehirler
 
 var map: MapView3D
 var _font: Font
@@ -31,26 +31,45 @@ var _occupied := {}                 ## Vector2i hücre -> true (şehirler/limanl
 ## Modelleri geri açmak için true.
 const SHOW_MODELS := false
 var _visual_positions := {}         ## city id -> kıyıyı taşırmayan model merkezi
-var labels := {}                    ## city id -> ad etiketi (iğne haritası adları iğne başına taşır)
-var label_plates := {}              ## city id -> adın arkasındaki koyu kutu (etiketin çocuğu, aynı ofset)
-var far_labels := {}                ## city id -> uzak zoom adı (sade beyaz, küçük; iğne çıkınca yerini kutulu ada bırakır)
-const LABEL_PX := 0.0005            ## etiket ve kutusunun piksel boyu
+var labels := {}                    ## city id -> her zoom'da aynı sade ad etiketi
+var label_plates := {}              ## eski API uyumu; şehirlerde kutu oluşturulmaz
+var far_labels := {}                ## aynı tek ad etiketi (eski API uyumu; ikinci düğüm yok)
+const LABEL_PX := 0.0005            ## normal harita yazısının değişmeyen piksel boyu
 const PLATE_PAD := 12.0             ## kutunun yazıdan taşması (etiket pikseli)
 static var _plate_cache := {}
 const CONFORM_SHADER := preload("res://assets/shaders/conform.gdshader")
 const BUILDING_SHADER := preload("res://assets/shaders/building.gdshader")
+const PORT_LAYER := preload("res://game/map/port_layer.gd")
+
+## Açılış yükleme ekranı (main): kurulum adımları arasında bir kare çizilir; kapalıyken tek seferde. Bitince built.
+signal built
+var yield_frames := false
+var on_progress: Callable
+var is_built := false
+
+func _boot_step(f: float) -> void:
+	if on_progress.is_valid():
+		on_progress.call(f)
+	if yield_frames:
+		await get_tree().process_frame
 
 func _ready() -> void:
 	_font = load("res://assets/fonts/BarlowCondensed-SemiBold.ttf")
 	_bold = UiTheme.bold_font()
 	_load_library()
+	await _boot_step(0.15)
 	_build_models()
+	await _boot_step(0.6)
 	_build_labels()
 	for sid: int in map.airbase_sites:
 		_mark_airbase(sid)
+	await _boot_step(0.75)
 	_build_industry()
+	await _boot_step(0.9)
 	_build_straits_and_airbases()
 	Economy.building_completed.connect(_on_building_completed)
+	is_built = true
+	built.emit()
 
 ## Şehrin zemindeki yaklaşık yarıçapı (dünya birimi): düzleştirme ve liman uzaklığı için
 static func footprint_radius(c: City) -> float:
@@ -150,8 +169,10 @@ func _build_models() -> void:
 		var city_path := "res://assets/models/city_%s_%s.gltf" % [c.style, size]
 		var scale: float = CITY_SCALE[size]
 		var radius: float = CITY_RADIUS[size]
-		var visual_pos := _best_city_position(c, radius)
+		var visual_radius := radius if SHOW_MODELS else PinLayer.city_model_width(c) * 0.72
+		var visual_pos := _best_city_position(c, visual_radius)
 		_visual_positions[c.id] = visual_pos
+		map.register_city_site(c.id, visual_pos, visual_radius)
 		if SHOW_MODELS:
 			var city_t := Transform3D(Basis(Vector3.UP, -angle).scaled(Vector3.ONE * scale),
 					Vector3(visual_pos.x, _ground(visual_pos), visual_pos.y))
@@ -162,11 +183,7 @@ func _build_models() -> void:
 				var p := visual_pos + Vector2(ox, oy) * CELL
 				if p.distance_squared_to(visual_pos) <= radius * radius:
 					_occupied[_cell_of(p)] = true
-		if c.is_port and SHOW_MODELS:
-			var pt = _port_transform(c)
-			if pt != null:
-				_add(groups, "port_0", pt.origin, pt)
-				ranges["port_0"] = MODEL_RANGE["port"]
+	map.commit_city_sites()
 	var count := 0
 	for key: Array in groups:
 		var name: String = key[0]
@@ -192,11 +209,16 @@ func _build_models() -> void:
 ## Kıyı şehirlerinin diorama tabanı denizin üstüne taşmasın. Küçük bir aday kümesinden,
 ## ayak izinin en fazla karada kaldığı ve gerçek şehir noktasına en yakın merkezi seçer.
 func _best_city_position(c: City, radius: float) -> Vector2:
+	# A ring alone misses the southeast corner of a yawed rectangular miniature.
+	# On the normal flat-map path check the entire compact building footprint.
+	if not SHOW_MODELS and _city_rectangle_land(c, c.position) == 63:
+		return c.position
 	var best := c.position
 	var best_score := -INF
 	var phase := float(_hash(c.id + 31) % 628) / 100.0
 	var offsets: Array[Vector2] = [Vector2.ZERO]
-	for ring: float in [0.55, 0.95, 1.35, 1.75]:
+	var rings := [0.55, 0.95, 1.35, 1.75] if SHOW_MODELS else [0.55, 0.95, 1.35, 1.75, 2.4, 3.2, 4.4]
+	for ring: float in rings:
 		for i in 16:
 			var a: float = phase + TAU * float(i) / 16.0
 			offsets.append(Vector2(cos(a), sin(a)) * radius * ring)
@@ -205,16 +227,42 @@ func _best_city_position(c: City, radius: float) -> Vector2:
 		if not _is_land(candidate):
 			continue
 		var land_score := 0.0
-		for sample_ring: float in [0.42, 0.78]:
-			for j in 12:
-				var a: float = TAU * float(j) / 12.0
-				var p: Vector2 = candidate + Vector2(cos(a), sin(a)) * radius * sample_ring
-				land_score += 1.0 if _is_land(p) else -3.5
+		if not SHOW_MODELS:
+			var dry := _city_rectangle_land(c, candidate)
+			# Rings are nearest-first, so the first completely dry fit is also the
+			# nearest sampled full rectangle. Narrow peninsulas can use outer rings.
+			if dry == 63: return candidate
+			land_score = float(dry) * 4.5
+		else:
+			for sample_ring: float in [0.42, 0.78]:
+				for j in 12:
+					var a: float = TAU * float(j) / 12.0
+					var p: Vector2 = candidate + Vector2(cos(a), sin(a)) * radius * sample_ring
+					land_score += 1.0 if _is_land(p) else -3.5
 		var score: float = land_score - off.length() / maxf(radius, 1.0) * 1.8
 		if score > best_score:
 			best_score = score
 			best = candidate
 	return best
+
+## Native mini-city bounds are one unit wide and at most .94 deep. PinLayer's
+## uniform width and yaw are static, so this uses the same transform as the mesh.
+func _city_rectangle_land(c: City, center: Vector2) -> int:
+	var width := PinLayer.city_model_width(c)
+	var dry := 0
+	for x in 9:
+		for z in 7:
+			var local := Vector2(-0.5 + float(x) / 8.0, -0.47 + float(z) * 0.94 / 6.0) * width
+			if _is_land(center + local.rotated(-c.grid_angle)):
+				dry += 1
+	# Refine only apparently valid candidates: a tiny concave pixel corner can
+	# sit between coarse samples and clip a roof despite all 63 points being dry.
+	if dry == 63:
+		for x in 17:
+			for z in 13:
+				var local := Vector2(-0.5 + float(x) / 16.0, -0.47 + float(z) * 0.94 / 12.0) * width
+				if not _is_land(center + local.rotated(-c.grid_angle)): return 62
+	return dry
 
 func _ground(p: Vector2) -> float:
 	return maxf(map.height_at(p), 0.0) - 0.05
@@ -258,6 +306,10 @@ func _build_straits_and_airbases() -> void:
 	straits.map = map
 	straits.building_mesh = _building_mesh
 	add_child(straits)
+	var ports: Node3D = PORT_LAYER.new()
+	ports.set("map", map)
+	ports.set("cities", self)
+	add_child(ports)
 	var icons := MapIconLayer.new()
 	icons.map = map
 	add_child(icons)
@@ -387,15 +439,45 @@ func _walk_to_coast(start: Vector2, dir: Vector2) -> Variant:
 		pos = nxt
 	return null
 
-## Şehir adları: uzakta sade beyaz, küçük ad (harita ikonlarının yanında). İğnesi olan büyük şehirde (PinLayer.has_pin)
-## iğne çıkınca yerini koyu, ince çerçeveli kutuda serifli ada bırakır; küçük şehirler her zoom'da yalnız sade adla kalır.
+## Kalabalığa karşı: bir şehrin adı ve noktası, yanındaki daha önemli şehirden ekranda yeterince ayrılınca belirir.
+## Önem: başkent, sonra zafer puanı. Ekran aralığı ≈ dünya uzaklığı / kamera uzaklığı × UnitLayer.PX; SPACING_PX'ten
+## azsa gizli → görünür olduğu en büyük kamera uzaklığı = komşu uzaklığı × PX / SPACING_PX. Uzakta her yörede yalnız
+## en önemli şehir kalır, yaklaştıkça öbürleri açılır. Sabit hesap (açılışta bir kez, ızgarayla).
+const SPACING_PX := 220.0
+static var _spacing := {}            ## city id -> en büyük görünür kamera uzaklığı (yoksa sınırsız)
+
+static func spacing_range(c: City) -> float:
+	if _spacing.is_empty():
+		_build_spacing()
+	return float(_spacing.get(c.id, INF))
+
+static func _build_spacing() -> void:
+	var order: Array = World.cities.duplicate()
+	order.sort_custom(func(a: City, b: City) -> bool:
+		if a.is_capital != b.is_capital:
+			return a.is_capital
+		if a.victory_points != b.victory_points:
+			return a.victory_points > b.victory_points
+		return a.id < b.id)
+	var k := UnitLayer.PX / SPACING_PX
+	var reach := LABEL_RANGE[0] / k                  # bundan uzaktaki komşu hiçbir zoom'da sınır koymaz
+	var grid := {}
+	for c: City in order:
+		var cell := Vector2i(floori(c.position.x / reach), floori(c.position.y / reach))
+		var best := INF
+		for dy in range(-1, 2):
+			for dx in range(-1, 2):
+				for o: City in grid.get(cell + Vector2i(dx, dy), []):
+					best = minf(best, c.position.distance_to(o.position))
+		_spacing[c.id] = best * k if best < reach else INF
+		if not grid.has(cell):
+			grid[cell] = []
+		grid[cell].append(c)
+
+## Her şehir için tek normal harita yazısı: yakın/uzak geçişi, serif/kutu ve boy animasyonu yok.
 func _build_labels() -> void:
-	var f := UiTheme.title_font()
 	for c in World.cities:
 		var tier := CityLayer.tier_of(c)
-		# iğnesiz şehir (küçük): sade ad en yakına kadar kalır; iğneli şehirde iğne çıkınca kutulu ada döner
-		var pinned := PinLayer.has_pin(c)
-		var near_d := minf(PinLayer.city_range(c), LABEL_RANGE[tier]) if pinned else 0.0
 		var fl := Label3D.new()
 		fl.text = c.display_name()
 		fl.font = _bold if c.is_capital else _font
@@ -409,55 +491,21 @@ func _build_labels() -> void:
 		fl.no_depth_test = true
 		fl.render_priority = 5
 		fl.outline_render_priority = 4
-		fl.position = Vector3(c.position.x, map.height_at(c.position) + (12.0 if c.is_capital else 7.0), c.position.y)
-		fl.offset = Vector2(0, 16)
-		fl.visibility_range_begin = near_d
-		fl.visibility_range_begin_margin = near_d * 0.1
-		fl.visibility_range_end = LABEL_RANGE[tier]
-		fl.visibility_range_end_margin = LABEL_RANGE[tier] * 0.1
+		# Minyatürün önündeki sabit dünya anchor'ı: zoom/focus/hover yazıyı taşımaz.
+		var p: Vector2 = _visual_positions.get(c.id, c.position)
+		var anchor := p + Vector2(0.0, PinLayer.city_model_width(c) * 0.7)
+		fl.position = Vector3(anchor.x, maxf(map.height_at(anchor), 0.0) + 0.05, anchor.y)
+		fl.offset = Vector2(0, -10)
+		fl.scale = Vector3.ONE
+		var end := minf(LABEL_RANGE[tier], spacing_range(c))   # yanındaki önemli şehirden ayrılınca
+		fl.visibility_range_end = end
+		fl.visibility_range_end_margin = end * 0.1
 		fl.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(fl)
+		labels[c.id] = fl
 		far_labels[c.id] = fl
-		if not pinned:
-			continue
-		var l := Label3D.new()
-		l.text = c.display_name()
-		l.font = f
-		l.font_size = 30 if c.is_capital else 26
-		l.outline_size = 3
-		l.outline_modulate = Color(0.02, 0.03, 0.03, 0.8)
-		l.modulate = Color("f4eedf")
-		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		l.fixed_size = true
-		l.pixel_size = LABEL_PX
-		l.no_depth_test = true
-		l.render_priority = 5
-		l.outline_render_priority = 4
-		l.position = Vector3(c.position.x, map.height_at(c.position) + (12.0 if c.is_capital else 7.0), c.position.y)
-		l.offset = Vector2(0, 16)
-		l.visibility_range_end = near_d
-		l.visibility_range_end_margin = near_d * 0.1
-		l.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-		add_child(l)
-		labels[c.id] = l
-		var tw := f.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, l.font_size).x
-		var plate := Sprite3D.new()
-		plate.texture = label_plate(tw + PLATE_PAD * 2.0, float(l.font_size) * 1.55)
-		plate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		plate.fixed_size = true
-		plate.pixel_size = LABEL_PX
-		plate.no_depth_test = true
-		plate.render_priority = 3
-		plate.offset = l.offset
-		plate.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
-		plate.visibility_range_end = l.visibility_range_end
-		plate.visibility_range_end_margin = l.visibility_range_end_margin
-		plate.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
-		l.add_child(plate)
-		label_plates[c.id] = plate
 
-## Ad kutusu dokusu: koyu yarı saydam zemin, ince açık çerçeve, hafif yuvarlak köşe. Genişlik 8 piksellik kademelerle
-## önbellekte (bütün şehirler için birkaç düzine doku).
+## Ordu ad kartları için ortak doku yardımcısı (UnitLayer). Şehir yazıları bu kutuyu kullanmaz.
 static func label_plate(w: float, h: float) -> Texture2D:
 	var wi := int(ceil(w / 8.0)) * 8
 	var hi := int(ceil(h))

@@ -6,30 +6,16 @@ func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
 
 ## Program ağacı: imlecin altındaki yer yakınlaşırken yerinde kalır, sınırı aşmaz, geçiş yumuşak (bir karede sıçramaz)
-func test_focus_tree_zoom_and_pan() -> void:
+func test_focus_tree_is_inert_and_never_opens() -> void:
 	var fp := FocusPanel.new()
 	_tree().root.add_child(fp)
 	fp.open()
-	fp._view.size = Vector2(1200, 700)
-	var cursor := Vector2(600, 300)
-	var world_before := (cursor - fp._pan_t) / fp._zoom_t
-	fp._zoom_at(cursor, FocusPanel.ZOOM_STEP)
-	gt(fp._zoom_t, 1.0, "tekerlekle yakınlaşır")
-	fp._process(1.0 / 60.0)
-	check(fp._zoom < fp._zoom_t, "bir karede sıçramaz, yumuşakça gelir")
-	for i in 120:
-		fp._process(1.0 / 60.0)
-	near(fp._zoom, fp._zoom_t, 0.002, "hedef yakınlığa varır")
-	var world_after := (cursor - fp._pan) / fp._zoom
-	lt(world_before.distance_to(world_after), 40.0, "imlecin altındaki yer yerinde kalır (kenar sınırı dışında)")
-	for i in 40:
-		fp._zoom_at(cursor, 1.0 / FocusPanel.ZOOM_STEP)
-	near(fp._zoom_t, FocusPanel.ZOOM_MIN, 0.001, "en çok ZOOM_MIN'e kadar uzaklaşır")
-	fp._pan_t = Vector2(99999, 99999)
-	fp._process(1.0 / 60.0)
-	lt(fp._pan_t.x, 99999.0, "ağaç görünümden kaçmaz")
-	fp._fit()
-	check(fp._zoom_t <= 1.0 and fp._zoom_t >= FocusPanel.ZOOM_MIN, "Sığdır ağacı gösterir")
+	check(not fp.visible, "Devlet Programı hiçbir açma çağrısında görünmez")
+	eq(fp.get_child_count(), 0, "kapalı özellik için ağaç/kart/resim oluşturulmaz")
+	check(not fp.is_processing() and not fp.is_processing_input(), "kapalı panel girdi ve animasyon tüketmez")
+	fp.visible = true
+	fp.refresh()
+	check(not fp.visible, "legacy doğrudan refresh de paneli gösteremez")
 	_tree().root.remove_child(fp)
 	fp.free()
 
@@ -91,3 +77,34 @@ func test_research_progress_fill() -> void:
 		check(f.show_behind_parent, "dolgu yazının arkasında")
 		near(f.anchor_right, 0.4, 0.001, "ilerleme oranında dolar")
 	b.free()
+
+## Üst çubuk (arayüz sayfasının parçalarıyla): ❚❚ duraklatır, ▶ sürdürür (akarken yavaşlatır), ▶▶ hızlandırır; hız
+## çubuğu kademeyi gösterir; on gösterge hücresi sayfanın ikonlarıyla
+func test_top_bar_speed_buttons() -> void:
+	var tb := TopBar.new()
+	_tree().root.add_child(tb)
+	GameClock.set_paused(false)
+	GameClock.set_speed(3)
+	tb._pause_btn.pressed.emit()
+	check(GameClock.paused, "❚❚ duraklatır")
+	tb._play_btn.pressed.emit()
+	check(not GameClock.paused, "▶ sürdürür")
+	eq(GameClock.speed, 3, "duraklatılmışken ▶ hızı değiştirmez")
+	tb._play_btn.pressed.emit()
+	eq(GameClock.speed, 2, "akarken ▶ yavaşlatır")
+	tb._fast_btn.pressed.emit()
+	tb._fast_btn.pressed.emit()
+	eq(GameClock.speed, 4, "▶▶ hızlandırır")
+	tb._update_time_state()
+	eq(int(tb._speed_bar.value), 4, "hız çubuğu kademede")
+	check(tb.sheet("icon_political_power") != null and tb.sheet("date_frame") != null, "sayfa parçaları yüklenir")
+	# savaşta değilken savaş hücresi ve önündeki ayraç gizli (çubuğun sonunda boş ayraç kalmaz)
+	var war_cell := tb._cell_of(tb._war)
+	check(not war_cell.visible and not (war_cell.get_meta("div") as Control).visible, "barışta savaş hücresi ve ayracı gizli")
+	# portre çerçevenin içinin oranında, üstten kırpılır
+	if UiTheme.portrait(World.player()) != null:
+		var at := tb._flag.texture as AtlasTexture
+		check(at != null and at.region.position.y < at.atlas.get_height() * 0.05, "portre üstten hizalı kırpılır")
+	GameClock.set_paused(true)
+	_tree().root.remove_child(tb)
+	tb.free()

@@ -1,0 +1,109 @@
+{
+  "shore_terminal": {
+    "vertices": 4016,
+    "triangles": 6404,
+    "surfaces": 5,
+    "bounds_blender_xyz": {
+      "min": [
+        -0.5,
+        -0.2942500114440918,
+        0.0
+      ],
+      "max": [
+        0.5,
+        0.2942500114440918,
+        0.26499998569488525
+      ]
+    },
+    "dimensions": [
+      1.0,
+      0.5885000228881836,
+      0.26499998569488525
+    ],
+    "node_transform": "identity",
+    "native_materials": "PBR / COLOR_0 / TANGENT / shared city albedo+normal",
+    "land_side_x_range": [
+      -0.5,
+      -0.13
+    ],
+    "water_side_pier_x_range": [
+      -0.13,
+      0.5
+    ]
+  },
+  "steam_ferry": {
+    "vertices": 7165,
+    "triangles": 11986,
+    "surfaces": 8,
+    "bounds_blender_xyz": {
+      "min": [
+        -0.5,
+        -0.1260964721441269,
+        -0.04685007408261299
+      ],
+      "max": [
+        0.5,
+        0.1260964721441269,
+        0.22073794901371002
+      ]
+    },
+    "dimensions": [
+      1.0,
+      0.2521929442882538,
+      0.267588023096323
+    ],
+    "node_transform": "identity",
+    "native_materials": "PBR / COLOR_0 / TANGENT / shared city albedo+normal",
+    "waterline_blender_z": 0
+  },
+  "little_belt_span": {
+    "vertices": 6528,
+    "triangles": 11376,
+    "surfaces": 4,
+    "bounds_blender_xyz": {
+      "min": [
+        0.0,
+        -0.12300000339746475,
+        -0.07900000363588333
+      ],
+      "max": [
+        1.0,
+        0.12300000339746475,
+        0.12800000607967377
+      ]
+    },
+    "dimensions": [
+      1.0,
+      0.2460000067949295,
+      0.2070000097155571
+    ],
+    "node_transform": "identity",
+    "native_materials": "PBR / COLOR_0 / TANGENT / shared city albedo+normal",
+    "deck_blender_z": 0
+  },
+  "little_belt_end": {
+    "vertices": 968,
+    "triangles": 1908,
+    "surfaces": 4,
+    "bounds_blender_xyz": {
+      "min": [
+        0.0,
+        -0.13850000500679016,
+        -0.09399999678134918
+      ],
+      "max": [
+        1.0,
+        0.13850000500679016,
+        0.11599999666213989
+      ]
+    },
+    "dimensions": [
+      1.0,
+      0.2770000100135803,
+      0.20999999344348907
+    ],
+    "node_transform": "identity",
+    "native_materials": "PBR / COLOR_0 / TANGENT / shared city albedo+normal",
+    "deck_blender_z": 0
+  }
+}

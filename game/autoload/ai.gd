@@ -20,7 +20,7 @@ var _history_focus := {}            ## tag -> {odak: true}: çizelgenin odaklar�
 func _ready() -> void:
 	_load_history()
 	World.daily_update.connect(_on_day)
-	GameClock.hour_passed.connect(_on_hour)
+	GameClock.hour_late.connect(_on_hour)        # karar saatin ikinci yarısında (ayrı kare)
 
 func _load_history() -> void:
 	var f := FileAccess.open("res://data/common/history.json", FileAccess.READ)
@@ -62,10 +62,11 @@ func apply_history(e: Dictionary) -> bool:
 		return false
 	if not Politics.check_all(c, e.get("require", [])):
 		return false
-	for id: String in e.get("mark_focus", []):
-		Politics.complete_focus_now(c, id, false)
-	if e.has("focus"):
-		Politics.complete_focus_now(c, e["focus"])
+	if Politics.FOCUS_ENABLED:
+		for id: String in e.get("mark_focus", []):
+			Politics.complete_focus_now(c, id, false)
+		if e.has("focus"):
+			Politics.complete_focus_now(c, e["focus"])
 	if e.has("effects"):
 		Politics.apply_effects(c, e["effects"])
 	return true
@@ -102,6 +103,7 @@ func _on_hour() -> void:
 # ------------------------------------------------------------------ stratejik
 func _strategic(c: Country) -> void:
 	_construction(c)
+	_ships(c)
 	_production(c)
 	_research(c)
 	_focus(c)
@@ -116,7 +118,7 @@ func _construction(c: Country) -> void:
 	if randf() < 0.15:
 		want = "infrastructure"
 	if c.is_major() and randf() < 0.08:
-		want = "dockyard"
+		want = "naval_base"
 	var sids: Array = c.states.duplicate()
 	sids.sort_custom(func(a: int, b: int) -> bool:
 		return World.states[a].building_level("infrastructure") * 10 + World.states[a].free_slots() > World.states[b].building_level("infrastructure") * 10 + World.states[b].free_slots())
@@ -125,6 +127,46 @@ func _construction(c: Country) -> void:
 		if Economy.can_build(c, st, want) == "":
 			Economy.queue_building(c, st, want)
 			return
+
+## Gemi alımı (tersane yok, docs/DESIGN.md): limanında deniz üssü olan ülke, donanması hedefin altındaysa SP ile gemi
+## alır (Military.recruit ile aynı fiyat, recruit.json). Hedef: 1936 donanmasının (start_fleets, konvoysuz) yılda %8
+## büyümüş hali ya da deniz üssü seviyeleri, hangisi büyükse — dönemin donanmaları 1936–1942 arasında yılda %5–10
+## büyüdü; hedef olmasa yapay zekâ SP'si birikip donanma sınırsız büyürdü. Tür: başlangıç dağılımına göre en çok eksiği
+## olan (donanmanın karakteri korunur). Çağrı başına en çok 3 gemi; yeni gemi stoktan ana üsse geçer (Navy).
+const SHIP_GROWTH := 0.08
+func _ships(c: Country) -> void:
+	var nb := Economy.count(c, "naval_base")
+	if nb <= 0 or Navy._main_port(c.tag) == 0:
+		return
+	var units: Dictionary = Military.recruit_def()["units"]
+	var start: Dictionary = Economy._fleets.get(c.tag, Economy._fleets.get("_default_coastal", {}))
+	var have := {}
+	for t: String in Navy.SHIP_TYPES:
+		have[t] = int(c.stockpile.get(t, 0.0))
+	for f in Navy.fleets_of(c.tag):
+		for t: String in f.ships:
+			have[t] = int(have.get(t, 0)) + int(f.ships[t])
+	var grow := 1.0 + SHIP_GROWTH * maxf(float(GameClock.year - 1936), 0.0)
+	var start_total := 0.0
+	for t: String in Navy.SHIP_TYPES:
+		start_total += float(start.get(t, 0))
+	# deniz üssü seviyeleri start_total'ı aşıyorsa ölçek: hedef aynı dağılımla büyür
+	var mult := grow * maxf(1.0, float(nb) / maxf(start_total, 1.0))
+	for i in 3:
+		var best := ""
+		var gap := 0.0
+		for t: String in Navy.SHIP_TYPES:
+			if not units.has(t):
+				continue
+			var want := float(start.get(t, 0)) * mult
+			if want - float(have[t]) > gap:
+				gap = want - float(have[t])
+				best = t
+		if best == "" or gap < 1.0 or c.sp < float(units[best]["sp"]):
+			return
+		c.sp -= float(units[best]["sp"])
+		c.stockpile[best] = float(c.stockpile.get(best, 0.0)) + 1.0
+		have[best] = int(have[best]) + 1
 
 func _production(c: Country) -> void:
 	var free := Economy.free_military(c)
@@ -182,6 +224,7 @@ func _research(c: Country) -> void:
 		var best := ""
 		var best_score := INF
 		for id: String in Research.techs:
+			if Research.is_government_project(id): continue # Regime changes are deliberate player choices, not AI filler.
 			if not Research.can_research(c, id):
 				continue
 			# iyileştirme seviyesi yılı gelmeden seçilmez: yıl cezasıyla ~2000 günlük bir seviye yuvayı yıllarca kilitler,
@@ -197,6 +240,7 @@ func _research(c: Country) -> void:
 			break
 
 func _focus(c: Country) -> void:
+	if not Politics.FOCUS_ENABLED: return
 	var tree := Politics.tree_of(c)
 	if c.focus_current != "":
 		var cur_ai := float(tree.get(c.focus_current, {}).get("ai", 0))
@@ -632,7 +676,7 @@ func _upcoming_wars(tag: String) -> Array:
 			if c == null or not c.exists() or not _is_ai(c):
 				continue
 			var effs: Array = (e.get("effects", []) as Array).duplicate()
-			if e.has("focus") and not (e["focus"] in c.focus_done):
+			if Politics.FOCUS_ENABLED and e.has("focus") and not (e["focus"] in c.focus_done):
 				effs.append_array(Politics.focus_def(c, e["focus"]).get("effects", []))
 			for ef: Variant in effs:
 				if not ef is Dictionary:

@@ -1,0 +1,170 @@
+{
+	"cases": [
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						416.0,
+						237.0,
+						448.0,
+						54.0
+					],
+					"text": "Devam et",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						416.0,
+						301.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyunu kaydet",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						416.0,
+						365.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyun yükle",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						416.0,
+						429.0,
+						448.0,
+						54.0
+					],
+					"text": "Ayarlar",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						416.0,
+						507.0,
+						448.0,
+						54.0
+					],
+					"text": "Ana menü",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						416.0,
+						571.0,
+						448.0,
+						54.0
+					],
+					"text": "Çıkış",
+					"wired": true
+				}
+			],
+			"locale": "tr",
+			"page": "main",
+			"resolution": [
+				1280,
+				720
+			],
+			"window": [
+				400.0,
+				78.0,
+				480.0,
+				563.0
+			]
+		},
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						736.0,
+						417.0,
+						448.0,
+						54.0
+					],
+					"text": "Resume",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						736.0,
+						481.0,
+						448.0,
+						54.0
+					],
+					"text": "Save game",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						736.0,
+						545.0,
+						448.0,
+						54.0
+					],
+					"text": "Load game",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						736.0,
+						609.0,
+						448.0,
+						54.0
+					],
+					"text": "Settings",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						736.0,
+						687.0,
+						448.0,
+						54.0
+					],
+					"text": "Main menu",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						736.0,
+						751.0,
+						448.0,
+						54.0
+					],
+					"text": "Quit",
+					"wired": true
+				}
+			],
+			"locale": "en",
+			"page": "main",
+			"resolution": [
+				1920,
+				1080
+			],
+			"window": [
+				720.0,
+				258.0,
+				480.0,
+				563.0
+			]
+		}
+	],
+	"errors": [],
+	"renderer": "forward_plus"
+}

@@ -65,6 +65,7 @@ func reset() -> void:
 func _init_controller() -> void:
 	controller.resize(provinces.size())
 	controller.fill(0)
+	control_version += 1
 	for st: StateRegion in states.values():
 		var ci: int = countries[st.owner].index
 		for pid in st.provinces:
@@ -268,8 +269,11 @@ func set_controller(pid: int, tag: String) -> void:
 	if c == null or controller[pid] == c.index:
 		return
 	controller[pid] = c.index
+	control_version += 1
 	_control_dirty = true
 
+## Bölge kontrolü her değiştiğinde artar (kontrole bağlı önbellekler için: Military çatışma taraması)
+var control_version := 0
 var _control_dirty := false
 
 func _process(_d: float) -> void:
@@ -294,6 +298,7 @@ func transfer_state(sid: int, tag: String) -> void:
 	recompute_manpower_pop(to)
 	if from:
 		recompute_manpower_pop(from)
+	control_version += 1
 	for pid in st.provinces:
 		controller[pid] = to.index
 	if from and from.capital_state == sid and not from.states.is_empty():
@@ -464,6 +469,10 @@ func start_game(tag: String) -> void:
 		for d in Military.divisions:
 			if d.owner == tag:
 				d.hold = true                 # tümenler emir olmadan geri çekilmez
+		# oyun oyuncunun başkentinde sabah başlar; saat oyuncunun yerel saatinde gösterilir
+		var cap: StateRegion = states.get(countries[tag].capital_state)
+		if cap and not cap.provinces.is_empty() and province(cap.provinces[0]):
+			GameClock.start_at_local_morning(lonlat(province(cap.provinces[0]).center).x)
 	_retire_bystanders()
 	resume_game(tag)
 

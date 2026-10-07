@@ -4,7 +4,8 @@ extends RefCounted
 
 ## Kayıtta tutulmayan, her saat/gün yeniden hesaplanan alanlar
 const DERIVED := {
-	"Country": ["surrender_progress", "air_losses", "fuel_cap", "naval_strength_cache", "resource_use", "consumer_goods"],
+	"Country": ["surrender_progress", "air_losses", "fuel_cap", "naval_strength_cache", "resource_use", "consumer_goods",
+		"_mod_cache", "_mod_sig"],
 	"Division": ["s", "in_combat"],
 	"Fleet": ["in_combat", "submerged"],
 	"AirWing": ["losses_today", "kills_today"],

@@ -3,27 +3,28 @@
 # Arayüz
 
 ## Üst çubuk (soldan sağa)
+Üst çubuk arayüz sayfasından kurulur (`assets/ui/ui-sprite2.png`; `tools/slice_ui_sprite.py` ile `assets/ui/sheet/`
+altına ayrılır): çerçeveli portre, kaynak çubuğu (ikon üstte, değer altında, ayraçlı hücreler), yanında aynı boyda
+uyarı kutusu ve tarih kutusu. Menü düğmeleri aynı çerçeveden bir tepsinin üstündedir. Her gün artan değerlerde (nüfuz,
+sanayi puanı) günlük artış değerin sağında küçük yeşil rakamla yazar.
+
 | Gösterge | Ne anlatır |
 |---|---|
 | Lider portresi / bayrak | Portre dosyası varsa lider, yoksa bayrak; tıklanınca ülke bilgisi |
-| Nüfuz | Günlük +2 × (1 + katkılar + istikrar etkisi). Yasa, danışman, karar, diplomasi harcar |
+| Nüfuz | Günlük +2 × (1 + katkılar + istikrar etkisi), artış yeşil. Yasa, danışman, karar, diplomasi harcar |
 | İstikrar | Etkin değer; ipucunda döküm (taban, ulusal durumlar/yasalar/danışmanlar, iktidar partisi popülerliği) |
 | İç cephe | Etkin değer; ipucunda döküm (taban, katkılar, kriz endeksi, savaş durumu) ve teslim sınırı |
 | İnsan gücü | Askere alınabilir nüfus (askerlik yasasına bağlı) |
-| Fabrikalar | Sivil / askeri; ipucunda tersane ve kaynaklar |
-| Yakıt, İkmal, Konvoy | Çubuklu hücreler: yakıt stoğu, ikmalli tümen oranı, konvoy/ithalat ihtiyacı |
+| Sanayi puanı | Asker alma ve keşif parası, günlük artış yeşil; ipucunda fabrikalar ve kaynaklar |
+| Yakıt, İkmal, Konvoy | Yakıt stoğu, ikmalli tümen oranı, konvoy/ithalat ihtiyacı |
 | Kriz, Savaş | Kriz endeksi; savaştaysan düşman sayısı ve teslim ilerlemesi |
-| Komuta gücü, birikim | Ayrı kutu: komuta gücü (komuta zincirinde harcanır), kara/deniz/hava birikimi |
-| Tarih ve hız | Sağ üstte; duraklat, hız düğmeleri; beş hız 0,1× · 0,2× · 0,3× · 0,5× · 1× (1× = saniyede 5 oyun saati) |
-| Dünya saati | Tarihin solundaki küçük dünya: başkentine bakar, aydınlık yarı oyun saatine ve mevsime göre döner (gündüz / gece) |
-
-Kara, deniz ve hava birikimi muharebede birikir ama **henüz hiçbir şeye harcanmıyor** (doktrinler sonra gelecek). Hücreleri
-soluk görünür, üstünde yasak imleci çıkar; ipucu nedenini söyler.
+| Tarih ve hız | Sağ üstte; ❚❚ duraklatır, ▶ sürdürür (oyun akarken bir kademe yavaşlatır), ▶▶ hızlandırır; tarihin altındaki altın çubuk hızı gösterir; beş hız 0,1× · 0,2× · 0,3× · 0,5× · 1× (1× = saniyede 5 oyun saati) |
+| Dünya saati | Tarihin solundaki dünya: başkentine bakar, aydınlık yarı oyun saatine ve mevsime göre döner (gündüz / gece) |
 
 Menü ekranın sol kenarında alt alta altı düğmedir: hükümet, diplomasi, üretim, ordu, donanma ve hava; her düğmede
 kısayol harfi yazar. Program, araştırma, dünya olayları, ticaret, inşaat ve lojistik ekranları artık menüde yok
-(kısayolları hâlâ açar) ve sadeleşiyor (yol haritası 3. aşama). Üst çubuğun yanındaki kutular
-uyarılardır: cevap bekleyen olay, asker almaya yeten sanayi puanı (başkenti açar), boştaki hava kanatları, ikmalsiz
+(kısayolları hâlâ açar) ve sadeleşiyor (yol haritası 3. aşama). Kaynak çubuğunun yanındaki kutunun içindekiler
+uyarılardır (uyarı yokken kutu gizlenir): cevap bekleyen olay, asker almaya yeten sanayi puanı (başkenti açar), boştaki hava kanatları, ikmalsiz
 tümenler, azalan insan gücü, teslim tehlikesi. Haritadaki yapılar (liman, hava üssü, fabrika) sabittir ve haritada
 görünür; yabancı eyaletin yapıları keşfedilene kadar sisin altında gizli kalır.
 
@@ -70,16 +71,26 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
 - **Olay penceresi**: başlık, resim, açıklama, seçenekler (etkileri ipucunda; şartı sağlanmayan seçenek kilitli).
 
 ## Harita kartları
-- Kara bölgesinin üstünde: sahibi ve bizimle ilişkisi (bizim / müttefik / düşman), kıyı / liman / nehir; **arazi ve
+Harita kartları kendiliğinden açılmaz: imlecin altındakinin kartı (bölge, yapı, filo ya da rota; birlik seçiliyse emrin
+varış ve saldırı tahmini de) için **Shift**, ülke kartı için **Ctrl** basılı tutulur.
+- Kara bölgesinin üstünde Shift: sahibi ve bizimle ilişkisi (bizim / müttefik / düşman), kıyı / liman / nehir; **arazi ve
   hava** (arazi, hava — açık, çamur, kış, sert kış —, yürüyüş hızı, buraya saldırının cezası, cephe genişliği, ikmal,
   nehir ve çıkarma cezası, savaşta hava üstünlüğü); **bölge** (nüfus, zafer puanı, altyapı, yapı yuvası, yapılar ve
   kaynaklar ikonlu hücrelerde); ülkelere göre oradaki tümenler (eğitimdekiler de) ve oradaki muharebe.
-- Deniz bölgesinin üstünde: hava (kış denizi), kıyılar ve limanlar; ülkelere göre **deniz hâkimiyeti** (renkli pay
+- Deniz bölgesinin üstünde Shift: hava (kış denizi), kıyılar ve limanlar; ülkelere göre **deniz hâkimiyeti** (renkli pay
   çubuğu), bizim tarafın payı, nakliyenin güvenli olup olmadığı, oradaki filolar.
 - Bir ülkenin üstünde **Ctrl** basılı: lider portresi, ilişki, ittifak, ideoloji çubuğu, istikrar, iç cephe, nüfuz, nüfus,
   fabrikalar, tümen/gemi/uçak (bizden güçlüyse kırmızı, zayıfsa yeşil), savaşlar, ulusal durumlar ve sürdürdüğü devlet
   programı. **Ctrl + tık** o ülkenin siyaset ekranını salt okunur açar.
 - Sayılar renklidir: iyi yeşil, kötü kırmızı.
+
+## Gece ve gündüz
+Güneş oyun saatiyle ilerler: gece olan yerde harita koyu mavidir, sınırda ince, sıcak bir alacakaranlık
+şeridi vardır ve haritanın üstünde yumuşakça kayar; biçimi mevsime uyar (kuzeyde kış geceleri uzun). Yakında 3D
+modeller (asker, tank, şehir, gemi) bakılan yerin ışığını alır. Bulutlar da kararır; gece şehir minyatürlerinin
+pencereleri tek tek yanar. En yüksek hızlarda gece hafifler (harita yanıp sönmesin). Oyun başkentinde sabah 07:00'de
+başlar; üst çubuktaki saat başkentinin yerel saatidir. Gece savaşta sayılır: gece saldırı −%25'tir ve tümen yalnız kendi
+bölgesini görür (bkz. [Savaş](05_savas.md)).
 
 ## Harita: iğneler
 Harita bir kurmay masasıdır: 3D arazi kalır, üstündeki her şey model yerine haritaya saplanmış bir iğnedir. Uzakta
@@ -94,6 +105,7 @@ ve birlik rozetleri bir cepheye yaklaşınca belirir, yakında her ikon yerden y
   ölçeğinde; kabartma, nehirler ve bölge çizgileri yaklaştıkça gelir (bu kipte parsel, sırt, orman ayrıntısı yok);
   **Arazi** kipi ayrıntıyı her zoom'da gösterir (sırtlar, orman
   dokusu ve tarla yamaları ekranda sabit boyda, kabartma daha güçlü); **Arazi** kipi zemini kendi renkleriyle gösterir.
+  Kip düğmeleri artık ekranda yok; kısayollar çalışır: F1 siyasi, F2 arazi, F3 eyaletler, F4 yollar.
 - **Şehir**: uzakta sade beyaz ad (başkentte altın). Yalnız büyük şehirlerin (başkentler ve 10+ zafer puanlı şehirler)
   modeli vardır; öbürleri her zoom'da sade ad olarak kalır. Yaklaşınca büyük şehrin belediye binası minyatürü (koyu,
   yuvarlak kaide üstünde kubbeli bina, `assets/models/city-hall.glb`) haritada yaylanarak çıkar, girişi kameraya bakar;

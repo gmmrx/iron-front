@@ -33,7 +33,7 @@ var _dirty := false
 
 func _ready() -> void:
 	GameClock.hour_passed.connect(_on_hour)
-	World.daily_update.connect(_on_day)
+	GameClock.hour_late.connect(_staged_day)       # günlük iş günün kendi saatinde (GameClock.DAY_STAGE)
 
 # ------------------------------------------------------------------ kurulum
 func reset() -> void:
@@ -100,6 +100,16 @@ func is_friendly_port(tag: String, pid: int) -> bool:
 		return false
 	var ctl := World.controller_tag(pid)
 	return ctl == tag or Diplomacy.are_allies(ctl, tag)
+
+## Eyaletteki, deniz üssü olan kendi limanı (yoksa 0): gemi burada alınır
+func port_in_state(tag: String, sid: int) -> int:
+	var st: StateRegion = World.states.get(sid)
+	if st == null or st.building_level("naval_base") <= 0:
+		return 0
+	for pid in ports_of(tag):
+		if pid in st.provinces:
+			return pid
+	return 0
 
 func _main_port(tag: String) -> int:
 	var ports := ports_of(tag)
@@ -834,6 +844,10 @@ func _repair() -> void:
 			f.org = minf(f.org + 0.012, 1.0)
 
 # ------------------------------------------------------------------ günlük
+func _staged_day() -> void:
+	if GameClock.hour == int(GameClock.DAY_STAGE["navy"]):
+		_on_day()
+
 func _on_day() -> void:
 	if not World.in_game and fleets.is_empty():
 		return
@@ -913,12 +927,13 @@ func deploy_ships(c: Country, port: int) -> Fleet:
 		_dirty = true
 	return first
 
-## Yapay zekâ ülkesinin en çok filosu, tarihî akıştan sonra: su üstü tersane sayısının üçte biri (6–24), denizaltı sekizde
-## biri (2–8) — filoları onaran tersaneler kadar. Uzun oyunda filo sayısı sınırsız artıyordu (fazla gemiler artık
-## filoları büyütür). 1942 ortasında en kalabalığı İngiltere'ydi (29, yedekler dahil).
+## Yapay zekâ ülkesinin en çok filosu, tarihî akıştan sonra: deniz üssü seviyelerinin altıda biri (6–24), denizaltı
+## yirmide biri (2–8) — filoları barındıran üsler kadar (tersane kaldırıldı; eskiden tersane sayısının üçte biri ve
+## sekizde biriydi: İngiltere'nin 12 tersanesi ve 77 üs seviyesi aşağı yukarı aynı tavanı verir). Uzun oyunda filo
+## sayısı sınırsız artıyordu (fazla gemiler artık filoları büyütür).
 static func fleet_cap(c: Country, sub: bool) -> int:
-	var yards := Economy.count(c, "dockyard")
-	return clampi(yards / 8, 2, 8) if sub else clampi(yards / 3, 6, 24)
+	var nb := Economy.count(c, "naval_base")
+	return clampi(nb / 20, 2, 8) if sub else clampi(nb / 6, 6, 24)
 
 ## Yedek filo yeterince büyüyünce: filo sayısı azsa yeni filo olur, yoksa en zayıf filoya katılır
 func _promote_reserves(c: Country) -> void:

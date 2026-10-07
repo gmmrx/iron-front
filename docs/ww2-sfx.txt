@@ -1,0 +1,67 @@
+IRON FRONT — WWII EFEKT BANKASI (müzik değil)
+
+Üretim:
+  python3 tools/build_ww2_sfx.py
+  python3 tools/build_ww2_sfx.py --only 'research_*radar*'
+  python3 tools/build_ww2_sfx.py --list
+  python3 tools/build_ww2_sfx.py --check
+  python3 tools/test_ww2_sfx.py
+
+Gereksinim: Python 3.11+ ve NumPy (tools/requirements-sfx.txt).
+Çıktı: assets/audio/ww2/. Eski assets/audio/*.wav ve müzik klasörleri
+değiştirilmez, silinmez. Yeni dosyalar Godot editor/import ile içe alınır.
+Mevcut banka: 270 mantıksal ses, varyantlarla 375 WAV, yaklaşık 21.2 MiB.
+37 araştırmanın her biri dört aşamalı; 9 araştırma dalı için yedek sesler var.
+
+Tasarım:
+  Ana menü: ağır bakalit anahtar, deri dosya, sayfa, masa mandalı.
+  Oyun UI: kısa ve kuru mekanik vuruşlar; düşük seviyeli kumaş hover.
+  Birlik: piyadede sürgü, tankta motor/hatch, topçuda dişli/kilit,
+  donanmada metal işaret/gemi borusu, uçakta pistonlu pervane imzası.
+  Diplomasi: savaşta acil teleks ve mühür; barışta imza/dosya kapama;
+  ittifakta iki ayrı mühür. Gerçek sonuçlar çalar, sadece butona basmak değil.
+  Araştırma: JSON'daki her teknoloji için ayrı select/start/done/cancel.
+  Yeni teknolojiler script tekrar çalıştırılınca keşfedilir. Sonsuz tekrar
+  araştırmaları kategoriye ait dört ayrı yedek sese yönlendirilir.
+  Yönetim: yasa, danışman atama/çıkarma, karar ve dört ideoloji projesi.
+  Bildirim: normal, olumlu, olumsuz, uyarı, acil; önemli sesler önceliklidir.
+
+Sesler orijinal prosedürel foley/sentezdir; gerçek saha kaydı veya seslendirme
+değildir. Dış örnek, telifli kayıt, marş, müzik, konuşma veya API kullanılmaz.
+48 kHz / 16 bit / mono WAV; 3D sesleri oyun konumlandırır. Kısa doğal oda
+yansımaları, aktif RMS eşleme, DC filtresi, kenar de-click ve tepe payı vardır.
+Üretim başına/rastgele dosya sırasına bağlı değişmez: her kimlik+varyantın
+SHA-256 tabanlı sabit seed'i vardır. Bankanın varyant seçimi genel oyun RNG'sini
+değiştirmez.
+
+Dinleme:
+  assets/audio/ww2/audition.wav  — seçilmiş örneklerin kısa derlemesi.
+  assets/audio/ww2/audition.json — saniye/kimlik listesi.
+  assets/audio/ww2/qa.json       — tüm dosyalarda süre, tepe, RMS, DC, hash.
+  catalog.json                  — runtime ses yolları, düzey, cooldown,
+                                 öncelik, araştırma kimliği/evresi eşlemeleri.
+
+Katalogdaki gain_db miks seviyesidir; dosya mastering seviyesinden ayrıdır.
+Sık arayüz sesleri sakin, acil olaylar belirgin tutulur. Müzik ayarı efektleri
+susturmaz; UI ve efekt düzeyleri mevcut oyun ayarlarını kullanır. Varyantlar
+art arda aynı seçilmez. Banka oyun başlangıcında tüm WAV'ları RAM'e yüklemez.
+Runtime cache sınırı 48 dosya; bildirim kuyruğu en fazla 8 olay tutar.
+Kaynaklar game/autoload/audio.gd ve game/map/battle_audio.gd üzerinden çalar.
+Başarı sesleri oyun sinyallerinden gelir; reddedilen eylem, veri yükleme ve
+seçim listelerinin otomatik yenilenmesi başarı sesi üretmez.
+
+Doğrulama:
+  Python testleri: tools/test_ww2_sfx.py
+  Godot: tests/test_audio_events.gd, tests/test_audio_runtime.gd,
+         tests/test_audio_assets.gd, tests/test_audio_ui.gd,
+         tests/test_audio_playback.gd
+  Örnek: godot --headless --path . --script tests/run.gd -- --file=test_audio_assets
+
+Tarifleri değiştirmek için tools/build_ww2_sfx.py içindeki specifications()
+ve render(), malzeme sentezi için tools/sfx_dsp.py düzenlenir. Aynı seed ve
+tarif aynı PCM çıktısını üretir. --only ile tek aile yeniden üretilebilir.
+catalog.json elle değiştirilirse sonraki tam üretimde yeniden yazılır;
+kalıcı miks/öncelik değişiklikleri Cue tanımlarından yapılmalıdır.
+
+Teknik QA sesin estetik kalitesini veya gerçek kayıt niteliğini ispatlamaz.
+Nihai hoparlör/kulaklık ve oyun-müzik miks kararları dinleme ile verilmelidir.

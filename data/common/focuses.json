@@ -317,7 +317,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -1340,7 +1340,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -1492,7 +1492,7 @@
       "count": 3
      },
      {
-      "building": "synthetic_refinery",
+      "building": "military_factory",
       "count": 1
      }
     ],
@@ -2228,7 +2228,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -2850,7 +2850,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -3061,7 +3061,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 2
      },
      {
@@ -3389,7 +3389,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -3887,7 +3887,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -4036,7 +4036,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 2
      },
      {
@@ -4442,7 +4442,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 1
      },
      {
@@ -4584,7 +4584,7 @@
     "available": [],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 2
      }
     ],
@@ -4830,7 +4830,7 @@
     ],
     "effects": [
      {
-      "building": "dockyard",
+      "building": "naval_base",
       "count": 4
      }
     ],

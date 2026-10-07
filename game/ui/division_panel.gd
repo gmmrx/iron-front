@@ -11,9 +11,9 @@ extends PanelContainer
 signal manage_army(id: int)
 
 const COLS := 2
-const WIDTH := COLS * (176 + 4) + 34     ## özet hücreleri (3 sütun) ve komut grupları sığsın
+const WIDTH := 440                    ## compact two-column selection overview, with an explicit checkbox per card
 const SLIDE := 0.18                   ## sağdan kayarak açılma süresi (sn)
-const TILE := Vector2(176, 74)
+const TILE := Vector2(188, 170)
 
 var units: UnitLayer
 var _head: HBoxContainer
@@ -25,6 +25,8 @@ var _tools: HFlowContainer            ## komutlar sığmazsa ikinci satıra akar
 var _stance: HBoxContainer            ## duruş: son askere kadar / esnek (araç çubuğu yeniden kurulurken korunur)
 var _stance_hold: Button
 var _stance_flex: Button
+var _motivate_btn: Button            ## teşvik: nüfuz harcayıp seçilileri güçlendir (bedeli ve durumu her yenilemede)
+var _motivate_for: Array[Division] = []
 var _key := ""
 var _grid_key := ""
 var _timer := 0.0
@@ -32,11 +34,12 @@ var _grid_timer := 0.0
 var _popup_open := false
 
 func _ready() -> void:
+	CommandPanelSkin.apply(self)
 	# sağ kenar: üst çubuğun altından harita kipi düğmelerinin üstüne kadar
 	set_anchors_preset(Control.PRESET_RIGHT_WIDE)
 	offset_left = -WIDTH - 10
 	offset_right = -10
-	offset_top = 92
+	offset_top = 110
 	offset_bottom = -84
 	custom_minimum_size = Vector2(WIDTH, 0)
 	visible = false
@@ -103,7 +106,7 @@ func _process(delta: float) -> void:
 	_grid_timer += _timer
 	_timer = 0.0
 	units.prune_selection()
-	var want := not units.selected.is_empty()
+	var want := not units.selected.is_empty() and not _army_panel_open()
 	if want and not visible:
 		_slide_in()
 	visible = want
@@ -112,6 +115,13 @@ func _process(delta: float) -> void:
 		_grid_key = ""
 		return
 	_refresh()
+
+func _army_panel_open() -> bool:
+	var parent := get_parent()
+	if parent == null: return false
+	for child: Node in parent.get_children():
+		if child is ArmyPanel and (child as ArmyPanel).visible: return true
+	return false
 
 ## Sağdan kayarak açılır (panel genişliği kadar dışarıdan yerine)
 func _slide_in() -> void:
@@ -136,10 +146,25 @@ func _sync_stance() -> void:
 	_stance_hold.set_pressed_no_signal(not mine.is_empty() and n_hold == mine.size())
 	_stance_flex.set_pressed_no_signal(not mine.is_empty() and n_hold == 0)
 
+## Teşvik düğmesi: bedel (nüfuz), yapılamıyorsa soluk ve nedeni ipucunda
+func _sync_motivate() -> void:
+	if _motivate_btn == null or not is_instance_valid(_motivate_btn):
+		return
+	var c := World.player()
+	var md := Military.motivate_def()
+	var cost := int(Military.motivate_cost(c, _motivate_for))
+	var err := Military.motivate_error(c, _motivate_for)
+	_motivate_btn.text = tr("DIV_MOTIVATE") % cost
+	_motivate_btn.disabled = err != ""
+	var tip := tr("TIP_DIV_MOTIVATE") % [roundi(float(md["org"]) * 100.0), roundi(float(md["bonus"]) * 100.0), int(md["hours"]),
+		cost, int(md["pp_per_division"])]
+	_motivate_btn.tooltip_text = tip + ("" if err == "" else "\n\n⚠ " + tr(err))
+
 func _refresh() -> void:
 	var sel := units.selected
 	var mine := _mine()
 	_sync_stance()
+	_sync_motivate()
 	# yapısal kısımlar yalnız seçim ya da ordular değişince yeniden kurulur (açık liste kapanmasın)
 	var ids := PackedStringArray()
 	for d in sel:
@@ -248,6 +273,7 @@ func _build_comp(sel: Array[Division]) -> void:
 		var d0: Division = group[0]
 		var c: Country = World.countries.get(d0.owner)
 		var b := Button.new()
+		b.set_meta("audio_silent", true) # UnitLayer is the selection-audio owner.
 		b.theme_type_variation = "Tab"
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = "%d × %s" % [group.size(), Military.template_name(c, d0.template) if c else "?"]
@@ -275,6 +301,7 @@ static func _template_icon(c: Country, ti: int) -> Texture2D:
 # ------------------------------------------------------------------ tümen kartları
 func _build_grid(sel: Array[Division]) -> void:
 	for ch in _grid.get_children():
+		_grid.remove_child(ch)
 		ch.queue_free()
 	for d in sel:
 		_grid.add_child(_tile(d))
@@ -284,8 +311,10 @@ func _tile(d: Division) -> Control:
 	var s := Military.div_stats(d)
 	var c: Country = World.countries.get(d.owner)
 	var bad := d.in_combat or not d.supplied
+	var selected := d.owner == World.player_tag and d in Military.divisions and d in units.selected
 	var pc := PanelContainer.new()
-	pc.theme_type_variation = "SlotBad" if bad else "Slot"
+	ForceSelectionCard.apply(pc, selected)
+	pc.set_meta("division_id", d.id)
 	pc.custom_minimum_size = TILE
 	pc.mouse_filter = Control.MOUSE_FILTER_STOP
 	pc.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -298,27 +327,36 @@ func _tile(d: Division) -> Control:
 		tr("DIV_XP_%d" % d.xp_level()), roundi(d.planning * 20.0), status, st.display_name() if st else "—"]
 	pc.gui_input.connect(func(e: InputEvent) -> void:
 		if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
-			units.select_divisions([d], false))
+			var mouse := e as InputEventMouseButton
+			_select_tile(d, mouse.shift_pressed or mouse.ctrl_pressed, mouse.ctrl_pressed)
+			pc.accept_event())
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 2)
 	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pc.add_child(v)
+	var art := UiTheme.icon_texture(_template_icon(c, d.template), 74)
+	art.name = "DivisionThumbnail"
+	art.custom_minimum_size = Vector2(0, 74)
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.add_child(art)
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 4)
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(top)
-	var ic := UiTheme.icon_texture(_template_icon(c, d.template), 24)
-	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	top.add_child(ic)
-	var n := UiTheme.make_label(d.name, 13, UiTheme.TEXT)
+	var checkbox := ForceSelectionCard.checkbox(selected, func() -> void: _select_tile(d, true, true))
+	checkbox.name = "SelectionCheckbox"
+	checkbox.custom_minimum_size = Vector2(24, 24)
+	checkbox.disabled = d.owner != World.player_tag or not d in Military.divisions
+	top.add_child(checkbox)
+	var n := UiTheme.make_label(d.name, 15, UiTheme.TEXT)
 	n.add_theme_font_override("font", UiTheme.bold_font())
 	n.clip_text = true
+	n.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	n.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top.add_child(n)
-	var x := UiTheme.icon_button("close", tr("TIP_DIVSEL_REMOVE"), func() -> void:
-		units.selected.erase(d)
-		units._dirty = true, 16)
+	var x := UiTheme.icon_button("close", tr("TIP_DIVSEL_REMOVE"), func() -> void: _remove_tile(d), 16)
+	x.set_meta("audio_silent", true)
 	x.flat = true
 	x.modulate = Color(1, 1, 1, 0.7)
 	top.add_child(x)
@@ -328,12 +366,27 @@ func _tile(d: Division) -> Control:
 	bottom.add_theme_constant_override("separation", 4)
 	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	v.add_child(bottom)
-	var sl := UiTheme.make_label(status, 11, UiTheme.BAD if bad else UiTheme.TEXT_DIM)
+	var sl := UiTheme.make_label(status, 13, UiTheme.BAD if bad else UiTheme.TEXT_DIM)
 	sl.clip_text = true
 	sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom.add_child(sl)
 	return pc
+
+func _select_tile(d: Division, additive := false, toggle := false) -> void:
+	if units == null: return
+	if not d in Military.divisions or d.owner != World.player_tag: return
+	if toggle and d in units.selected:
+		_remove_tile(d)
+	else:
+		units.select_divisions([d], additive)
+		_refresh()
+
+func _remove_tile(d: Division) -> void:
+	if units == null: return
+	var remaining := units.selected.filter(func(other: Division) -> bool: return other != d)
+	units.select_divisions(remaining, false)
+	_refresh()
 
 # ------------------------------------------------------------------ araç çubuğu
 func _build_tools(mine: Array[Division]) -> void:
@@ -345,11 +398,14 @@ func _build_tools(mine: Array[Division]) -> void:
 	if mine.is_empty():
 		return
 	var stop := _btn(tr("DIV_STOP"), tr("TIP_DIV_STOP"))
+	stop.set_meta("audio_silent", true)
 	stop.pressed.connect(func() -> void:
 		for d in mine: Military.stop(d)
+		Audio.play("order_stop", 150)
 		units._dirty = true)
 	_tools.add_child(stop)
 	var back := _btn(tr("DIV_WITHDRAW"), tr("TIP_DIV_WITHDRAW"))
+	back.set_meta("audio_silent", true)
 	back.pressed.connect(func() -> void:
 		var ok := 0
 		for d in mine:
@@ -358,9 +414,21 @@ func _build_tools(mine: Array[Division]) -> void:
 		if ok == 0:
 			World.notify(tr("NOTE_NO_WITHDRAW"), "bad")
 		else:
-			Audio.play("order_move", 150)
+			Audio.play("order_retreat", 150)
 		units._dirty = true)
 	_tools.add_child(back)
+	_motivate_btn = _btn("", "")
+	_motivate_btn.set_meta("audio_silent", true)
+	_motivate_for = mine
+	_motivate_btn.pressed.connect(func() -> void:
+		var err := Military.motivate(World.player(), _motivate_for)
+		if err != "":
+			World.notify(tr(err), "bad")
+		else:
+			Audio.play("ui_confirm", 150)
+		_sync_motivate())
+	_tools.add_child(_motivate_btn)
+	_sync_motivate()
 	_build_split(mine)
 	_tools.add_child(VSeparator.new())
 	_tools.add_child(_stance)
@@ -402,6 +470,7 @@ func _build_split(mine: Array[Division]) -> void:
 	for pair: Array in [["DIV_SPLIT_ONE", 1], ["DIV_SPLIT_HALF", 2], ["DIV_SPLIT_ALL", 0]]:
 		var mode: int = pair[1]
 		var b := _btn(tr(pair[0]), tr("TIP_DIV_SPLIT"))
+		b.set_meta("audio_silent", true)
 		b.theme_type_variation = "Tab"
 		b.disabled = (mode != 0 and biggest < 2) or (mode == 0 and all.size() <= mine.size())
 		b.pressed.connect(func() -> void:
@@ -463,4 +532,3 @@ static func front_candidates() -> Array[String]:
 				seen[o] = true
 				if not o in out: out.append(o)
 	return out
-

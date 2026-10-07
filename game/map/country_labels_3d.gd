@@ -7,6 +7,7 @@ const GLYPH_FONT_SIZE := 160          ## tek önbellek boyutu; dünya boyutu pix
 const TEXT_COLOR := Color(0.98, 0.95, 0.86, 0.88)
 const OUTLINE_COLOR := Color(0.08, 0.06, 0.04, 0.55)
 const LIFT := 3.0
+const NAME_FADE := 700.0              ## bu kamera uzaklığından yakında ülke adı yok (harita şehirlere kalır)
 
 var map: MapView3D
 var _calc := CountryLabels.new()
@@ -25,8 +26,9 @@ func rebuild() -> void:
 		var world_size := float(lbl.font_size)          # harf yüksekliği (dünya birimi)
 		var px := world_size / GLYPH_FONT_SIZE
 		# boyuta göre görünürlük: büyük adlar uzaktan, küçükler yakından okunur; çok yakında söner
-		var begin := world_size * 10.0
-		var end := world_size * 70.0
+		# yaklaşınca (şehir adları belirirken) ülke adları söner: en geç NAME_FADE uzaklığında
+		var begin := maxf(world_size * 10.0, NAME_FADE)
+		var end := maxf(world_size * 70.0, begin * 1.8)   # küçük ülkenin adı da bir aralıkta görünür
 		for i in lbl.glyphs.size():
 			var p: Vector2 = lbl.positions[i]
 			var l := Label3D.new()

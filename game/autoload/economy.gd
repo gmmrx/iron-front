@@ -8,6 +8,7 @@ signal building_completed(tag: String, state_id: int, building: String)
 signal _unused_sig
 signal production_changed(tag: String)
 signal laws_changed(tag: String)
+signal law_changed(tag: String, id: String)
 signal trade_changed
 
 const BUILDINGS_PATH := "res://data/common/buildings.json"
@@ -15,9 +16,9 @@ const HISTORY_PATH := "res://data/history/states_1936.json"
 const EQUIPMENT_PATH := "res://data/common/equipment.json"
 const LAWS_PATH := "res://data/common/laws.json"
 
-## İnşaat yok (docs/DESIGN.md): yapılar harita verisindeki gibi sabittir; oyuncu da yapay zekâ da inşa etmez, haritada
-## yapı gösterilmez (hava üsleri, limanlar, fabrikalar arka planda çalışır). Kod duruyor: bu bayrak kapatır.
-const CONSTRUCTION := false
+## İnşaat (docs/DESIGN.md): oyuncu şehirlerine (eyaletine) yapı diker, yapay zekâ da inşa eder. Kapatılırsa yapılar harita
+## verisindeki gibi sabit kalır.
+const CONSTRUCTION := true
 ## Yapılar haritada ve kartlarda görünür (sabit; sisin altındaki yabancı eyaletin yapıları keşfedilene kadar gizli: sisin
 ## anlamı keşfedilecek bir şey olması)
 const SHOW_BUILDINGS := true
@@ -42,7 +43,7 @@ func _ready() -> void:
 	law_groups = lw["groups"]
 	law_change_cost = float(lw["change_cost"])
 	_law_start = lw["start"]
-	World.daily_update.connect(_on_day)
+	GameClock.hour_late.connect(_staged_day)       # günlük iş günün kendi saatinde (GameClock.DAY_STAGE)
 	GameClock.hour_passed.connect(_on_hour)
 	building_completed.connect(func(_t: String, _s: int, _b: String) -> void: invalidate_counts())
 	World.ownership_changed.connect(invalidate_counts)
@@ -221,6 +222,10 @@ func _assign(c: Country) -> void:
 
 ## Günlük ticaret gün başında; ülke başına günlük iş (üretim, inşaat) günün saatlerine yayılır: her saat
 ## index % 24 == saat olan ülkeler (her ülke yine günde bir kez; gün dönümü karesi donmasın).
+func _staged_day() -> void:
+	if GameClock.hour == int(GameClock.DAY_STAGE["economy"]):
+		_on_day()
+
 func _on_day() -> void:
 	var __t := Time.get_ticks_usec()
 	_trade_day()
@@ -326,6 +331,7 @@ func change_law(c: Country, group: String, law: String) -> bool:
 	_assign(c)
 	mark_trade_dirty()
 	laws_changed.emit(c.tag)
+	law_changed.emit(c.tag, law)
 	return true
 
 # ------------------------------------------------------------------ üretim
@@ -510,6 +516,15 @@ func _run_trade() -> void:
 	# büyük sanayiler önce alır (pazar gücü sanayiye bağlı)
 	var buyers: Array = World.countries.values().filter(func(x: Country) -> bool: return x.auto_trade)
 	buyers.sort_custom(func(a: Country, b: Country) -> bool: return count(a, "civilian_factory") > count(b, "civilian_factory"))
+	# kaynak başına arzı olan ülkeler (pazarda arz yalnız azalır; her alıcıda bütün ülkeleri süzüp sıralamak
+	# ticaret gününü ~15 ms'lik tek kare yapıyordu)
+	var offering := {}
+	for x: Country in World.countries.values():
+		for r: String in offered[x.tag]:
+			if float(offered[x.tag][r]) > 0.0:
+				if not offering.has(r):
+					offering[r] = []
+				(offering[r] as Array).append(x)
 	for c: Country in buyers:
 		var need := resource_need(c)
 		var own := resource_production(c)
@@ -520,14 +535,20 @@ func _run_trade() -> void:
 			var deficit := ceilf(float(need[r]) - maxf(home, 0.0))
 			if deficit <= 0.0:
 				continue
-			# ihracatçılar: en çok arzı olan önce
+			# ihracatçılar: en çok arzı olan önce (alınan satıcı ya tükenir ya açık kapanır: her adımda en büyüğü seçmek
+			# sıralı listeyi gezmekle aynı sıra)
 			# NOT: yapay zekâ savaştığı ülkeden de alır; kesmek (abluka) dengeyi değiştirir, bkz. ROADMAP P1
-			var sellers: Array = World.countries.values().filter(func(x: Country) -> bool: return x != c and float(offered[x.tag].get(r, 0)) > 0.0)
-			sellers.sort_custom(func(a: Country, b: Country) -> bool: return offered[a.tag][r] > offered[b.tag][r])
-			for s: Country in sellers:
-				if deficit <= 0.0:
+			while deficit > 0.0:
+				var s: Country = null
+				var best := 0.0
+				for x: Country in offering.get(r, []):
+					var have := float(offered[x.tag][r])
+					if x != c and have > best:
+						best = have
+						s = x
+				if s == null:
 					break
-				var amt := minf(deficit, float(offered[s.tag][r]))
+				var amt := minf(deficit, best)
 				offered[s.tag][r] -= amt
 				deficit -= amt
 				bought += amt
@@ -618,14 +639,7 @@ func _setup_start_production(c: Country) -> void:
 		"artillery_equipment": 40.0 * k + 30.0 * mil, "motorized_equipment": 10.0 * k,
 		"fighter_equipment": 25.0 * mil, "light_tank_equipment": 40.0 * mil if mil >= 8 else 0.0}
 	var fleets: Dictionary = _fleets.get(c.tag, {})
-	if fleets.is_empty() and count(c, "dockyard") > 0:
+	if fleets.is_empty() and count(c, "naval_base") > 0:
 		fleets = _fleets["_default_coastal"]
 	for e: String in fleets:
 		c.stockpile[e] = float(fleets[e])
-	var yards := count(c, "dockyard")
-	if yards > 0:
-		var nl := ProductionLine.new()
-		nl.equipment = "destroyer" if yards < 6 else "cruiser"
-		nl.factories = yards
-		nl.efficiency = 0.3
-		c.production_lines.append(nl)

@@ -4,7 +4,7 @@ extends Node3D
 ## seyir izi, dalıştaki denizaltılar, deniz muharebesi efektleri (top alevi, su sütunları, duman) ve batan gemiler.
 
 const PIXEL := 0.00042
-const SHIP_DIST := 1600.0              ## kamera bu mesafenin altındayken 3D gemiler görünür
+const SHIP_DIST := 520.0               ## 3D gemiler yalnız yakın diorama görüşünde
 const MODELS := ["battleship", "cruiser", "destroyer", "submarine"]
 const SHIP_SCALE := {"battleship": 0.62, "cruiser": 0.7, "destroyer": 0.8, "submarine": 0.8}
 ## seyir düzeni (sağ-sol, ileri-geri): ortada ağır gemi, önde ve yanlarda eskort, arkada bir gemi
@@ -13,19 +13,24 @@ const SLOTS := [Vector2(0, 3.5), Vector2(-4.2, -3.0), Vector2(4.2, -3.0)]   ## s
 const PORT_SLOTS := [Vector2(0, 0), Vector2(-2.6, 0), Vector2(2.6, 0)]   ## limanda yan yana, pruva denize (kıç rıhtımda)
 const MODEL_LEN := {"battleship": 12.0, "cruiser": 8.5, "destroyer": 6.0, "submarine": 6.5}
 const MAX_SHOWN := 3                  ## bir konumda en çok bu kadar gemi modeli (sayı sayaçta yazar)
+const MAX_SINKS := 8                  ## yaşayan batış kökü + Tween bütçesi; toplu kayıplar büyütmez
 const ZS := 1.4                        ## sabit model/düzen ölçeği: zoom'la konumlar oynamaz
 const TURN_SMOOTH := 5.0               ## pruva rota yönünü bu yumuşaklıkla izler
 
 var map: MapView3D
 var camera: MapCamera3D
 var models: UnitModels
+var combat_effects: Node3D             ## ortak, sınırlı VFX havuzu (main bağlar)
 var selected: Fleet = null
 
 var _meshes := {}
 var _mmi := {}
 var _wake: MultiMeshInstance3D
 var _counters := {}                    ## fleet id -> {root, bg, label, key}
-var _fx := {}                          ## deniz pid -> Node3D
+var _fx := {}                          ## deniz pid -> seyrek atış/duman zamanlayıcıları; emitter düğümü yok
+var _sinking_tweens: Array[Tween] = []
+var _sinking_roots: Array[Node3D] = []
+var _fx_rng := RandomNumberGenerator.new() ## görsel rastgelelik muharebenin global RNG'sini tüketmez
 var _timer := 0.0
 var _zs := ZS
 var _positions := {}                   ## fleet id -> [Vector2 pos, Vector2 heading]
@@ -37,6 +42,7 @@ var _anchor := {}                      ## filo id -> akıcı konum (sayaç)
 var _gkey := {}                        ## filo id -> [yer, sıradaki, grup anahtarı] (her karede yazı kurulmasın)
 
 func _ready() -> void:
+	_fx_rng.randomize()
 	var owners := {}
 	for f in Navy.fleets:
 		owners[f.owner] = true
@@ -87,6 +93,7 @@ func _ready() -> void:
 	_sync_counters()
 
 func _process(delta: float) -> void:
+	_sync_sinking_pause()
 	_pulse += delta
 	if not World.in_game:
 		visible = false
@@ -103,10 +110,13 @@ func _process(delta: float) -> void:
 		_update_ships(dt)
 	else:
 		_groups.clear()
-	_timer += delta
+	if not GameClock.paused:
+		_timer += delta
 	if _timer > 0.2:
+		var elapsed := _timer
 		_timer = 0.0
-		_update_fx(close)
+		# Muharebe efektleri model kapısından bağımsız; iğne haritasında da yakın su çatışması okunur.
+		_update_fx(camera.distance < SHIP_DIST, elapsed)
 
 # ------------------------------------------------------------------ konum
 ## Filo çapaları: limanda rıhtım, seyirde saat içi ara değerli eğri (PathMotion); aynı yerdekiler yan yana
@@ -554,76 +564,122 @@ func _hull_color(tag: String) -> Color:
 	return Color(0.46, 0.49, 0.52).lerp(c, 0.12)
 
 # ------------------------------------------------------------------ deniz muharebesi efektleri
-func _update_fx(close: bool) -> void:
+const NAVAL_SHOT_GAP := Vector2(0.9, 1.8)
+const NAVAL_SMOKE_GAP := Vector2(3.5, 6.0)
+
+func _update_fx(close: bool, delta := 0.2) -> void:
+	var enabled := close and World.in_game and camera != null and camera.distance < SHIP_DIST
 	for pid: int in _fx.keys():
-		if not close or not Navy.battles.has(pid):
-			_fx[pid].queue_free()
+		if not enabled or not Navy.battles.has(pid) or not Military.is_visible(pid):
 			_fx.erase(pid)
-	if not close:
+	if not enabled or GameClock.paused or not is_instance_valid(combat_effects):
 		return
 	var view := _view_rect()
 	for pid: int in Navy.battles:
-		if _fx.has(pid):
-			continue
 		var pos: Vector2 = Navy.battles[pid]["pos"]
-		if not view.has_point(pos):
+		if not Military.is_visible(pid) or not view.has_point(pos):
+			_fx.erase(pid)
 			continue
-		var node := Node3D.new()
-		node.position = Vector3(pos.x, 0.5, pos.y)
-		node.scale = Vector3.ONE * minf(_zs, 3.0)
-		add_child(node)
-		node.add_child(models._particles_flash())
-		node.add_child(_splashes())
-		node.add_child(models._particles_smoke())
-		_fx[pid] = node
+		var state: Dictionary = _fx.get(pid, {})
+		if state.is_empty():
+			state = {"shot": _fx_rng.randf_range(0.0, NAVAL_SHOT_GAP.x), "smoke": _fx_rng.randf_range(1.0, NAVAL_SMOKE_GAP.y), "side": 0}
+			_fx[pid] = state
+		state["shot"] = float(state["shot"]) - delta
+		state["smoke"] = float(state["smoke"]) - delta
+		if float(state["shot"]) <= 0.0:
+			state["shot"] = _fx_rng.randf_range(NAVAL_SHOT_GAP.x, NAVAL_SHOT_GAP.y)
+			var axis := Vector2.from_angle(float((pid * 53) % 360) * PI / 180.0)
+			if int(state["side"]) == 1:
+				axis = -axis
+			state["side"] = 1 - int(state["side"])
+			var from := nearest_water(pos + axis * 8.0 * _zs, is_water, 12.0)
+			var target := nearest_water(pos - axis * _fx_rng.randf_range(7.0, 13.0) * _zs, is_water, 12.0)
+			if is_water(from) and is_water(target):
+				var a := Vector3(from.x, 2.0 * _zs, from.y)
+				var b := Vector3(target.x, 0.15, target.y)
+				combat_effects.muzzle(a, (b - a).normalized(), "cannon", 0.8 * _zs)
+				combat_effects.projectile(a, b, "cannon", 0.75 * _zs)
+		if float(state["smoke"]) <= 0.0:
+			state["smoke"] = _fx_rng.randf_range(NAVAL_SMOKE_GAP.x, NAVAL_SMOKE_GAP.y)
+			combat_effects.smoke(Vector3(pos.x, 1.0, pos.y), 0.5 * _zs, false, Vector3(0.3, 0.8, 0.1))
 
-## Mermi düşüşleri: beyaz su sütunları
-func _splashes() -> GPUParticles3D:
-	var p := GPUParticles3D.new()
-	p.amount = 30
-	p.lifetime = 1.6
-	p.randomness = 1.0
-	var pm := models._pmat(Vector3(26, 0.2, 18), 12.0, 6, -10.0, true)
-	p.process_material = pm
-	p.draw_pass_1 = models._quad(4.2, Color(0.94, 0.97, 1.0, 0.9), 0.0)
-	p.visibility_aabb = AABB(Vector3(-40, -5, -40), Vector3(80, 40, 80))
-	return p
+func _sync_sinking_pause() -> void:
+	var far := not World.in_game or camera == null or map == null or camera.distance >= SHIP_DIST
+	var view := Rect2() if far else _view_rect()
+	for i in range(_sinking_tweens.size() - 1, -1, -1):
+		var tween := _sinking_tweens[i]
+		var root := _sinking_roots[i]
+		var retire := far or not is_instance_valid(root) or not tween.is_valid()
+		if not retire:
+			var p := Vector2(root.position.x, root.position.z)
+			var pid := map.province_at(p)
+			retire = root.is_queued_for_deletion() or not view.has_point(p) or not Military.is_visible(pid) \
+				or Military.hidden_at(str(root.get_meta("sink_owner", "")), pid)
+		if retire:
+			if tween.is_valid():
+				tween.kill()
+			# Immediate retirement keeps the hard cap true even during many same-frame loss signals.
+			if is_instance_valid(root):
+				root.free()
+			_sinking_tweens.remove_at(i)
+			_sinking_roots.remove_at(i)
+		elif GameClock.paused:
+			tween.pause()
+		elif not tween.is_running():
+			tween.play()
 
 # ------------------------------------------------------------------ batan gemi
 func _on_sunk(pos: Vector2, type: String, owner: String) -> void:
-	if not visible or camera.distance > SHIP_DIST or not _view_rect().has_point(pos):
+	if not visible or not World.in_game or camera == null or map == null or camera.distance >= SHIP_DIST or not _view_rect().has_point(pos):
 		return
-	if not _meshes.has(type):
+	var pid := map.province_at(pos)
+	if not Military.is_visible(pid) or Military.hidden_at(owner, pid):
 		return
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.use_colors = UnitModels.COMPAT
-	mm.use_custom_data = true
-	mm.mesh = _meshes[type]
-	mm.instance_count = 1
-	UnitModels.compat_colors(mm)
-	var col := _hull_color(owner)
-	mm.set_instance_custom_data(0, Color(col.r, col.g, col.b, 0.0))
-	var mi := MultiMeshInstance3D.new()
-	mi.multimesh = mm
-	mi.material_override = (_mmi[type] as MultiMeshInstance3D).material_override
+	var show_model := not PinLayer.active() and _meshes.has(type) and _mmi.has(type)
+	if not show_model and not is_instance_valid(combat_effects):
+		return
+	_sync_sinking_pause()
+	if _sinking_tweens.size() >= MAX_SINKS:
+		return                         # cosmetic loss event drops; no new Node/Tween allocated
 	var root := Node3D.new()
-	var off := Vector2(randf_range(-15, 15), randf_range(-15, 15)) * _zs
-	root.position = Vector3(pos.x + off.x, 0.0, pos.y + off.y)
-	root.rotation.y = randf() * TAU
+	var off := Vector2(_fx_rng.randf_range(-15, 15), _fx_rng.randf_range(-15, 15)) * _zs
+	var at := nearest_water(pos + off, is_water)
+	if not is_water(at):
+		root.free()
+		return
+	root.position = Vector3(at.x, 0.0, at.y)
+	root.rotation.y = _fx_rng.randf() * TAU
+	root.set_meta("sink_owner", owner)
 	add_child(root)
-	root.add_child(mi)
 	var sc := float(SHIP_SCALE.get(type, 1.0)) * _zs
-	mm.set_instance_transform(0, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * sc), Vector3.ZERO))
-	var fire := models._particles_explosion()
-	fire.scale = Vector3.ONE * minf(_zs, 3.0) * 0.5
-	root.add_child(fire)
-	var smoke := models._particles_smoke()
-	smoke.scale = Vector3.ONE * minf(_zs, 3.0) * 0.6
-	root.add_child(smoke)
+	if show_model:
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.use_colors = UnitModels.COMPAT
+		mm.use_custom_data = true
+		mm.mesh = _meshes[type]
+		mm.instance_count = 1
+		UnitModels.compat_colors(mm)
+		var col := _hull_color(owner)
+		mm.set_instance_custom_data(0, Color(col.r, col.g, col.b, 0.0))
+		mm.set_instance_transform(0, Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * sc), Vector3.ZERO))
+		var mi := MultiMeshInstance3D.new()
+		mi.multimesh = mm
+		mi.material_override = (_mmi[type] as MultiMeshInstance3D).material_override
+		root.add_child(mi)
+	if is_instance_valid(combat_effects):
+		var scale := minf(_zs, 3.0)
+		combat_effects.impact(root.position, "shell", scale * 0.7)
+		combat_effects.impact(Vector3(root.position.x, 0.15, root.position.z), "water", scale * 0.6)
+		combat_effects.smoke(root.position + Vector3.UP, scale * 0.6, true)
+		combat_effects.trail(root, scale * 0.55, 5.0, true)
 	# kıç üstü batış: burun kalkar, gemi yan yatarak suya gömülür
 	var tw := root.create_tween().set_parallel(true)
 	tw.tween_property(root, "rotation:x", -0.5, 6.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.tween_property(root, "rotation:z", 0.35, 6.0)
 	tw.tween_property(root, "position:y", -6.0 * sc, 7.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.chain().tween_callback(root.queue_free).set_delay(2.5)
+	_sinking_tweens.append(tw)
+	_sinking_roots.append(root)
+	if GameClock.paused:
+		tw.pause()

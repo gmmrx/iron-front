@@ -196,6 +196,10 @@ func test_technologies() -> void:
 	if float(rep.get("cost_growth", 0.0)) <= 0.0 or float(rep.get("gain_decay", 1.0)) >= 1.0 or float(rep.get("gain_decay", 0.0)) <= 0.0:
 		p.append("iyileştirme: maliyet artmalı, kazanç azalmalı")
 	for cat: String in Research.categories:
+		if cat == "governance":
+			if Research.next_repeat(player(), cat) != "" or Research.ensure(Research.repeat_id(cat, 1)):
+				p.append("ulusal projeler bitmeyen teknoloji iyileştirmesi olamaz")
+			continue
 		var eff: Dictionary = (rep.get("effects", {}) as Dictionary).get(cat, {})
 		if eff.is_empty():
 			p.append("iyileştirme: '%s' dalının etkisi yok" % cat)
@@ -412,6 +416,13 @@ func test_strings_used_in_code() -> void:
 	none(p, "çeviri")
 
 ## Ön ekli anahtar aileleri: tr("ÖNEK" + x) biçimindeki her kullanımın alabileceği değerler
+func _tutorial(field: String) -> Array:
+	var out: Array = []
+	for st: Dictionary in Tutorial.data()["steps"]:
+		if not String(st[field]) in out:
+			out.append(String(st[field]))
+	return out
+
 func _families() -> Dictionary:
 	var terrains := {}
 	for pr: Province in World.provinces:
@@ -452,6 +463,8 @@ func _families() -> Dictionary:
 		"PLACE_": ["DIVISION", "WING", "SHIPS"],          # main._begin_place: tr("PLACE_" + kind.to_upper())
 		"ODDS_F_": Military.ESTIMATE_FACTORS,            # map_tooltip._odds_rows: saldırı tahmininin etkenleri
 		"RECRUIT_UNIT_": Military.recruit_def()["units"].keys(),   # state_panel: asker alınabilen birlikler
+		"TUT_CH_": _tutorial("chapter"),                  # öğretici: bölüm başlıkları (data/common/tutorial.json)
+		"TUT_": _tutorial("id"),                          # öğretici: adım metinleri
 	}
 
 ## Son ekli anahtar aileleri: tr(x + "SONEK") biçimindeki kullanımların alabileceği değerler

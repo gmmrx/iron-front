@@ -1,0 +1,22 @@
+{
+ "_comment": "Öğretici: hiç oynamamış birine ~10 dakikada çekirdek döngü (harita, birlik, saldırı tahmini, savaş, teşvik, asker alma). Ocak 1936 İtalya: Habeşistan savaşı tarihte o gün sürüyordu (oyunda ilhak olayıyla geçer; öğreticide savaş açık başlar). Öğretici oyuncu adına hiçbir şey yapmaz: gösterir, bekler; adım oyunun durumundan geçer (oyuncu önceden yaptıysa kendiliğinden). Alanlar: id; metin TUT_<id> ve başlık TUT_CH_<chapter> (strings.csv); done: tamamlanma koşulu (game/ui/tutorial.gd → _done); pause: adıma girince oyun durur; next: 'Devam' düğmesi (okuma adımı); target: 'Göster' düğmesinin kamerayı götürdüğü yer (front: Habeşistan sınırındaki tümenimiz, enemy: komşu düşman bölgesi, city: Doğu Afrika'daki şehrimiz); highlight: nabız atan arayüz öğesi. Ardından araştırma, inşaat, keşif, hava ve olaylar ilk karşılaşmada ipucu olarak gelir (sonraki iş).",
+ "country": "ITA",
+ "enemy": "ETH",
+ "steps": [
+  {"id": "welcome", "chapter": "map", "done": "next", "pause": true, "next": true},
+  {"id": "pan", "chapter": "map", "done": "camera_near_front", "pause": true, "target": "front"},
+  {"id": "zoom", "chapter": "map", "done": "camera_figures", "pause": true, "target": "front"},
+  {"id": "select", "chapter": "units", "done": "selected", "pause": true, "target": "front"},
+  {"id": "estimate", "chapter": "units", "done": "estimate_seen", "pause": true, "target": "enemy"},
+  {"id": "factors", "chapter": "units", "done": "next", "pause": true, "next": true},
+  {"id": "attack", "chapter": "war", "done": "attack_ordered", "pause": true, "target": "enemy"},
+  {"id": "time", "chapter": "war", "done": "running", "pause": true, "highlight": "clock"},
+  {"id": "battle", "chapter": "war", "done": "battle", "pause": false, "target": "enemy"},
+  {"id": "motivate", "chapter": "war", "done": "motivated", "pause": true, "highlight": "motivate", "target": "enemy"},
+  {"id": "advance", "chapter": "war", "done": "province_taken", "pause": false, "target": "enemy"},
+  {"id": "city", "chapter": "recruit", "done": "own_state_open", "pause": true, "target": "city"},
+  {"id": "recruit", "chapter": "recruit", "done": "recruited", "pause": true},
+  {"id": "alerts", "chapter": "recruit", "done": "next", "pause": true, "next": true, "highlight": "alerts"},
+  {"id": "free", "chapter": "end", "done": "next", "pause": true, "next": true}
+ ]
+}

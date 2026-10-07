@@ -4,6 +4,8 @@ extends Node
 
 signal wars_changed
 signal diplomacy_changed(tag: String)
+## Unlogged accepted actions. Wars/guarantees/factions/peace already have World.world_logged records.
+signal action_completed(actor: String, kind: String, target: String)
 
 const JUSTIFY_DAYS := 30
 const JUSTIFY_COST := 30.0
@@ -19,7 +21,7 @@ var waiting_to_join := {}
 const OPPORTUNE_SURRENDER := 0.4
 
 func _ready() -> void:
-	World.daily_update.connect(_on_day)
+	GameClock.hour_late.connect(_staged_day)       # günlük iş günün kendi saatinde (GameClock.DAY_STAGE)
 	wars_changed.connect(Economy.on_wars_changed)
 
 func reset() -> void:
@@ -105,6 +107,7 @@ func justify(a: Country, t: Country) -> bool:
 	a.political_power -= JUSTIFY_COST
 	a.justify_progress[t.tag] = JUSTIFY_DAYS
 	diplomacy_changed.emit(a.tag)
+	action_completed.emit(a.tag, "war_justification", t.tag)
 	return true
 
 func add_war_goal(a: Country, t: String) -> void:
@@ -231,6 +234,7 @@ func grant_access(giver: String, receiver: String) -> void:
 	if r and not giver in r.access:
 		r.access.append(giver)
 		diplomacy_changed.emit(receiver)
+		action_completed.emit(receiver, "access_granted", giver)
 
 ## AI kabulü: aynı ideoloji ya da ortak düşman
 func ai_accepts_invite(invitee: Country, leader: Country) -> bool:
@@ -433,6 +437,10 @@ func offer_white_peace(a: String, b: String) -> bool:
 	return accept
 
 # ------------------------------------------------------------------ günlük
+func _staged_day() -> void:
+	if GameClock.hour == int(GameClock.DAY_STAGE["diplomacy"]):
+		_on_day()
+
 func _on_day() -> void:
 	var __t := Time.get_ticks_usec()
 	_on_day_impl()

@@ -9,12 +9,15 @@ var weather: WeatherLayer
 var _menu_layer: CanvasLayer
 var _menu: MainMenu
 var _select: CountrySelect
+var fronts: FrontLayer                  ## cephe hattı (taraklı çizgi)
 var _drift_t := 0.0
 var _env: Environment
 var _sun: DirectionalLight3D
 
 var map_view: MapView3D
 var camera: MapCamera3D
+var day_night: DayNight
+var combat_effects: CombatEffects
 var _ctrl_country := ""            ## Ctrl ile üzerine gelinen ülke (vurgulu)
 var cities: CityLayer3D
 var units: UnitLayer
@@ -25,6 +28,8 @@ var pins: PinLayer
 var _zone_pick: Fleet = null          ## "Bölge seç": sonraki tıklama filo görev bölgesi
 var _wing_pick: AirWing = null        ## hava kanadı için bölge / üs seçimi
 var _recon_pick := false               ## keşif: sonraki sol tık hedef bölge (K ya da soldaki dürbün)
+var _recon_preview_active := false
+var _recon_preview_signature := ""
 ## Konuşlandırma: {kind: "division" | "wing" | "ships", data, marks: eyalet -> uygun mu}; panel kapanır, uygun
 ## eyaletler vurgulanır (öbürleri kararır), sol tık oraya konuşlandırır, sağ tık / Esc vazgeçer
 var _place := {}
@@ -36,11 +41,30 @@ var _middle_down := false
 var _press_pos := Vector2.ZERO
 var _last_mouse := Vector2.ZERO
 
+## Açılış: önce yükleme ekranı çizilir, kurulum adım adım yapılır (her adımdan sonra bir kare: çubuk ilerler; eskiden
+## ~10 sn tek karede kuruluyordu, ekran donuk kalıyordu). Bitince menüye geçilir (logo küçülüp yerine gider).
+var _loading: LoadingScreen
+
+func _load_step(p: float) -> void:
+	_loading.progress = p
+	await get_tree().process_frame
+
 func _ready() -> void:
+	set_process(false)
+	set_process_unhandled_input(false)
+	get_viewport().disable_3d = true          # yüklenirken yarım kurulu harita boşuna çizilmesin (ekranın altında kalıyor)
+	_loading = LoadingScreen.new()
+	add_child(_loading)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	UiTheme.install_cursors()
 	_setup_environment()
 	map_view = MapView3D.new()
+	map_view.yield_frames = true
+	map_view.on_progress = func(f: float) -> void: _loading.progress = lerpf(0.02, 0.4, f)
 	add_child(map_view)
+	if not map_view.is_built:
+		await map_view.built
 	add_child(map_view.labels)
 	camera = MapCamera3D.new()
 	camera.map = map_view
@@ -48,24 +72,40 @@ func _ready() -> void:
 	add_child(camera)
 	camera.make_current()
 	camera.focus_on(World.capital_position(World.player_tag), 900.0)
+	await _load_step(0.42)
 	cities = CityLayer3D.new()
 	cities.map = map_view
+	cities.yield_frames = true
+	cities.on_progress = func(f: float) -> void: _loading.progress = lerpf(0.42, 0.74, f)
 	add_child(cities)
+	if not cities.is_built:
+		await cities.built
+	await _load_step(0.76)
 	var models := UnitModels.new()
 	models.map = map_view
 	models.camera = camera
 	models.cities = cities
 	add_child(models)
+	combat_effects = CombatEffects.new()
+	combat_effects.configure(map_view, camera)
+	add_child(combat_effects)
 	units = UnitLayer.new()
 	units.map = map_view
 	units.camera = camera
 	units.models = models
+	units.combat_effects = combat_effects
 	add_child(units)
+	combat_effects.impacted.connect(units._shake_near)
+	# oyun başlayana dek kapalı (_enter_playing açar): yükleme kareler arasında beklerken oyuncusuz haritada bütün
+	# ülkelerin tümen sayaçlarını kuruyordu, oyun başında da hepsini söküyordu (~2 sn donma)
+	_set_units_live(false)
 	fleets = FleetLayer.new()
 	fleets.map = map_view
 	fleets.camera = camera
 	fleets.models = models
+	fleets.combat_effects = combat_effects
 	add_child(fleets)
+	await _load_step(0.84)
 	var battle_audio := BattleAudio.new()
 	battle_audio.map = map_view
 	add_child(battle_audio)
@@ -73,7 +113,7 @@ func _ready() -> void:
 	weather.map = map_view
 	weather.camera = camera
 	add_child(weather)
-	var fronts := FrontLayer.new()
+	fronts = FrontLayer.new()
 	fronts.map = map_view
 	fronts.camera = camera
 	add_child(fronts)
@@ -92,6 +132,7 @@ func _ready() -> void:
 	roads.map = map_view
 	roads.camera = camera
 	add_child(roads)
+	await _load_step(0.86)
 	routes = RouteLayer.new()
 	routes.map = map_view
 	routes.camera = camera
@@ -101,8 +142,14 @@ func _ready() -> void:
 	air_layer.map = map_view
 	air_layer.camera = camera
 	air_layer.models = models
+	air_layer.combat_effects = combat_effects
+	air_layer.sun_dir = -_sun.global_transform.basis.z      # uçak gölgesinin yönü
 	add_child(air_layer)
 	units.obstacles = [fleets, air_layer]     # filo ve kanat levhaları: tümen levhaları bunlara binmez (üstlerine çıkar)
+	day_night = DayNight.new()                # gece ve gündüz (yalnız görüntü)
+	day_night.setup(map_view, camera, _sun, _env)
+	add_child(day_night)
+	await _load_step(0.9)
 	pins = PinLayer.new()
 	pins.map = map_view
 	pins.camera = camera
@@ -111,23 +158,30 @@ func _ready() -> void:
 	pins.fleets = fleets
 	pins.air = air_layer
 	add_child(pins)
+	await _load_step(0.92)
 	hud = Hud.new()
 	add_child(hud)
 	hud.divisions.units = units
 	hud.army.units = units
 	hud.navy.fleet_selected.connect(func(f: Fleet) -> void:
-		units.clear_selection()
 		fleets.select(f)
-		camera.focus_on(fleets.fleet_position(f), minf(camera.distance, 900.0)))
+		if f != null:
+			units.clear_selection()
+			camera.focus_on(fleets.fleet_position(f), minf(camera.distance, 900.0)))
 	hud.air.pick_zone_requested.connect(func(w: AirWing) -> void:
+		_recon_pick = false
+		_update_recon_preview()
 		_wing_pick = w
 		World.notify(tr("AIR_CLICK_ZONE"), "info"))
 	hud.army.deploy_requested.connect(func(ti: int) -> void: _begin_place("division", ti))
 	hud.air.deploy_requested.connect(func(t: String) -> void: _begin_place("wing", t))
 	hud.recon_requested.connect(_begin_recon)
+	hud.divisions_requested.connect(func(divs: Array) -> void: units.select_divisions(divs, false))
 	hud.top_bar.globe.setup(map_view.terrain_texture, map_view.map_size.y)
 	hud.navy.deploy_requested.connect(func() -> void: _begin_place("ships", null))
 	hud.navy.pick_zone_requested.connect(func(f: Fleet) -> void:
+		_recon_pick = false
+		_update_recon_preview()
 		_zone_pick = f
 		World.notify(tr("NAVY_CLICK_ZONE"), "info"))
 	hud.pause_menu.to_main_menu.connect(_back_to_menu)
@@ -144,6 +198,11 @@ func _ready() -> void:
 	_menu_layer = CanvasLayer.new()
 	_menu_layer.layer = 20
 	add_child(_menu_layer)
+	get_viewport().disable_3d = false         # ilk tam karenin çizimi (dokular, gölgelendiriciler) yükleme ekranının altında
+	map_view.prewarm_fog()                    # bulutun kurulumu ve ilk çizimi de burada (oyun başında takılmasın)
+	await _load_step(0.95)
+	set_process(true)
+	set_process_unhandled_input(true)
 	_handle_dev_args()
 	if Game.loaded:
 		Game.loaded = false
@@ -166,10 +225,23 @@ func _ready() -> void:
 			hud.pause_menu._was_paused = Game.resume_was_paused
 			hud.pause_menu._settings()
 	elif phase == Phase.MENU:
-		_enter_menu()
+		units.prewarm(CountrySelect.FEATURED[0])   # birlik figürlerinin tek seferlik hazırlığı açılışta (oyun başında değil)
+		_prewarm_tooltip()
+		# ilk tam karenin çizimi (dokular, gölgelendiriciler ~1,5 sn) yükleme ekranının altında geçsin
+		await _load_step(1.0)
+		await get_tree().process_frame
+		await _loading.to_menu(0.9).finished
+		_enter_menu(true)
+		_loading.queue_free()
+		_loading = null
 		if Game.reopen_settings:
 			Game.reopen_settings = false
 			_menu.open_settings()
+	if _loading:
+		# menüye gitmeyen açılış (kayıttan devam, geliştirici yolları): yükleme ekranı söner (geliştirici argümanlarında
+		# hemen kalkar: ölçüm ve ekran görüntüsü beklemesin)
+		_loading.fade_out(0.0 if not OS.get_cmdline_user_args().is_empty() else 0.4)
+		_loading = null
 
 # ------------------------------------------------------------------ aşamalar
 func _clear_menu_layer() -> void:
@@ -178,15 +250,20 @@ func _clear_menu_layer() -> void:
 	_menu = null
 	_select = null
 
-func _enter_menu() -> void:
+## intro: açılıştan gelindi (logo yükleme ekranından yerine geldi; düğmeler sırayla belirir)
+func _enter_menu(intro := false) -> void:
 	phase = Phase.MENU
+	day_night.enabled = false
 	_clear_menu_layer()
 	hud.set_game_ui_visible(false)
+	_set_units_live(false)                         # menüde birlik gösterilmez (oyuncusuz haritada bütün tümenler işleniyordu)
 	map_view.set_highlight_country("")
 	GameClock.set_paused(true)
 	_menu = MainMenu.new()
+	_menu.intro = intro
 	_menu.theme = UiTheme.get_theme()
 	_menu.new_game_pressed.connect(_enter_setup)
+	_menu.tutorial_pressed.connect(_start_tutorial)
 	_menu.quit_pressed.connect(func() -> void: get_tree().quit())
 	_menu.load_pressed.connect(_load_slot)
 	_menu.dev_war_pressed.connect(_dev_war_demo)
@@ -213,14 +290,162 @@ func _enter_setup() -> void:
 	phase = Phase.SETUP
 	_clear_menu_layer()
 	hud.set_game_ui_visible(false)
+	# seçimde birlik gösterilmez: oyuncusuz haritada 82 ülkenin bütün tümenleri (~11.700 düğüm) her karede işleniyordu
+	# (kare 14,7 ms → 6,9 ms); oyun başlayınca açılır
+	_set_units_live(false)
+	units.prewarm(CountrySelect.FEATURED[0])       # açılışta yapılmadıysa (geliştirici yolları)
+	_prewarm_tooltip()
 	_select = CountrySelect.new()
 	_select.theme = UiTheme.get_theme()
-	_select.selection_changed.connect(func(tag: String) -> void:
-		map_view.set_highlight_country(tag)
-		camera.focus_on(World.capital_position(tag), 1500.0))
-	_select.start_pressed.connect(_start_game)
+	_select.selection_changed.connect(_on_setup_selected)
+	_select.start_pressed.connect(_start_from_select)
 	_select.back_pressed.connect(_enter_menu)
 	_menu_layer.add_child(_select)
+	if not camera.flight_finished.is_connected(_on_flight_finished):
+		camera.flight_finished.connect(_on_flight_finished)
+
+## Harita ipucunun ilk kurulumu (ikon ve resim dokuları diskten) ~0,17 sn tutuyordu: oyun başında fare haritadayken
+## donmasın diye açılışta bir kara ve bir deniz kartı görünmeden kurulur
+var _tip_warm := false
+func _prewarm_tooltip() -> void:
+	if _tip_warm:
+		return
+	_tip_warm = true
+	var c: Country = World.countries.get(CountrySelect.FEATURED[0])
+	if c == null or not World.states.has(c.capital_state):
+		return
+	var land: int = World.states[c.capital_state].provinces[0]
+	hud.tooltip.show_province(land, Vector2(-4000, -4000))
+	for p: Province in World.provinces:
+		if p and not p.is_land():
+			hud.tooltip.show_province(p.id, Vector2(-4000, -4000))
+			break
+	hud.tooltip.visible = false
+
+func _set_units_live(on: bool) -> void:
+	units.visible = on
+	units.process_mode = Node.PROCESS_MODE_INHERIT if on else Node.PROCESS_MODE_DISABLED
+	if on:
+		units._dirty = true
+		units._full_refresh = true
+
+## Seçim: öbür yerler kararır, sınır neon yanar (vurgu yumuşakça girer), kamera ülkeye süzülür; bilgiler varınca gelir
+func _on_setup_selected(tag: String) -> void:
+	map_view.set_highlight_country(tag, true)
+	var view := _country_view(tag)
+	camera.fly_to(view[0], view[1], 1.3)
+
+func _on_flight_finished() -> void:
+	if phase == Phase.SETUP and not _starting and _select and is_instance_valid(_select):
+		_select.reveal()
+
+## Seçilen ülkenin kadrajı: [hedef, uzaklık]. Başkente karadan bağlı ana toprağın tamamı (büyük ülke de bütünüyle
+## görünsün; denizaşırı topraklar kadrajı bozmasın), üst panelin altında kalan alanın ortasına, yan panellerin arasına
+## sığacak uzaklıkta (büyük ülkede kamera uzaklaşır)
+func _country_view(tag: String) -> Array:
+	var cap := World.capital_position(tag)
+	var box := Rect2(cap, Vector2.ZERO)
+	var c: Country = World.countries.get(tag)
+	if c and World.states.has(c.capital_state):
+		var own := {}
+		for sid in c.states:
+			for pid in World.states[sid].provinces:
+				own[pid] = true
+		var start: int = World.states[c.capital_state].provinces[0]
+		var seen := {start: true}
+		var queue: Array[int] = [start]
+		var head := 0
+		var w := float(World.map_width)
+		while head < queue.size():
+			var cur: int = queue[head]
+			head += 1
+			var p := World.province(cur).center
+			if World.wraps:
+				p.x = cap.x + wrapf(p.x - cap.x, -w * 0.5, w * 0.5)   # dikişin öbür yanı da başkentin yanında sayılır
+			box = box.expand(p)
+			for n in World.land_neighbors(cur):
+				if own.has(n) and not seen.has(n):
+					seen[n] = true
+					queue.append(n)
+	var vp := get_viewport().get_visible_rect().size
+	var t := 2.0 * tan(deg_to_rad(camera.fov) * 0.5)
+	var dist := clampf(maxf(box.size.y / (0.55 * t), box.size.x / (0.5 * t * vp.x / maxf(vp.y, 1.0))) * 1.1, 420.0,
+		camera.MAX_DIST)
+	# ülke üst panelin altındaki alanın ortasında dursun: hedef biraz kuzeye (ekranda ~120 piksel)
+	var north := 120.0 * dist * t / maxf(vp.y, 1.0)
+	return [box.get_center() - Vector2(0.0, north), dist]
+
+## Başla: seçim panelleri kenarlarına çekilir (sağdaki sağa, soldaki sola, üstteki yukarı), vurgu söner; sonra kamera
+## başkente süzülüp yaklaşır; varınca oyun panelleri gelir (üst çubuk yukarıdan, menü soldan). Oyun durumu tıklanınca
+## kurulur; birlik sayaçları geçiş boyunca karelere yayılarak kurulur (tek karede ~0,5 sn donmaydı)
+var _starting := false
+var _pc_prev := 0                      ## ölçüm: önceki karedeki toplam hat derleme sayısı
+func _start_from_select(tag: String) -> void:
+	if tag == "" or _starting:
+		return
+	_starting = true
+	hud.tooltip.visible = false
+	map_view.set_hovered(0)
+	var tq := Time.get_ticks_usec()
+	_fog_hold = true                         # bulut en sona: geçişler takılmasın (gizli düşman yine gizli: Military)
+	World.start_game(tag)
+	GameClock.timed("start_state", tq)
+	units.build_budget_usec = 1500
+	_set_units_live(true)
+	units._timer = 99.0
+	Military.invalidate_fog()
+	_hud_stage()
+	# ilk birlik karesi ve çizimdeki ilk yüklemeler (~0,2 sn) ekran dururken geçsin: animasyon ondan sonra başlar
+	for i in 3:
+		await get_tree().process_frame
+	# 1) seçim panelleri kenarlarına çekilir
+	map_view.fade_highlight(1.8)
+	if _select:
+		await _select.leave(0.55).finished
+	# 2) kamera başkente süzülüp yaklaşır
+	camera.fly_to(World.capital_position(tag), 700.0, 1.6)
+	var t0 := Time.get_ticks_msec()
+	while camera.flying() and Time.get_ticks_msec() - t0 < 3000:
+		await get_tree().process_frame
+	# 3) oyun ekranı: üst çubuk yukarıdan, menü soldan
+	_enter_playing(tag, false, true)
+	_hud_enter()
+	World.notify(tr("NOTE_WELCOME") % World.player().display_name(), "good")
+	_starting = false
+	# 4) en sonda bulut: oyun panelleri yerine oturunca yavaşça belirir
+	await get_tree().create_timer(0.8).timeout
+	_fog_hold = false
+	map_view.fade_fog_in(1.6)
+	_fog_start()
+	t0 = Time.get_ticks_msec()
+	while units._build_more and Time.get_ticks_msec() - t0 < 4000:
+		await get_tree().process_frame
+	units.build_budget_usec = 0
+
+## Oyun panelleri tıklama anında ekranın dışında görünür olur (ilk yerleşimleri ~0,1 sn: inişte değil, ekran dururken),
+## inişte _hud_enter yerlerine kaydırır: üst çubuğun parçaları yukarıdan, menü tepsisi soldan
+var _hud_home := {}
+func _hud_stage() -> void:
+	hud.set_game_ui_visible(true)
+	_hud_home.clear()
+	var tray := hud.top_bar.task_row.get_parent() as Control
+	for ch in hud.top_bar.get_children():
+		var c := ch as Control
+		if c == null or not c.visible:
+			continue
+		_hud_home[c] = c.position
+		if c == tray:
+			c.position.x -= 260.0
+		else:
+			c.position.y -= 220.0
+
+func _hud_enter() -> void:
+	var tray := hud.top_bar.task_row.get_parent() as Control
+	var tw := create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	for c: Control in _hud_home:
+		if is_instance_valid(c):
+			tw.tween_property(c, "position", _hud_home[c], 0.6).set_delay(0.15 if c == tray else 0.0)
+	_hud_home.clear()
 
 func _start_game(tag: String) -> void:
 	if tag == "":
@@ -228,18 +453,42 @@ func _start_game(tag: String) -> void:
 	_enter_playing(tag)
 	World.notify(tr("NOTE_WELCOME") % World.player().display_name(), "good")
 
-## resumed: kayıttan devam — oyuncunun kayıttaki tercihleri korunur (yeni oyun varsayılanları kurulmaz)
-func _enter_playing(tag: String, resumed := false) -> void:
-	_fog_start.call_deferred()
+## Öğretici (ana menü): İtalya, Ocak 1936, Habeşistan savaşı açık; rehber kartı ilk adımda (data/common/tutorial.json)
+func _start_tutorial() -> void:
+	var d := Tutorial.data()
+	Game.tutorial = 0
+	_enter_playing(String(d["country"]))
+	Tutorial.begin_war()
+	camera.focus_on(World.province(World.capital_province(String(d["enemy"]))).center, 2200.0)
+
+## Rehber kartı (öğretici sürüyorsa: yeni öğretici ya da öğreticide kaydedilmiş oyun)
+func _add_tutorial() -> void:
+	if Game.tutorial < 0 or hud.root.has_node("Tutorial"):
+		return
+	var t := Tutorial.new()
+	t.name = "Tutorial"
+	t.camera = camera
+	t.units = units
+	t.hud = hud
+	hud.root.add_child(t)
+
+## resumed: kayıttan devam — oyuncunun kayıttaki tercihleri korunur (yeni oyun varsayılanları kurulmaz).
+## state_ready: oyun durumu (start_game, birlikler, sis) önceden kuruldu (seçim ekranından geçiş), yalnız ekran açılır
+func _enter_playing(tag: String, resumed := false, state_ready := false) -> void:
 	_clear_menu_layer()
 	map_view.set_highlight_country("")
-	if resumed:
-		World.resume_game(tag)
-	else:
-		World.start_game(tag)
+	if not state_ready:
+		_fog_start.call_deferred()
+		_set_units_live(true)
+		if resumed:
+			World.resume_game(tag)
+		else:
+			World.start_game(tag)
 	phase = Phase.PLAYING
+	day_night.enabled = true
 	hud.set_game_ui_visible(true)
 	camera.focus_on(World.capital_position(tag), 700.0)
+	_add_tutorial.call_deferred()
 
 func _back_to_menu() -> void:
 	Game.new_game()
@@ -275,6 +524,7 @@ func _dev_war_demo(slot := "") -> void:
 			pairs.append([wa.tag, wd.tag])
 			break
 	pairs.append(["", ""])
+	Game.observe_tag = str(pairs[0][0])          # cephe çizgisi izlenen savaşın saldıranının tarafına göre
 	# cephe noktası: iki taraf karşı karşıya (komşu bölgelerde); puan = çevresindeki (200 harita pikseli) iki tarafın
 	# tümen sayısı — uzun, kalabalık cephe tek bir uzak çıkarmadan önce gelir
 	for pair: Array in pairs:
@@ -331,6 +581,10 @@ func _dev_war_demo(slot := "") -> void:
 		Game.resume_view = Vector3(best_at.x, best_at.y, dist)
 	get_tree().reload_current_scene()
 
+## Güneş gölgesi ve SSAO (ortam gölgesi) kapalı: yakın görünümde fark küçük, kare başına ~2,5 ms (2 Ekim 2026).
+## Uçakların gölgesi ayrı ve ucuz (AirLayer: yere yassıltılmış siluet). Geri açmak için true.
+const SUN_SHADOWS := false
+
 func _setup_environment() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -339,7 +593,7 @@ func _setup_environment() -> void:
 	env.ambient_light_color = Color(1, 1, 1)
 	env.ambient_light_energy = 0.42
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.ssao_enabled = true
+	env.ssao_enabled = SUN_SHADOWS
 	env.ssao_radius = 2.25
 	env.ssao_intensity = 1.65
 	env.glow_enabled = true
@@ -370,7 +624,7 @@ func _setup_environment() -> void:
 	sun.rotation = Vector3(deg_to_rad(-52), deg_to_rad(-35), 0)
 	sun.light_energy = 0.88
 	sun.light_color = Color(1.0, 0.96, 0.88)
-	sun.shadow_enabled = not UnitModels.COMPAT
+	sun.shadow_enabled = SUN_SHADOWS and not UnitModels.COMPAT
 	_sun = sun
 	sun.directional_shadow_max_distance = 450.0
 	add_child(sun)
@@ -385,7 +639,7 @@ func _handle_dev_args() -> void:
 		# dil değişimiyle ya da savaş demosuyla yeniden kurulan sahne: oyun sürer, yalnız görüntü argümanları kalır
 		# (savaş demosu filme alınabilsin: --dev_war --speed=2 --shots=.. --every=.. --screenshot=..)
 		for k: String in args.keys():
-			if not k in ["screenshot", "wait", "shots", "every", "speed", "film", "dolly", "pan", "hide_ui", "plates", "fps", "spike_ms", "front_sel", "air_demo", "plane_view"]:
+			if not k in ["screenshot", "wait", "shots", "every", "speed", "film", "dolly", "pan", "hide_ui", "plates", "fps", "spike_ms", "front_sel", "air_demo", "plane_view", "focus", "dist"]:
 				args.erase(k)
 	if args.has("plates"):
 		UnitLayer.FIGURES = false            # geliştirici: web'deki gibi figür yerine levha (masaüstünde denemek için)
@@ -411,10 +665,32 @@ func _handle_dev_args() -> void:
 			Game.loaded = false
 			_enter_playing(World.player_tag, true)
 			hud.top_bar._update_date()      # saat ilerlemeden tarih kayıttaki gün olsun
+	if args.has("tutorial"):
+		_start_tutorial()                      # öğretici (ana menüdeki düğme gibi); --tutorial_step=n o adımdan
+		if args.has("tutorial_step"):
+			Game.tutorial = int(args["tutorial_step"])
 	if args.has("play"):
 		_start_game(args["play"] if args["play"] != "" else World.player_tag)
 	elif args.has("setup"):
 		_enter_setup()
+		if args.has("setup_pick"):
+			# geliştirici: seçim ekranında bu ülke seçilir (görsel denetim: vurgu, uçuş, paneller)
+			get_tree().create_timer(0.6).timeout.connect(func() -> void:
+				if _select and is_instance_valid(_select):
+					_select.select(str(args["setup_pick"]))
+					if args.has("setup_start"):
+						get_tree().create_timer(2.2).timeout.connect(func() -> void: _select.start_pressed.emit(_select.selected)))
+		if args.has("sel_cycle"):
+			# geliştirici: seçim ekranında öne çıkan ülkeler sırayla seçilir (seçim akışının kare ölçümü, --fps ile)
+			var cyc := Timer.new()
+			cyc.wait_time = float(args["sel_cycle"]) if args["sel_cycle"] != "" else 1.5
+			cyc.autostart = true
+			var ci := [0]
+			cyc.timeout.connect(func() -> void:
+				if _select and is_instance_valid(_select):
+					_select.select(CountrySelect.FEATURED[ci[0] % CountrySelect.FEATURED.size()])
+					ci[0] += 1)
+			add_child(cyc)
 	elif args.has("scenarios"):
 		_enter_scenarios()
 	if args.has("focus"):
@@ -422,6 +698,8 @@ func _handle_dev_args() -> void:
 		camera.focus_on(Vector2(float(xy[0]), float(xy[1])))
 	if args.has("dist"):
 		camera.focus_on(Vector2(camera.target.x, camera.target.z), float(args["dist"]))
+	if args.has("hour"):
+		GameClock.hour = clampi(int(args["hour"]), 0, 23)     # gece-gündüz denemesi: --hour=16
 	if args.has("settings"):
 		hud.pause_menu.toggle()
 		hud.pause_menu._settings()
@@ -553,14 +831,9 @@ func _handle_dev_args() -> void:
 			var pick6 := Military.army_divisions(ar).slice(0, 6)
 			get_tree().create_timer(0.2).timeout.connect(func() -> void: units.select_divisions(pick6, false))
 	if args.has("fx_test"):
-		# efekt testi: kamera odağında muharebe efektleri (patlama, duman, namlu alevi)
-		var fx := Node3D.new()
+		# Exercise the same shared renderer as live land, air and naval combat.
 		var fp := Vector2(camera.target.x, camera.target.z)
-		fx.position = Vector3(fp.x, maxf(map_view.height_at(fp), 0.0) + 1.0, fp.y)
-		add_child(fx)
-		fx.add_child(units.models._particles_flash())
-		fx.add_child(units.models._particles_explosion())
-		fx.add_child(units.models._particles_smoke())
+		combat_effects.impact(Vector3(fp.x, maxf(map_view.height_at(fp), 0.0), fp.y), "bomb", 1.0)
 	if args.has("focus_battle"):
 		# [--battle_pair=GER,SOV]: yalnız bu saldıran ile savunanın en kalabalık muharebesi (kayıttan büyük savaş için)
 		var bpair: PackedStringArray = str(args.get("battle_pair", "")).split(",") if args.has("battle_pair") else PackedStringArray()
@@ -643,11 +916,11 @@ func _handle_dev_args() -> void:
 				"units": units.visible = false; units.process_mode = Node.PROCESS_MODE_DISABLED
 				"labels": map_view.labels.visible = false
 				"cities": cities.visible = false
-				"ssao": _env.ssao_enabled = false
+				"ssao": _env.ssao_enabled = false; _fx_locked = true
 				"adjust": _env.adjustment_enabled = false
 				"fog": _env.fog_enabled = false
 				"glow": _env.glow_enabled = false
-				"shadow": _sun.shadow_enabled = false
+				"shadow": _sun.shadow_enabled = false; _fx_locked = true
 				"msaa": get_viewport().msaa_3d = Viewport.MSAA_DISABLED
 				"clouds": map_view.set_camera_distance(0.0); map_view.process_mode = Node.PROCESS_MODE_DISABLED
 				"ui": hud.visible = false
@@ -705,8 +978,20 @@ func _handle_dev_args() -> void:
 					var dv := int(GameClock.prof[k]) - int(prof_prev.get(k, 0))
 					if dv > (3000 if args.has("spike_ms") else 8000):
 						parts.append("%s=%d" % [k, dv / 1000])
+				# hat derlemeleri (gölgelendirici + malzeme ilk kez çizilince): Metal'de tek karede yüzlerce ms
+				var pc := 0
+				for mon in [Performance.PIPELINE_COMPILATIONS_CANVAS, Performance.PIPELINE_COMPILATIONS_MESH,
+						Performance.PIPELINE_COMPILATIONS_SURFACE, Performance.PIPELINE_COMPILATIONS_DRAW,
+						Performance.PIPELINE_COMPILATIONS_SPECIALIZATION]:
+					pc += int(Performance.get_monitor(mon))
+				parts.append("pipelines=%d" % (pc - _pc_prev))
 				print("SPIKE %.0fms d=%.0f %s %s" % [(tn - tprev) / 1000.0, camera.distance, GameClock.date_string(), " ".join(parts)])
 			prof_prev = GameClock.prof.duplicate()
+			_pc_prev = 0
+			for mon in [Performance.PIPELINE_COMPILATIONS_CANVAS, Performance.PIPELINE_COMPILATIONS_MESH,
+					Performance.PIPELINE_COMPILATIONS_SURFACE, Performance.PIPELINE_COMPILATIONS_DRAW,
+					Performance.PIPELINE_COMPILATIONS_SPECIALIZATION]:
+				_pc_prev += int(Performance.get_monitor(mon))
 			tprev = tn
 			proc += Performance.get_monitor(Performance.TIME_PROCESS)
 			rcpu += RenderingServer.viewport_get_measured_render_time_cpu(vrid) + RenderingServer.get_frame_setup_time_cpu()
@@ -802,6 +1087,13 @@ func _handle_dev_args() -> void:
 		print("film: ", secs, " s ", GameClock.date_string(), " iters=", iters, " frames=", Engine.get_frames_drawn() - f0)
 		get_tree().quit()
 		return
+	if args.has("front_panel"):
+		# geliştirici: oyuncunun cephesinden bir kesit seçilir, kamera oraya, cephe paneli açık (görsel denetim)
+		var fp := _front_pick()
+		if not fp.is_empty():
+			camera.focus_on(World.province(fp[0]).center, float(args["front_panel"]) if args["front_panel"] != "" else 700.0)
+			hud.front.show_front(fp[0], fp[1])
+			fronts.set_hover(fp[0], fp[1])
 	if args.has("plane_view"):
 		# test: oyuncunun bir hava üssü yakından (park etmiş uçaklar); --plane_view[=uzaklık][:fly] fly: kanat üssünün
 		# üstünde hava üstünlüğü görevine çıkar (kalkan ve tur atan uçaklar)
@@ -979,17 +1271,36 @@ func _handle_dev_args() -> void:
 		print("screenshot: ", args["screenshot"], " date=", GameClock.date_string())
 		get_tree().quit()
 
+## Uzakta güneş gölgesi ve SSAO kapanır: 600 uzaklıkta açık/kapalı görüntü farkı ortalama 0,15/255 (piksellerin %0,15'i),
+## maliyetleri ise kare başına ~2,5 ms (gölge haritası) ve ~1,4 ms (SSAO) idi (1 Ekim 2026 ölçümü). Figürlerin ve
+## kartların göründüğü yakın görüş değişmez; eşikte gidip gelmesin diye 440 / 480 arası boşluk.
+const FAR_FX_OFF := 480.0
+const FAR_FX_ON := 440.0
+var _far_fx := false
+var _fx_locked := false               ## geliştirici --off=ssao/shadow verildiyse uzaklık ayarı dokunmaz
+
+func _update_far_fx() -> void:
+	if not SUN_SHADOWS or _fx_locked or UnitModels.COMPAT or _env == null or _sun == null:
+		return
+	var far := camera.distance > (FAR_FX_ON if _far_fx else FAR_FX_OFF)
+	if far != _far_fx:
+		_far_fx = far
+		_sun.shadow_enabled = not far
+		_env.ssao_enabled = not far
+
 func _process(delta: float) -> void:
 	# sis kamera mesafesine göre: odak noktası hiç sislenmesin, yalnız ufuk (dünya zoom'unda harita soluklaşmasın)
 	if _env and camera:
 		_env.fog_depth_begin = maxf(3500.0, camera.distance * 1.25)
 		_env.fog_depth_end = _env.fog_depth_begin * 3.5
+		_update_far_fx()
 	if units.process_mode != Node.PROCESS_MODE_DISABLED:
 		units.visible = phase == Phase.PLAYING
 	cities.get_node_or_null(".")
 	map_view.set_view_scale(camera.view_scale())
 	map_view.set_camera_distance(camera.distance)
 	_update_reach()
+	_update_recon_preview()
 	if phase == Phase.MENU:
 		# menü arkasında Avrupa üzerinde yavaş süzülme
 		_drift_t += delta * 0.035
@@ -1126,16 +1437,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		var hf := fleets.pick(mm.position)
 		var hr := _route_at(mm.position)
 		_country_hover(pid if mm.ctrl_pressed and units.selected.is_empty() else 0, mm.position)   # tümen seçiliyken Ctrl: yürüme menzili
+		_front_hover(mm.position if units.selected.is_empty() and not _dragging and _place.is_empty() else Vector2.INF)
 		if _ctrl_country != "":
 			pass
-		elif not hb.is_empty():
-			hud.tooltip.show_building(int(hb["sid"]), String(hb["building"]), mm.position)
-		elif hf:
-			hud.tooltip.show_fleet(hf, mm.position)
-		elif not hr.is_empty():
-			hud.tooltip.show_route(hr, mm.position)
+		elif mm.shift_pressed:
+			_map_card(pid, mm.position, hb, hf, hr)
 		else:
-			hud.tooltip.show_province(pid, mm.position)
+			hud.tooltip.visible = false
 		GameClock.timed("hover", __hv)
 	elif event is InputEventMagnifyGesture:
 		var mg := event as InputEventMagnifyGesture
@@ -1149,7 +1457,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		var pid := _pick(mp)
 		_country_hover(pid if event.pressed and units.selected.is_empty() else 0, mp)
 		if not event.pressed:
-			hud.tooltip.show_province(pid, mp)
+			_shift_card(Input.is_key_pressed(KEY_SHIFT))
+	elif event is InputEventKey and (event as InputEventKey).keycode == KEY_SHIFT and not event.echo \
+			and phase == Phase.PLAYING:
+		# harita kartı kendiliğinden açılmaz: Shift basılıyken imlecin altındaki bölge (şehir), yapı, filo ya da rota
+		if _ctrl_country == "":
+			_shift_card(event.pressed)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match (event as InputEventKey).keycode:
 			KEY_SPACE: GameClock.toggle_pause()
@@ -1245,10 +1558,29 @@ func _fog_start() -> void:
 func _begin_recon() -> void:
 	if phase != Phase.PLAYING:
 		return
+	_end_place()
 	_recon_pick = true
 	_wing_pick = null
 	_zone_pick = null
+	_update_recon_preview()
 	World.notify(tr("RECON_PICK"), "info")
+
+func _update_recon_preview() -> void:
+	var active := _recon_pick and phase == Phase.PLAYING and World.player() != null
+	if not active:
+		if _recon_preview_active: map_view.set_recon_targets({})
+		_recon_preview_active = false
+		_recon_preview_signature = ""
+		return
+	var c := World.player()
+	var signature := str(c.sp >= Air.recon_cost()) + ":" + str(World.day_count)
+	signature += ":" + str(Air.bases_of(World.player_tag))
+	for wing: AirWing in Air.wings_of(World.player_tag):
+		signature += ":%d,%d,%d,%d" % [wing.id, wing.base, wing.planes, int(wing.mission)]
+	if signature == _recon_preview_signature: return
+	_recon_preview_signature = signature
+	_recon_preview_active = true
+	map_view.set_recon_targets(Air.recon_targets(World.player_tag))
 
 ## Keşif emri: menzildeki boştaki kanatlardan biri bölgeye keşfe çıkar (avcı önce, sonra en yakın üs); başka görevdeki
 ## kanat alınmaz, zaten keşifte olan yeniden yönlendirilebilir. Kanadın üssü yetmiyorsa Air.assign menzili yeten üsse geçirir.
@@ -1282,7 +1614,10 @@ func _order_recon(pid: int) -> void:
 		hud.air.refresh()
 
 ## Savaş sisi haritada bulut: sis açıksa bölge düzeyleri haritaya (yalnız sis yeniden hesaplandıysa doku değişir)
+var _fog_hold := false                 ## oyun başı geçişi: bulut en sonda yavaşça gelir (o zamana dek görsel güncellenmez)
 func _update_fog() -> void:
+	if _fog_hold:
+		return
 	if Military.fog_active():
 		var lv := Military.fog_levels()
 		map_view.set_fog(lv, Military.fog_version)
@@ -1357,6 +1692,28 @@ func _country_at(pid: int) -> String:
 	var st := World.state_of_province(pid)
 	return st.owner if st and World.countries.has(st.owner) else ""
 
+## Harita kartı (yalnız Shift basılıyken): yapı rozeti, filo, rota ya da bölge; tümen seçiliyse emrin varış/saldırı tahmini
+func _map_card(pid: int, pos: Vector2, hb: Dictionary, hf: Fleet, hr: Dictionary) -> void:
+	if not hb.is_empty():
+		hud.tooltip.show_building(int(hb["sid"]), String(hb["building"]), pos)
+	elif hf:
+		hud.tooltip.show_fleet(hf, pos)
+	elif not hr.is_empty():
+		hud.tooltip.show_route(hr, pos)
+	else:
+		hud.tooltip.show_province(pid, pos)
+
+## Shift basıldı / bırakıldı: imlecin altının kartı açılır ya da kapanır
+func _shift_card(on: bool) -> void:
+	if not on or hud.is_mouse_over_ui():
+		hud.tooltip.visible = false
+		return
+	var mp := get_viewport().get_mouse_position()
+	var pid := _order_target(mp) if not units.selected.is_empty() else _pick(mp)
+	hud.tooltip.order_eta = _order_eta(pid)
+	hud.tooltip.order_odds = _order_odds(pid)
+	_map_card(pid, mp, pins.pick_building(mp), fleets.pick(mp), _route_at(mp))
+
 ## Ctrl basılıyken ülke kartı ve ülke vurgusu (pid 0: kapat)
 func _country_hover(pid: int, pos: Vector2) -> void:
 	var tag := _country_at(pid) if pid > 0 else ""
@@ -1386,6 +1743,7 @@ func _left_click(pos: Vector2, shift: bool) -> void:
 		return
 	if _recon_pick:
 		_recon_pick = false
+		_update_recon_preview()
 		_order_recon(_pick(pos))
 		return
 	if _wing_pick:
@@ -1429,7 +1787,52 @@ func _left_click(pos: Vector2, shift: bool) -> void:
 		hud.air.set_target(target)          # hava: önce bölge, sonra panelde kanatlara görev
 		Audio.play("select_air", 150)
 	else:
+		# cephe çizgisine tıklama: alttan cephe paneli (muharebe, hava desteği); başka yere tıklayınca kapanır
+		var fr: Array = _front_at(pos) if hb.is_empty() else []
+		if not fr.is_empty():
+			hud.front.show_front(fr[0], fr[1])
+			return
+		hud.front.close()
 		World.select_province(target)
+
+## Fare cepheye gelince o kesit genişleyip parlar, imleç tıklama imlecine döner (cephe paneli açılabilir)
+var _front_hovering := false
+func _front_hover(pos: Vector2) -> void:
+	var fr: Array = _front_at(pos) if pos != Vector2.INF else []
+	if fr.is_empty():
+		fronts.set_hover(0, 0)
+	else:
+		fronts.set_hover(fr[0], fr[1])
+	if _front_hovering != not fr.is_empty():
+		_front_hovering = not fr.is_empty()
+		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if _front_hovering else Input.CURSOR_ARROW)
+
+## Cephe çizgisinin yanı mı: imlecin ~12 piksel çevresinde bizim tarafın elindeki bir kara bölgesi ile ona komşu düşman
+## elindeki bölge varsa [bizim, düşmanın] (haritadaki yanan damar bu sınır); yoksa boş
+func _front_at(pos: Vector2) -> Array:
+	if not Diplomacy.at_war(Game.front_tag()):
+		return []
+	var g = camera.ground_point(pos)
+	if g == null:
+		return []
+	var c := Vector2(g.x, g.z)
+	var r := 12.0 / maxf(camera.view_scale(), 1e-4)
+	var ours := 0
+	var theirs := 0
+	for i in 9:
+		var at := c if i == 0 else c + Vector2.from_angle((i - 1) * PI / 4.0) * r
+		var pid := map_view.province_at(at)
+		var p := World.province(pid)
+		if p == null or not p.is_land():
+			continue
+		var s := FrontPanel.side(World.controller_tag(pid))
+		if s == 1 and ours == 0:
+			ours = pid
+		elif s == 2 and theirs == 0:
+			theirs = pid
+	if ours > 0 and theirs > 0 and World.land_neighbors(ours).has(theirs):
+		return [ours, theirs]
+	return []
 
 ## Seçili tümenlere hareket/saldırı emri
 ## at: bölge içinde duruş noktası (harita pikseli; INF = şehrin yanındaki olağan nokta)
@@ -1492,6 +1895,8 @@ func _try_build(pid: int) -> void:
 ## Konuşlandırmayı başlat: uygun eyaletler (tümen: elimizdeki kendi eyaletlerimiz; kanat: hava üslü eyaletler; gemi:
 ## limanlı eyaletler), panel kapanır, harita uygun olmayanları karartır
 func _begin_place(kind: String, data: Variant) -> void:
+	_recon_pick = false
+	_update_recon_preview()
 	var c := World.player()
 	var marks := {}
 	var any := false
@@ -1623,8 +2028,10 @@ func _update_construction_marks() -> void:
 		marks[sid] = Economy.can_build(c, World.states[sid], hud.construction.selected) == ""
 	map_view.set_marked_states(marks)
 
-## Ülke seçimi: haritaya tıklayınca o bölgenin sahibi seçilir; kamera serbest.
+## Ülke seçimi: haritaya tıklayınca o bölgenin sahibi seçilir; kamera serbest. İpucu yalnız ülke ve lider.
 func _setup_input(event: InputEvent) -> void:
+	if _starting:
+		return
 	if event is InputEventMouseButton and event.pressed:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT:
@@ -1644,7 +2051,11 @@ func _setup_input(event: InputEvent) -> void:
 			camera.drag(mm.position - mm.relative, mm.position)
 		var pid := _pick(mm.position)
 		map_view.set_hovered(pid)
-		hud.tooltip.show_province(pid, mm.position)
+		var hover_owner := World.owner_of_province(pid)
+		if hover_owner:
+			hud.tooltip.show_country_brief(hover_owner.tag, mm.position)
+		else:
+			hud.tooltip.visible = false
 
 func _set_mode(m: int) -> void:
 	_apply_mode(m)

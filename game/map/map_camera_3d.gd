@@ -5,7 +5,8 @@ extends Camera3D
 
 const MIN_DIST := 55.0
 const MAX_DIST_EUROPE := 5200.0
-var MAX_DIST := 5200.0              ## harita boyuna göre (dünya haritasında tüm gezegen görünür)
+const STRATEGIC_MAX_DIST := 5200.0  ## bölgesel bakış; dünyanın geri kalanına kaydırarak/sarmalayarak gidilir
+var MAX_DIST := STRATEGIC_MAX_DIST  ## küçük harita veya dar ekran için ayrıca haritaya sığdırılır
 const PITCH_NEAR := deg_to_rad(48.0)
 const PITCH_FAR := deg_to_rad(80.0)
 const ZOOM_STEP := 1.18
@@ -47,6 +48,7 @@ func focus_on(world_xz: Vector2, new_distance: float = -1.0) -> void:
 	if vp != _fit_vp:
 		_fit_vp = vp
 		_update_max_dist(vp)
+	_stop_flight()
 	target = Vector3(world_xz.x, 0, world_xz.y)
 	if new_distance > 0.0:
 		distance = clampf(new_distance, MIN_DIST, MAX_DIST)
@@ -57,12 +59,53 @@ func focus_on(world_xz: Vector2, new_distance: float = -1.0) -> void:
 	_vel = Vector2.ZERO
 	_apply()
 
+## Uçuş: hedefe ve uzaklığa yumuşak geçiş (TAK diye sıçramak yerine). Yol uzunsa ortasında biraz uzaklaşır (yol
+## görünsün); bitince flight_finished. Kullanıcı sürükler, tekerleği çevirir ya da kod focus_on derse uçuş biter.
+signal flight_finished
+var _fly := {}
+
+func fly_to(world_xz: Vector2, new_distance: float, secs := 1.3) -> void:
+	var d1 := clampf(new_distance, MIN_DIST, MAX_DIST)
+	var from := Vector2(target.x, target.z)
+	var to := world_xz
+	if World.wraps:
+		to.x = from.x + wrapf(to.x - from.x, -map_size.x * 0.5, map_size.x * 0.5)
+	var hop := clampf(from.distance_to(to) * 0.3, 0.0, 1200.0) * clampf(1.0 - absf(d1 - distance) / maxf(distance, 1.0), 0.3, 1.0)
+	_fly = {"from": from, "to": to, "d0": distance, "d1": d1, "hop": hop, "t": 0.0, "secs": maxf(secs, 0.05)}
+	_vel = Vector2.ZERO
+
+func flying() -> bool:
+	return not _fly.is_empty()
+
+func _stop_flight() -> void:
+	_fly = {}
+
+## Uçuşun bir karesi: kübik yumuşak başlayıp yumuşak biten geçiş
+func _fly_step(delta: float) -> void:
+	var f := _fly
+	f["t"] = minf(float(f["t"]) + delta / float(f["secs"]), 1.0)
+	var x: float = f["t"]
+	var k := 4.0 * x * x * x if x < 0.5 else 1.0 - pow(-2.0 * x + 2.0, 3.0) * 0.5
+	var p: Vector2 = (f["from"] as Vector2).lerp(f["to"], k)
+	distance = lerpf(f["d0"], f["d1"], k) + sin(PI * k) * float(f["hop"])
+	_target_distance = distance
+	target = Vector3(p.x, 0.0, p.y)
+	_clamp_target()
+	_goal = target
+	_target_prev = target
+	_apply()
+	if x >= 1.0:
+		_fly = {}
+		flight_finished.emit()
+
 func zoom_at(screen_pos: Vector2, steps: float) -> void:
+	_stop_flight()
 	_zoom_anchor_screen = screen_pos
 	_target_distance = clampf(_target_distance / pow(ZOOM_STEP, steps), MIN_DIST, MAX_DIST)
 
 ## Sürükleme: imlecin altındaki zemin noktası imleçle birlikte hareket eder (kamera sıkı ama yumuşak izler)
 func drag(from_screen: Vector2, to_screen: Vector2) -> void:
+	_stop_flight()
 	var a = ground_point(from_screen)
 	var b = ground_point(to_screen)
 	if a == null or b == null:
@@ -78,6 +121,7 @@ func drag(from_screen: Vector2, to_screen: Vector2) -> void:
 
 ## Fareyle sürükleme başlar / biter (bırakınca harita süzülür; durup bıraktıysa süzülmez)
 func begin_drag() -> void:
+	_stop_flight()
 	_dragging = true
 	_vel = Vector2.ZERO
 	_drag_us = Time.get_ticks_usec()
@@ -97,6 +141,9 @@ func _process(delta: float) -> void:
 	if vp != _fit_vp:
 		_fit_vp = vp
 		_update_max_dist(vp)
+	if not _fly.is_empty():
+		_fly_step(delta)
+		return
 	var dir := Vector2.ZERO
 	if not input_locked:
 		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): dir.x -= 1
@@ -176,8 +223,9 @@ func _clamped(v: Vector3) -> Vector3:
 	return v
 
 func _pitch_for(d: float) -> float:
-	var t := sqrt(clampf(inverse_lerp(MIN_DIST, MAX_DIST_EUROPE, d), 0.0, 1.0))
-	return lerpf(PITCH_NEAR, PITCH_FAR, clampf(t * 1.6, 0.0, 1.0))
+	# Keep the strategic map overhead; only tilt as the player enters the diorama.
+	var t := smoothstep(100.0, 650.0, d)
+	return lerpf(PITCH_NEAR, PITCH_FAR, t)
 
 ## Düz zeminde, hedefe göre görünen alan (xz): ekran köşelerinden atılan ışınların y=0 kesişimleri.
 ## Bir köşe ufka bakıyorsa çok büyük bir dikdörtgen döner (sığmaz).
@@ -212,7 +260,7 @@ func _update_max_dist(vp: Vector2) -> void:
 			lo = mid
 		else:
 			hi = mid
-	MAX_DIST = lo
+	MAX_DIST = minf(lo, STRATEGIC_MAX_DIST)
 	_target_distance = minf(_target_distance, MAX_DIST)
 	distance = minf(distance, MAX_DIST)
 	_clamp_target()

@@ -5,6 +5,7 @@ extends CanvasLayer
 signal construction_toggled(open: bool)
 
 signal recon_requested                  ## keşif: haritada bölge seçilecek (main._begin_recon)
+signal divisions_requested(divs: Array)  ## uyarıdan: bu tümenler seçilsin (main → UnitLayer.select_divisions)
 var root: Control
 var top_bar: TopBar
 var state_panel: StatePanel
@@ -24,6 +25,7 @@ var logistics: LogisticsPanel
 var world: WorldPanel
 var focus: FocusPanel
 var divisions: DivisionPanel
+var front: FrontPanel                  ## cephe paneli (ekranın altı): cephe çizgisine tıklanınca
 var events: EventPopup
 var feed: NotificationFeed
 var pause_menu: PauseMenu
@@ -44,7 +46,10 @@ func _ready() -> void:
 	root.add_child(top_bar)
 	state_panel = StatePanel.new()
 	root.add_child(state_panel)
+	# harita kipi çubuğu (Siyasi / Arazi / Eyaletler / Yollar) gösterilmez: sade oyunda harita tek kipte; düğüm kalır
+	# (kipin seçimi ve kısayolları main'de ona bağlı)
 	map_modes = MapModeBar.new()
+	map_modes.visible = false
 	root.add_child(map_modes)
 	construction = ConstructionPanel.new()
 	production = ProductionPanel.new()
@@ -61,11 +66,12 @@ func _ready() -> void:
 		root.add_child(p)
 		_decorate_side_panel(p)
 	focus = FocusPanel.new()
-	politics.focus_requested.connect(func() -> void: toggle_focus())
 	politics.diplomacy_requested.connect(func(tag: String) -> void:
 		_close_all()
 		diplomacy.open_for(tag))
 	root.add_child(focus)
+	front = FrontPanel.new()
+	root.add_child(front)
 	divisions = DivisionPanel.new()
 	root.add_child(divisions)
 	divisions.manage_army.connect(func(id: int) -> void:
@@ -75,32 +81,47 @@ func _ready() -> void:
 	feed.hud = self
 	root.add_child(feed)
 	task_bar = top_bar.task_row
-	# sade oyun (docs/DESIGN.md): sol menüde ülke, diplomasi, üretim, donanma, hava ve keşif. Ordu ekranı (komuta zinciri,
+	# sade oyun (docs/DESIGN.md): sol menüde ülke, diplomasi, araştırma, donanma, hava ve keşif (üretim hatları yok: asker
+	# şehirden alınır; üretim ekranı kısayolla açılır). Ordu ekranı (komuta zinciri,
 	# şablonlar) yok: oyuncu tümenleri seçip oynar, asker şehirden alınır. Program, araştırma, dünya olayları, ticaret,
 	# inşaat ve lojistik ekranları menüde yok (kısayolları çalışır; yol haritası 3. aşamada sadeleşip kalkacaklar)
 	var tasks := [
 		["TASK_POLITICS", "politics", toggle_politics, "menu_politics"], ["TASK_DIPLOMACY_KEY", "diplomacy", toggle_diplomacy, "menu_diplomacy"],
-		["TASK_PRODUCTION", "production", toggle_production, "menu_production"],
+		["TASK_RESEARCH_KEY", "research", toggle_research, "menu_research"],
 		["TASK_NAVY", "navy", toggle_navy, "menu_navy"], ["TASK_AIR", "air", toggle_air, "menu_air"],
 		["TASK_RECON", "tech_radar_1", func() -> void: recon_requested.emit(), "menu_recon"]]
-	# kare simge düğmeleri: ad ipucunda, kısayol harfi köşede
+	# kare simge düğmeleri (arayüz sayfasının düğmeleri, kendi çerçeveleriyle): ad ipucunda, kısayol harfi köşede.
+	# Sayfada düğmesi olmayan (diplomasi) sayfanın boş karesi üstünde eski ikonuyla
 	for t: Array in tasks:
 		var b := Button.new()
-		b.icon = UiTheme.trimmed(UiTheme.icon_or(t[3], t[1]))
+		var sheet_tex: Texture2D = TopBar.sheet(t[3]) if ResourceLoader.exists(TopBar.SHEET + String(t[3]) + ".png") else null
 		b.expand_icon = true
 		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		b.add_theme_constant_override("icon_max_width", 40)
-		for spec: Array in [["normal", "menu_btn"], ["hover", "menu_btn_hover"], ["pressed", "menu_btn_pressed"], ["hover_pressed", "menu_btn_pressed"]]:
-			var sb2 := UiTheme.skin(spec[1], 8, 1)          # resim düğmeyi doldursun (iç boşluk 1 px)
-			b.add_theme_stylebox_override(spec[0], sb2)
-		b.add_theme_color_override("icon_normal_color", Color(1.25, 1.2, 1.1))
-		b.add_theme_color_override("icon_hover_color", Color(1.45, 1.4, 1.3))
-		b.add_theme_color_override("icon_pressed_color", UiTheme.ACCENT)
+		if sheet_tex:
+			b.icon = sheet_tex
+			b.add_theme_constant_override("icon_max_width", int(TopBar.MENU_ICON))
+			for st: String in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
+				b.add_theme_stylebox_override(st, StyleBoxEmpty.new())
+			b.add_theme_color_override("icon_normal_color", Color.WHITE)
+			b.add_theme_color_override("icon_hover_color", Color(1.3, 1.25, 1.15))
+			b.add_theme_color_override("icon_pressed_color", Color(1.45, 1.3, 0.95))
+		else:
+			b.icon = UiTheme.trimmed(UiTheme.icon_or(t[3], t[1]))
+			b.add_theme_constant_override("icon_max_width", 34)
+			for spec: Array in [["normal", Color.WHITE], ["hover", Color(1.25, 1.2, 1.1)], ["pressed", Color(1.4, 1.3, 1.0)], ["hover_pressed", Color(1.4, 1.3, 1.0)]]:
+				var sq := StyleBoxTexture.new()
+				sq.texture = TopBar.sheet("btn_square")
+				sq.modulate_color = spec[1]
+				sq.set_content_margin_all(14)
+				b.add_theme_stylebox_override(spec[0], sq)
+			b.add_theme_color_override("icon_normal_color", Color(1.15, 1.1, 1.0))
+			b.add_theme_color_override("icon_hover_color", Color(1.4, 1.35, 1.25))
+			b.add_theme_color_override("icon_pressed_color", UiTheme.ACCENT)
 		b.focus_mode = Control.FOCUS_NONE
 		var label: String = tr(t[0])
 		var tipkey: String = "TIP_" + String(t[0]).replace("_KEY", "")
 		b.tooltip_text = "%s\n%s" % [label, tr(tipkey)]
-		b.custom_minimum_size = Vector2(58, 52)
+		b.custom_minimum_size = Vector2(TopBar.MENU_ICON, TopBar.MENU_ICON * 62.0 / 66.0)
 		b.pressed.connect(t[2])
 		var m := RegEx.create_from_string("\\(([^)]+)\\)").search(label)
 		if m:
@@ -120,7 +141,7 @@ func _ready() -> void:
 			k.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			k.add_theme_constant_override("line_spacing", 0)
 			kbg.add_child(k)
-			kbg.position = Vector2(42, 30)
+			kbg.position = Vector2(44, 44)
 			b.add_child(kbg)
 		task_bar.add_child(b)
 	alerts = AlertBar.new()
@@ -186,9 +207,9 @@ func is_mouse_over_ui() -> bool:
 	var c := root.get_viewport().gui_get_hovered_control()
 	return c != null and c != root
 
-## Tam ekran bir panel (odak ağacı, araştırma) açık mı: açıkken harita hiçbir girdiyle kıpırdamaz
+## Tam ekran bir panel (araştırma) açık mı: açıkken harita hiçbir girdiyle kıpırdamaz
 func fullscreen_open() -> bool:
-	if focus != null and focus.visible:
+	if Politics.FOCUS_ENABLED and focus != null and focus.visible:
 		return true
 	for p in _left_panels():
 		if p != null and p.visible and p.has_meta("fullscreen"):
@@ -218,7 +239,7 @@ func any_panel_open() -> bool:
 	for p in _left_panels():
 		if p.visible:
 			return true
-	return focus.visible
+	return Politics.FOCUS_ENABLED and focus != null and focus.visible
 
 func close_panels() -> void:
 	_close_all()
@@ -247,6 +268,9 @@ func toggle_diplomacy() -> void:
 	diplomacy.target = ""
 	_open_only(diplomacy)
 func toggle_focus() -> void:
+	if not Politics.FOCUS_ENABLED:
+		if focus != null: focus.visible = false
+		return # F/legacy notification calls cannot open a program or close an active Research screen.
 	var was := focus.visible
 	_close_all()
 	if not was:
@@ -255,7 +279,8 @@ func toggle_focus() -> void:
 ## Oyun arayüzü yalnız oyun başlayınca görünür (menü/ülke seçiminde gizli)
 func set_game_ui_visible(v: bool) -> void:
 	top_bar.visible = v
-	map_modes.visible = v
+	if not v:
+		front.close()
 	task_bar.visible = v
 	feed.visible = v
 	if not v:

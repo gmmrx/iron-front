@@ -9,7 +9,7 @@ extends Node3D
 
 const MODEL_FILES := ["res://assets/models/muster_units.glb", "res://assets/models/soldiers.glb", "res://assets/models/units.glb"]
 const SHADER := preload("res://assets/shaders/unit.gdshader")
-const VISIBLE_DIST := 700.0          ## kamera mesafesi: bunun altında figürler görünür
+const VISIBLE_DIST := 265.0          ## figürler yalnız gerçek yakın diorama görüşünde
 ## rol önekine göre ölçek (modeller gerçek metre; piyade okunabilirlik için abartılı)
 const ROLE_SCALE := {"inf": 2.9, "mg": 2.6, "art": 0.95, "aa": 0.85, "tank": 0.6, "heavy": 0.6, "truck": 0.72, "cargo": 0.75}
 ## ülke -> teçhizat seti (muster_units.glb içindeki model son eki)

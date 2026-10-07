@@ -1,0 +1,361 @@
+{
+	"cases": [
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						416.0,
+						237.0,
+						448.0,
+						54.0
+					],
+					"text": "Devam et",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						416.0,
+						301.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyunu kaydet",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						416.0,
+						365.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyun yükle",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						416.0,
+						429.0,
+						448.0,
+						54.0
+					],
+					"text": "Ayarlar",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						416.0,
+						507.0,
+						448.0,
+						54.0
+					],
+					"text": "Ana menü",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						416.0,
+						571.0,
+						448.0,
+						54.0
+					],
+					"text": "Çıkış",
+					"wired": true
+				}
+			],
+			"locale": "tr",
+			"page": "main",
+			"resolution": [
+				1280,
+				720
+			],
+			"window": [
+				400.0,
+				78.0,
+				480.0,
+				563.0
+			]
+		},
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						736.0,
+						417.0,
+						448.0,
+						54.0
+					],
+					"text": "Resume",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						736.0,
+						481.0,
+						448.0,
+						54.0
+					],
+					"text": "Save game",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						736.0,
+						545.0,
+						448.0,
+						54.0
+					],
+					"text": "Load game",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						736.0,
+						609.0,
+						448.0,
+						54.0
+					],
+					"text": "Settings",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						736.0,
+						687.0,
+						448.0,
+						54.0
+					],
+					"text": "Main menu",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						736.0,
+						751.0,
+						448.0,
+						54.0
+					],
+					"text": "Quit",
+					"wired": true
+				}
+			],
+			"locale": "en",
+			"page": "main",
+			"resolution": [
+				1920,
+				1080
+			],
+			"window": [
+				720.0,
+				258.0,
+				480.0,
+				563.0
+			]
+		},
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						416.0,
+						237.0,
+						448.0,
+						54.0
+					],
+					"text": "Devam et",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						416.0,
+						301.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyunu kaydet",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						416.0,
+						365.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyun yükle",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						416.0,
+						429.0,
+						448.0,
+						54.0
+					],
+					"text": "Ayarlar",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						416.0,
+						507.0,
+						448.0,
+						54.0
+					],
+					"text": "Ana menü",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						416.0,
+						571.0,
+						448.0,
+						54.0
+					],
+					"text": "Çıkış",
+					"wired": true
+				}
+			],
+			"load_window": [
+				400.0,
+				100.0,
+				480.0,
+				519.0
+			],
+			"locale": "tr",
+			"page": "loads",
+			"resolution": [
+				1280,
+				720
+			],
+			"save_scroll": [
+				416.0,
+				259.0,
+				448.0,
+				280.0
+			],
+			"synthetic_entries": 10,
+			"window": [
+				400.0,
+				78.0,
+				480.0,
+				563.0
+			]
+		},
+		{
+			"buttons": [
+				{
+					"name": "PauseResume",
+					"rect": [
+						416.0,
+						237.0,
+						448.0,
+						54.0
+					],
+					"text": "Devam et",
+					"wired": true
+				},
+				{
+					"name": "PauseSave",
+					"rect": [
+						416.0,
+						301.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyunu kaydet",
+					"wired": true
+				},
+				{
+					"name": "PauseLoad",
+					"rect": [
+						416.0,
+						365.0,
+						448.0,
+						54.0
+					],
+					"text": "Oyun yükle",
+					"wired": true
+				},
+				{
+					"name": "PauseSettings",
+					"rect": [
+						416.0,
+						429.0,
+						448.0,
+						54.0
+					],
+					"text": "Ayarlar",
+					"wired": true
+				},
+				{
+					"name": "PauseMainMenu",
+					"rect": [
+						416.0,
+						507.0,
+						448.0,
+						54.0
+					],
+					"text": "Ana menü",
+					"wired": true
+				},
+				{
+					"name": "PauseQuit",
+					"rect": [
+						416.0,
+						571.0,
+						448.0,
+						54.0
+					],
+					"text": "Çıkış",
+					"wired": true
+				}
+			],
+			"locale": "tr",
+			"music_scroll": [
+				650.0,
+				306.0,
+				464.0,
+				300.0
+			],
+			"page": "settings",
+			"resolution": [
+				1280,
+				720
+			],
+			"settings_close_and_reopen": "checked_without_writing_settings",
+			"settings_count": 1,
+			"settings_window": [
+				150.0,
+				46.0,
+				980.0,
+				628.0
+			],
+			"window": [
+				400.0,
+				78.0,
+				480.0,
+				563.0
+			]
+		}
+	],
+	"errors": [],
+	"renderer": "gl_compatibility"
+}

@@ -5,8 +5,8 @@
 A World War II grand strategy game set in 1936–1948, playable as any of 82 countries. Godot 4.7.2, GDScript,
 data-driven (`data/common/*.json`). Web version: https://gmmrx.github.io/iron-front/ (republished on every push to main).
 Game wiki: `docs/wiki/` (Turkish in `docs/wiki/tr/`), roadmap: `ROADMAP.md` (Turkish in `ROADMAP.tr.md`).
-**Game design rules: `docs/DESIGN.md`** (Turkish: `docs/TASARIM.md`). The game is being cut down to short scenarios;
-build nothing that page does not allow.
+**Game design rules: `docs/DESIGN.md`** (Turkish: `docs/TASARIM.md`). The game is an open-ended free game from 1936
+(WWII participants only, no scenarios); build nothing that page does not allow.
 **Talk to the user in Turkish.** The main language of the game and of the documentation is English.
 
 ## Setup (Linux, headless)

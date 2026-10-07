@@ -31,6 +31,7 @@ func _deep_and_border() -> Array:
 	return [deep, border]
 
 func test_enemy_hidden_beyond_sight() -> void:
+	GameClock.hour = 12                         # Avrupa'da gündüz: gece görüşü test_day_night'ta
 	_war()
 	var db := _deep_and_border()
 	if not check(db[0] > 0 and db[1] > 0, "derin ve sınır Polonya bölgesi"):
@@ -84,6 +85,7 @@ func test_recon_reveals_zone() -> void:
 	check(not Military.hidden(deep), "keşfedilen yer kalıcı: keşif bitince de görünür")
 
 func test_marching_explores() -> void:
+	GameClock.hour = 12                         # Avrupa'da gündüz: gece görüşü test_day_night'ta
 	_war()
 	var db := _deep_and_border()
 	if not check(db[0] > 0, "derin Polonya bölgesi"):

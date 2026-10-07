@@ -13,17 +13,17 @@ func test_player_country_never_acts() -> void:
 	check(not AI.apply_history(e), "oyuncunun ülkesinin tarihî adımı uygulandı")
 	eq(player().political_power, pp, "oyuncunun siyasi gücü değişti")
 
-func test_ai_applies_historical_focus() -> void:
+func test_ai_historical_focus_is_inert() -> void:
 	var ger := country("GER")
 	check(not "ger_rhineland" in ger.focus_done, "başlangıçta Rheinland yapılmış olmamalı")
 	check(AI.apply_history(_entry("GER", {"focus": "ger_rhineland"})), "yapay zekâ tarihî adımı atmadı")
-	check("ger_rhineland" in ger.focus_done, "tarihî odak tamamlanmadı")
+	check(not "ger_rhineland" in ger.focus_done, "kapalı Focus sistemi tarih çizelgesinden tamamlanmamalı")
 
 func test_mark_focus_without_effects() -> void:
 	var ger := country("GER")
 	var factions_before := Politics.factions.size()
 	check(AI.apply_history(_entry("GER", {"mark_focus": ["ger_pact_steel"]})), "adım uygulanmadı")
-	check("ger_pact_steel" in ger.focus_done, "odak yapılmış sayılmadı")
+	check(not "ger_pact_steel" in ger.focus_done, "kapalı Focus sistemi tarih çizelgesinden işaretlenmemeli")
 	eq(Politics.factions.size(), factions_before, "etkisiz sayılan odak ittifak kurdu")
 
 func test_failed_requirement_skips_step() -> void:

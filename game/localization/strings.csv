@@ -1,4 +1,39 @@
 keys,en,tr
+FORCE_OPERATIONS,Selected unit orders,Seçili birliğin emirleri
+FORCE_SELECT_HINT,Select a card to view its orders.,Emirlerini görmek için bir kutu seçin.
+"RES_ACTIVE_PROJECTS","ACTIVE RESEARCH","SÜREN ARAŞTIRMALAR"
+"RES_GOVERNANCE","Government","Yönetim"
+"RES_ALL_PROJECTS","All","Tümü"
+"RES_ARMY","Army","Kara"
+"RES_NAVY","Navy","Deniz"
+"RES_AIR","Air","Hava"
+"RES_INDUSTRY","Industry","Sanayi"
+"RES_DOCTRINE","Doctrine","Doktrin"
+"RES_CONFIRM_TITLE","Confirm research","Araştırmayı onayla"
+"RES_CONFIRM_CANCEL","Go back","Vazgeç"
+"RES_START_PROJECT","Start research","Araştırmayı başlat"
+"RES_CANCEL_PROJECT","Cancel research","Araştırmayı iptal et"
+"RES_PROJECT_DOSSIER","Research dossier","Araştırma dosyası"
+"RES_DURATION","Duration","Süre"
+"RES_CURRENT_GOVERNMENT","Current government","Mevcut yönetim"
+"RES_UPFRONT_COST","Upfront cost","Peşin bedel"
+"RES_TRANSITION_EFFECTS","DURING TRANSITION","GEÇİŞ SIRASINDA"
+"RES_CHANGE_POINTS","%+d points","%+d puan"
+"RES_GOVERNMENT_REQUIREMENTS","Peace · at least %d%% stability · a free research slot · no other government transition.","Barış · en az %d%% istikrar · boş araştırma yuvası · başka yönetim geçişi olmaması."
+"RES_CALENDAR_RULE","Fixed calendar duration. Research bonuses do not shorten it. Temporary penalties end on completion or cancellation; influence is not refunded.","Süre takvim günüdür; araştırma bonusları kısaltmaz. Geçici cezalar bitişte veya iptalde kalkar; nüfuz iade edilmez."
+"RES_GOVERNMENT_RESULT","New government: %s","Yeni yönetim: %s"
+"RES_EFFECTS","OUTCOME","KAZANIMLAR"
+"RES_UNLOCK_NEXT","Unlocks the next stage in this field.","Bu alanda sonraki aşamanın kilidini açar."
+"RES_REQUIREMENTS","PREREQUISITES","ÖN KOŞULLAR"
+"RES_CANCEL_NO_REFUND","Cancelling ends transition penalties. Political power is not refunded.","İptal geçiş cezalarını kaldırır. Siyasi güç iade edilmez."
+"RES_AVAILABLE_SLOT","Research slot %d","Araştırma yuvası %d"
+"RES_CHOOSE_PROJECT","Choose a research project","Bir araştırma seçin"
+"RES_INSPECT","View","İncele"
+RES_ALL_BRANCHES,All branches,Tüm dallar
+DIP_AGREEMENTS,Agreements,Anlaşmalar
+DIP_GUARANTEES,Independence guarantees,Bağımsızlık garantileri
+DIP_ACCESS_RIGHTS,Military access,Askerî geçiş hakları
+DIP_NO_AGREEMENTS,No agreements in force.,Yürürlükte anlaşma yok.
 UI_POLITICAL_POWER_TIP,Influence,Nüfuz
 UI_STABILITY_TIP,Stability,İstikrar
 UI_WAR_SUPPORT_TIP,Home Front,İç Cephe
@@ -66,6 +101,7 @@ TIP_DEV_WAR_MISSING,"No war demo save yet. Create it with: godot --headless --pa
 MENU_SETTINGS,Settings,Ayarlar
 MENU_QUIT,Quit,Çıkış
 SELECT_TITLE,Choose Your Nation,Ülkenizi Seçin
+SELECT_PROMPT_TITLE,Choose a nation,Bir ülke seçin
 SELECT_HINT,You can also click any country on the map.,Haritadaki herhangi bir ülkeye tıklayarak da seçebilirsiniz.
 SELECT_STATES,States,Eyaletler
 SELECT_START,Start Game,Oyunu Başlat
@@ -149,6 +185,11 @@ TIP_LINE_ADD,Start producing a new type of equipment,Yeni bir ekipman türü ür
 "TIP_LINE","%s\nCost per unit: %s factory-hours\nResources per factory: %s\nEfficiency grows daily; changing the line resets it.\nCurrent efficiency: %d%%","%s\nBirim maliyeti: %s fabrika-saat\nFabrika başına kaynak: %s\nVerimlilik her gün artar; hat değiştirilirse sıfırlanır.\nŞu anki verimlilik: %%%d"
 "TIP_SPEED_DOWN","DECREASE GAME SPEED\nReduces simulation speed by one step.\nShortcut: -","OYUN HIZINI DÜŞÜR\nSimülasyon hızını bir kademe azaltır.\nKısayol: -"
 "TIP_SPEED_UP","INCREASE GAME SPEED\nRaises simulation speed by one step. Higher speeds process battles and production faster.\nShortcut: +","OYUN HIZINI ARTIR\nSimülasyon hızını bir kademe yükseltir. Yüksek hızda savaşlar ve üretim daha hızlı ilerler.\nKısayol: +"
+TIP_PLAY,"PLAY
+Resumes a paused game; while the game runs, slows it down by one step.
+Shortcut: Space / -","OYNAT
+Duraklatılmış oyunu sürdürür; oyun akarken hızı bir kademe düşürür.
+Kısayol: Boşluk / -"
 "TIP_COUNTRY","%s\nLeader: %s  ·  Ideology: %s\nPopulation: %s  ·  Controlled states: %d\nNational statistics are recalculated each day.","%s\nLider: %s  ·  İdeoloji: %s\nNüfus: %s  ·  Denetlenen eyalet: %d\nUlusal istatistikler her gün yeniden hesaplanır."
 "TIP_POLITICAL_POWER","INFLUENCE\nDaily change: +%.2f\nUsed for laws, advisors, decisions, guarantees and diplomatic actions. Keep a reserve for wartime measures.","NÜFUZ\nGünlük değişim: +%.2f\nYasalar, danışmanlar, kararlar, garantiler ve diplomatik eylemler için kullanılır. Savaş önlemleri için yedek tutun."
 "TIP_STABILITY","STABILITY\nRepresents public confidence and domestic order.\nLow stability reduces factory performance and makes prolonged wars harder to sustain.","İSTİKRAR\nHalkın yönetime güvenini ve iç düzeni gösterir.\nDüşük istikrar fabrika performansını azaltır ve uzun savaşların sürdürülmesini zorlaştırır."
@@ -349,7 +390,7 @@ DIV_MOVING,Moving,Hareket halinde
 DIV_IDLE,Holding,Mevzide
 DIV_NO_SUPPLY,Out of supply,İkmalsiz
 DIV_MORE,...and %d more,...ve %d tane daha
-RESEARCH_TITLE,Research,Araştırma
+RESEARCH_TITLE,Research,Araştırmalar
 TASK_RESEARCH_KEY,Research (I),Araştırma (I)
 UI_DAYS,days,gün
 RESEARCH_UNLOCK,Unlocks: %s,Açar: %s
@@ -434,7 +475,7 @@ TOP_TENSION,Crisis %d%%,Kriz %%%d
 "TIP_TENSION","CRISIS INDEX\nMeasures how close the world is to general war. Aggressive diplomacy and declarations raise it.\nA high index lets democracies prepare a casus belli and unlocks stronger mobilization laws.","KRİZ ENDEKSİ\nDünyanın genel savaşa ne kadar yaklaştığını gösterir. Saldırgan diplomasi ve savaş ilanları değeri yükseltir.\nYüksek endeks demokrasilere savaş gerekçesi hazırlama yolunu ve daha sert seferberlik yasalarını açar."
 "TOP_AT_WAR","AT WAR (%d)  ·  Surrender %d%%","SAVAŞTA (%d)  ·  Teslim %%%d"
 "TIP_AT_WAR","Enemies: %s\nWe capitulate at %d%% surrender progress (occupied victory points).","Düşmanlar: %s\nTeslim ilerlemesi %%%d olunca teslim oluruz (işgal edilen zafer puanları)."
-NOTE_WELCOME,"Welcome, leader of %s. Pick a state program (F) and research (I)!","Hoş geldiniz, %s lideri. Bir devlet programı (F) ve araştırma (I) seçin!"
+NOTE_WELCOME,"Welcome, leader of %s. Choose research (I) and plan your country's future!","Hoş geldiniz, %s lideri. Araştırma (I) seçin ve ülkenizin geleceğini planlayın!"
 NOTE_NO_PATH,No route to that province.,O bölgeye yol bulunamadı.
 "NOTE_NO_ACCESS","No military access to %s: we are neither allied nor at war. Ask for access in Diplomacy.","%s topraklarına geçiş iznimiz yok: ne müttefikiz ne savaştayız. Diplomasi'den geçiş izni isteyin."
 "NOTE_NO_PATH_SEA","That province can only be reached by sea, and the way is closed: an enemy navy holds the sea or there is no coast to sail from.","O bölgeye ancak denizden gidilir ve yol kapalı: denizi düşman donanması tutuyor ya da çıkılacak kıyı yok."
@@ -496,12 +537,15 @@ ODDS_F_air,Our air superiority,Hava üstünlüğümüz
 ODDS_F_enemy_air,Enemy air superiority,Düşman hava üstünlüğü
 ODDS_F_supply,Out of supply,İkmalsiz
 ODDS_F_season,Mud and winter,Çamur ve kış
+ODDS_F_night,Night,Gece
 ODDS_F_planning,Planning,Planlama
 ODDS_F_phoney,Reluctant war,İsteksiz savaş
 ODDS_F_fuel,No fuel,Yakıt yok
 ODDS_F_command,Commanders,Komutanlar
 ODDS_F_support,Our artillery next door,Komşudaki topçumuz
 ODDS_F_enemy_support,Enemy artillery next door,Komşudaki düşman topçusu
+ODDS_F_motivated,Our troops motivated,Askerlerimiz teşvikli
+ODDS_F_enemy_motivated,Enemy troops motivated,Düşman askerleri teşvikli
 "TIPMAP_PORTS","Ports","Limanlar"
 "TIPMAP_LAND_HINT","Left click: select state  ·  Right click: issue order to selected divisions","Sol tık: eyaleti seç  ·  Sağ tık: seçili tümenlere emir ver"
 TIPMAP_NAVAL_REGION,Naval region,Deniz bölgesi
@@ -638,8 +682,13 @@ RECRUIT_UNIT_armor,Armoured division,Zırhlı tümen
 RECRUIT_UNIT_fighter,Fighter wing,Avcı kanadı
 RECRUIT_UNIT_cas,Close support wing,Yakın destek kanadı
 RECRUIT_UNIT_bomber,Bomber wing,Bombardıman kanadı
+RECRUIT_UNIT_destroyer,Destroyer,Muhrip
+RECRUIT_UNIT_submarine,Submarine,Denizaltı
+RECRUIT_UNIT_cruiser,Cruiser,Kruvazör
+RECRUIT_UNIT_battleship,Battleship,Zırhlı
 RECRUIT_COST_DIV,%d SP · %s men · ready in %d days,%d SP · %s asker · %d günde hazır
 RECRUIT_COST_WING,%d SP · 100 aircraft at the nearest air base,%d SP · en yakın hava üssünde 100 uçak
+RECRUIT_COST_SHIP,%d SP · joins the reserve fleet in this port,%d SP · bu limandaki yedek filoya katılır
 RECRUIT_BUY,Buy,Al
 TIP_RECRUIT,Pay the cost now; the unit appears here and trains for the given days before it can move.,"Bedeli şimdi öde; birlik burada çıkar, verilen gün kadar eğitim görüp sonra yürür."
 RECRUIT_OK,%s recruited in %s,%s alındı: %s
@@ -648,6 +697,7 @@ RECRUIT_ERR_CITY,Units can only be recruited in a city you hold.,Asker yalnız e
 RECRUIT_ERR_SP,Not enough industry points (SP).,Sanayi puanı (SP) yetmiyor.
 RECRUIT_ERR_MANPOWER,Not enough manpower.,İnsan gücü yetmiyor.
 RECRUIT_ERR_AIRBASE,You have no air base for a new wing.,Yeni kanat için hava üssün yok.
+RECRUIT_ERR_PORT,Ships are bought only in a port of a state with a naval base.,Gemi yalnız deniz üssü olan eyaletin limanında alınır.
 "TIP_TASK_AIR","AIR FORCE\nAir wings, bases and missions. Air superiority and close air support decide land battles.\nShortcut: H","HAVA KUVVETLERİ\nHava kanatları, üsler ve görevler. Hava üstünlüğü ve yakın destek kara muharebelerini belirler.\nKısayol: H"
 "NOTE_AIR_LOSSES","We lost %d aircraft today.","Bugün %d uçak kaybettik."
 TIPMAP_AIR,Air superiority here: %d%%,Buradaki hava üstünlüğümüz: %%%d
@@ -684,7 +734,7 @@ Küre oyun saatiyle döner: güneş başkentinin üstündeyken öğlendir; karan
 GLOBE_DAY,day,gündüz
 GLOBE_NIGHT,night,gece
 ALERT_RESEARCH,Research slot idle,Araştırma boşta
-ALERT_RESEARCH_D,%d research slot(s) are empty.,%d araştırma yuvası boş.
+ALERT_RESEARCH_D,%d research slot(s) idle. Click: pick a technology.,%d araştırma yuvası boşta. Tıkla: bir teknoloji seç.
 ALERT_FOCUS,No state program,Devlet programı seçilmedi
 ALERT_FOCUS_D,Choose a state program.,Bir devlet programı seç.
 ALERT_PRODUCTION,Idle military factories,Boşta askeri fabrika
@@ -692,9 +742,9 @@ ALERT_PRODUCTION_D,%d military factories are unassigned.,%d askeri fabrika üret
 ALERT_DOCKYARD,Idle dockyards,Boşta tersane
 ALERT_DOCKYARD_D,%d dockyards are unassigned.,%d tersane üretime atanmamış.
 ALERT_CONSTRUCTION,Nothing under construction,İnşaat kuyruğu boş
-ALERT_CONSTRUCTION_D,Your civilian factories are idle.,Sivil fabrikaların boşta.
+ALERT_CONSTRUCTION_D,"Your civilian factories are idle. Click: pick a building, then a city.","Sivil fabrikaların boşta. Tıkla: bir yapı seç, sonra şehri."
 ALERT_SUPPLY,Out of supply,İkmalsiz tümen
-ALERT_SUPPLY_D,%d divisions are out of supply.,%d tümen ikmalsiz.
+ALERT_SUPPLY_D,%d divisions are out of supply (cut off from your land): they fight weaker and do not recover. Click: select them.,"%d tümen ikmalsiz (topraklarından kopmuş): zayıf savaşır, toparlanmaz. Tıkla: onları seç."
 ALERT_CONVOY,Convoy shortage,Konvoy açığı
 ALERT_CONVOY_D,Only %d%% of imports arrive.,İthalatın yalnız %%%d'i ulaşıyor.
 ALERT_PLANES,Planes in stock,Stokta uçak
@@ -1240,3 +1290,69 @@ LEADER_Ghazi I,Ghazi I,I. Gazi
 "NAVY_NEW_SHIPS_ROW","New ships waiting for a port","Liman bekleyen yeni gemiler"
 "NAVY_DEPLOY_SHIPS","Deploy","Konuşlandır"
 "TIP_NAVY_DEPLOY_SHIPS","Ships from the dockyards wait until you choose their port: the panel closes and you pick a state with a port on the map; they join the reserve fleet there.","Tersaneden çıkan gemiler limanını seçmeni bekler: panel kapanır, haritada limanı olan bir eyalet seçersin; oradaki yedek filoya katılırlar."
+DIV_MOTIVATE,Motivate · %d,Teşvik et · %d
+TIP_DIV_MOTIVATE,"MOTIVATE THE TROOPS
+Spend influence on the selected divisions: %d%% of their cohesion returns at once, attack and defence +%d%% for %d hours.
+Cost: %d influence (%d per division). A division already motivated is left out.","ASKERLERİ TEŞVİK ET
+Seçili tümenlere nüfuz harca: bütünlüklerinin %%%d'i hemen döner, saldırı ve savunma +%%%d artar (%d saat).
+Bedel: %d nüfuz (tümen başına %d). Teşviki süren tümen dahil edilmez."
+MOTIVATE_ERR_NONE,No division to motivate (all are already motivated or in training).,Teşvik edilecek tümen yok (hepsi zaten teşvikli ya da eğitimde).
+MOTIVATE_ERR_PP,Not enough influence.,Nüfuz yetmiyor.
+ALERT_MOTIVATE,Motivate the troops,Askerleri teşvik et
+ALERT_MOTIVATE_D,%d of your divisions are fighting; you have %d influence. Click: select them.,%d tümenin çarpışıyor; %d nüfuzun var. Tıkla: onları seç.
+FRONT_TITLE,Front: %s — %s,Cephe: %s — %s
+FRONT_OURS,Our forces,Bizim birlikler
+FRONT_THEIRS,Enemy forces,Düşman birlikleri
+FRONT_AIR,Air superiority,Hava üstünlüğü
+TIP_FRONT_OURS,Divisions on our side of the front: number · average strength,Cephenin bizim tarafındaki tümenler: sayı · ortalama güç
+TIP_FRONT_THEIRS,Enemy divisions across the front: number · average strength (? = under the fog of war),Cephenin karşısındaki düşman tümenleri: sayı · ortalama güç (? = savaş sisinin altında)
+TIP_FRONT_AIR,Our share of the air over the enemy region (50% = even),Düşman bölgesinin üstünde havadaki payımız (%50 = eşit)
+FRONT_BATTLE,Battle,Muharebe
+FRONT_NO_BATTLE,No battle here right now.,Burada şu an muharebe yok.
+FRONT_ATTACKER,Attacker: %s,Saldıran: %s
+FRONT_DEFENDER,Defender: %s,Savunan: %s
+TIP_FRONT_RATIO,Cohesion left: the side that runs out first breaks.,Kalan bütünlük: önce tükenen taraf çözülür.
+FORCE_SELECT,Select unit,Birliği seç
+FORCE_DESELECT,Deselect unit,Birliğin seçimini kaldır
+FORCE_PARTIAL,Some units selected,Birliklerin bir kısmı seçili
+FORCE_CLEAR_SELECTION,Clear selection,Seçimi temizle
+QUICK_JUSTIFY,Prepare war goal,Savaş gerekçesi hazırla
+QUICK_ACCESS,Military access,Askerî geçiş iste
+QUICK_GUARANTEE,Guarantee independence,Bağımsızlık garantisi
+QUICK_DETAILS,Open full diplomacy,Ayrıntılı diplomasi
+QUICK_WAR_TITLE,Confirm declaration of war,Savaş ilanını onayla
+QUICK_WAR_CONFIRM,"Declare war on %s? Their allies and guarantors may join the war. This takes effect immediately.","%s ülkesine savaş ilan edilsin mi? Müttefikleri ve bağımsızlığını garanti eden ülkeler savaşa katılabilir. Bu işlem hemen uygulanır."
+FRONT_CAS,Air support,Hava desteği
+FRONT_SUPERIORITY,Air superiority,Hava üstünlüğü
+FRONT_NO_WING,No free air wing in range.,Menzilde boşta hava kanadı yok.
+TIP_FRONT_SEND,%s flies there (%s).,%s oraya uçar (%s).
+MENU_TUTORIAL,Tutorial,Öğretici
+TIP_MENU_TUTORIAL,"Learn the game in ten minutes: Italy, January 1936, the war in Ethiopia.","Oyunu on dakikada öğren: İtalya, Ocak 1936, Etiyopya savaşı."
+TUT_CH_map,Map,Harita
+TUT_CH_units,Units,Birlikler
+TUT_CH_war,Battle,Savaş
+TUT_CH_recruit,Recruiting,Asker almak
+TUT_CH_end,Free play,Serbest oyun
+TUT_NEXT,Next,Devam
+TUT_DONE,Play on,Oynamaya devam
+TUT_SHOW,Show,Göster
+TIP_TUT_SHOW,Take the camera to the place this step is about.,Kamerayı bu adımın anlattığı yere götür.
+TUT_SKIP_STEP,Skip step,Adımı geç
+TIP_TUT_SKIP_STEP,Go on to the next step without doing this one.,Bunu yapmadan sonraki adıma geç.
+TUT_QUIT,End tutorial,Öğreticiyi bitir
+TIP_TUT_QUIT,Close the guide; the game goes on as a normal game.,Rehberi kapat; oyun normal oyun olarak sürer.
+TUT_welcome,"You are [b]Italy[/b]: January 1936, at war with Ethiopia. In ten minutes you will learn to move, fight and recruit. The game is paused: nothing happens until you start the clock.","[b]İtalya[/b]'sın: Ocak 1936, Etiyopya'yla savaştasın. On dakikada yürümeyi, savaşmayı ve asker almayı öğreneceksin. Oyun duruyor: sen saati başlatmadan hiçbir şey olmaz."
+TUT_pan,"Move the map: hold the [b]middle mouse button[/b] and drag, or use [b]W A S D[/b]. Zoom with the [b]wheel[/b]. Go to the Ethiopian border in East Africa ([b]Show[/b] takes you there).",Haritayı kaydır: [b]orta tuşu[/b] basılı tutup sürükle ya da [b]W A S D[/b] kullan. [b]Tekerlekle[/b] yakınlaş. Doğu Afrika'da Etiyopya sınırına git ([b]Göster[/b] seni oraya götürür).
+TUT_zoom,"Zoom in closer: from far away your units are flag badges, up close they become soldiers standing on the map.","Daha da yaklaş: uzaktan birliklerin bayrak rozetidir, yakından haritada duran asker figürlerine dönüşür."
+TUT_select,"[b]Left-click[/b] one of your soldiers to select it. To select several, drag a box with the left button; [b]Shift + click[/b] adds to the selection.",Askerlerinden birine [b]sol tıkla[/b]: seçilir. Birden çok asker için sol tuşla kutu çiz; [b]Shift + tık[/b] seçime ekler.
+TUT_estimate,"With your soldiers selected, hold [b]Shift[/b] over an Ethiopian region next to them: the card shows the attack estimate, who would win and why.","Askerlerin seçiliyken yanlarındaki bir Etiyopya bölgesinin üstünde [b]Shift[/b]'i basılı tut: kart saldırı tahminini gösterir; kim kazanır, neden."
+TUT_factors,"The estimate lists what helps and what hurts: terrain, rivers, supply and [b]night[/b]. Attacking at night is −25%, so attacking at dawn is often better. The clock is at the top right.","Tahmin işine yarayanı ve zarar vereni sayar: arazi, nehir, ikmal ve [b]gece[/b]. Gece saldırı −%25'tir; şafakta saldırmak çoğu zaman daha iyidir. Saat sağ üstte."
+TUT_attack,[b]Right-click[/b] the Ethiopian region: your selected soldiers get the order to attack. You can give orders while the game is paused.,Etiyopya bölgesine [b]sağ tıkla[/b]: seçili askerlerin saldırı emri alır. Oyun dururken de emir verebilirsin.
+TUT_time,Start the clock: press [b]Space[/b] or the play button. [b]+[/b] and [b]−[/b] change the speed.,Saati başlat: [b]Space[/b]'e ya da oynat düğmesine bas. [b]+[/b] ve [b]−[/b] hızı değiştirir.
+TUT_battle,Your soldiers are marching. When they reach the enemy the battle begins: both sides lose cohesion and strength every hour.,Askerlerin yürüyor. Düşmana varınca muharebe başlar: iki taraf da her saat bütünlük ve güç kaybeder.
+TUT_motivate,"The battle is on. Select the fighting soldiers and press [b]Motivate[/b] in the panel on the right: you spend influence, part of their cohesion returns at once and they fight harder for two days.","Muharebe başladı. Çarpışan askerleri seç, sağdaki panelde [b]Teşvik et[/b]'e bas: nüfuz harcarsın, bütünlüklerinin bir kısmı hemen döner ve iki gün daha sıkı savaşırlar."
+TUT_advance,"When the defenders give way, your soldiers march in and take the region. Entering an empty enemy region takes it too. Go on until you hold an Ethiopian region.",Savunan çözülünce askerlerin içeri girer ve bölgeyi alır. Boş düşman bölgesine girmek de orayı alır. Bir Etiyopya bölgesini alana kadar devam et.
+TUT_city,You will need more soldiers. [b]Left-click[/b] one of your cities in East Africa: its region panel opens on the left.,Daha çok askere ihtiyacın olacak. Doğu Afrika'daki şehirlerinden birine [b]sol tıkla[/b]: soldaki bölge paneli açılır.
+TUT_recruit,"In the panel, under Recruit, press [b]Buy[/b] next to the infantry division. It costs industry points and manpower; the new division trains for a few days before it can march.","Panelde, Asker al bölümünde piyade tümeninin yanındaki [b]Al[/b]'a bas. Sanayi puanı ve insan gücü harcar; yeni tümen yürüyebilmeden önce birkaç gün eğitim görür."
+TUT_alerts,"The strip under the top bar shows what needs you next: an empty research slot, enough industry for a new division, an event waiting for an answer. Click an alert to go there.","Üst çubuğun altındaki şerit sıradaki işini gösterir: boş araştırma yuvası, yeni tümene yeten sanayi, cevap bekleyen olay. Uyarıya tıklayınca oraya gider."
+TUT_free,"That is the core. [b]Shift[/b] shows a region's card, [b]Ctrl[/b] a country's. Research, building, reconnaissance and the air force are in the left menu; hover a button to see what it does. Win the war: when Ethiopia's morale collapses, it surrenders.","Çekirdek bu kadar. [b]Shift[/b] bölge kartını, [b]Ctrl[/b] ülke kartını gösterir. Araştırma, inşaat, keşif ve hava kuvvetleri sol menüde; bir düğmenin üstüne gelince ne yaptığı yazar. Savaşı kazan: Etiyopya'nın morali çökünce teslim olur."
