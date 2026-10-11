@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://t8ahdcb77sv4"
-valid=false
+path="res://.godot/imported/city_00037.png-1443b84a7104380bc045b7f8a97f85ca.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/ui/city_pins/by_city/city_00037.png"
+dest_files=["res://.godot/imported/city_00037.png-1443b84a7104380bc045b7f8a97f85ca.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

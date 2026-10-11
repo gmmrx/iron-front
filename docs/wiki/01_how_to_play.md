@@ -7,11 +7,14 @@ In the main menu choose **New game**, then one of the countries that took part i
 1 January 1936 and has no end date; every other country is run by the computer. Scenarios (a prepared moment of the
 war) are no longer in the menu. The game starts at 07:00 in your capital.
 
-**Tutorial** (main menu): about ten minutes as Italy in January 1936, at war with Ethiopia (the war was going on that
-day). A small guide card at the bottom says one thing at a time: move the map and zoom in, select soldiers, read the
-attack estimate with Shift, attack, start the clock, motivate the fighting troops, take a region, recruit in a city, the
-alert strip. Each step passes when you have done it (the guide never does anything for you); **Show** takes the camera
-to the place, **Skip step** and **End tutorial** are always there. When it ends the game simply goes on. Steps:
+**Tutorial** (main menu): about twenty minutes as Italy in January 1936, at war with Ethiopia (the war was going on that
+day). A small guide card at the bottom says one thing at a time and walks through the whole game: move the map and zoom
+in; the top bar (influence, stability, home front, manpower, industry points); research (open the timeline, start a
+technology); building (Rome's state panel, Build here); select soldiers, read the attack estimate with Shift, attack,
+start the clock, motivate the fighting troops, take a region; the air force (a target region, air superiority from the
+airfield at Asmara); reconnaissance under the clouds; recruit in an East African city; Politics and Diplomacy; the alerts.
+Each step passes when you have done it (the guide never does anything for you); **Show** takes the camera to the place,
+**Skip step** and **End tutorial** are always there. When it ends the game simply goes on. Steps:
 `data/common/tutorial.json`.
 
 ## The game loop
@@ -22,8 +25,13 @@ to the place, **Skip step** and **End tutorial** are always there. When it ends 
    close support and bomber wings) with its SP cost, manpower and training days. The unit appears in that city.
 3. **Fight**: select your figures and order them on the map; the card of an enemy region estimates the attack.
 4. **Grow**: every day the factories of the states whose main city you hold give SP (military factory 1, civilian
-   0.4; the top bar shows SP and the daily income). Take a city and its factories work for you; bombed factories give
-   nothing.
+   0.4), multiplied by **factory output** (research, laws, advisors, national conditions, stability; the top bar's SP
+   tooltip shows it). Take a city and its factories work for you; bombed factories give nothing.
+5. **Research (I)**: every technology sits on one timeline by year and branch; pick a card, read its file on the right
+   and start it there in a free slot. Industry research raises your SP, weapons and doctrine make divisions stronger, and close support planes,
+   bombers and new ship types can only be bought once researched (a grey Buy button says which research is missing).
+6. **Build**: in your state's panel, **Build here**: a military factory gives 1 SP a day, a civilian factory 0.4 SP and
+   faster construction, an air base a home for planes, anti-air protection from bombing.
 
 ## Getting started (free game)
 1. In the main menu choose **New game** → pick a country from the boxes at the top or on the map: the rest of the map
@@ -33,15 +41,13 @@ to the place, **Skip step** and **End tutorial** are always there. When it ends 
 3. The game starts in English; switch to Turkish in **Settings → Language** (main menu or Esc menu).
 
 ## The first 30 days (any country)
-1. **Pick a state program (F)**: bright programs can be chosen. A program takes 4–12 weeks; its effect applies when it ends.
-2. **Fill the research slots (I)**: an empty slot glows red. A technology ahead of its year takes +150% time per year early.
-3. **Construction (T)**: civilian factories grow the economy, military factories grow output. Pick a building → click a
-   state on the map, or click a state and use "Build here".
-4. **Production (Y)**: assign idle military factories to production lines. An idle factory produces nothing.
-5. **Trade (R)**: a resource shortfall is a red row. **Buy** → pick the selling country. Automatic trade runs only if you
-   switch it on.
-6. **Politics (Q)**: once you have 150 influence, change a law or hire an advisor.
-7. **Army (U)**: group your divisions into armies, give each a general and a front (see [Warfare](05_warfare.md)).
+1. **Fill the research slots (I)**: an empty slot glows red. A technology ahead of its year takes +150% time per year early.
+2. **Build**: click one of your states and use "Build here" (or T): civilian factories speed up construction, military
+   factories give SP.
+3. **Recruit** in your cities with SP; **motivate** fighting divisions with influence (selected divisions → Motivate).
+4. **Politics (Q)**: with 150 influence, change a law (a wider military service law gives more manpower, mobilisation
+   laws more factory output) or hire an advisor.
+5. **Air (H)** and **Recon (K)**: give your wings air superiority over the front; scout the enemy under the clouds.
 
 ## Controls
 | Action | Shortcut |

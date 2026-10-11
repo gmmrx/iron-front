@@ -55,6 +55,17 @@ jobs:
             printf '[remap]\n\nimporter="keep"\n' > "$f.import"
           done
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Paketi kayıpsız küçült
+        run: |
+          # harita resimleri kayıpsız WebP (saydam piksel verisi dahil birebir), büyük harita JSON'ları gzip;
+          # oyun önce .webp / .gz'yi okur (MapView3D._map_image, World.read_text). Yalnız web paketi; depo aynı kalır
+          python -m pip install --quiet pillow
+          python tools/web/pack_data.py
+
       - name: İçe aktar
         run: ~/godot/godot --headless --path . --import 2>&1 | tail -n 40 || true
 

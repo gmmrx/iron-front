@@ -13,11 +13,18 @@ func test_player_country_never_acts() -> void:
 	check(not AI.apply_history(e), "oyuncunun ülkesinin tarihî adımı uygulandı")
 	eq(player().political_power, pp, "oyuncunun siyasi gücü değişti")
 
-func test_ai_historical_focus_is_inert() -> void:
+## Programlar kapalı (Politics.FOCUS_ENABLED): program sistemi tamamlanmış saymaz, ama tarihî adımın kendisi programın
+## etkileriyle olur — Ren bölgesi gerginliği, Marco Polo Köprüsü'nde Japonya'nın Çin'e savaş açması
+func test_ai_historical_step_happens_without_programs() -> void:
 	var ger := country("GER")
 	check(not "ger_rhineland" in ger.focus_done, "başlangıçta Rheinland yapılmış olmamalı")
+	var tension := World.world_tension
 	check(AI.apply_history(_entry("GER", {"focus": "ger_rhineland"})), "yapay zekâ tarihî adımı atmadı")
-	check(not "ger_rhineland" in ger.focus_done, "kapalı Focus sistemi tarih çizelgesinden tamamlanmamalı")
+	check(not "ger_rhineland" in ger.focus_done, "kapalı program sistemi tarih çizelgesinden tamamlanmamalı")
+	gt(World.world_tension, tension, "Ren bölgesinin askerîleştirilmesi gerginliği artırır")
+	check(not Diplomacy.are_enemies("JAP", "CHI"), "başlangıçta Japonya–Çin savaşı yok")
+	check(AI.apply_history(_entry("JAP", {"focus": "jap_marco_polo"})), "Marco Polo adımı atıldı")
+	check(Diplomacy.are_enemies("JAP", "CHI"), "tarihî adım Japonya–Çin savaşını başlatır")
 
 func test_mark_focus_without_effects() -> void:
 	var ger := country("GER")

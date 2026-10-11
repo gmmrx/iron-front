@@ -3,7 +3,7 @@
 # Iron Front (working title)
 
 A World War II grand strategy game made with Godot 4.7. **Play in the browser:** https://gmmrx.github.io/iron-front/
-(desktop Chrome/Firefox, downloads ~370 MB; republished by GitHub Actions on every push)
+(desktop Chrome/Firefox, downloads ~300 MB; republished by GitHub Actions on every push)
 
 **Game wiki (how to play, mechanics, countries):** [docs/wiki](docs/wiki/README.md) · Roadmap: [ROADMAP.md](ROADMAP.md) ·
 Trailer: [docs/media/iron_front_demo_2026-09-25.mp4](docs/media/iron_front_demo_2026-09-25.mp4) (clips: `docs/media/clips/`)

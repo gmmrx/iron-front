@@ -72,12 +72,21 @@ func _init_controller() -> void:
 			controller[pid] = ci
 
 # ------------------------------------------------------------------ yükleme
-func _read_json(path: String) -> Variant:
+## Metin veri dosyası: web paketinde büyük harita JSON'ları gzip'lidir (path + ".gz", tools/web/pack_data.py); masaüstünde
+## ve depoda düz dosya okunur. Dosya yoksa "" döner
+static func read_text(path: String) -> String:
+	if FileAccess.file_exists(path + ".gz"):
+		var z := FileAccess.open(path + ".gz", FileAccess.READ)
+		return z.get_buffer(z.get_length()).decompress_dynamic(-1, FileAccess.COMPRESSION_GZIP).get_string_from_utf8()
 	var f := FileAccess.open(path, FileAccess.READ)
-	if f == null:
+	return f.get_as_text() if f else ""
+
+func _read_json(path: String) -> Variant:
+	var text := read_text(path)
+	if text == "":
 		push_error("Dosya açılamadı: %s" % path)
 		return null
-	return JSON.parse_string(f.get_as_text())
+	return JSON.parse_string(text)
 
 func _load_countries() -> void:
 	var data: Dictionary = _read_json(COUNTRIES_PATH)["countries"]

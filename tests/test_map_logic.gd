@@ -81,6 +81,13 @@ func _arrow_arrays(ul: UnitLayer) -> Array:
 		return []
 	return mesh.surface_get_arrays(0)
 
+## Okun başlangıçtan en uzak köşesi (harita düzleminde)
+func _reach(arr: Array, from: Vector2) -> float:
+	var best := 0.0
+	for v: Vector3 in arr[Mesh.ARRAY_VERTEX] as PackedVector3Array:
+		best = maxf(best, Vector2(v.x, v.z).distance_to(from))
+	return best
+
 func test_arrow_geometry_and_color() -> void:
 	Probe.ensure()
 	var m := _mover("TUR", 3)
@@ -100,10 +107,14 @@ func test_arrow_geometry_and_color() -> void:
 	var cv := ul._curve(pts)
 	eq(cv.size(), (pts.size() - 1) * 8 + 1, "eğri örnek sayısı")
 	check(cv[0] == pts[0] and cv[cv.size() - 1] == pts[pts.size() - 1], "eğri uçları rota uçlarında")
-	# kendi toprağında hareket: ülkenin renginde
+	# kendi toprağında hareket: ülkenin renginde; yeni ok başladığı yerden uzayarak çıkar (ARROW_GROW), sonra tam boy
+	ul._draw_arrows()
+	var growing := _arrow_arrays(ul)
+	ul._arrow_clock += UnitLayer.ARROW_GROW
 	ul._draw_arrows()
 	var arr := _arrow_arrays(ul)
-	if check(not arr.is_empty(), "ok çizildi"):
+	if check(not arr.is_empty() and not growing.is_empty(), "ok çizildi"):
+		lt(_reach(growing, pts[0]), _reach(arr, pts[0]) * 0.5, "yeni ok başladığı yerden uzayarak çıkar")
 		_check_arrow(arr, UnitLayer.move_color("TUR"), pts[pts.size() - 1], target, "hareket")
 	# hiçbir şey değişmediyse geçen karenin örgüsü kalır (savaş ilanı/kontrol değişince yeniden kurulur: aşağıda)
 	var first := ul._arrows.mesh
@@ -305,8 +316,9 @@ func test_unit_layer_zoom_modes() -> void:
 			var c: Dictionary = ul._counters[key]
 			var fig: Node3D = c.get("fig")
 			if UnitLayer.FIGURES and mode[1] in ["bileşim", "sayı"]:
-				# yakında kaideli figür: levha, sayı yazısı ve rozet gizli
-				if fig == null or not fig.visible or c["bg"].visible or c["label"].visible or c["flag"].visible: wrong += 1
+				# yakında kaideli figür: levha ve levha yazısı gizli; "bayrak | sayı" rozeti figürün başının üstünde
+				if fig == null or not fig.visible or c["bg"].visible or c["label"].visible: wrong += 1
+				if not c["flag"].visible or not c["clabel"].visible or (c["flag"] as Node3D).position.y <= 0.0: wrong += 1
 				if not c.get("merged", false) and not c["root"].visible: wrong += 1
 				continue
 			if fig != null and fig.visible: wrong += 1
@@ -450,6 +462,8 @@ func test_order_keeps_counter_in_place() -> void:
 	ul.models = um
 	ul._arrows = MeshInstance3D.new()
 	ul.selected = [d]
+	ul._draw_arrows()
+	ul._arrow_clock += UnitLayer.ARROW_GROW            # uzaması bitsin: tam boy ok
 	ul._draw_arrows()
 	var arr := _arrow_arrays(ul)
 	if check(not arr.is_empty(), "ok çizildi"):
@@ -851,9 +865,11 @@ func test_crowded_stack_is_a_deck() -> void:
 			shown.append(c)
 	if eq(shown.size(), 1, "kapalı destede tek kart görünür"):
 		var lead: Dictionary = shown[0]
-		# gösterilen sayı: figür kipinde figürün sayısı (sayaçta tutulur), levhada levha yazısı
-		var num: String = UnitLayer.count_text(int(lead.get("count", -1))) if UnitLayer.FIGURES else String(lead["label"].text)
+		# gösterilen sayı (figürde, rozette ve levhada aynı: tek yazıcı)
+		var num: String = String((lead["clabel"] as Label3D).text)
 		eq(num, str(total) if total < 1000 else num, "sayısı destedeki bütün tümenler")
+		if not UnitLayer.FIGURES:
+			eq(String(lead["label"].text), num, "levha da aynı sayıyı yazar")
 		eq(ul._counter_divs(lead).size(), total, "tıklayınca destenin hepsi seçilir")
 		check((lead["edges"] as Array).any(func(e: Sprite3D) -> bool: return e.visible), "arkasında deste kenarı")
 	_tree().root.remove_child(ul)

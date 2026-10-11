@@ -92,12 +92,12 @@ func _collect(c: Country) -> Array:
 		out.append(["research", "research", "warn", tr("ALERT_RESEARCH"), tr("ALERT_RESEARCH_D") % idle_slots, hud.toggle_research])
 	if Economy.CONSTRUCTION and c.construction_queue.is_empty() and Economy.available_civilian(c) > 0:
 		out.append(["construction", "construction", "warn", tr("ALERT_CONSTRUCTION"), tr("ALERT_CONSTRUCTION_D"), hud.toggle_construction])
-	var cheapest := INF
-	for u: Dictionary in Military.recruit_def()["units"].values():
-		cheapest = minf(cheapest, float(u["sp"]))
-	if c.sp >= cheapest:
-		var cap := World.capital_province(c.tag)
-		out.append(["recruit", "army", "info", tr("ALERT_RECRUIT"), tr("ALERT_RECRUIT_D") % int(c.sp), func() -> void: World.select_province(cap)])
+	# asker alma: başkentte gerçekten alınabilecek bir birlik varsa (SP, insan gücü, araştırma, liman / hava üssü yeter)
+	var cap := World.capital_province(c.tag)
+	for kind: String in Military.recruit_def()["units"]:
+		if Military.recruit_error(c, kind, cap) == "":
+			out.append(["recruit", "army", "info", tr("ALERT_RECRUIT"), tr("ALERT_RECRUIT_D") % int(c.sp), func() -> void: World.select_province(cap)])
+			break
 	var idle_wings := 0
 	for w in Air.wings_of(c.tag):
 		if not w.on_mission():
@@ -121,8 +121,8 @@ func _collect(c: Country) -> Array:
 		out.append(["motivate", "political_power", "info", tr("ALERT_MOTIVATE"), tr("ALERT_MOTIVATE_D") % [fighting.size(), int(c.political_power)],
 			func() -> void: hud.divisions_requested.emit(fighting)])
 	if c.available_manpower() < 20000 and total > 0:
-		var capm := World.capital_province(c.tag)
-		out.append(["manpower", "manpower", "warn", tr("ALERT_MANPOWER"), tr("ALERT_MANPOWER_D"), func() -> void: World.select_province(capm)])
+		# askerlik yasası insan gücünü büyütür: tıklayınca siyaset ekranı (yasalar orada)
+		out.append(["manpower", "manpower", "warn", tr("ALERT_MANPOWER"), tr("ALERT_MANPOWER_D"), hud.toggle_politics])
 	if Diplomacy.at_war(c.tag) and c.surrender_progress > 0.2:
 		out.append(["surrender", "battle", "urgent", tr("ALERT_SURRENDER"), tr("ALERT_SURRENDER_D") % roundi(c.surrender_progress * 100.0), hud.toggle_diplomacy])
 	return out

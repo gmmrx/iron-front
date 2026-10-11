@@ -1196,9 +1196,11 @@ def main():
     hm = ndimage.gaussian_filter(hm, 1.0)
     hm = hm[: H // 2 * 2, : W // 2 * 2].reshape(H // 2, 2, W // 2, 2).mean((1, 3)).astype("<f4")
     import gzip
-    with gzip.open(OUT / "heightmap.r32.gz", "wb", compresslevel=6) as fz:
-        fz.write(hm.tobytes())
-    log(f"  heightmap.r32.gz {hm.shape[1]}x{hm.shape[0]}, maks {hm.max():.0f} m")
+    # yarım duyarlıklı (float16): yükseklik yalnız kabartma gölgesinde okunur; paket ve GPU belleği yarıya iner, en büyük
+    # sapma zirvelerde ~2 m (game/map/map_view_3d.gd → _load_heightmap, Image.FORMAT_RH)
+    with gzip.open(OUT / "heightmap.r16.gz", "wb", compresslevel=9) as fz:
+        fz.write(hm.astype("<f2").tobytes())
+    log(f"  heightmap.r16.gz {hm.shape[1]}x{hm.shape[0]}, maks {hm.max():.0f} m")
     ids = P.astype(np.uint32)
     prov_img = np.stack([(ids & 255), (ids >> 8) & 255, (ids >> 16) & 255], -1).astype(np.uint8)
     Image.fromarray(prov_img, "RGB").save(OUT / "provinces.png")

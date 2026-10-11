@@ -45,10 +45,10 @@ func _ready() -> void:
 	_load()
 
 func _load() -> void:
-	var f := FileAccess.open(DATA_PATH, FileAccess.READ)
-	if f == null:
+	var text := World.read_text(DATA_PATH)          # web paketinde roads.json.gz
+	if text == "":
 		return
-	var data: Variant = JSON.parse_string(f.get_as_text())
+	var data: Variant = JSON.parse_string(text)
 	if not data is Dictionary:
 		return
 	for ln: Array in data["lines"]:

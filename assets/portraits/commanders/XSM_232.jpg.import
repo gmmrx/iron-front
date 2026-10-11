@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://u8iw6rsnq66n"
-valid=false
+path="res://.godot/imported/XSM_232.jpg-f0dcf70a9107e385bcef2a8e9a455745.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/portraits/commanders/XSM_232.jpg"
+dest_files=["res://.godot/imported/XSM_232.jpg-f0dcf70a9107e385bcef2a8e9a455745.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

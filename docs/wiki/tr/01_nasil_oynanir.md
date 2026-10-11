@@ -7,11 +7,14 @@ Ana menüde **Yeni oyun**'u, sonra İkinci Dünya Savaşı'na katılan ülkelerd
 bitiş tarihi yoktur; öbür bütün ülkeleri bilgisayar yönetir. Senaryolar (savaşın hazır bir anı) artık menüde yok. Oyun
 başkentinde sabah 07:00'de başlar.
 
-**Öğretici** (ana menü): yaklaşık on dakika, Ocak 1936'da İtalya, Etiyopya'yla savaşta (savaş o gün sürüyordu). Alttaki
-küçük rehber kartı her seferinde tek bir şey söyler: haritayı kaydır ve yaklaş, asker seç, Shift ile saldırı tahminini
-oku, saldır, saati başlat, çarpışan askerleri teşvik et, bir bölge al, şehirde asker al, uyarı şeridi. Her adım sen onu
-yapınca geçer (rehber senin yerine hiçbir şey yapmaz); **Göster** kamerayı oraya götürür, **Adımı geç** ve
-**Öğreticiyi bitir** hep oradadır. Bitince oyun olduğu gibi sürer. Adımlar: `data/common/tutorial.json`.
+**Öğretici** (ana menü): yaklaşık yirmi dakika, Ocak 1936'da İtalya, Etiyopya'yla savaşta (savaş o gün sürüyordu).
+Alttaki küçük rehber kartı her seferinde tek bir şey söyler ve bütün oyunu gezer: haritayı kaydır ve yaklaş; üst çubuk
+(nüfuz, istikrar, iç cephe, insan gücü, sanayi puanı); araştırma (zaman çizelgesini aç, bir teknoloji başlat); inşaat
+(Roma'nın eyalet paneli, Burada inşa et); asker seç, Shift ile saldırı tahminini oku, saldır, saati başlat, çarpışan
+askerleri teşvik et, bir bölge al; hava kuvvetleri (hedef bölge, Asmara havaalanından hava üstünlüğü); bulut altında
+keşif; Doğu Afrika'daki bir şehirde asker al; Siyaset ve Diplomasi; uyarılar. Her adım sen onu yapınca geçer (rehber
+senin yerine hiçbir şey yapmaz); **Göster** kamerayı oraya götürür, **Adımı geç** ve **Öğreticiyi bitir** hep oradadır.
+Bitince oyun olduğu gibi sürer. Adımlar: `data/common/tutorial.json`.
 
 ## Oyun döngüsü
 1. **Keşfet**: toprağının ve sınırın bir bölge ötesinin dışında harita karanlıktır. **K**'ya (ya da Keşif düğmesine) basıp
@@ -20,8 +23,14 @@ yapınca geçer (rehber senin yerine hiçbir şey yapmaz); **Göster** kamerayı
 2. **Asker al**: kendi şehirlerinden birine tıkla: eyalet paneli orada alınabilecekleri (piyade, zırhlı, avcı, yakın destek
    ve bombardıman kanadı) SP bedeli, insan gücü ve eğitim günüyle listeler. Birlik o şehirde çıkar.
 3. **Savaş**: figürlerini seçip haritadan emir ver; düşman bölgesinin kartı saldırıyı tahmin eder.
-4. **Büyü**: ana şehrini elinde tuttuğun eyaletlerin fabrikaları her gün SP verir (askerî fabrika 1, sivil 0,4; üst çubuk
-   SP'yi ve günlük geliri gösterir). Bir şehri alırsan fabrikaları senin için çalışır; bombalanan fabrika vermez.
+4. **Büyü**: ana şehrini elinde tuttuğun eyaletlerin fabrikaları her gün SP verir (askerî fabrika 1, sivil 0,4); bunu
+   **fabrika çıktısı** çarpar (araştırma, yasalar, danışmanlar, ulusal durumlar, istikrar; üst çubuktaki SP ipucu
+   gösterir). Bir şehri alırsan fabrikaları senin için çalışır; bombalanan fabrika vermez.
+5. **Araştır (I)**: bütün teknolojiler yıla ve dala göre tek bir zaman çizelgesinde; bir kart seç, sağdaki dosyasını oku
+   ve boş yuvada oradan başlat. Sanayi araştırması SP'ni artırır, silah ve doktrin tümenleri güçlendirir; yakın destek, bombardıman
+   uçağı ve yeni gemi türleri ancak araştırılınca alınır (gri Al düğmesi hangi araştırmanın eksik olduğunu söyler).
+6. **İnşa et**: eyaletinin panelinde **Burada inşa et**: askerî fabrika günde 1 SP, sivil fabrika 0,4 SP ve daha hızlı
+   inşaat, hava üssü uçaklara yuva, uçaksavar bombardımana karşı koruma verir.
 
 ## Başlangıç (serbest oyun)
 1. Ana menüde **Yeni oyun** → üstteki kutulardan ya da haritadan bir ülke seç: haritanın geri kalanı kararır, ülkenin
@@ -31,14 +40,13 @@ yapınca geçer (rehber senin yerine hiçbir şey yapmaz); **Göster** kamerayı
 3. Oyun İngilizce açılır; Türkçe için **Ayarlar → Dil** (ana menü ya da Esc menüsü).
 
 ## İlk 30 gün (her ülke için)
-1. **Devlet programı seç (F)**: parlak programlar seçilebilir. Program 4–12 haftada biter, bitince etkisi uygulanır.
-2. **Araştırma yuvalarını doldur (I)**: boş yuva kırmızı yanar. Erken yılın teknolojisi her yıl için +%150 süre alır.
-3. **İnşaat (T)**: sivil fabrika ekonomiyi büyütür, askeri fabrika üretimi. Bina seç → haritada eyalete tıkla ya da eyalete
-   tıklayıp "Burada inşa et".
-4. **Üretim (Y)**: boştaki askeri fabrikaları hatlara ata. Boş fabrika hiçbir şey üretmez.
-5. **Ticaret (R)**: kaynak açığı kırmızı satırdır. **Satın al** → satıcı ülkeyi seç. Otomatik ticaret yalnız sen açarsan çalışır.
-6. **Siyaset (Q)**: 150 nüfuz biriktiğinde bir yasa değiştir ya da danışman ata.
-7. **Ordu (U)**: tümenlerini ordularda topla, her birine general ve cephe ver (bkz. [Savaş](05_savas.md)).
+1. **Araştırma yuvalarını doldur (I)**: boş yuva kırmızı yanar. Erken yılın teknolojisi her yıl için +%150 süre alır.
+2. **İnşa et**: eyaletlerinden birine tıklayıp "Burada inşa et"i kullan (ya da T): sivil fabrika inşaatı hızlandırır,
+   askerî fabrika SP verir.
+3. Şehirlerinde SP ile **asker al**; çarpışan tümenleri nüfuzla **teşvik et** (seçili tümenler → Teşvik et).
+4. **Siyaset (Q)**: 150 nüfuzla bir yasa değiştir (daha geniş askerlik yasası daha çok insan gücü, seferberlik yasaları
+   daha çok fabrika çıktısı verir) ya da danışman ata.
+5. **Hava (H)** ve **Keşif (K)**: kanatlarına cephe üstünde hava üstünlüğü ver; bulut altındaki düşmanı keşfet.
 
 ## Kontroller
 | Eylem | Kısayol |

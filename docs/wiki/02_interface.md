@@ -11,12 +11,11 @@ grow every day (influence, industry points) show the daily gain in small green f
 | Indicator | What it tells you |
 |---|---|
 | Leader portrait / flag | The leader if a portrait file exists, otherwise the flag; click for country info |
-| Influence | +2 a day × (1 + bonuses + stability effect), the gain in green. Laws, advisors, decisions and diplomacy spend it |
+| Influence | +2 a day × (1 + bonuses + stability effect), the gain in green. Motivating troops, laws, advisors, decisions, casus belli and government transitions spend it |
 | Stability | Effective value; the tooltip breaks it down (base, national conditions/laws/advisors, ruling party popularity) |
 | Home front | Effective value; the tooltip breaks it down (base, bonuses, crisis index, war situation) and shows the surrender limit |
 | Manpower | Recruitable population (depends on the conscription law) |
-| Industry points | Recruiting and recon money, the daily gain in green; factories and resources in the tooltip |
-| Fuel, Supply, Convoys | Fuel stock, share of supplied divisions, convoy/import need |
+| Industry points | Money for recruiting, filling up air wings and recon; the daily gain in green: factories × factory output (research, laws, advisors, national conditions, stability), both in the tooltip |
 | Crisis, War | Crisis index; at war, the number of enemies and your surrender progress |
 | Date and speed | Top right; ❚❚ pauses, ▶ resumes (while the game runs it slows down one step), ▶▶ speeds up; the gold bar under the date shows the speed; five speeds 0.1× · 0.2× · 0.3× · 0.5× · 1× (1× = 5 game hours a second) |
 | World clock | The globe left of the date: centred on your capital, the lit half follows the game hour and the season (day / night) |
@@ -24,8 +23,9 @@ grow every day (influence, industry points) show the daily gain in small green f
 The menu runs down the left edge of the screen with six buttons: politics, diplomacy, production, army, navy and air;
 each shows its shortcut letter. The program, research, world events, trade, construction and logistics screens are no
 longer in the menu (their shortcuts still open them) and are being cut down (roadmap stage 3). The tiles in the box next to the resource bar
-are alerts (the box is hidden when there are none): an event waiting for an answer, enough industry points to recruit (opens the capital), idle air wings,
-divisions out of supply, low manpower, risk of surrender. Map buildings (ports, air bases, factories) are fixed and shown
+are alerts (the box is hidden when there are none): an event waiting for an answer, a unit you can recruit in the capital (opens it), idle air wings,
+divisions out of supply, low manpower (opens Politics, where the military service law is), risk of surrender. Fuel,
+supply and convoys are not on the bar: they are not the player's business in this game. Map buildings (ports, air bases, factories) are fixed and shown
 on the map; a foreign state's buildings stay hidden under the fog until it is explored.
 
 ## Screens
@@ -37,12 +37,20 @@ Large screens open full-screen and the map does not move while they are open.
   red dashed line = only one of the two. Move around it like the map: the mouse wheel (or a trackpad pinch) zooms where
   the cursor is, dragging empty space pans (it glides on when you let go), the arrow keys / WASD pan too; −, + and
   *Fit* sit in the header. Every move eases in instead of jumping.
-- **Research (I)**: slots on top, all technologies on one timeline by year and category, with prerequisite lines and a
-  "today" line. Research never runs out: the last column (1943+) holds each branch's next **refinement** level, open
+- **Research (I)**: running research on top (each slot with its days left, a progress bar and **Inspect**, which jumps
+  to the card), then tabs: Government, All, Land, Sea, Air, Industry, Doctrine. The Government tab holds the national
+  projects (government transitions, no year). The other tabs show their branches on one **timeline**: columns are years,
+  rows are branches, each technology an illustrated card (picture on top, name and status below, a progress bar while it
+  runs) in its year's column, with prerequisite lines and a dashed "today" line (the past is slightly shaded). The year
+  header and the branch names stay in place while the timeline scrolls; it scrolls smoothly in both directions with the
+  wheel (Shift: sideways), a trackpad or by dragging empty space, and glides to a stop when let go; switching tabs fades
+  the timeline in. Research never runs out: the last column (1943+) holds each branch's next **refinement** level, open
   once every technology of the branch is done. Each level takes longer (+15%) and gives less (−15%) than the one before,
   so a branch keeps paying off in a long game without ever growing out of bounds; a level is dated one year after the
-  previous, so racing ahead costs the usual +150% per year early. A running technology's progress fills its button (and
-  its slot) from the left as a gold background; the text stays in front.
+  previous, so racing ahead costs the usual +150% per year early. Clicking a card only selects it: its file opens on the
+  right (effects, what it unlocks — close support planes, bombers, ship types, medium tanks for new armoured divisions —,
+  requirements, the early-year penalty) and **Start research** / **Cancel** there acts (a national project asks for
+  confirmation first and costs influence). A card the timeline hides is brought into view when selected.
 - **Diplomacy (O)**: country list (every flag the same size; a search box on top filters it by name or country code,
   Turkish letters or capitals do not matter, Enter picks the first match), the selected country's details and actions
   (with the reason when an action is closed), world situation (crisis index, wars, alliances).
@@ -63,7 +71,10 @@ Large screens open full-screen and the map does not move while they are open.
   fleet / wing is a card: an icon slot with its name and where it is, the ship make-up or the wing's planes, a cohesion /
   planes bar, a row of missions (the chosen one gold and bold, the others dim) and the region with its buttons. The
   selected card has a gold frame and a gold name. With the air panel open, a click on the map makes that region the
-  **target** at the top of the panel, where each wing gets its mission buttons (see Warfare → Air).
+  **target** at the top of the panel, where each wing gets its mission buttons (see Warfare → Air). A wing's
+  **Reinforce** fills it back to 100 planes: planes in the stock first, the rest bought with SP (the tooltip shows the
+  bill). The **Deploy planes** row is shown only while planes wait in the stock. The navy panel shows naval power and
+  the number of fleets.
 - **Logistics (L)**: equipment stock / in use / daily output / need / balance, resource balance.
 - **State panel**: click a state on the map. Building slots, provincial buildings, resources; build directly in your own states.
 - **Selected divisions** (bottom): army header, summary cells, composition by template, division cards and a toolbar
@@ -147,16 +158,20 @@ city names and unit tags appear as you zoom in to a theatre, and up close each i
   aside around one standing in its way (the standing one is not pushed) and returns to its road once past; of two
   marching the same way the one behind gives way; two that meet head on both give way; two standing figures that would
   touch move apart a little. Because the camera looks from the south, figures behind one another are kept a whole
-  figure apart. A figure marching to friends at its destination reserves a free place in their formation from the last
-  leg on and walks straight into it; one that sets off leaves from its place in the formation. Fleets and air wings
-  keep their plates.
+  figure apart. All of a country's divisions in one region are one figure with one number: a marching figure joins the
+  figure at its destination the moment it enters that region (soldiers entering the same empty region become one
+  figure), passes through the regions on its road without joining, and one that sets off splits off right where its
+  group stands. Above the head floats the same "flag | number" tag as on the map from afar, so the number reads the
+  same at every zoom. Fleets and air wings keep their plates.
 - **Up close, counters never cover each other.** Friendly plates that would touch or overlap on screen (side by side
   or on top of each other, e.g. several armies in one region) gather at one point into a small grid: the first plate
   stays exactly where it is, on its pin, and the others sit beside and above it (right, left, the row above...) without
   pins. Every plate keeps its cell while it is in the grid — when one joins or leaves the others do not move (a gap is
   left). Joining takes a touch, leaving takes a clear gap. A counter moves only when its divisions really march. More than nine plates in one spot become a
   closed deck: one plate with the total number and two card edges behind it; click it to select them all, hover it
-  and it opens into the grid (it closes when the mouse leaves). For figures the grid is laid out on the map itself, so
+  and it opens into the grid (it closes when the mouse leaves). Only figures standing in the same region form a grid; a
+  neighbouring region's figure stays in its own place, and in a battle the posts of neighbouring regions on the same
+  border never overlap. For figures the grid is laid out on the map itself, so
   zooming in or out never rearranges it: ranks of three, each rank behind the last and shifted by half a place, so the
   soldiers behind show between the ones in front. Marching counters pass by without joining. Far away the
   small tags stay where they are. A counter attacking an enemy stays where it is and fires from there (it does not slide
@@ -172,9 +187,10 @@ city names and unit tags appear as you zoom in to a theatre, and up close each i
   shows the building (level / maximum, construction in progress, the country's total, air wings based at an air base).
   Clicking a badge opens its state (with Construction open: builds there).
 - **Battles**: the plates in a battle glow around their edge, pulsing gently: green on the side that is getting the
-  upper hand, red on the side that is losing ground; the crossed-swords marker between them beats softly. Small orange
-  muzzle flashes spark on the side of the counter that faces the enemy (on a figure, by its rifle; a figure does not
-  glow). Small arrows
+  upper hand, red on the side that is losing ground. A round plate with crossed swords and a bar of each side's
+  remaining cohesion marks every battle at every zoom (up close it hangs above the two figures). Soldiers fire short
+  bursts at each other: orange muzzle flashes, tracer streaks flying across and dust where the rounds land; a tank
+  fires single shells (a figure does not glow). Small arrows
   rise and fade right beside the counters: a green ▲ next to the side whose position has just improved, a red ▼ next
   to the side that is losing ground. The arrows belong to the counter, so they travel with it when it moves (when a
   counter is hidden far away, the arrow shows at the battle instead). Counter numbers of 1000 and more are shortened

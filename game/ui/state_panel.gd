@@ -288,7 +288,15 @@ func _build_country_card(st: StateRegion, c: Country) -> void:
 		var actor_tag := player.tag
 		button.pressed.connect(func() -> void:
 			if actor_tag == World.player_tag: _request_quick_action(action, target_tag, province_id))
-		grid.add_child(button)
+		if (entry.cost as Array).is_empty():
+			grid.add_child(button)
+		else:
+			# bedeli olan eylem (savaş gerekçesi): bedel düğmenin yanında simgeyle
+			var cell := HBoxContainer.new()
+			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cell.add_child(button)
+			cell.add_child(PanelLayout.cost_chip(entry.cost, button.disabled))
+			grid.add_child(cell)
 		_quick_actions[action] = button
 	if player.justify_progress.has(c.tag):
 		content.add_child(UiTheme.make_label(tr("DIPLO_JUSTIFYING") % int(player.justify_progress[c.tag]), 13, UiTheme.ACCENT))
@@ -337,32 +345,82 @@ func _recruit_section(st: StateRegion, p: Province) -> void:
 	if city == null or World.controller_tag(city.province_id) != player.tag:
 		return
 	PanelLayout.section(_body, tr("RECRUIT_HEAD") % city.display_name())
+	# bina kutucukları gibi yan yana kutucuklar: resim, ad, hazır olma, altta simgeli bedel; tıklayınca alınır
+	var grid := PanelLayout.grid(3)
+	_body.add_child(grid)
 	var units: Dictionary = Military.recruit_def()["units"]
 	var port := Navy.port_in_state(player.tag, st.id)
 	for kind: String in units:
 		var u: Dictionary = units[kind]
 		var sub := ""
+		var costs: Array = [["sp", float(u["sp"]), player.sp]]
 		if u.has("template"):
-			var mp := int(Military.stats(player, int(u["template"]))["manpower"])
-			sub = tr("RECRUIT_COST_DIV") % [int(u["sp"]), UiTheme.format_number(mp), int(u["days"])]
+			var mp := int(Military.stats(player, Military.recruit_template(player, kind))["manpower"])
+			costs.append(["manpower", float(mp), float(player.available_manpower())])
+			sub = tr("RECRUIT_COST_DIV") % Military.recruit_days(player, kind)
 		elif u.has("ship"):
 			if port == 0:
 				continue                  # gemi yalnız deniz üssü olan eyaletin limanında alınır
-			sub = tr("RECRUIT_COST_SHIP") % int(u["sp"])
+			sub = tr("RECRUIT_COST_SHIP")
 		else:
-			sub = tr("RECRUIT_COST_WING") % int(u["sp"])
-		var col := PanelLayout.row(_body, UiTheme.icon_or(String(u.get("icon", "army")), "army"), tr("RECRUIT_UNIT_" + kind), sub)
+			sub = tr("RECRUIT_COST_WING")
 		var err := Military.recruit_error(player, kind, city.province_id)
+		var why: String = tr(err) % Research.tech_name(Military.recruit_tech(kind)) if err == "RECRUIT_ERR_TECH" else tr(err)
 		var pid := city.province_id
 		var cname := city.display_name()
-		PanelLayout.row_action(col, PanelLayout.small_button(tr("RECRUIT_BUY"), func() -> void:
-			var e := Military.recruit(player, kind, pid)
-			if e == "":
-				World.notify(tr("RECRUIT_OK") % [tr("RECRUIT_UNIT_" + kind), cname], "good")
-				Audio.play("order_move", 150)
-			else:
-				World.notify(tr(e), "bad")
-			_refresh(), err == "", tr(err) if err != "" else tr("TIP_RECRUIT")))
+		var uname := tr("RECRUIT_UNIT_" + kind)
+		grid.add_child(_recruit_tile(UiTheme.icon_or(String(u.get("icon", "army")), "army"), uname, sub, costs, err != "",
+			"%s\n%s\n\n%s" % [uname, sub, why if err != "" else tr("TIP_RECRUIT")], func() -> void:
+				var e := Military.recruit(player, kind, pid)
+				if e == "":
+					World.notify(tr("RECRUIT_OK") % [uname, cname], "good")
+					Audio.play("order_move", 150)
+				else:
+					World.notify(tr(e), "bad")
+				_refresh()))
+
+## Asker alma kutucuğu (bina kutucuğuyla aynı "Card" düğmesi): üstte resim, ad, hazır olma süresi, altta bedel (her
+## bedel bir satırda, simgeli; yetmiyorsa kırmızı); alınamıyorsa soluk, nedeni ipucunda
+func _recruit_tile(icon: Texture2D, title: String, sub: String, costs: Array, off: bool, tip: String, buy: Callable) -> Button:
+	var b := Button.new()
+	b.theme_type_variation = "Card"
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(96, 168)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.tooltip_text = tip
+	b.disabled = off
+	b.pressed.connect(buy)
+	var v := VBoxContainer.new()
+	v.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	v.offset_left = 6
+	v.offset_right = -6
+	v.offset_top = 8
+	v.offset_bottom = -8
+	v.add_theme_constant_override("separation", 2)
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(v)
+	var ic := TextureRect.new()
+	ic.texture = UiTheme.trimmed(icon)
+	ic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ic.custom_minimum_size = Vector2(0, 52)
+	ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(ic)
+	for line: Array in [[title, 13, UiTheme.TEXT], [sub, 11, UiTheme.TEXT_DIM]]:
+		var l := UiTheme.make_label(String(line[0]), int(line[1]), line[2])
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		v.add_child(l)
+	var fill := Control.new()
+	fill.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(fill)
+	for cost: Array in costs:
+		var chip := PanelLayout.cost_chip([cost], off)
+		chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		v.add_child(chip)
+	return b
 
 func _slot_cell(tex: Texture2D, tip: String, variant: String) -> PanelContainer:
 	var pc := PanelLayout.slot(tex, 64, tip, variant)

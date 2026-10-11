@@ -3,7 +3,7 @@
 # Oyun tasarımı: kurallar
 
 Bu sayfa oyunun ne olduğunu ve ne olmadığını söyler. Bu sayfaya uymayan özellik yapılmaz; gerekirse önce sayfa değişir.
-Son güncelleme: **1 Ekim 2026**.
+Son güncelleme: **11 Ekim 2026**.
 
 ## Tek cümlede
 1936'da İkinci Dünya Savaşı'nın ülkelerinden birini seçer, sonu açık bir oyun oynarsın: şehirlerine yapı diker, ordunu
@@ -30,7 +30,10 @@ görürsün, gerisi keşif ister (Keşif düğmesi ya da K, sonra haritaya tık)
    altyapı); gemi deniz üssü olan limanda alınır; fabrika arttıkça sanayi puanı
    artar.
 2. **Üret**: insan gücü ve sanayi puanıyla piyade, zırhlı, topçu ve uçak alırsın; birlik şehirde çıkar.
-3. **Araştır**: 2–3 yuvada kısa bir teknoloji listesi; daha iyi tüfek, tank, uçak sürekli verdiğin bir karardır.
+3. **Araştır**: bütün teknolojiler yıla ve dala göre tek bir zaman çizelgesinde, 2–3 yuvada araştırılır; yılından önce
+   araştırılan teknoloji daha uzun sürer. Araştırma oyunda hissedilir: sanayi sanayi puanını artırır, silah ve doktrin
+   tümenleri güçlendirir, yakın destek ve bombardıman uçağı ile yeni gemi türleri ancak araştırılınca alınır, orta tank
+   yeni zırhlı tümenleri donatır.
 4. **Teşvik et**: nüfuz askerlere harcanır — seçili tümenlerin bütünlüğünün bir kısmı hemen döner, bir süre daha sıkı
    savaşırlar (`data/common/recruit.json` → `motivate`).
 5. **Ayakta tut**: moral sıfırlanan ülke teslim olur. Olay kartları ve bombardıman morali oynatır.

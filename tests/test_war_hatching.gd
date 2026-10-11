@@ -5,15 +5,6 @@ const MAP_SHADER := preload("res://assets/shaders/map3d.gdshader")
 
 func player_tag() -> String: return "GER"
 
-func test_generated_stencil_preserves_alpha_and_mipmaps() -> void:
-	var texture: Texture2D = load("res://assets/ui/map/front_comb_perpendicular_v3.png")
-	var image := texture.get_image()
-	check(image.has_mipmaps(), "distant teeth have a mip chain")
-	check(image.get_pixel(100, 100).a < 0.01, "transparent source margin is not a baked backdrop")
-	check(image.get_pixel(100, 320).a > 0.9, "continuous spine is present")
-	check(image.get_pixel(100, 380).a > 0.9, "perpendicular tooth is present")
-	check(image.get_pixel(150, 380).a < 0.01, "open tooth gap stays transparent")
-
 func _integral(phase: float, duty: float) -> float:
 	return floorf(phase) * duty + minf(phase - floorf(phase), duty)
 
@@ -51,19 +42,22 @@ func test_front_band_world_dimensions_do_not_follow_camera_zoom() -> void:
 	for distance: float in [55.0, 150.0, 450.0, 1100.0, 2600.0, 5200.0]:
 		camera.distance = distance
 		front._process(0.0)
-		near(front._mat.get_shader_parameter("period"), 4.0, 0.000001, "fixed world hatch spacing")
-		near(front._mat.get_shader_parameter("band"), 8.0, 0.000001, "larger fixed world hatch width")
+		near(front._mat.get_shader_parameter("period"), FrontLayer.HATCH_PERIOD, 0.000001, "fixed world hatch spacing")
+		near(front._mat.get_shader_parameter("band"), FrontLayer.HATCH_BAND, 0.000001, "fixed world hatch width")
 		check(front._mi[0].visible, "one geometry survives every zoom without a LOD pop")
 	near(FrontLayer.LIFT, 0.06, 0.000001, "ink is on the flat map, not suspended above it")
 	var code := FileAccess.get_file_as_string("res://assets/shaders/front_ink.gdshader")
 	check(not code.contains("TIME"), "front opacity does not shimmer/pulse independently of the game")
 	check(code.contains("held <= 0") and code.contains("side_controls"), "front fragment masks water and unrelated controller land")
-	check(code.contains("textureGrad") and code.contains("dFdx(stencil_uv)"), "unwrapped gradients prevent repeat seam shimmer")
+	check(not code.contains("texture(") and not code.contains("textureGrad"), "teeth are drawn in the shader, not from an image")
+	check(code.contains("fwidth(u)"), "teeth edges are filtered by their screen footprint (no shimmer)")
 	check(not code.contains("edge_distance *"), "teeth are perpendicular, never diagonally sheared")
 	check(not code.contains("attack_len") and not code.contains("battle_tex"), "combat does not deform the border or upload a battle mask")
 	check(code.contains("float(held) != side_controls.x && float(held) != side_controls.y"), "smooth ribbon excludes unrelated territory without staircase cuts")
-	check(code.contains("marks *= step(0.5, y)"), "teeth only appear on the opposing side")
-	check(code.contains("max(1.5,"), "border backbone is thicker independently of teeth")
+	check(code.contains("step(0.5, y)"), "teeth only appear on the opposing side")
+	check(code.contains("max(spine_w, spine_px * wpp)"), "border backbone keeps a minimum screen width when zoomed out")
+	check(code.contains("band * 0.5 * bend"), "teeth shorten with the bend narrowing (no fanned or folded teeth)")
+	check(code.contains("smoothstep(5.0, 9.0, period"), "teeth fade out before they turn into noise at distance")
 	for node: MeshInstance3D in front._mi: node.free()
 	front.free()
 	camera.free()

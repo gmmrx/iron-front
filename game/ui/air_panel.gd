@@ -23,6 +23,8 @@ var target_zone := 0                ## haritada seçilen hedef bölge (0: yok)
 var _cells: Array[Label] = []
 var _deploy_type: OptionButton
 var _deploy_btn: Button
+var _deploy_head: Control
+var _deploy_row: Control
 var _list: VBoxContainer
 var _pending := false
 var _cards := {}                ## live own wing id -> explicit selection card
@@ -47,9 +49,10 @@ func _ready() -> void:
 	_clear_selection_button.name = "ClearWingSelection"
 	_clear_selection_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	top.add_child(_clear_selection_button)
-	PanelLayout.section(top, tr("AIR_DEPLOY_HEAD"))
-	# konuşlandırma satırı
+	# konuşlandırma (stoktaki uçaklardan kanat): yalnız stokta uçak varken görünür — kanat şehirde SP ile alınır
+	_deploy_head = PanelLayout.section(top, tr("AIR_DEPLOY_HEAD"))
 	var dep := HBoxContainer.new()
+	_deploy_row = dep
 	dep.add_theme_constant_override("separation", 6)
 	_deploy_type = OptionButton.new()
 	_deploy_type.tooltip_text = tr("TIP_AIR_DEPLOY_TYPE")
@@ -155,6 +158,11 @@ func refresh() -> void:
 			_deploy_type.select(_deploy_type.item_count - 1)
 	var t_sel: String = _deploy_type.get_selected_metadata() if _deploy_type.item_count > 0 else ""
 	_deploy_btn.disabled = Air.bases_of(c.tag).is_empty() or t_sel == "" or int(c.stockpile.get(Air.TYPES[t_sel]["eq"], 0.0)) <= 0
+	var stocked := false
+	for t: String in Air.TYPES:
+		stocked = stocked or int(c.stockpile.get(Air.TYPES[t]["eq"], 0.0)) > 0
+	_deploy_head.visible = stocked
+	_deploy_row.visible = stocked
 	for ch in _list.get_children():
 		_list.remove_child(ch)
 		ch.queue_free()
@@ -381,14 +389,26 @@ func _build_operations(v: VBoxContainer, w: AirWing) -> void:
 	var pick := PanelLayout.small_button(tr("AIR_PICK_ZONE"), func() -> void:
 		if _owned_wing(w.id) != w or selected_id != w.id: return
 		pick_zone_requested.emit(w), true, tr("TIP_AIR_PICK_ZONE"))
+	# tamamla: eksik uçaklar önce stoktan, kalanı SP ile (Air.reinforce_plan); bedel ipucunda, yapılamıyorsa nedeni
+	var plan := Air.reinforce_plan(w)
+	var can := int(plan[0]) + int(plan[1]) > 0
+	var why := tr("TIP_AIR_REINFORCE") % roundi(Air.plane_sp(w.type) * Air.WING_SIZE)
+	if can:
+		why += "\n" + tr("AIR_REINFORCE_PLAN") % [int(plan[0]), int(plan[1]), roundi(float(plan[2]))]
+	else:
+		why += "\n\n⚠ " + tr("AIR_REINFORCE_FULL" if w.planes >= Air.WING_SIZE else "RECRUIT_ERR_SP")
 	var rein := PanelLayout.small_button(tr("AIR_REINFORCE"), func() -> void:
-		if _owned_wing(w.id) == w and selected_id == w.id: Air.reinforce(w), true, tr("TIP_AIR_REINFORCE"))
+		if _owned_wing(w.id) == w and selected_id == w.id: Air.reinforce(w), can, why)
 	var gap := Control.new()
 	gap.custom_minimum_size.x = 12
 	var dis := PanelLayout.small_button(tr("AIR_DISBAND"), func() -> void:
 		if _owned_wing(w.id) == w and selected_id == w.id: Air.disband(w), true, tr("TIP_AIR_DISBAND"))
 	dis.add_theme_color_override("font_color", UiTheme.BAD.lightened(0.25))
-	for b: Control in [pick, rein, gap, dis]:
+	# takviyenin SP bedeli (stoktan gelen uçaklar bedelsiz) düğmenin yanında simgeyle
+	var rein_cost: Control = PanelLayout.cost_chip([["sp", float(plan[2]), World.player().sp]], not can) if float(plan[2]) > 0.0 else null
+	for b: Control in [pick, rein_cost, rein, gap, dis]:
+		if b == null:
+			continue
 		if b is Button:
 			b.custom_minimum_size = Vector2(0, 36)
 		row.add_child(b)

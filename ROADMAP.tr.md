@@ -10,7 +10,7 @@ Hedef: **her zoom'da güzel görünen harita, 60 FPS**, derin ve kendine özgü 
 Dil: oyun ve belgeler **önce İngilizce**; Türkçe eksiksiz, Ayarlar → Dil'den seçilir.
 
 Durum: ✔ bitti · ◐ temel hâli var, derinleşecek · ☐ yapılmadı
-Son güncelleme: **29 Eylül 2026**
+Son güncelleme: **11 Ekim 2026**
 
 > ### ⚠ ÖNCE OKU — ÖZGÜNLÜK VE FİKRÎ MÜLKİYET (tüm ajanlar için)
 > Oyunun ilk sürümleri türün en bilinen ticari oyunu örnek alınarak yapıldı; adlar, sayı tabloları, terimler ve ekran
@@ -38,7 +38,7 @@ yayılarak eklenir.
    savaş desteğini yıpratır; ✔ kanat başkente en yakın üste kurulur, görevde menzili yeten üsse geçer; ✔ keşif (bölgeyi
    sisten açar)
 3. ◐ **Ekonomi ve siyaset sadeleşir**: ✔ sol menü altı düğmeye indi (artı Keşif); ✔ yalnız savaşa katılan ülkeler
-   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit (gösterilir, sisin altında gizli); ✔ yakıt ve ekipman stoğu kapalı (kayıplar insan gücüyle yerine konur); ikmal kalır (denge testi gerektiriyor); ✔ tersane ve sentetik rafineri yok: gemi deniz üssü olan limanda SP ile alınır (bilgisayar da, 1936 donanması + yılda %8'e kadar); ✔ araştırma menüye döndü, senaryoda teknoloji başına birkaç dakika; ✔ nüfuz askerleri teşvik eder (Teşvik komutu); ✔ uyarılar sıradaki işi gösterir (boş kalmamak); ☐ istikrar ve savaş desteği yerine tek moral;
+   oynar ve hareket eder (`data/common/participants.json`); ✔ inşaat yok, yapılar sabit (gösterilir, sisin altında gizli); ✔ yakıt ve ekipman stoğu kapalı (kayıplar insan gücüyle yerine konur); ikmal kalır (denge testi gerektiriyor); ✔ tersane ve sentetik rafineri yok: gemi deniz üssü olan limanda SP ile alınır (bilgisayar da, 1936 donanması + yılda %8'e kadar); ✔ araştırma menüye döndü, senaryoda teknoloji başına birkaç dakika; ✔ araştırma zaman çizelgesi (yıllar × dallar), komuta paneli resimli kartları ve sağda dosyasıyla; ulusal projeler kendi sekmesinde, yıl başlığı ve dal adları yerinde kalan yumuşak kaydırma (11 Ekim); ✔ web paketi ~765 → ~264 MB, görüntüde fark yok (11 Ekim); ✔ ekran ne diyorsa oyun onu yapar (11 Ekim): fabrika çıktısı (araştırma, yasa, danışman, istikrar) sanayi puanını çarpar, araştırma yakın destek ve bombardıman uçağını, gemi türlerini alıma açar, orta tank yeni zırhlı tümenleri donatır, askerlik yasası eğitim gününü belirler, hava kanadı SP ile tamamlanır, konvoy üst çubuktan çıktı, uyarılar sorunu çözen yeri açar, eskiden devlet programı olan tarihî adımlar (Marco Polo Köprüsü, Polonya, Molotov–Ribbentrop paktı…) programlar kalksa da yine olur; ✔ öğretici bütün oyunu gezer (28 adım: harita, ülke, araştırma, inşaat, muharebe, hava, keşif, asker alma, siyaset, diplomasi, uyarılar); ✔ nüfuz askerleri teşvik eder (Teşvik komutu); ✔ uyarılar sıradaki işi gösterir (boş kalmamak); ☐ istikrar ve savaş desteği yerine tek moral;
    ✔ birlik şehirde sanayi puanıyla doğrudan alınır (SP, `data/common/recruit.json`), keşif uçuşu ücretli; ☐ olay ve buluş kartları
 4. ◐ **Senaryolar ve zafer**: ✔ senaryo dosyası (başlangıç kaydı, süre, taraflar, anahtar şehirler), ana menüde
    Senaryolar ekranı, süre yok (savaş bir taraf teslim olunca biter), yapay zekâ anahtar şehirleri
@@ -655,8 +655,8 @@ zombi salgını).
 - [x] 25 Eyl (akşam) değişiklikleri Compatibility renderer'ında denendi: kara rengi aynı (98/137/114 ↔ 96/139/114), oklar,
       bayraklar ve paneller aynı; deniz web'de biraz açık (önceden de böyleydi)
 - [ ] Web'de birim gölgeleri yok (GLES3 gölge geçişi parlaklığı bozduğu için kapalı)
-- [ ] Web için varlık diyeti: yükseklik haritası yarım çözünürlük, doku boyutları (yeni ikon ve portreler ~57 MB ekliyor;
-      128 px'e düşürülerek alınabilir), ilk yükleme süresi
+- [x] Web için varlık diyeti (11 Ekim): paket ~765 → ~264 MB (+ 40 MB motor): arayüz, portre ve model dokuları kayıplı
+      WebP, 16 bit yükseklik haritası, harita resimleri kayıpsız WebP ve harita verisi gzip (yalnız web paketinde)
 - [ ] Mobil tarayıcı desteği (bellek), kayıt dosyalarının tarayıcıda kalıcılığı
 
 ## BÖLÜM G — PERFORMANS (sürekli) ◐

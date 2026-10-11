@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/city_00053.png-1c152fdabb216b38a47bd403c341e8
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

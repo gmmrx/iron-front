@@ -67,6 +67,12 @@ func apply_history(e: Dictionary) -> bool:
 			Politics.complete_focus_now(c, id, false)
 		if e.has("focus"):
 			Politics.complete_focus_now(c, e["focus"])
+	elif e.has("focus"):
+		# programlar emekli (Politics.FOCUS_ENABLED): tarihî adımın kendisi programın etkileriyle yine olur — savaş
+		# gerekçesi ve ilanı, ittifak, bayrak, gerginlik. Olmasa 1937 Çin savaşı, Polonya, Barbarossa hiç başlamıyordu
+		var fo := Politics.focus_def(c, String(e["focus"]))
+		if not fo.is_empty():
+			Politics.apply_effects(c, fo["effects"])
 	if e.has("effects"):
 		Politics.apply_effects(c, e["effects"])
 	return true

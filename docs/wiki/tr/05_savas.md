@@ -15,6 +15,13 @@
   paneli → asker al: muhrip 41, denizaltı 30, kruvazör 121, zırhlı 336 SP) ve oradaki yedek filoya katılır; bilgisayar da
   gemiyi aynı yoldan, 1936 donanmasının yılda %8 büyümüş haline kadar alır. İnsan gücü ve ekipman yeterliyse tümen 14 gün eğitim alır (bu sürede hareket etmez); askerlik yasası bunu değiştirir (İki Yıllık Mükellefiyet 13, İhtiyat Celbi 16, Kitlesel Celp 20 gün).
 
+- **Şehirde asker almak** (eyalet paneli → … şehrinde asker al): piyade tümeni 120 SP (7 gün eğitim), zırhlı tümen
+  300 SP (10 gün), avcı / yakın destek / bombardıman kanadı 150 / 180 / 240 SP (en yakın hava üssünde), gemi deniz üslü
+  limanda. Eğitim günü askerlik yasasına uyar (İki Yıllık Mükellefiyet −%5, İhtiyat Celbi +%15, Kitlesel Celp +%40).
+  Uçak ve gemi, onu açan araştırmayı ister (Yakın Hava Desteği, Taktik Bombardıman, Kruvazörler, Denizaltılar,
+  Zırhlılar…): o zamana dek Al düğmesi gridir ve ipucu araştırmanın adını söyler. **Orta Tank** araştırılınca yeni
+  zırhlı tümenler hafif yerine orta tankla kurulur (aynı fiyat).
+
 ## Emirler
 - Sol tık / kutu ile seç, **sağ tık** (web ve Mac'te, tümen seçiliyken Ctrl + sol tık) hedef bölgeye git ya da saldır.
   **Başka bir sayaca** sağ tık tümenleri o sayacın bölgesine gönderir (yığına katılma): sayaçlar haritanın üstünde, şehrin
@@ -112,8 +119,10 @@ iğnelerde durur, sayacın altında ordunun adı yazar; tek başına duran tüme
 görünür.
 
 ### Cephe çizgisi
-Savaştayken senin tarafının (sen ve müttefiklerin) elindeki bölgelerle düşmanlarının elindeki bölgelerin sınırı, her
-zoom'da yerin altından yanan bir ateş damarı gibi parlar. Yanına tıklayınca altta **cephe paneli** açılır: iki bölge, iki
+Savaştayken senin tarafının (sen ve müttefiklerin) elindeki bölgelerle düşmanlarının elindeki bölgelerin sınırı, savaş
+haritasındaki cephe gibi çizilir: haritaya basılmış, düşmana bakan kısa dişleri olan kalın koyu kızıl bir çizgi.
+Uzakta yalnız çizgi görünür, hep birkaç piksel kalınlıkta (savaşta sınır kaybolmaz); yaklaştıkça harita ölçeğinde
+kalınlaşır, dişler belirir; kıvrımlarda dişler yelpaze gibi açılmaz, kısalır. Yanına tıklayınca altta **cephe paneli** açılır: iki bölge, iki
 taraftaki tümenler (sayı · ortalama güç; savaş sisinin altındaysa "?"), düşman bölgesinin üstündeki hava payın ve orada
 süren muharebe (iki tarafın kalan bütünlüğü). İki düğme cepheye uzanabilen boştaki bir hava kanadını yollar: **Hava
 desteği** (muharebenin üstüne yakın destek; muharebe yoksa düşman bölgesine) ve **Hava üstünlüğü**. Hava desteğine önce
@@ -125,7 +134,10 @@ Dost topraktaki kaynaktan işgal edilen topraklarda en çok 9 bölge içeri ikma
 Üst çubukta ikmalli tümen oranı görünür.
 
 ## Hava (H)
-Stoktaki uçaklar **kendiliğinden kullanılmaz**: **Kanat kur** en çok 100'ünü başkente en yakın hava üssünde kanat yapar.
+Kanatlar şehirlerinde SP ile alınır (eyalet paneli). **Takviye** kanadı yeniden 100 uçağa tamamlar: önce stoktaki uçaklar,
+kalanı SP ile alınır (bir uçak, kanadının fiyatının yüzde biri; bedel ipucunda). Stoktaki uçaklar (ör. dağıtılan bir
+kanadınkiler) **kendiliğinden kullanılmaz**: stokta uçak varken **Uçak konuşlandır** satırı görünür ve **Kanat kur** en
+çok 100'ünü başkente en yakın hava üssünde kanat yapar.
 Görevler: bekle, hava üstünlüğü, yakın hava desteği, liman baskını, **bombardıman**. "Otomatik" kutusu kapalı başlar.
 - **Önce bölge, sonra görev**: hava paneli açıkken haritada bir bölgeye tıkla. Bölge panelin başında **hedef** olur;
   oradaki hava üstünlüğümüz ve düşman eyaletiyse bombardıman hasarı yazar. Her kanadın bir satırı ve Hava üstünlüğü,

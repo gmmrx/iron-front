@@ -10,7 +10,7 @@ Goal: **a good-looking map at every zoom, 60 FPS**, deep gameplay with its own c
 Language: the game and the documentation are in **English first**; Turkish is complete and chosen in Settings → Language.
 
 Status: ✔ done · ◐ basic version exists, to be deepened · ☐ not done
-Last update: **29 September 2026**
+Last update: **11 October 2026**
 
 > ### ⚠ READ FIRST — ORIGINALITY AND INTELLECTUAL PROPERTY (for all agents)
 > The first versions of the game were modelled on the best-known commercial game of the genre; the names, number tables,
@@ -41,7 +41,7 @@ across the stages.
    wears war support; ✔ a wing forms at the base nearest the capital and moves to a base in range; ✔ reconnaissance
    (reveals the zone through the fog)
 3. ◐ **Economy and politics cut down**: ✔ left menu down to six buttons (plus Recon); ✔ only WWII participants play
-   and move (`data/common/participants.json`); ✔ no construction, buildings fixed (shown, hidden under the fog); ✔ fuel and equipment stock off (losses made good with manpower); supply stays (the balance test needs it); ✔ no dockyards or synthetic refineries: ships bought with SP in ports with a naval base (the computer too, up to its 1936 navy + 8% a year); ✔ research back in the menu, a few minutes per technology in a scenario; ✔ influence motivates troops (Motivate command); ✔ alerts show the next step (never idle); ☐ one morale instead of stability and war support;
+   and move (`data/common/participants.json`); ✔ no construction, buildings fixed (shown, hidden under the fog); ✔ fuel and equipment stock off (losses made good with manpower); supply stays (the balance test needs it); ✔ no dockyards or synthetic refineries: ships bought with SP in ports with a naval base (the computer too, up to its 1936 navy + 8% a year); ✔ research back in the menu, a few minutes per technology in a scenario; ✔ research is a timeline (years × branches) with the illustrated command-panel cards and the file on the right, national projects on their own tab, smooth scrolling with a fixed year header and branch names (11 Oct); ✔ web package ~765 → ~264 MB with no visible change (11 Oct); ✔ what the screen says, the game does (11 Oct): factory output (research, laws, advisors, stability) multiplies industry points, research unlocks close support planes, bombers and ship types for recruiting and medium tanks for new armoured divisions, the military service law sets training days, an air wing is filled up with SP, convoys left the top bar, alerts open the place that solves them, the historical steps that used to be state programs (Marco Polo Bridge, Poland, the Molotov–Ribbentrop pact…) happen again although programs are retired; ✔ the tutorial walks through the whole game (28 steps: map, country, research, building, battle, air, recon, recruiting, politics, diplomacy, alerts); ✔ influence motivates troops (Motivate command); ✔ alerts show the next step (never idle); ☐ one morale instead of stability and war support;
    ✔ units bought directly in cities with industry points (SP, `data/common/recruit.json`), paid recon flights; ☐ event and discovery cards
 4. ◐ **Scenarios and victory**: ✔ scenario file (start save, duration, sides, key cities), main menu Scenarios screen,
    no time limit (the war ends when a side gives up), AI weighs key cities; ✔ first
@@ -684,8 +684,8 @@ outbreak).
 - [x] Region tooltip/click on the web (RGBA8 ID decoding fixed)
 - [x] The loading page is in English
 - [ ] No unit shadows on the web (off because the GLES3 shadow pass breaks brightness)
-- [ ] Asset diet for the web: half-resolution height map, texture sizes (the new icons and portraits add ~57 MB; they
-      could be imported at 128 px), first load time
+- [x] Asset diet for the web (11 Oct): package ~765 → ~264 MB (+ 40 MB engine): lossy WebP for interface, portraits
+      and model textures, 16-bit height map, lossless WebP map images and gzip map data in the web package only
 - [ ] Mobile browser support (memory), save files kept in the browser
 
 ## PART G — PERFORMANCE (ongoing) ◐

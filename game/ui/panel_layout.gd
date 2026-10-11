@@ -288,6 +288,43 @@ static func row(parent: Container, tex: Texture2D, title: String, sub: String = 
 		col.add_child(d)
 	return col
 
+## Bedel türlerinin simgesi: üst çubuktaki nüfuz, sanayi puanı (SP) ve insan gücü simgeleri
+const COST_ICONS := {"influence": "political_power", "sp": "building_civilian_factory", "manpower": "manpower"}
+
+## Eylemin bedeli, düğmenin hemen yanında: simge + kalın sayı; birden çok bedel yan yana. costs: [[tür, miktar, eldeki], ...]
+## (tür: influence / sp / manpower; eldeki verilmezse karşılaştırılmaz). Eldeki yetmiyorsa sayı kırmızı; düğme kapalıysa
+## dim = true ile soluk. Bedeli sıfır olan kalem gösterilmez
+static func cost_chip(costs: Array, dim := false, tip := "") -> HBoxContainer:
+	var chip := HBoxContainer.new()
+	chip.name = "Cost"
+	chip.add_theme_constant_override("separation", 4)
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	chip.mouse_filter = Control.MOUSE_FILTER_PASS if tip != "" else Control.MOUSE_FILTER_IGNORE
+	chip.tooltip_text = tip
+	for cost: Array in costs:
+		var amount := float(cost[1])
+		if amount <= 0.0:
+			continue
+		if chip.get_child_count() > 0:
+			var gap := Control.new()
+			gap.custom_minimum_size.x = 6
+			gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			chip.add_child(gap)
+		var ic := UiTheme.icon_texture(CommandPanelSkin.icon(COST_ICONS.get(String(cost[0]), String(cost[0]))), 24)
+		ic.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.add_child(ic)
+		var short_of := cost.size() > 2 and float(cost[2]) < amount
+		var l := UiTheme.make_label(UiTheme.format_number(amount) if amount >= 1000.0 else str(roundi(amount)), 18,
+			UiTheme.BAD if short_of else UiTheme.TEXT)
+		l.name = "Amount"
+		l.add_theme_font_override("font", UiTheme.bold_font())
+		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.add_child(l)
+	if dim:
+		chip.modulate = Color(1, 1, 1, 0.5)
+	return chip
+
 ## row() ile kurulan satırın sağına düğme/denetim ekle
 static func row_action(col: VBoxContainer, ctrl: Control) -> Control:
 	ctrl.size_flags_vertical = Control.SIZE_SHRINK_CENTER

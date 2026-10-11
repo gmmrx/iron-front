@@ -377,6 +377,10 @@ func test_strings_rows() -> void:
 		if r.size() > 3:
 			# tırnaksız virgül satırı böler: Türkçe sütuna İngilizcenin devamı düşer
 			p.append("'%s': %d sütun (virgüllü metin tırnak içinde olmalı)" % [key, r.size()])
+		# yer tutuculu (% ile biçimlenen) metinde düz yüzde işareti %% yazılır: "50%" biçimlemede hata verir
+		for col: int in [1, 2]:
+			if not _placeholders(r[col]).is_empty() and "%" in RegEx.create_from_string("%(%|[-+ 0-9.]*[sdfcxX])").sub(r[col], "", true):
+				p.append("'%s': biçimlenen metinde kaçışsız %% (%s)" % [key, "en" if col == 1 else "tr"])
 		var a := _placeholders(r[1])
 		var b := _placeholders(r[2])
 		if a.size() != b.size():

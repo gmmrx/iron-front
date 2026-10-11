@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2pmpro66igir"
-valid=false
+path="res://.godot/imported/JAP_129.jpg-674080de08d351e96c0e5d981e0918e3.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/portraits/commanders/JAP_129.jpg"
+dest_files=["res://.godot/imported/JAP_129.jpg-674080de08d351e96c0e5d981e0918e3.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

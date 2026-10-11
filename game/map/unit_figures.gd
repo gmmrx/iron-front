@@ -364,22 +364,8 @@ static func make(c: Country, kind: String = "soldier") -> Node3D:
 	var side := Vector3(out.z, 0.0, -out.x)
 	num.transform = Transform3D(Basis(side, up, side.cross(up)), p)
 	holder.add_child(num)
-	# sayı figürün başının üstünde de (kameraya bakar; öbür figürlerin arkasında kalmaz): uzaktan da okunur
-	var top_n := Label3D.new()
-	top_n.name = "top_n"
-	top_n.font = UiTheme.bold_font()
-	top_n.font_size = 72
-	top_n.pixel_size = 0.004
-	top_n.modulate = Color("fff6dc")
-	top_n.outline_size = 18
-	top_n.outline_modulate = Color(0.02, 0.02, 0.02, 0.95)
-	top_n.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	top_n.no_depth_test = true
-	top_n.render_priority = 12
-	top_n.outline_render_priority = 11
-	top_n.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-	top_n.position.y = 0.5 + (k["top"] as Mesh).get_aabb().end.y + 0.08
-	fig.add_child(top_n)
+	# başın üstü (figür biriminde): orada haritadaki "bayrak | sayı" rozeti durur (UnitLayer)
+	fig.set_meta("head", 0.5 + (k["top"] as Mesh).get_aabb().end.y + 0.08)
 	return fig
 
 ## Figürün türü (make'te verilen)
@@ -388,10 +374,9 @@ static func kind_of(fig: Node3D) -> String:
 
 static func set_count(fig: Node3D, n: int) -> void:
 	var t := str(n) if n < 1000 else UiTheme.format_number(n).replace(".0K", "K")
-	for path: String in ["h/n", "top_n"]:
-		var l: Label3D = fig.get_node_or_null(path)
-		if l:
-			l.text = t
+	var l: Label3D = fig.get_node_or_null("h/n")
+	if l:
+		l.text = t
 
 ## Harita yönünün (+x doğu, +y güney) asker için y ekseni dönüşü: model +x'e bakar, y ekseninde saat yönünün tersine
 ## dönünce +x, -z'ye (kuzeye) kayar

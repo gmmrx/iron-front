@@ -1,6 +1,7 @@
 class_name Tutorial
 extends PanelContainer
-## Öğretici (data/common/tutorial.json): alt ortada küçük bir rehber kartı. Her adım tek bir iş söyler, gerekiyorsa
+## Öğretici (data/common/tutorial.json): alt ortada küçük bir rehber kartı. Bütün oyunu sırayla gösterir: harita, ülkenin
+## göstergeleri, araştırma, inşaat, birlikler ve savaş, hava, keşif, asker alma, siyaset, diplomasi. Her adım tek bir iş söyler, gerekiyorsa
 ## haritada yeri ("Göster": kamerayı oraya götürür) ve arayüzde düğmeyi (nabız atar) gösterir, sonra bekler. Adım oyunun
 ## durumundan geçer (_done); oyuncu önceden yaptıysa kendiliğinden geçilir. Öğretici oyuncu adına hiçbir oyun eylemi
 ## yapmaz: yalnız okur, oyunu durdurur ve kamerayı (oyuncu "Göster"e basınca) götürür.
@@ -8,6 +9,7 @@ extends PanelContainer
 const DATA_PATH := "res://data/common/tutorial.json"
 const WIDTH := 560.0
 const CHECK_EVERY := 0.25
+const FRONT_CITY := 1000.0          ## "cephedeki şehir": düşman başkentine bu kadar yakın (harita birimi) kendi şehrimiz
 
 var camera: MapCamera3D
 var units: UnitLayer
@@ -183,17 +185,51 @@ func _done(s: Dictionary) -> bool:
 			return hud.state_panel.visible and sid > 0 and World.states[sid].owner == me
 		"recruited":
 			return _training_count() > _baseline
+		# --- ülke, araştırma, inşaat: oyuncu önceden yaptıysa adım kendiliğinden geçer
+		"research_open":
+			return hud.research.visible
+		"research_started":
+			return not World.player().research_current.is_empty()
+		"panels_closed":
+			return not hud.fullscreen_open()
+		"home_state_open":
+			var hid: int = hud.state_panel._state_id
+			return hud.state_panel.visible and hid > 0 and World.states[hid].owner == me
+		"construction_queued":
+			return not World.player().construction_queue.is_empty()
+		"front_city_open":
+			var fid: int = hud.state_panel._state_id
+			if not hud.state_panel.visible or fid <= 0 or World.states[fid].owner != me:
+				return false
+			var big: City = World.states[fid].largest_city()
+			var foe_at := World.province(World.capital_province(String(_data["enemy"]))).center
+			return big != null and big.position.distance_to(foe_at) < FRONT_CITY
+		# --- hava ve keşif: kanadın görevi
+		"air_open":
+			return hud.air.visible
+		"air_mission":
+			return Air.wings_of(me).any(func(w: AirWing) -> bool:
+				return w.on_mission() and w.mission in [AirWing.Mission.SUPERIORITY, AirWing.Mission.CAS, AirWing.Mission.BOMBING])
+		"recon":
+			return Air.wings_of(me).any(func(w: AirWing) -> bool: return w.on_mission() and w.mission == AirWing.Mission.RECON)
+		# --- siyaset ve diplomasi: ekranı açmak
+		"politics_open":
+			return hud.politics.visible
+		"diplomacy_open":
+			return hud.diplomacy.visible
 	return false
 
 func _training_count() -> int:
 	return Military.country_divisions(World.player_tag).filter(func(d: Division) -> bool: return d.training > 0).size()
 
 # ------------------------------------------------------------------ yerler
-## front: düşmana komşu bölgedeki tümenimiz; enemy: ona komşu düşman bölgesi; city: düşmana en yakın şehrimiz
+## front: düşmana komşu bölgedeki tümenimiz; enemy: ona komşu düşman bölgesi; city: düşmana en yakın şehrimiz; home: başkent
 func _target_pos(kind: String) -> Vector2:
 	var me := World.player_tag
 	var foe := String(_data["enemy"])
 	match kind:
+		"home":
+			return World.capital_position(me)
 		"front", "enemy":
 			for d: Division in Military.country_divisions(me):
 				for n in World.land_neighbors(d.province):
@@ -214,7 +250,7 @@ func _show_target() -> void:
 	var kind := String(_step().get("target", ""))
 	if kind == "":
 		return
-	camera.fly_to(_target_pos(kind), minf(camera.distance, 600.0 if kind != "city" else 300.0), 1.0)
+	camera.fly_to(_target_pos(kind), minf(camera.distance, 300.0 if kind in ["city", "home"] else 600.0), 1.0)
 
 # ------------------------------------------------------------------ vurgu
 func _highlight_node(id: String) -> CanvasItem:
@@ -225,6 +261,10 @@ func _highlight_node(id: String) -> CanvasItem:
 			return hud.divisions._motivate_btn
 		"alerts":
 			return hud.top_bar.alert_strip
+		"resources":
+			return hud.top_bar.resource_strip
+		"research", "air", "recon", "politics", "diplomacy":
+			return hud.menu_buttons.get(id)
 	return null
 
 ## Arayüz öğesi yavaşça aydınlanıp söner (üstüne gelinmiş düğmenin tonu); adım geçince eski haline döner

@@ -2,7 +2,7 @@
 
 # Iron Front (çalışma adı)
 
-Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu. **Tarayıcıda oyna:** https://gmmrx.github.io/iron-front/ (masaüstü Chrome/Firefox, ~370 MB indirir; her push'ta GitHub Actions ile yeniden yayınlanır)
+Godot 4.7 ile yapılan, 2. Dünya Savaşı konulu büyük strateji oyunu. **Tarayıcıda oyna:** https://gmmrx.github.io/iron-front/ (masaüstü Chrome/Firefox, ~300 MB indirir; her push'ta GitHub Actions ile yeniden yayınlanır)
 
 **Oyun wikisi (nasıl oynanır, mekanikler, ülkeler):** [docs/wiki/tr](docs/wiki/tr/README.md) · Yol haritası: [ROADMAP.tr.md](ROADMAP.tr.md) · Tanıtım videosu: [docs/media/iron_front_demo_2026-09-25.mp4](docs/media/iron_front_demo_2026-09-25.mp4) (klipler: `docs/media/clips/`)
 

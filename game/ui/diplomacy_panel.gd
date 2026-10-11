@@ -200,7 +200,8 @@ func refresh() -> void:
 		PanelLayout.stat(_v, tr("DIP_WAR_GOAL"), "✓", tr("DIPLO_HAS_GOAL"), UiTheme.BAD)
 	# eylemler
 	_v = CommandPanelSkin.section(center, tr("DIP_ACTIONS"), "diplomacy")
-	_action("war_support", tr("DIPLO_JUSTIFY") % int(Diplomacy.JUSTIFY_COST), tr("TIP_JUSTIFY") % Diplomacy.JUSTIFY_DAYS, Diplomacy.can_justify(me, t), func() -> void: Diplomacy.justify(me, t))
+	_action("war_support", tr("DIPLO_JUSTIFY"), tr("TIP_JUSTIFY") % Diplomacy.JUSTIFY_DAYS, Diplomacy.can_justify(me, t), func() -> void: Diplomacy.justify(me, t),
+		[["influence", Diplomacy.JUSTIFY_COST, me.political_power]])
 	_action("battle", tr("DIPLO_DECLARE"), tr("TIP_DECLARE"), Diplomacy.can_declare(me, t), func() -> void: Diplomacy.declare_war(me.tag, t.tag))
 	var g_err := "" if not t.tag in me.guarantees and not Diplomacy.are_enemies(me.tag, t.tag) else "DIPLO_ERR_ALREADY"
 	if g_err == "":
@@ -377,7 +378,8 @@ func _country_list(me: Country) -> void:
 		_list.append([b, _fold(c.display_name()) + " " + c.tag.to_lower(), c.tag])
 	_filter()
 
-func _action(icon: String, text: String, tip: String, err: String, fn: Callable) -> void:
+## costs: eylemin bedeli ([[tür, miktar, eldeki]]; PanelLayout.cost_chip) — "Uygula" düğmesinin yanında simgeyle
+func _action(icon: String, text: String, tip: String, err: String, fn: Callable, costs: Array = []) -> void:
 	# Compact, legible action: detailed explanation and the exact blocking reason
 	# stay in both tooltips rather than consuming a second row plus a CTA footer.
 	var full_tip := text + "\n" + tip + ("" if err == "" else "\n\n" + tr(err))
@@ -385,6 +387,8 @@ func _action(icon: String, text: String, tip: String, err: String, fn: Callable)
 	(col.get_child(0) as Label).add_theme_font_size_override("font_size", UiTheme.fs(18))
 	if err != "":
 		(col.get_child(0) as Label).add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	if not costs.is_empty():
+		PanelLayout.row_action(col, PanelLayout.cost_chip(costs, err != ""))
 	var button := PanelLayout.small_button(tr("DIP_DO"), func() -> void:
 		fn.call()
 		refresh(), err == "", full_tip)

@@ -12,10 +12,12 @@ static func entries(actor: Country, target: Country) -> Array[Dictionary]:
 		["invite", "diplomacy", "DIPLO_INVITE", "TIP_INVITE"],
 		["peace", "political_power", "DIPLO_PEACE", "TIP_PEACE"]]:
 		var tip := String(TranslationServer.translate(spec[3]))
+		var cost: Array = []
 		if spec[0] == "justify":
-			tip = String(TranslationServer.translate("DIPLO_JUSTIFY")) % int(Diplomacy.JUSTIFY_COST) + "\n" + tip % Diplomacy.JUSTIFY_DAYS
+			tip = String(TranslationServer.translate("DIPLO_JUSTIFY")) + "\n" + tip % Diplomacy.JUSTIFY_DAYS
+			cost = [["influence", Diplomacy.JUSTIFY_COST, actor.political_power if actor else 0.0]]
 		result.append({"key": spec[0], "icon": spec[1], "title": TranslationServer.translate(spec[2]),
-			"tip": tip, "error": blocked(actor, target, spec[0])})
+			"tip": tip, "error": blocked(actor, target, spec[0]), "cost": cost})
 	return result
 
 static func blocked(actor: Country, target: Country, key: String) -> String:

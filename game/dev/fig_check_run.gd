@@ -7,8 +7,8 @@ class ProbeMap extends MapView3D:
 	func height_at(_p: Vector2) -> float:
 		return 0.0
 class SpotCities extends CityLayer3D:
-	func unit_spot(_pid: int, p: Vector2) -> Vector2:
-		return p + Vector2(10.0, 0.0)
+	func unit_spot(_pid: int, p: Vector2) -> Vector2:     # gerçeği gibi: nokta bölgenin içinde kalır
+		return p + Vector2(10.0, 0.0) if Probe.province_at(p + Vector2(10.0, 0.0)) == _pid else p
 
 static func ul_team(tag: String) -> String:
 	var c: Country = World.countries.get(tag)
@@ -158,6 +158,8 @@ func run(tree: SceneTree, args: Dictionary) -> int:
 			return 1
 		m = World.province(pid).center
 		print("cephe: bölge %d (çevrede %d tümen)  --focus=%d,%d" % [pid, best_n, int(m.x), int(m.y)])
+	elif args.has("converge"):
+		pass                                           # savaş gerekmez: hedef aşağıda
 	else:
 		for i in 24 * 90:
 			if not Military.battles.is_empty():
@@ -169,6 +171,21 @@ func run(tree: SceneTree, args: Dictionary) -> int:
 		pid = Military.battles.keys()[0]
 		var b: Dictionary = Military.battles[pid]
 		m = World.province(int(b["from"])).center.lerp(World.province(pid).center, 0.5)
+	if args.has("converge"):
+		# birleşme: oyuncunun ilk 6 tümeni (ayrı bölgelerden) aynı şehre yürür; kamera hedefte (--counts ile ölçülür)
+		var me := World.player_tag
+		var mine := Military.country_divisions(me).slice(0, 6)
+		var target := int(args["converge"]) if str(args["converge"]).is_valid_int() else 0
+		if target == 0:
+			for city in World.cities:
+				if World.states.has(city.state_id) and World.states[city.state_id].owner == me \
+						and city.province_id != mine[0].province and city.victory_points >= 3:
+					target = city.province_id
+		for d: Division in mine:
+			Military.order_move(d, target)
+		_converge = target
+		m = World.province(target).center
+		print("birleşme: %d tümen -> bölge %d  --focus=%d,%d" % [mine.size(), target, int(m.x), int(m.y)])
 	cam.map_size = Vector2(Probe.image.get_width(), Probe.image.get_height())   # focus_on hedefi harita sınırına kıstırır
 	cam.edge_pan_enabled = false                       # başsızda fare (0,0)'da: kenar kaydırması kamerayı savaştan uzaklaştırıyordu
 	cam.focus_on(m, float(args.get("dist", "140")))   # hedef ve mesafe kalıcı (kamera her karede hedefine yumuşar)
@@ -231,6 +248,26 @@ func run(tree: SceneTree, args: Dictionary) -> int:
 					walking += 1
 			print("  kare %d gün %d saat %d  sn %.1f  sayaç %d görünür %d figür %d yürüyen %d (oyunda yürüyen %d) far=%d" % [frames,
 				World.day_count - day0, GameClock.hour, (Time.get_ticks_msec() - t0) / 1000.0, ul._counters.size(), nv, nf, nm, walking, ul._was_far])
+		if args.has("counts") and frames % 10 == 0:
+			_count_check(ul, pm, frames)
+			if _converge > 0 and frames % 30 == 0:
+				var line := "  hedef kare %d saat %d:" % [frames, GameClock.hour]
+				for key: String in ul._counters:
+					var c: Dictionary = ul._counters[key]
+					var rt: Node3D = c["root"]
+					if not rt.visible or str(c["tag"]) != World.player_tag:
+						continue
+					var at := pm.province_at(Vector2(rt.position.x, rt.position.z))
+					if at != _converge and int(key.get_slice(":", 0)) != _converge:
+						continue
+					var fig: Node3D = c.get("fig")
+					var top: Label3D = fig.get_node_or_null("h/n") if fig and fig.visible else null
+					line += "  [%s yer=%d fig=%s rozet=%s]" % [key, at, top.text if top else "-", (c["clabel"] as Label3D).text]
+				var n := 0
+				for d: Division in Military.divisions_in(_converge):
+					if d.owner == World.player_tag:
+						n += 1
+				print(line, "  bölgede tümen ", n)
 		var figs := {}
 		for key: String in ul._counters:
 			var c: Dictionary = ul._counters[key]
@@ -339,4 +376,80 @@ func run(tree: SceneTree, args: Dictionary) -> int:
 	print("  düşman dip dibe (< %.0f birim): %d çift" % [2.0 * dmin, fl.size()])
 	for w: Array in fl.slice(0, 8):
 		print("  %4d kare  en yakın %5.1f  %s  %s" % [w[0], w[2], w[3], w[1]])
+	if args.has("counts"):
+		print("SAYI figür≠rozet=%d  aynı bölgede iki duran figür=%d  figür sayısı≠bölgedeki tümen=%d  yan yana=%d" % [_count_bad["label"],
+			_count_bad["twin"], _count_bad["sum"], int(_count_bad.get("near", 0))])
+		for s: String in _count_seen.slice(0, 10):
+			print("  ", s)
 	return 0
+
+var _count_bad := {"label": 0, "twin": 0, "sum": 0}
+var _converge := 0
+var _count_seen: Array[String] = []
+
+## --counts: figürde yazan sayı uzak rozetinkiyle aynı mı; bir bölgede bir ülkenin iki duran figürü var mı; bölgede
+## duran figürlerin sayılarının toplamı oradaki (yürümeyen) tümen sayısına eşit mi
+func _count_check(ul: UnitLayer, pm: MapView3D, frame: int) -> void:
+	var stand := {}                      # "bölge:ülke" -> [figür sayısı, yazan toplam]
+	for key: String in ul._counters:
+		var c: Dictionary = ul._counters[key]
+		var fig: Node3D = c.get("fig")
+		var rt: Node3D = c["root"]
+		if fig == null or not rt.visible or not fig.visible:
+			continue
+		var top: Label3D = fig.get_node_or_null("h/n")
+		var ft := top.text if top else ""
+		var ct := (c["clabel"] as Label3D).text
+		if ft != ct:
+			_count_bad["label"] += 1
+			_note("kare %d %s figür %s rozet %s" % [frame, key, ft, ct])
+		if key.get_slice(":", 3).begins_with(">"):
+			continue
+		var pid := pm.province_at(Vector2(rt.position.x, rt.position.z))
+		var sk := "%d:%s" % [pid, c["tag"]]
+		var e: Array = stand.get(sk, [0, 0, ""])
+		e[0] += 1
+		e[1] += int(ft) if ft.is_valid_int() else 0
+		var kp := int(key.get_slice(":", 0))
+		var info := "%s n=%s yer %s nokta %s merkez %s av=%s dk=%s hold=%s" % [key, ft, Vector2(rt.position.x, rt.position.z).round(),
+			ul._tile_spot(kp).round(), World.province(kp).center.round(), c.get("av"), c.get("dk"), c.get("hold")]
+		for d: Division in c["divs"]:
+			info += " [d%d bölge %d yol %s saldırı %d]" % [d.id, d.province, d.path, d.attacking]
+		e[2] = str(e[2]) + " | " + info
+		stand[sk] = e
+	# yan yana: aynı ülkenin iki duran figürü iki kaide boyundan yakın (ayrı bölgelerde olsa da tek yerde gibi görünür)
+	if frame % 60 == 0:
+		var ks: Array = []
+		for key: String in ul._counters:
+			var c: Dictionary = ul._counters[key]
+			if c.get("fig") != null and (c["root"] as Node3D).visible and (c["fig"] as Node3D).visible and not key.get_slice(":", 3).begins_with(">"):
+				ks.append(key)
+		var dmin := 2.0 * UnitLayer.FIG_SIZE * UnitFigures.BASE_R * UnitLayer.FIG_GAP
+		for i in ks.size():
+			for j in range(i + 1, ks.size()):
+				var ca: Dictionary = ul._counters[ks[i]]
+				var cb: Dictionary = ul._counters[ks[j]]
+				if ca["tag"] != cb["tag"]:
+					continue
+				var pa := Vector2((ca["root"] as Node3D).position.x, (ca["root"] as Node3D).position.z)
+				var pb := Vector2((cb["root"] as Node3D).position.x, (cb["root"] as Node3D).position.z)
+				if pa.distance_to(pb) < dmin * 1.6:
+					_count_bad["near"] = int(_count_bad.get("near", 0)) + 1
+					_note("kare %d yan yana %.1f: %s (yer %d, savaş %s) | %s (yer %d, savaş %s)" % [frame, pa.distance_to(pb), ks[i],
+						pm.province_at(pa), ca.has("post_goal"), ks[j], pm.province_at(pb), cb.has("post_goal")])
+	for sk: String in stand:
+		var e: Array = stand[sk]
+		if int(e[0]) > 1:
+			_count_bad["twin"] += 1
+			_note("kare %d bölge:ülke %s iki duran figür: %s" % [frame, sk, e[2]])
+		var n := 0
+		for d: Division in Military.divisions_in(int(sk.get_slice(":", 0))):
+			if d.owner == sk.get_slice(":", 1) and not ul._walking(d) and not Military.hidden(d):
+				n += 1
+		if n > 0 and int(e[1]) != n:
+			_count_bad["sum"] += 1
+			_note("kare %d bölge:ülke %s yazan %d tümen %d" % [frame, sk, int(e[1]), n])
+
+func _note(s: String) -> void:
+	if _count_seen.size() < 40:
+		_count_seen.append(s)

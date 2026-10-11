@@ -68,7 +68,8 @@ func test_muzzle_uses_actual_transformed_socket_and_weapon_axis() -> void:
 			eq(projectile["weapon"], muzzle["weapon"], "projectile and muzzle share the weapon profile")
 			eq(projectile["from"], muzzle["at"], "round starts at the muzzle, not the counter center")
 			near((projectile["to"] as Vector3).y, 0.15, 0.001, "timed impact ends at the flat map surface")
-			eq(muzzle["size"], 1.0, "effects have constant world size at the canonical miniature scale")
+			eq(muzzle["size"], UnitLayer.RIFLE_FX if kind == "soldier" else 1.0,
+				"rifle fire is drawn larger than the miniature (seen from the map), the cannon at miniature scale")
 		eq(layer.get_child_count(), 0, "ground hookup does not create per-event FX nodes")
 		_dispose(f)
 	GameClock.paused = paused
@@ -92,7 +93,7 @@ func test_hit_pose_is_damped_without_time_based_jitter_or_body_scaling() -> void
 	near(top.position.distance_to(Vector3(0, 0.5, 0)), 0.0, 0.001, "recoil returns fully to the firing position")
 	_dispose(f)
 
-func test_cannon_and_rifle_have_separate_non_burst_cadences() -> void:
+func test_rifle_fires_short_bursts_and_cannon_single_shots() -> void:
 	var paused := GameClock.paused
 	var figures := UnitLayer.FIGURES
 	GameClock.paused = false
@@ -112,12 +113,23 @@ func test_cannon_and_rifle_have_separate_non_burst_cadences() -> void:
 		c["aim_ready"] = true
 		layer._combat_fx(0.01)
 		eq(fx.events.size(), 2, "one shot dispatches just muzzle plus projectile")
+		var shots := 1
+		if kind == "soldier":
+			# kısa seri: atışlar BURST_GAP arayla, seride RIFLE_BURST kadar, sonra RIFLE_GAP kadar ara
+			while int(c.get("burst", 0)) > 0 and shots < 10:
+				near(float(c["shot_t"]), UnitLayer.BURST_GAP, 0.0001, "next round of the burst follows shortly")
+				layer._combat_fx(UnitLayer.BURST_GAP * 0.5)
+				eq(fx.events.size(), shots * 2, "no round before the burst gap")
+				layer._combat_fx(UnitLayer.BURST_GAP * 0.5 + 0.001)
+				shots += 1
+				eq(fx.events.size(), shots * 2, "burst round fires")
+			check(shots >= UnitLayer.RIFLE_BURST.x and shots <= UnitLayer.RIFLE_BURST.y, "a burst is a few rounds: %d" % shots)
 		var gap := UnitLayer.CANNON_GAP if kind == "tank" else UnitLayer.RIFLE_GAP
-		ge(c["shot_t"], gap.x, kind + " respects minimum firing interval")
-		check(float(c["shot_t"]) <= gap.y, kind + " respects maximum firing interval")
+		ge(c["shot_t"], gap.x, kind + " respects minimum pause after a burst / reload")
+		check(float(c["shot_t"]) <= gap.y, kind + " respects maximum pause")
 		for i in 5:
 			layer._combat_fx(0.05)
-		eq(fx.events.size(), 2, "no continuous beam or frame-by-frame re-firing")
+		eq(fx.events.size(), shots * 2, "no continuous beam or frame-by-frame re-firing")
 		_dispose(f)
 	gt(UnitLayer.CANNON_GAP.x, UnitLayer.RIFLE_GAP.y, "even the fastest cannon reload is slower than a rifle")
 	GameClock.paused = paused

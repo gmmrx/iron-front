@@ -1815,11 +1815,17 @@ func _skirmish(hours := 1.0) -> void:
 	var holding := {}                      # bölge -> yerini tutan tümenler (bir kez süzülür)
 	var ctl := World.controller
 	var idx_of := {}                       # ülke -> indeks (bu saatlik)
+	var warring := {}                      # ülke -> savaşta mı (bu saatlik): barıştaki ülkenin bölgesi cephe olamaz
 	for pid: int in by_province:
 		var here0: Array = by_province[pid]
-		if here0.is_empty() or not World.province(pid).is_land():
+		if here0.is_empty():
 			continue
 		var t0: String = (here0[0] as Division).owner
+		# barıştaki ülkenin tümeni çarpışmaz: en ucuz eleme (1936'da dünyadaki dolu bölgelerin çoğu; tarama saatte bir koşar)
+		if not warring.has(t0):
+			warring[t0] = Diplomacy.at_war(t0)
+		if not warring[t0] or not World.province(pid).is_land():
+			continue
 		# iç bölge (bütün komşularını kendi ülkesi tutuyor) cephe olamaz: yerinde duran düşman tümeni ancak kendi
 		# tarafının tuttuğu bölgede durur (boş bölgeye giren onu alır). Ucuz ön eleme; dünyadaki dolu bölgelerin çoğu iç
 		if not idx_of.has(t0):
@@ -1842,10 +1848,13 @@ func _skirmish(hours := 1.0) -> void:
 		var front := false
 		for n in World.land_neighbors(pid):
 			var there: Array = by_province.get(n, [])
+			var last := t0                     # bir bölgedeki tümenler çoğunlukla tek ülkenin: her sahibi bir kez sor
 			for d2: Division in there:
-				if enemy_of.call(d2.owner, t0):
-					front = true
-					break
+				if d2.owner != last:
+					last = d2.owner
+					if enemy_of.call(last, t0):
+						front = true
+						break
 			if front:
 				break
 		if not front:
@@ -2422,14 +2431,19 @@ func _state_sp(st: StateRegion, inc: Dictionary) -> float:
 		v += st.building_level(b) * float(inc[b])
 	return v * (1.0 - st.damage)
 
-## Günlük SP geliri: elinde tuttuğun eyaletlerin fabrikaları (şehri alan fabrikaları da alır)
+## Fabrika çıktısı katı: araştırma, yasa, danışman, ulusal durum (factory_output) ve istikrar (Politics.stability_factory_mod).
+## Siyaset ekranında "Fabrika çıktısı" diye görünen değer SP gelirine böyle girer (üretim hatlarıyla aynı kat: Economy._produce)
+func sp_output_mod(c: Country) -> float:
+	return maxf(1.0 + c.mod("factory_output") + Politics.stability_factory_mod(c), 0.1)
+
+## Günlük SP geliri: elinde tuttuğun eyaletlerin fabrikaları (şehri alan fabrikaları da alır) × fabrika çıktısı katı
 func sp_income(c: Country) -> float:
 	var inc: Dictionary = recruit_def()["income"]
 	var total := 0.0
 	for st: StateRegion in World.states.values():
 		if _state_holder(st) == c.tag:
 			total += _state_sp(st, inc)
-	return total
+	return total * sp_output_mod(c)
 
 func _sp_income() -> void:
 	var inc: Dictionary = recruit_def()["income"]
@@ -2441,7 +2455,37 @@ func _sp_income() -> void:
 	for t: String in by:
 		var c: Country = World.countries.get(t)
 		if c and c.exists():
-			c.sp += float(by[t])
+			c.sp += float(by[t]) * sp_output_mod(c)
+
+## Birliği açan teknoloji ("" = serbest): kanadın uçağı, geminin türü (technologies.json "unlock"). Araştırılmadan alınmaz
+func recruit_tech(kind: String) -> String:
+	var u: Dictionary = recruit_def()["units"].get(kind, {})
+	var eq := ""
+	if u.has("wing"):
+		eq = String(Air.TYPES[String(u["wing"])]["eq"])
+	elif u.has("ship"):
+		eq = String(u["ship"])
+	return Research.unlocking_tech(eq) if eq != "" else ""
+
+## Tümenin şablonu: recruit.json "template"; "upgrade" teknolojisi bitmişse yükseltilmiş taburlar (orta tank araştırılınca
+## yeni zırhlı tümenler orta tankla kurulur). Ülkede o şablon yoksa eklenir (eski kayıtlar da)
+func recruit_template(c: Country, kind: String) -> int:
+	var u: Dictionary = recruit_def()["units"].get(kind, {})
+	var ti := int(u.get("template", 0))
+	var up: Dictionary = u.get("upgrade", {})
+	if up.is_empty() or not String(up["tech"]) in c.research_done:
+		return ti
+	var key := String(up["key"])
+	for i in c.templates.size():
+		if (c.templates[i]["battalions"] as Dictionary).has(key):
+			return i
+	c.templates.append({"name": Politics.loc(up["name"]), "battalions": (up["battalions"] as Dictionary).duplicate()})
+	return c.templates.size() - 1
+
+## Tümenin eğitim günü: recruit.json "days" × askerlik yasası (training_time: seferberlik uzatır, iki yıllık hizmet kısaltır)
+func recruit_days(c: Country, kind: String) -> int:
+	var u: Dictionary = recruit_def()["units"].get(kind, {})
+	return maxi(roundi(float(u.get("days", 1)) * (1.0 + c.mod("training_time"))), 1)
 
 ## Bu birlik bu bölgede alınabilir mi: "" ya da hata anahtarı
 func recruit_error(c: Country, kind: String, pid: int) -> String:
@@ -2451,10 +2495,13 @@ func recruit_error(c: Country, kind: String, pid: int) -> String:
 	var p := World.province(pid)
 	if p == null or not p.is_land() or p.city == null or World.controller_tag(pid) != c.tag:
 		return "RECRUIT_ERR_CITY"
+	var tech := recruit_tech(kind)
+	if tech != "" and not tech in c.research_done:
+		return "RECRUIT_ERR_TECH"
 	if c.sp < float(u["sp"]):
 		return "RECRUIT_ERR_SP"
 	if u.has("template"):
-		var mp := int(stats(c, int(u["template"]))["manpower"])
+		var mp := int(stats(c, recruit_template(c, kind))["manpower"])
 		if c.available_manpower() < mp:
 			return "RECRUIT_ERR_MANPOWER"
 	elif u.has("ship"):
@@ -2473,8 +2520,8 @@ func recruit(c: Country, kind: String, pid: int) -> String:
 	var u: Dictionary = recruit_def()["units"][kind]
 	c.sp -= float(u["sp"])
 	if u.has("template"):
-		var ti := int(u["template"])
-		_create(c, ti, pid, 1.0, int(u["days"]))
+		var ti := recruit_template(c, kind)
+		_create(c, ti, pid, 1.0, recruit_days(c, kind))
 		c.manpower_used += int(stats(c, ti)["manpower"])
 	elif u.has("ship"):
 		# gemi eyaletin limanındaki yedek filoya katılır (Navy.deploy_ships)

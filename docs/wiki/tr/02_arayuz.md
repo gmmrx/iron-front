@@ -11,12 +11,11 @@ sanayi puanı) günlük artış değerin sağında küçük yeşil rakamla yazar
 | Gösterge | Ne anlatır |
 |---|---|
 | Lider portresi / bayrak | Portre dosyası varsa lider, yoksa bayrak; tıklanınca ülke bilgisi |
-| Nüfuz | Günlük +2 × (1 + katkılar + istikrar etkisi), artış yeşil. Yasa, danışman, karar, diplomasi harcar |
+| Nüfuz | Günlük +2 × (1 + katkılar + istikrar etkisi), artış yeşil. Asker teşviki, yasa, danışman, karar, savaş gerekçesi ve yönetim geçişi harcar |
 | İstikrar | Etkin değer; ipucunda döküm (taban, ulusal durumlar/yasalar/danışmanlar, iktidar partisi popülerliği) |
 | İç cephe | Etkin değer; ipucunda döküm (taban, katkılar, kriz endeksi, savaş durumu) ve teslim sınırı |
 | İnsan gücü | Askere alınabilir nüfus (askerlik yasasına bağlı) |
-| Sanayi puanı | Asker alma ve keşif parası, günlük artış yeşil; ipucunda fabrikalar ve kaynaklar |
-| Yakıt, İkmal, Konvoy | Yakıt stoğu, ikmalli tümen oranı, konvoy/ithalat ihtiyacı |
+| Sanayi puanı | Asker alma, hava kanadı tamamlama ve keşif parası; günlük artış yeşil: fabrikalar × fabrika çıktısı (araştırma, yasalar, danışmanlar, ulusal durumlar, istikrar), ikisi de ipucunda |
 | Kriz, Savaş | Kriz endeksi; savaştaysan düşman sayısı ve teslim ilerlemesi |
 | Tarih ve hız | Sağ üstte; ❚❚ duraklatır, ▶ sürdürür (oyun akarken bir kademe yavaşlatır), ▶▶ hızlandırır; tarihin altındaki altın çubuk hızı gösterir; beş hız 0,1× · 0,2× · 0,3× · 0,5× · 1× (1× = saniyede 5 oyun saati) |
 | Dünya saati | Tarihin solundaki dünya: başkentine bakar, aydınlık yarı oyun saatine ve mevsime göre döner (gündüz / gece) |
@@ -24,8 +23,9 @@ sanayi puanı) günlük artış değerin sağında küçük yeşil rakamla yazar
 Menü ekranın sol kenarında alt alta altı düğmedir: hükümet, diplomasi, üretim, ordu, donanma ve hava; her düğmede
 kısayol harfi yazar. Program, araştırma, dünya olayları, ticaret, inşaat ve lojistik ekranları artık menüde yok
 (kısayolları hâlâ açar) ve sadeleşiyor (yol haritası 3. aşama). Kaynak çubuğunun yanındaki kutunun içindekiler
-uyarılardır (uyarı yokken kutu gizlenir): cevap bekleyen olay, asker almaya yeten sanayi puanı (başkenti açar), boştaki hava kanatları, ikmalsiz
-tümenler, azalan insan gücü, teslim tehlikesi. Haritadaki yapılar (liman, hava üssü, fabrika) sabittir ve haritada
+uyarılardır (uyarı yokken kutu gizlenir): cevap bekleyen olay, başkentte alınabilecek bir birlik (başkenti açar), boştaki hava kanatları, ikmalsiz
+tümenler, azalan insan gücü (askerlik yasasının olduğu Siyaset ekranını açar), teslim tehlikesi. Yakıt, ikmal ve
+konvoy çubukta yok: bu oyunda oyuncunun işi değiller. Haritadaki yapılar (liman, hava üssü, fabrika) sabittir ve haritada
 görünür; yabancı eyaletin yapıları keşfedilene kadar sisin altında gizli kalır.
 
 ## Ekranlar
@@ -37,12 +37,19 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
   kırmızı kesik çizgi = ikisinden biri. Harita gibi gezilir: tekerlek (ya da trackpad sıkıştırması) imlecin olduğu yere
   yakınlaşır, boş yerde sürüklemek kaydırır (bırakınca süzülür), ok tuşları / WASD da kaydırır; −, + ve *Sığdır*
   başlıkta. Her hareket sıçramadan, yumuşak geçişle.
-- **Araştırma (I)**: üstte yuvalar; bütün teknolojiler tek sayfada, yıllara ve kategorilere göre zaman çizelgesinde
-  (önkoşul çizgileri ve "bugün" çizgisiyle). Araştırma bitmez: son sütunda (1943+) her dalın sıradaki **iyileştirme**
-  seviyesi durur; dalın bütün teknolojileri bitince açılır. Her seviye bir öncekinden daha uzun sürer (+%15) ve daha az
-  kazandırır (−%15): uzun oyunda dal hep işe yarar ama sınırsız büyümez. Her seviyenin yılı bir öncekinden bir yıl
-  sonradır; erken araştırmak her yıl için yine +%150 süre alır. Süren teknolojinin ilerlemesi düğmesini (ve yuvasını)
-  soldan altın bir zemin olarak doldurur; yazılar önde kalır.
+- **Araştırma (I)**: üstte süren araştırmalar (her yuvada kalan gün, ilerleme çubuğu ve kartına götüren **İncele**),
+  altında sekmeler: Yönetim, Tümü, Kara, Deniz, Hava, Sanayi, Doktrin. Yönetim sekmesinde ulusal projeler (yönetim
+  geçişleri, yılı yok) durur. Öbür sekmeler dallarını tek bir **zaman çizelgesinde** gösterir: sütunlar yıllar, satırlar
+  dallar; her teknoloji resimli bir kart (resim üstte, ad ve durum altta, sürerken ilerleme çubuğu), yılının sütununda,
+  önkoşul çizgileri ve kesik "bugün" çizgisiyle (geçmiş hafif gölgeli). Yıl başlığı ve dal adları çizelge kayarken yerinde
+  kalır; çizelge tekerlekle (Shift: yana), dokunmatik yüzeyle ya da boşluğu sürükleyerek iki yöne yumuşak kayar, bırakınca
+  süzülerek durur; sekme değişince çizelge hafifçe belirir. Araştırma bitmez: son sütunda (1943+) her dalın sıradaki
+  **iyileştirme** seviyesi durur; dalın bütün teknolojileri bitince açılır. Her seviye bir öncekinden daha uzun sürer
+  (+%15) ve daha az kazandırır (−%15): uzun oyunda dal hep işe yarar ama sınırsız büyümez. Her seviyenin yılı bir
+  öncekinden bir yıl sonradır; erken araştırmak her yıl için yine +%150 süre alır. Karta tıklamak yalnız seçer: dosyası
+  sağda açılır (etkileri, neyi açtığı — yakın destek, bombardıman uçağı, gemi türleri, yeni zırhlı tümenlere orta tank —,
+  koşulları, erken yıl cezası); **Araştırmayı başlat** / **İptal** oradadır (ulusal proje önce onay ister, nüfuz tutar).
+  Çizelgede görünmeyen kart seçilince çizelge ona süzülür.
 - **Dünya olayları (E)**: dünyada olanlar, en yenisi üstte: savaşlar, ittifaklar, garantiler, teslimler, ilhaklar, barışlar,
   seçimler, yeni liderler, büyük güçlerin devlet programları — bayrak, metin, tarih ve tür. Süzgeçler: *Komşularım* (sen
   ve sınır komşuların), *İttifakım*, *Bütün dünya*. Satıra tıklayınca harita oraya gider. Taraf olmadığın bir savaş
@@ -63,7 +70,9 @@ Büyük ekranlar tam ekran açılır; açıkken harita kıpırdamaz.
   Her filo / kanat bir karttır: simge yuvası, adı ve nerede olduğu, gemi bileşimi ya da kanadın uçakları, bütünlük / uçak
   çubuğu, görev şeridi (seçili görev altın ve kalın, öbürleri soluk) ve bölge ile düğmeleri. Seçili kart altın
   çerçeveli, adı altın. Hava paneli açıkken haritaya tıklamak o bölgeyi panelin başında **hedef** yapar; orada her
-  kanadın görev düğmeleri vardır (bkz. Savaş → Hava).
+  kanadın görev düğmeleri vardır (bkz. Savaş → Hava). Kanadın **Takviye** düğmesi onu yeniden 100 uçağa tamamlar: önce
+  stoktaki uçaklar, kalanı SP ile alınır (bedel ipucunda). **Uçak konuşlandır** satırı yalnız stokta uçak varken görünür.
+  Donanma paneli deniz gücünü ve filo sayısını gösterir.
 - **Lojistik (L)**: ekipman stok / kullanımda / günlük üretim / ihtiyaç / denge, kaynak dengesi.
 - **Eyalet paneli**: haritada eyalete tıkla. Bina yuvaları, eyalet binaları, kaynaklar; kendi eyaletinde doğrudan inşa.
 - **Seçili tümenler** (altta): ordu başlığı, özet hücreleri, şablona göre bileşim, tümen kartları ve araç çubuğu
@@ -138,16 +147,19 @@ ve birlik rozetleri bir cepheye yaklaşınca belirir, yakında her ikon yerden y
   kaide hiç dönmez. Figürler birbirinin içinden geçmez ve kaymaz: her yer değişimi yürüme hızında, baktığı yöne bir
   yürüyüştür. Yürüyen figür yolundaki duranın çevresinden dolanır (duran itilmez), geçince yoluna döner; aynı yöne
   yürüyen ikiden arkadaki yol verir; karşılaşan iki yürüyen ikisi de yol verir; değecek iki duran figür biraz aralanır.
-  Kamera güneyden baktığı için art arda duran figürler arasında bir figür boyu bırakılır. Varış yerindeki dostlarına
-  yürüyen figür son bacaktan itibaren dizilişte boş bir yer ayırır ve dosdoğru oraya yürür; yola çıkan dizilişteki
-  yerinden çıkar. Filolar ve hava kanatları levhalı kalır.
+  Kamera güneyden baktığı için art arda duran figürler arasında bir figür boyu bırakılır. Bir ülkenin bir bölgedeki
+  bütün tümenleri tek figür, tek sayıdır: yürüyen figür varacağı bölgeye girdiği an oradaki figüre katılır (boş bir
+  bölgeye birlikte girenler tek figür olur), yolunun geçtiği bölgelerde katılmadan geçip gider, yola çıkan da grubunun
+  durduğu yerden ayrılır. Başının üstünde uzaktaki haritadaki "bayrak | sayı" rozetinin aynısı durur: sayı her zoom'da
+  aynı okunur. Filolar ve hava kanatları levhalı kalır.
 - **Yakında sayaçlar birbirini örtmez.** Ekranda değecek ya da binecek dost levhalar (yan yana ya da üst üste; örneğin
   bir bölgedeki birkaç ordu) tek noktada küçük bir ızgarada toplanır: ilk levha tam yerinde, iğnesinde durur, öbürleri
   yanına ve üstüne (sağ, sol, üst sıra...) iğnesiz dizilir. Her levha ızgarada kaldıkça hücresini korur — biri katılınca
   ya da ayrılınca öbürleri kıpırdamaz (boşluk kalır). Katılmak için değmek, ayrılmak için belirgin açılmak gerekir.
   Sayaç yalnız tümenleri gerçekten yürürken yer değiştirir. Bir noktada dokuzdan çok levha kapalı deste olur: toplam sayılı tek levha ve arkasında
-  iki kart kenarı; tıklayınca hepsi seçilir, fare üstüne gelince ızgaraya açılır (fare çekilince kapanır). Figürlerde
-  ızgara haritanın üstünde kurulur; yaklaşıp uzaklaşmak onu yeniden dizmez: üçer kişilik sıralar, her sıra öncekinin
+  iki kart kenarı; tıklayınca hepsi seçilir, fare üstüne gelince ızgaraya açılır (fare çekilince kapanır). Izgarayı
+  yalnız aynı bölgede duran figürler kurar; komşu bölgenin figürü kendi yerinde kalır, muharebede aynı sınırdaki komşu
+  bölgelerin duruş yerleri üst üste binmez. Figürlerde ızgara haritanın üstünde kurulur; yaklaşıp uzaklaşmak onu yeniden dizmez: üçer kişilik sıralar, her sıra öncekinin
   arkasında ve yarım yer kaymış, arkadakiler öndekilerin arasından görünür. Yürüyen
   sayaçlar yığına katılmadan geçer. Uzakta küçük rozetler yerinde kalır. Düşmana saldıran sayaç olduğu yerde durup
   oradan ateş eder (düşmana doğru kayıp geri gelmez); düşman temizlenince yürür. Yürürken düşmanla karşılaşan tümen
@@ -162,8 +174,10 @@ ve birlik rozetleri bir cepheye yaklaşınca belirir, yakında her ikon yerden y
   rozetin üstüne gelmesiyle rozet büyür, o yapının sesi duyulur ve kart o yapıyı anlatır (seviye / en çok, süren inşaat,
   ülkedeki toplamı, hava üssünde konuşlu kanatlar). Rozete tıklamak eyaletini açar (İnşaat açıkken: oraya inşa eder).
 - **Muharebeler**: muharebedeki levhaların çevresi hafifçe nabız gibi yanıp söner: üstün gelen tarafta yeşil, zemin
-  kaybeden tarafta kırmızı; aralarındaki çarpışan kılıçlar işareti hafifçe atar. Sayacın düşmana bakan yanında küçük
-  turuncu namlu çakmaları çakar (figürde tüfeğinin yanında; figürün çevresi yanmaz). Sayaçların hemen yanında küçük oklar
+  kaybeden tarafta kırmızı. Her muharebede, her zoom'da, çapraz kılıçlı yuvarlak bir plaka ve altında iki tarafın kalan
+  bütünlüğünü gösteren çubuk durur (yakında iki figürün üstünde). Askerler birbirine kısa seriler atar: turuncu namlu
+  çakmaları, karşıya uçan mermi izleri ve isabet ettiği yerde toz; tank tek tek top atar (figürün çevresi yanmaz).
+  Sayaçların hemen yanında küçük oklar
   yükselip söner: durumu az önce düzelen tarafın yanında yeşil ▲, zemin kaybedenin yanında kırmızı ▼. Oklar sayacın
   parçasıdır, sayaç yürürse onunla gider (sayaç uzakta gizliyse ok muharebenin yanında çıkar). 1000 ve üstü sayılar
   kısaltılır (1.1K), uzun sayılar küçük yazılır: levhadan taşmaz.

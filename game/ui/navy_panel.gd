@@ -24,11 +24,10 @@ func _ready() -> void:
 	visible = false
 	_list = PanelLayout.frame(self, tr("NAVY_TITLE"), "navy", 500.0)
 	var top := PanelLayout.fixed(self)
+	# konvoy hücreleri yok: konvoy yalnız ithalatı taşır, ticaret oyuncunun işi değil (docs/DESIGN.md)
 	_cells = PanelLayout.info_cells(top, [
 		["navy", tr("NAV_CELL_POWER"), tr("NAV_CELL_POWER_TIP")],
-		["equipment_destroyer", tr("NAV_CELL_FLEETS"), tr("NAV_CELL_FLEETS_TIP")],
-		["equipment_convoy", tr("NAV_CELL_CONVOY"), tr("NAV_CELL_CONVOY_TIP")],
-		["trade", tr("TRD_CELL_CONVOY"), tr("TRD_CELL_CONVOY_TIP")]])
+		["equipment_destroyer", tr("NAV_CELL_FLEETS"), tr("NAV_CELL_FLEETS_TIP")]])
 	_clear_selection_button = PanelLayout.small_button(tr("FORCE_CLEAR_SELECTION"), clear_selection, false)
 	_clear_selection_button.set_meta("audio_silent", true)
 	_clear_selection_button.name = "ClearFleetSelection"
@@ -106,17 +105,13 @@ func refresh() -> void:
 	var own := Navy.fleets_of(c.tag)
 	_cells[0].text = str(roundi(Navy.power(c.tag)))
 	_cells[1].text = str(own.size())
-	_cells[2].text = str(roundi(float(c.stockpile.get("convoy", 0.0))))
-	var cf := Economy.convoy_factor(c)
-	_cells[3].text = "%d%%" % roundi(cf * 100.0)
-	_cells[3].add_theme_color_override("font_color", UiTheme.GOOD if cf >= 0.999 else UiTheme.BAD)
 	for ch in _list.get_children():
 		_list.remove_child(ch)
 		ch.queue_free()
 	_cards.clear()
 	_grid = null
 	_details = null
-	# tersaneden çıkıp limanı bekleyen gemiler
+	# stokta limanını bekleyen gemiler (şehirde alınan gemi doğrudan limanın yedek filosuna katılır)
 	var fresh := Navy.new_ships(c)
 	if not fresh.is_empty():
 		PanelLayout.section(_list, tr("NAVY_NEW_SHIPS"))

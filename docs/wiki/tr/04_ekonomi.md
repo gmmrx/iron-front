@@ -11,6 +11,15 @@
 - Tüketim malı ve ithalat her fabrikayı alsa (ya da hiç sivil fabrika olmasa) bile **1 fabrikalık kamu inşaat gücü** kalır;
   böylece en küçük ülke de inşaat yapabilir.
 
+## Sanayi puanı (SP)
+Ana şehrini elinde tuttuğun eyaletlerin fabrikaları her gün SP verir: askerî fabrika 1, sivil fabrika 0,4 (bombalanmış
+pay vermez). Toplamı **fabrika çıktısı** çarpar; Siyaset ekranının etkiler listesindeki değerin ta kendisi: araştırma
+(Hassas Takım Tezgâhları +%10, Gölge Fabrikalar +%10, Sentetik Kauçuk +%5, Bant Üretimi +%15, sonra sanayi
+iyileştirmeleri), yasalar (ekonomik seferberlik, dış ticaret politikası; genel seferberlik çıktıdan yer), danışmanlar
+(Silahlanma Bakanı +%7), ulusal durumlar ve istikrar (%100'de +%20, %0'da −%50). Üst çubuktaki SP ipucu bugünkü
+kazancı ve fabrika çıktısını gösterir (`Military.sp_output_mod`). SP ile şehirlerinde tümen, hava kanadı ve gemi
+alırsın, hava kanatlarını tamamlarsın (bir uçak, kanadının fiyatının yüzde biri) ve keşif uçuşlarını ödersin.
+
 ## İnşaat (T)
 | Bina | Maliyet (fabrika-gün) | En çok | Not |
 |---|---|---|---|

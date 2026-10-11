@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/SIA_184.jpg-9f8a74a65bbe9f4165656376f67c498f.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

@@ -155,7 +155,9 @@ func muzzle(at: Vector3, direction: Vector3, weapon := "rifle", scale := 1.0) ->
 	var p := _spawn(Batch.GLOW, at + dir * length * 0.40, 0.10 if heavy else 0.055,
 		Vector2((1.4 if heavy else 0.40) * scale, length), Color(1.8, 0.94, 0.28, 0.95))
 	if p != null: p.vel = dir
-	smoke(at + dir * 0.45 * scale, scale * (0.42 if heavy else 0.14), false, dir * (3.0 if heavy else 1.5) + Vector3.UP * 0.8)
+	# tüfekte her atış duman bırakmaz (seriler sprite bütçesini doldurmasın)
+	if heavy or _rng.randf() < 0.35:
+		smoke(at + dir * 0.45 * scale, scale * (0.42 if heavy else 0.14), false, dir * (3.0 if heavy else 1.5) + Vector3.UP * 0.8)
 	if heavy: _light(at, 8.0 * scale, 2.0)
 
 func projectile(from: Vector3, to: Vector3, weapon := "rifle", scale := 1.0) -> void:
@@ -203,7 +205,7 @@ func impact(at: Vector3, kind := "shell", scale := 1.0) -> void:
 	var skirt := _spawn(Batch.GROUND, base, 0.85, Vector2.ONE * 4.2 * s,
 		Color(0.65, 0.67, 0.64, 0.35) if water else Color(0.47, 0.38, 0.25, 0.52))
 	if skirt != null: skirt.growth = 2.7
-	for i in (4 if small else (3 if water else 9)):
+	for i in (2 if small else (3 if water else 9)):
 		var a := _rng.randf() * TAU
 		var speed := _rng.randf_range(2.0, 7.0) * s
 		var v := Vector3(cos(a) * speed, _rng.randf_range(4.0, 12.0) * s, sin(a) * speed)

@@ -71,7 +71,7 @@ func test_every_active_naval_base_has_one_grounded_real_coastal_facility() -> vo
 	for sid: int in expected:
 		if not check(layer.placements.has(sid), "state %d has a coast fit" % sid): continue
 		var site: Dictionary = layer.placements[sid]
-		var node: MeshInstance3D = site["node"]
+		var node: GeometryInstance3D = site["node"]
 		var position: Vector2 = site["position"]
 		var direction: Vector2 = site["direction"]
 		var tangent := Vector2(direction.y, -direction.x)
@@ -81,7 +81,8 @@ func test_every_active_naval_base_has_one_grounded_real_coastal_facility() -> vo
 		near(placement.basis.z.length(), PortLayer.WORLD_WIDTH, 0.00001, "native uniform pier length scale")
 		eq(node.visibility_range_end, 380.0, "near-map LOD matches physical bridges")
 		check(node.material_override == null, "native materials render in both backends")
-		near((node.transform * node.mesh.get_aabb()).position.y, 0.0, 0.002, "native foundation bottom touches flat map")
+		if not PortLayer.PORT_IMAGE_ON:
+			near((node.transform * node.get_aabb()).position.y, 0.0, 0.002, "native foundation bottom touches flat map")
 		for p: Vector2 in model["land_samples"]:
 			check(layer._is_land(position + (tangent * p.x + direction * p.y) * PortLayer.WORLD_WIDTH), "state %d quay/warehouse is on real land" % sid)
 		for p: Vector2 in model["water_samples"]:
@@ -111,7 +112,7 @@ func test_construction_refresh_and_fog_visibility_keep_existing_rules() -> void:
 	if not check(layer.ports.has(city.state_id), "completed naval base creates real 3D facility"):
 		_release(layer)
 		return
-	var node: MeshInstance3D = layer.ports[city.state_id]
+	var node: GeometryInstance3D = layer.ports[city.state_id]
 	var transform := node.transform
 	state.buildings["naval_base"] = 3
 	layer._on_building_completed(state.owner, city.state_id, "naval_base")
@@ -185,7 +186,7 @@ func test_physical_port_pick_retains_building_tooltip_contract_without_resizing(
 	if not check(layer.ports.has(city.state_id), "physical pick target exists"):
 		_release(layer)
 		return
-	var node: MeshInstance3D = layer.ports[city.state_id]
+	var node: GeometryInstance3D = layer.ports[city.state_id]
 	var transform := node.transform
 	var holder := Node3D.new()
 	var tree := Engine.get_main_loop() as SceneTree
@@ -199,7 +200,7 @@ func test_physical_port_pick_retains_building_tooltip_contract_without_resizing(
 	var site: Dictionary = layer.placements[city.state_id]
 	for distance: float in [55.0, 150.0, 250.0]:
 		camera.focus_on(site["position"], distance)
-		var center := (node.global_transform * node.mesh.get_aabb()).get_center()
+		var center := (node.global_transform * node.get_aabb()).get_center()
 		var hit := layer.pick_building(camera.unproject_position(center), camera)
 		eq(hit.get("building", ""), "naval_base", "native geometry keeps the building tooltip kind")
 		eq(hit.get("sid", -1), city.state_id, "physical hit keeps the gameplay state")
