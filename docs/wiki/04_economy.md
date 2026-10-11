@@ -11,6 +11,16 @@
 - Even when consumer goods and imports take every factory (or there are no civilian factories at all), **one factory's
   worth of public construction** remains, so even the smallest country can build.
 
+## Industry points (SP)
+Every day the factories of the states whose main city you hold give SP: military factory 1, civilian factory 0.4 (a
+bombed share gives nothing). The sum is multiplied by **factory output**, the same value the Politics screen lists under
+its effects: research (Precision Machine Tools +10%, Shadow Factories +10%, Synthetic Rubber +5%, Flow Production
++15%, then the industry refinements), laws (economic mobilisation, trade policy; general mobilisation costs
+output), advisors (Minister of Armaments +7%), national conditions and stability (+20% at 100%, −50% at 0%). The SP tooltip
+on the top bar shows today's gain and the factory output (`Military.sp_output_mod`). SP buys divisions, air wings and
+ships in your cities, fills up air wings (a plane costs a hundredth of its wing's price) and pays for reconnaissance
+flights.
+
 ## Construction (T)
 | Building | Cost (factory-days) | Max | Note |
 |---|---|---|---|

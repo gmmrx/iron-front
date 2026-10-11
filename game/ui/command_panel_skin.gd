@@ -27,7 +27,15 @@ class TabSurface extends "res://game/ui/command_panel_surface.gd":
 		if underline.a > 0.0 and underline_height > 0.0 and rect.size.x > 12.0:
 			RenderingServer.canvas_item_add_rect(canvas, Rect2(rect.position.x + 6.0, rect.end.y - underline_height - 3.0, rect.size.x - 12.0, underline_height), underline)
 
-static func tab_box(state: String) -> StyleBox:
+## Seçili kart ya da hücre: yalnız sıcak dolgu; çerçeve, çerçeveli resim ve alt çizgi yok
+static func selected_plain(inset := 10, hover := false) -> StyleBox:
+	var sb := TabSurface.new()
+	sb.set_content_margin_all(inset)
+	sb.fill = Color(0.514, 0.376, 0.224, 0.90) if hover else Color(0.435, 0.322, 0.188, 0.86)
+	return sb
+
+## Sekme yüzeyi; framed = false: seçiliyken yalnız dolgu (çerçeve, çerçeveli resim, alt çizgi yok)
+static func tab_box(state: String, framed := true) -> StyleBox:
 	var tab := TabSurface.new()
 	tab.set_content_margin_all(12)
 	tab.content_margin_bottom = 15
@@ -36,7 +44,7 @@ static func tab_box(state: String) -> StyleBox:
 		tab.edge_width = 2.0
 		return tab
 	var selected := state in ["pressed", "hover_pressed"]
-	var artwork := box("selected" if selected else "button", 12)
+	var artwork := box("selected" if selected and framed else "button", 12)
 	tab.surface = artwork.surface
 	tab.source_inset = artwork.source_inset
 	tab.display_inset = artwork.display_inset
@@ -57,6 +65,10 @@ static func tab_box(state: String) -> StyleBox:
 			tab.edge_width = 2.0
 			tab.underline = Color("f4d48d")
 			tab.underline_height = 4.0
+			if not framed:
+				tab.surface = null
+				tab.edge_width = 0.0
+				tab.underline_height = 0.0
 		"disabled":
 			tab.tint = Color(0.48, 0.53, 0.55)
 			tab.fill = Color(0.055, 0.078, 0.082, 0.50)

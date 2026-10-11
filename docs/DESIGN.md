@@ -4,7 +4,7 @@
 
 This page says what the game is and what it is not. A feature that does not fit this page is not built; if needed, the
 page changes first.
-Last update: **1 October 2026**.
+Last update: **11 October 2026**.
 
 ## In one sentence
 You pick one of the countries of the Second World War in 1936 and play an open-ended game: you build in your cities, raise
@@ -31,8 +31,10 @@ one region deep, the rest needs reconnaissance (the Recon button or K, then a cl
    infrastructure); ships are bought in ports with a naval base; more factories mean
    more industry points.
 2. **Produce**: with manpower and industry points you buy infantry, armour, artillery and planes; a unit appears in a city.
-3. **Research**: a short list of technologies over 2–3 slots; a better rifle, tank or plane is a decision you keep
-   making.
+3. **Research**: every technology on one timeline by year and branch, researched in 2–3 slots; a technology ahead of
+   its year takes longer. Research is felt in the game: industry raises industry points, weapons and doctrine make
+   divisions stronger, close support planes, bombers and new ship types are bought only once researched, medium tanks
+   arm new armoured divisions.
 4. **Motivate**: influence is spent on the troops — selected divisions get part of their cohesion back at once and fight
    harder for a while (`data/common/recruit.json` → `motivate`).
 5. **Keep standing**: a country whose morale reaches zero surrenders. Event cards and bombing move morale.

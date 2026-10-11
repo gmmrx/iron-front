@@ -170,6 +170,28 @@ func test_city_model_world_size_stays_fixed() -> void:
 	var at: Vector2 = pl._pins[cap][0]
 	cam.focus_on(at, 100.0)
 	pl._process(1.0 / 60.0)
+	if PinLayer.CITY_IMAGE_ON:
+		# şehir resmi (deneme): aynı kurallar — sabit dünya eni, zoom, kenar ve fare ölçüyü değiştirmez, uzakta gizli
+		var img: Sprite3D = pl._city_imgs.get(cap)
+		if not check(img != null, "başkentin resmi kuruldu"):
+			_free_all([pl, cam, pm])
+			return
+		var cc: City = pl._pins[cap][4]
+		near(img.pixel_size * img.texture.get_width(), PinLayer.CITY_IMAGE_WIDTH[CityLayer.tier_of(cc)], 0.001, "sabit dünya eni")
+		var base_t := img.transform
+		for d: float in [55.0, 90.0, 140.0, 180.0, 200.0]:
+			cam.focus_on(at, d)
+			pl._process(1.0 / 60.0)
+			check(img.visible, "yakın menzilde resim görünür (%d)" % int(d))
+			check(img.transform.is_equal_approx(base_t), "zoom transform'u değiştirmez (%d)" % int(d))
+		pl.hovered_city = cap
+		pl._write_pin(cap)
+		check(img.transform.is_equal_approx(base_t), "hover ölçüyü değiştirmez")
+		cam.focus_on(at, 3000.0)
+		pl._process(1.0 / 60.0)
+		check(not img.visible, "uzakta resim gizli")
+		_free_all([pl, cam, pm])
+		return
 	var node: MeshInstance3D = pl._halls[cap]
 	var baseline := node.transform
 	var c: City = pl._pins[cap][4]

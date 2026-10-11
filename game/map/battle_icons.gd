@@ -1,14 +1,16 @@
 class_name BattleIcons
 extends Node3D
-## Uzak zoom'da muharebe işaretleri: çatışan sınırın ortasında çapraz kılıç plakası ve
-## altında iki tarafın organizasyon dengesi çubuğu. Oyuncu saldırıyorsa yeşil, savunuyorsa kırmızı çerçeve.
+## Muharebe işaretleri (her zoom'da): çatışan sınırın ortasında çapraz kılıç plakası ve altında iki tarafın
+## organizasyon dengesi çubuğu. Oyuncu saldırıyorsa yeşil, savunuyorsa kırmızı çerçeve. Yakında (figürler) iki tarafın
+## figürlerinin arasında, başlarının üstünde.
 
 const PIXEL := 0.00042
-const SHOW_FROM := 520.0              ## bu kamera uzaklığından itibaren (figürler seçilemez olunca) görünür
 const WORLD_HIDE := 7000.0            ## dünya görünümünde yalnız oyuncunun muharebeleri
+const NEAR_LIFT := 44.0               ## yakında plakanın yerden yüksekliği (figürün ve sayısının üstünde)
 
 var map: MapView3D
 var camera: MapCamera3D
+var units: UnitLayer                  ## yakında plaka iki tarafın figürlerinin arasında (UnitLayer.battle_mid)
 var _icons := {}                      ## pid -> {root, plate, bar, key}
 var _plates := {}
 var _bars := {}
@@ -20,7 +22,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	var show := World.in_game and camera.distance >= SHOW_FROM
+	var show := World.in_game
 	visible = show
 	if not show:
 		return
@@ -51,6 +53,10 @@ func _process(delta: float) -> void:
 		var mid := from.lerp(World.unwrap_near(from, to), 0.5)
 		var root: Node3D = ic["root"]
 		root.position = Vector3(mid.x, maxf(map.height_at(mid), 0.0) + 8.0, mid.y)
+		if camera.distance < UnitLayer.CARD_DIST:
+			var fm := units.battle_mid(pid) if units else Vector3.INF
+			root.position = Vector3(mid.x, maxf(map.height_at(mid), 0.0), mid.y) if fm == Vector3.INF else fm
+			root.position.y += NEAR_LIFT
 		var ar: float = b.get("att_ratio", 0.5)
 		var dr: float = b.get("def_ratio", 0.5)
 		var share := ar / maxf(ar + dr, 0.001)

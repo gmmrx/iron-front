@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/BRA_016.jpg-96815e1f632a3f0272c83935f90cd20f.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

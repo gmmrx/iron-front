@@ -120,6 +120,7 @@ func _ready() -> void:
 	var battle_icons := BattleIcons.new()
 	battle_icons.map = map_view
 	battle_icons.camera = camera
+	battle_icons.units = units
 	add_child(battle_icons)
 	var ticker := BattleTicker.new()          # muharebede durumu düzelen tarafta yeşil ▲, kötüleşende kırmızı ▼
 	ticker.map = map_view

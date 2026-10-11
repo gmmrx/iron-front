@@ -442,7 +442,7 @@ func _law_reqs(d: Dictionary) -> String:
 	return ", ".join(parts)
 
 func _laws(c: Country) -> void:
-	var content := CommandPanelSkin.section(_body, tr("POL_LAWS") % int(Economy.law_change_cost), "political_power")
+	var content := CommandPanelSkin.section(_body, tr("POL_LAWS"), "political_power")
 	if not Economy.law_groups.has(_law_group):
 		_law_group = Economy.law_groups.keys()[0]
 	# Current laws remain visible together. Their selectors only change this view,
@@ -473,7 +473,14 @@ func _laws(c: Country) -> void:
 	var group := _law_group
 	var heading := UiTheme.make_label(Economy.group_name(group), 20, UiTheme.ACCENT)
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	content.add_child(heading)
+	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var head_row := HBoxContainer.new()
+	head_row.add_child(heading)
+	if not _foreign():
+		# yasa değişikliğinin bedeli simgeyle başlığın yanında (her yasa için aynı)
+		head_row.add_child(PanelLayout.cost_chip([["influence", Economy.law_change_cost, c.political_power]], false,
+			tr("LAW_CHANGE_COST") % int(Economy.law_change_cost)))
+	content.add_child(head_row)
 	for law: String in Economy.law_groups[group]["laws"]:
 		var d := Economy.law_def(group, law)
 		var current: bool = c.laws.get(group) == law
@@ -511,7 +518,7 @@ func _laws(c: Country) -> void:
 
 # ------------------------------------------------------------------ danışmanlar
 func _advisors(c: Country) -> void:
-	var content := CommandPanelSkin.section(_body, tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors, int(Politics.advisor_cost)], "political_power")
+	var content := CommandPanelSkin.section(_body, tr("POL_ADVISORS") % [c.advisors.size(), Politics.max_advisors], "political_power")
 	var slots := HFlowContainer.new()
 	slots.add_theme_constant_override("h_separation", 10)
 	slots.add_theme_constant_override("v_separation", 10)
@@ -533,9 +540,9 @@ func _advisors(c: Country) -> void:
 			continue
 		var def: Dictionary = Politics.advisor_defs[id]
 		_row_button(CommandPanelSkin.illustration("advisor_" + id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
-			tr("POL_HIRE") % int(Politics.advisor_cost), Politics.can_hire(c, id), func() -> void:
+			tr("POL_HIRE"), Politics.can_hire(c, id), func() -> void:
 				Politics.hire(c, id)
-				refresh(), content)
+				refresh(), content, [["influence", Politics.advisor_cost, c.political_power]])
 	for id: String in c.advisors:
 		var def: Dictionary = Politics.advisor_defs[id]
 		_row_button(CommandPanelSkin.illustration("advisor_" + id), Politics.loc(def["name"]), Politics.describe_mods(def["mods"]).replace("\n", "  "),
@@ -543,7 +550,7 @@ func _advisors(c: Country) -> void:
 				Politics.dismiss(c, id)
 				refresh(), content)
 
-func _row_button(icon: Texture2D, title: String, desc: String, action: String, enabled: bool, cb: Callable, parent: Container = null) -> void:
+func _row_button(icon: Texture2D, title: String, desc: String, action: String, enabled: bool, cb: Callable, parent: Container = null, costs: Array = []) -> void:
 	var row := PanelContainer.new()
 	row.theme_type_variation = "PanelFlat"
 	row.tooltip_text = title + "\n" + desc
@@ -584,6 +591,8 @@ func _row_button(icon: Texture2D, title: String, desc: String, action: String, e
 	b.tooltip_text = title + "\n" + desc
 	b.pressed.connect(cb)
 	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if not costs.is_empty():
+		hb.add_child(PanelLayout.cost_chip(costs, not enabled))      # bedel düğmenin yanında simgeyle
 	hb.add_child(b)
 
 # ------------------------------------------------------------------ kararlar
@@ -600,10 +609,10 @@ func _decisions(c: Country) -> void:
 	for id: String in Politics.decisions:
 		var def: Dictionary = Politics.decisions[id]
 		var active := c.decisions_active.has(id)
-		var desc := Politics.describe_mods(def["mods"]).replace("\n", "  ") + "  ·  " + tr("TIP_DECISION") % [int(def["cost"]), int(def["days"])]
+		var desc := Politics.describe_mods(def["mods"]).replace("\n", "  ") + "  ·  " + tr("TIP_DECISION") % int(def["days"])
 		if def.get("requires_war", false):
 			desc += "  ·  " + tr("LAW_REQ_AT_WAR")
 		_row_button(UiTheme.decision_icon(id), Politics.loc(def["name"]) + ("  ✓" if active else ""), desc,
-			tr("POL_TAKE") % int(def["cost"]), Politics.can_take_decision(c, id), func() -> void:
+			tr("POL_TAKE"), Politics.can_take_decision(c, id), func() -> void:
 				Politics.take_decision(c, id)
-				refresh(), content)
+				refresh(), content, [["influence", float(def["cost"]), c.political_power]])

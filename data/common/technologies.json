@@ -1,5 +1,5 @@
 {
- "_comment": "Teknolojiler. cost: gün (araştırma hızı 1'de). year: bu yıldan önce araştırılırsa yıl başına +%150 süre. effects: modifier toplamları; unlock: ekipman/tabur.",
+ "_comment": "Teknolojiler. cost: gün (araştırma hızı 1'de). year: bu yıldan önce araştırılırsa yıl başına +%150 süre. effects: modifier toplamları; unlock: ekipman/tabur. Sanayi dalı sanayi puanını (SP) büyütür: fabrika çıktısı SP gelirini çarpar (Military.sp_output_mod). Hassas tezgâh +%10 (eski üretim verimlilik tavanı +0,1'in yerine: tavan yalnız artık oyuncunun kullanmadığı üretim hatlarındaydı; +%10 çıktı, 0,5'lik tavanın 0,6'ya çıkmasının (+%20) erken, hemen gelen yarısı), bant üretimi +%15 (eski +%10 çıktı ve +0,1 tavan), sentetik kauçuk +%5 (sentetik rafineri kalktı; ikame malzeme fabrikaları çalışır tutar). Orta tank: yeni zırhlı tümenler orta tankla kurulur (recruit.json upgrade) ve zırhlının personel ateşi +%10, tanksavar ateşi +%20 (hafif → orta tankın 30 mm zırhı ve 40 mm topunun, eski tümenlere de yansıyan payı).",
  "categories": {
   "governance": {
    "en": "National Projects",
@@ -249,7 +249,10 @@
     "en": "Medium Tank",
     "tr": "Orta Tank"
    },
-   "effects": {},
+   "effects": {
+    "armor_soft": 0.1,
+    "armor_hard": 0.2
+   },
    "unlock": [
     "medium_tank_equipment"
    ]
@@ -414,7 +417,7 @@
     "tr": "Hassas Takım Tezgâhları"
    },
    "effects": {
-    "production_efficiency_cap": 0.1
+    "factory_output": 0.1
    }
   },
   "construction_1": {
@@ -472,7 +475,7 @@
     "tr": "Sentetik Kauçuk"
    },
    "effects": {
-    "synthetic_output": 1.0
+    "factory_output": 0.05
    }
   },
   "industry_3": {
@@ -487,8 +490,7 @@
     "tr": "Bant Üretimi"
    },
    "effects": {
-    "factory_output": 0.1,
-    "production_efficiency_cap": 0.1
+    "factory_output": 0.15
    }
   },
   "radio": {

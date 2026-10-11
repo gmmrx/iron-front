@@ -92,7 +92,9 @@ func test_site_shader_uses_no_new_sampler_or_geometry_displacement() -> void:
 	var shader := FileAccess.get_file_as_string("res://assets/shaders/map3d.gdshader")
 	var samplers := RegEx.new()
 	samplers.compile("uniform\\s+sampler")
-	eq(samplers.search_all(shader).size(), 13, "şehir açıklığı mevcut WebGL sampler bütçesini arttırmaz")
+	# 14: keşif dokusu (recon_tex) eklenip etiket dokusu çıktıktan sonraki sayı; yayındaki web sürümünde (Chrome, WebGL2)
+	# harita bu sayıyla çiziliyor (11 Ekim 2026). Şehir açıklığı yeni sampler eklemez
+	eq(samplers.search_all(shader).size(), 14, "şehir açıklığı mevcut WebGL sampler bütçesini arttırmaz")
 	check(shader.contains("1.0 - terrain_sample.a"), "maske mevcut arazi alfasından okunur")
 	check(shader.contains("mix(height_normal(uv), vec3(0.0, 1.0, 0.0), site)"), "boyalı relief yalnız parselde yumuşar")
 	check(shader.contains("VERTEX.y = 0.0;"), "harita geometrisi daima düz kalır")

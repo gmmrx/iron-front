@@ -19,6 +19,13 @@
   trains for 14 days (it cannot move meanwhile); the conscription law changes this (Two-Year Service 13, Reserve
   Call-Up 16, Levée en Masse 20 days).
 
+- **Recruiting in cities** (state panel → Recruit in …): infantry division 120 SP (7 days of training), armoured
+  division 300 SP (10 days), fighter / close support / bomber wing 150 / 180 / 240 SP at the nearest air base, ships in a
+  port with a naval base. Training days follow the military service law (Two-Year Service −5%, Reserve Call-Up +15%,
+  Levée en Masse +40%). Planes and ships need the research that unlocks them (Close Air Support, Tactical Bomber,
+  Cruisers, Submarines, Battleships…): until then the Buy button is grey and its tooltip names the research. Once
+  **Medium Tank** is researched, new armoured divisions come with medium tanks instead of light ones (same price).
+
 ## Orders
 - Select with left click / box, **right click** (on the web and on Mac: Ctrl + left click while divisions are selected) to
   move to or attack the target region. Right-clicking **another counter** sends the divisions to that counter's region
@@ -128,7 +135,9 @@ own name. Names only appear close up.
 
 ### The front line
 While you are at war, the border between regions held by your side (you and your allies) and regions held by your
-enemies glows like a seam of fire under the ground, at every zoom. Click next to it and the **front panel** opens at the
+enemies is drawn like a front on a war map: a thick dark-red line with short teeth pointing at the enemy, printed on the
+map. Far away only the line shows, always a few pixels thick (the border never disappears in a war); up close it widens
+with the map and the teeth show, and on curves the teeth shorten instead of fanning out. Click next to it and the **front panel** opens at the
 bottom: the two regions, the divisions on each side (number · average strength; "?" under the fog of war), your share of
 the air over the enemy region and the battle going on there (each side's cohesion left). Two buttons send a free air
 wing that can reach the front: **Air support** (close support over the battle, or the enemy region if there is none)
@@ -140,8 +149,10 @@ Supply reaches at most 9 regions into occupied land from a source on friendly so
 are out of supply: attack −35%, slow recovery. The top bar shows the share of supplied divisions.
 
 ## Air (H)
-Aircraft in stock are **not used by themselves**: **Form wing** turns up to 100 of them into a wing at the air base
-nearest the capital. Missions: standby, air superiority, close air support, port strike, **bombing**. The "Automatic"
+Wings are bought in your cities with SP (state panel). **Reinforce** fills a wing back to 100 planes: planes in the
+stock first, the rest bought with SP (a plane costs a hundredth of its wing's price; the tooltip shows the bill).
+Aircraft in stock (e.g. from a disbanded wing) are **not used by themselves**: while there are some, the **Deploy planes**
+row shows and **Form wing** turns up to 100 of them into a wing at the air base nearest the capital. Missions: standby, air superiority, close air support, port strike, **bombing**. The "Automatic"
 box starts off.
 - **Region first, then the mission**: with the air panel open, click a region on the map. It becomes the **target** at the
   top of the panel, with our air superiority there and, for an enemy state, its bombing damage. Every wing gets a row

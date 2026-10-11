@@ -91,7 +91,7 @@ body { color: #e8dfc8; background-color: #0b0d10; overflow: hidden; touch-action
 				<div id="status-notice"></div>
 			</div>
 			<div id="status-music" title="Loading music">♪ Music: on</div>
-			<div id="status-hint">First load is about 370 MB · a desktop browser is recommended</div>
+			<div id="status-hint">The first load is large (its size shows above) · a desktop browser is recommended</div>
 		</div>
 
 		<audio id="loading-music" src="loading_theme.mp3" loop preload="auto"></audio>
@@ -114,13 +114,13 @@ const engine = new Engine(GODOT_CONFIG);
 		'Guarding your supply lines decides how hard your front-line troops can fight.',
 		'A division waiting next to the enemy builds up preparation: its first blow lands harder.',
 		'Attacks across a river lose 30%; try to open the bridgehead from another side.',
-		'In winter, attacks north of 45° weaken and troops without winter kit wear down.',
+		'In winter, attacks north of 45° weaken and the troops standing there slowly wear down.',
 		'Divisions shipped across seas you do not control take losses on the way.',
 		'Civilian factories build military factories: industry first, then the army.',
-		'State programs cannot be undone; each one takes 35–70 days.',
-		'Deploy air wings to a base and give them a mission region; they cannot fly beyond their range.',
-		'Armoured and motorised divisions burn fuel; without oil they lose 35% of their strength.',
-		'Form armies and give them a front: their divisions spread out to match the enemy.',
+		'Research unlocks units: close support planes, bombers and new ship types are bought only once researched.',
+		'Give an air wing a target region and a mission: it moves to the nearest air base in range by itself.',
+		'Factory output from research, laws and advisors multiplies the industry points your factories give every day.',
+		'Motivate fighting divisions with influence: part of their cohesion returns at once and they fight harder for two days.',
 	];
 	// loading music: if the browser blocks autoplay it starts on the first click/key; the choice is remembered
 	const music = document.getElementById('loading-music');

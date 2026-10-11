@@ -42,7 +42,11 @@ func _assert_card(card: ForceSelectionCard, selected: bool, context: String) -> 
 	eq(bool(card.get_meta("force_selected")), selected, context + ": selected surface state")
 	eq(card.toggle_button.button_pressed, selected, context + ": checkbox/checkmark state")
 	check(not bool(card.get_meta("force_partial")), context + ": fleet/wing is a single, not partial selection")
-	check(card.get_theme_stylebox("panel").get("surface") != null, context + ": existing CommandPanelSkin artwork remains in use")
+	var box := card.get_theme_stylebox("panel")
+	if selected:
+		check(box.get("surface") == null and float(box.get("edge_width")) == 0.0, context + ": selected card is a plain fill, no frame")
+	else:
+		check(box.get("surface") != null, context + ": existing CommandPanelSkin artwork remains in use")
 
 func test_navy_map_sync_click_toggle_and_clear_never_issue_orders() -> void:
 	var panel := _navy()

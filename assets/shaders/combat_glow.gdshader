@@ -1,5 +1,7 @@
 shader_type spatial;
-render_mode unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabled;
+// Normal karışım (toplamalı değil): açık renkli siyasi haritada toplamalı çakma ve mermi izi beyaza yakın soluk kalıp
+// seçilmiyordu; sıcak turuncu-sarı çekirdek her zeminde okunur (HDR değer parlamaya yine katılır).
+render_mode unshaded, blend_mix, depth_draw_never, cull_disabled, shadows_disabled;
 uniform bool srgb_out = false;
 varying vec4 effect;
 void vertex() { effect = INSTANCE_CUSTOM; }
@@ -17,7 +19,7 @@ void fragment() {
 	} else {
 		// Short streak with a hot head and soft tapered tail, never a solid box.
 		float along = 1.0 - UV.y; // Quad +Y is flight direction, UV.y=0 is the head.
-		a = exp(-p.x * p.x * 22.0) * smoothstep(0.0, 0.16, along) * (0.2 + 0.8 * along);
+		a = exp(-p.x * p.x * 9.0) * smoothstep(0.0, 0.16, along) * (0.2 + 0.8 * along);
 		a *= 1.0 - smoothstep(0.88, 1.0, along);
 	}
 	a *= COLOR.a * (1.0 - smoothstep(0.55, 1.0, age));

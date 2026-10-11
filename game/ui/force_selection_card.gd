@@ -46,7 +46,7 @@ func _init() -> void:
 	select_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for state: String in ["normal", "hover", "pressed"]:
 		select_button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	select_button.add_theme_stylebox_override("focus", CommandPanelSkin.box("hover", 0))
+	select_button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	select_button.pressed.connect(func() -> void: selection_requested.emit())
 	header.add_child(select_button)
 	var row := VBoxContainer.new()
@@ -116,7 +116,8 @@ func set_compact(on := true) -> void:
 	set_selected(bool(get_meta("force_selected", false)), bool(get_meta("force_partial", false)))
 
 static func apply(panel: PanelContainer, selected: bool, partial := false, inset := 10) -> void:
-	panel.add_theme_stylebox_override("panel", CommandPanelSkin.box("selected" if selected or partial else "card", inset))
+	# seçili kart çerçevesiz (sıcak dolgu); seçimi işaret kutusu da gösterir
+	panel.add_theme_stylebox_override("panel", CommandPanelSkin.selected_plain(inset) if selected or partial else CommandPanelSkin.box("card", inset))
 	panel.set_meta("force_selected", selected)
 	panel.set_meta("force_partial", partial)
 
@@ -134,6 +135,6 @@ static func checkbox(selected: bool, pressed: Callable, tip := "", partial := fa
 	for state: String in ["normal", "pressed", "hover_pressed", "disabled"]:
 		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	button.add_theme_stylebox_override("hover", CommandPanelSkin.box("hover", 0))
-	button.add_theme_stylebox_override("focus", CommandPanelSkin.box("selected", 0))
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.pressed.connect(pressed)
 	return button

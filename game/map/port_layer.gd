@@ -1,16 +1,22 @@
 class_name PortLayer
 extends Node3D
-## One grounded native 3D naval facility per coastal state. No icon or civilian ship.
+## One grounded naval facility per coastal state (2D picture or native 3D model: PORT_IMAGE_ON). No icon or civilian ship.
 ## All sizes are map-world units; camera distance only gates visibility.
 
 const MODELS := preload("res://game/map/port_models.gd")
 const WORLD_WIDTH := 2.6
+## Deneme: limanın 3D modeli yerine 2D resim (assets/port.png, kameraya bakar); kıyıya oturtma ve filoların liman
+## noktası aynı kalır. false: 3D model
+const PORT_IMAGE_ON := true
+const PORT_IMAGE := "res://assets/port.png"
+const PORT_IMAGE_WIDTH := 6.0
+const PORT_IMAGE_BASE := 0.15         ## resmin altındaki pay (boyunun katı): iskele kıyıya oturur
 const VISIBILITY_END := 380.0
 const COAST_STEP := 0.5
 const COAST_REACH := 180.0
 var map: MapView3D
 var cities: Node3D
-var ports := {}                    ## state id -> MeshInstance3D
+var ports := {}                    ## state id -> görseli (resim ya da 3D model: _port_node)
 var placements := {}               ## state id -> actual fitted native footprint metadata
 var _models := MODELS.new()
 var _coast_cache := {}
@@ -49,10 +55,10 @@ func pick_building(screen: Vector2, camera: MapCamera3D) -> Dictionary:
 	var nearest := INF
 	for sid: int in placements:
 		var site: Dictionary = placements[sid]
-		var node: MeshInstance3D = site["node"]
+		var node: GeometryInstance3D = site["node"]
 		if not node.visible or Military.state_fogged(World.states.get(sid)):
 			continue
-		var bounds: AABB = node.global_transform * node.mesh.get_aabb()
+		var bounds: AABB = node.global_transform * node.get_aabb()
 		var center := bounds.get_center()
 		var distance := camera.global_position.distance_squared_to(center)
 		if distance > VISIBILITY_END * VISIBILITY_END or camera.is_position_behind(center):
@@ -89,10 +95,8 @@ func _add_state(sid: int) -> void:
 	if site.is_empty():
 		push_warning("[ports] no dry quay / wet pier fit for %s" % city.name)
 		return
-	var node := MeshInstance3D.new()
+	var node := _port_node(model, site)
 	node.name = "Port_%d" % sid
-	node.mesh = model["mesh"]
-	node.transform = (site["placement"] as Transform3D) * (model["transform"] as Transform3D)
 	node.visibility_range_end = VISIBILITY_END
 	node.visibility_range_end_margin = VISIBILITY_END * 0.12
 	node.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
@@ -109,6 +113,25 @@ func _add_state(sid: int) -> void:
 	placements[sid] = site
 	# FleetLayer consumes this exact API and walks from here into the sea.
 	map.harbors[city.province_id] = [site["position"], site["direction"]]
+
+## Limanın görseli: resim (PORT_IMAGE_ON; kıyı noktasında, kameraya bakar) ya da kıyıya oturtulmuş 3D model
+func _port_node(model: Dictionary, site: Dictionary) -> GeometryInstance3D:
+	var tex := load(PORT_IMAGE) as Texture2D if PORT_IMAGE_ON else null
+	if tex:
+		var img := Sprite3D.new()
+		img.texture = tex
+		img.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		img.shaded = false
+		img.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		img.pixel_size = PORT_IMAGE_WIDTH / float(tex.get_width())
+		img.offset.y = float(tex.get_height()) * (0.5 - PORT_IMAGE_BASE)
+		img.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		img.position = (site["placement"] as Transform3D).origin
+		return img
+	var node := MeshInstance3D.new()
+	node.mesh = model["mesh"]
+	node.transform = (site["placement"] as Transform3D) * (model["transform"] as Transform3D)
+	return node
 
 func _is_land(p: Vector2) -> bool:
 	var key := Vector2i(floori(p.x), floori(p.y))

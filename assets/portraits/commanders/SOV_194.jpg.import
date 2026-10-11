@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bcitmghubaovk"
-valid=false
+path="res://.godot/imported/SOV_194.jpg-43e2efac8e7f96314336ff45a4ae4644.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/portraits/commanders/SOV_194.jpg"
+dest_files=["res://.godot/imported/SOV_194.jpg-43e2efac8e7f96314336ff45a4ae4644.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

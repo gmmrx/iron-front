@@ -305,8 +305,9 @@ func test_unit_layer_zoom_modes() -> void:
 			var c: Dictionary = ul._counters[key]
 			var fig: Node3D = c.get("fig")
 			if UnitLayer.FIGURES and mode[1] in ["bileşim", "sayı"]:
-				# yakında kaideli figür: levha, sayı yazısı ve rozet gizli
-				if fig == null or not fig.visible or c["bg"].visible or c["label"].visible or c["flag"].visible: wrong += 1
+				# yakında kaideli figür: levha ve levha yazısı gizli; "bayrak | sayı" rozeti figürün başının üstünde
+				if fig == null or not fig.visible or c["bg"].visible or c["label"].visible: wrong += 1
+				if not c["flag"].visible or not c["clabel"].visible or (c["flag"] as Node3D).position.y <= 0.0: wrong += 1
 				if not c.get("merged", false) and not c["root"].visible: wrong += 1
 				continue
 			if fig != null and fig.visible: wrong += 1
@@ -851,9 +852,11 @@ func test_crowded_stack_is_a_deck() -> void:
 			shown.append(c)
 	if eq(shown.size(), 1, "kapalı destede tek kart görünür"):
 		var lead: Dictionary = shown[0]
-		# gösterilen sayı: figür kipinde figürün sayısı (sayaçta tutulur), levhada levha yazısı
-		var num: String = UnitLayer.count_text(int(lead.get("count", -1))) if UnitLayer.FIGURES else String(lead["label"].text)
+		# gösterilen sayı (figürde, rozette ve levhada aynı: tek yazıcı)
+		var num: String = String((lead["clabel"] as Label3D).text)
 		eq(num, str(total) if total < 1000 else num, "sayısı destedeki bütün tümenler")
+		if not UnitLayer.FIGURES:
+			eq(String(lead["label"].text), num, "levha da aynı sayıyı yazar")
 		eq(ul._counter_divs(lead).size(), total, "tıklayınca destenin hepsi seçilir")
 		check((lead["edges"] as Array).any(func(e: Sprite3D) -> bool: return e.visible), "arkasında deste kenarı")
 	_tree().root.remove_child(ul)

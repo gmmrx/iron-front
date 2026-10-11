@@ -66,7 +66,7 @@ func _boot_step(f: float) -> void:
 		await get_tree().process_frame
 
 func _ready() -> void:
-	var terrain := Image.load_from_file(TERRAIN_PATH)
+	var terrain := _map_image(TERRAIN_PATH)
 	await _boot_step(0.2)
 	terrain.convert(Image.FORMAT_RGBA8)       # mevcut RGB korunur, başlangıç alfası 1
 	_city_terrain_image = terrain
@@ -76,7 +76,7 @@ func _ready() -> void:
 	_province_la = _province_image.get_format() == Image.FORMAT_LA8
 	if _province_la and UnitModels.COMPAT:
 		_province_image.convert(Image.FORMAT_RGBA8)   # GLES3/WebGL2'de LA8 yok; R=L, A=A korunur, çözümleme (R + A*256) aynı kalır
-	var borders := Image.load_from_file(BORDERS_PATH)
+	var borders := _map_image(BORDERS_PATH)
 	map_size = Vector2(_province_image.get_size())
 	await _boot_step(0.45)
 	_height_image = _load_heightmap()
@@ -159,8 +159,21 @@ func _ready() -> void:
 	is_built = true
 	built.emit()
 
+## Harita resmi: web paketinde kayıpsız WebP'dir (aynı ad .webp, saydam piksellerin verisi dahil birebir;
+## tools/web/pack_data.py), masaüstünde ve depoda PNG
+static func _map_image(path: String) -> Image:
+	var webp := path.get_basename() + ".webp"
+	return Image.load_from_file(webp if FileAccess.file_exists(webp) else path)
+
 func _load_heightmap() -> Image:
 	var meta: Array = World.heightmap_size
+	var half_path := HEIGHT_PATH.replace(".r32", ".r16") + ".gz"
+	if FileAccess.file_exists(half_path):
+		# yarım duyarlıklı (float16) gzip: paket 40 → 19 MB, GPU belleği yarıya iner; yükseklik yalnız gölgelendiricide
+		# kabartma için okunur (zemin düz), en büyük sapma zirvelerde 2 m. Biçim RH: WebGL2'de doğrusal süzülür (RF süzülmez)
+		var fh := FileAccess.open(half_path, FileAccess.READ)
+		var half := fh.get_buffer(fh.get_length()).decompress(int(meta[0]) * int(meta[1]) * 2, FileAccess.COMPRESSION_GZIP)
+		return Image.create_from_data(int(meta[0]), int(meta[1]), false, Image.FORMAT_RH, half)
 	var raw_size := int(meta[0]) * int(meta[1]) * 4
 	var bytes: PackedByteArray
 	if FileAccess.file_exists(HEIGHT_PATH + ".gz"):
@@ -316,11 +329,11 @@ func _setup_detail_textures() -> void:
 	var avg := PackedVector3Array()
 	for i in info["layers"].size():
 		var name: String = info["layers"][i]
-		var a := Image.load_from_file(DETAIL_DIR + name + "_albedo.png")
+		var a := _map_image(DETAIL_DIR + name + "_albedo.png")
 		a.generate_mipmaps()
 		albedo.append(a)
 		if not UnitModels.COMPAT:
-			var n := Image.load_from_file(DETAIL_DIR + name + "_normal.png")
+			var n := _map_image(DETAIL_DIR + name + "_normal.png")
 			n.generate_mipmaps()
 			normal.append(n)
 		var c: Array = info["avg"][i]
@@ -333,7 +346,7 @@ func _setup_detail_textures() -> void:
 		tn.create_from_images(normal)
 		_material.set_shader_parameter("detail_normal", tn)
 	_material.set_shader_parameter("detail_avg", avg)
-	_material.set_shader_parameter("biome_tex", ImageTexture.create_from_image(Image.load_from_file(BIOME_PATH)))
+	_material.set_shader_parameter("biome_tex", ImageTexture.create_from_image(_map_image(BIOME_PATH)))
 
 var _cloud_material: ShaderMaterial
 var _cloud_mesh: Node3D

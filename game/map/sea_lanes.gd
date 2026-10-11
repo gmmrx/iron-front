@@ -15,10 +15,10 @@ static func _ensure() -> void:
 	if _loaded:
 		return
 	_loaded = true
-	var f := FileAccess.open("res://data/map/sea_lanes.json", FileAccess.READ)
-	if f == null:
+	var text := World.read_text("res://data/map/sea_lanes.json")      # web paketinde .gz
+	if text == "":
 		return
-	var d: Dictionary = JSON.parse_string(f.get_as_text())
+	var d: Dictionary = JSON.parse_string(text)
 	for k: String in d.get("nodes", {}):
 		var p: Array = d["nodes"][k]
 		_nodes[int(k)] = Vector2(p[0], p[1])

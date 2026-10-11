@@ -31,6 +31,7 @@ var feed: NotificationFeed
 var pause_menu: PauseMenu
 var game_over: GameOverScreen
 var task_bar: VBoxContainer
+var menu_buttons := {}                 ## sol menü düğmeleri: politics, diplomacy, research, navy, air, recon (öğretici vurgular)
 var alerts: AlertBar
 var select_box: Panel
 
@@ -123,6 +124,7 @@ func _ready() -> void:
 		b.tooltip_text = "%s\n%s" % [label, tr(tipkey)]
 		b.custom_minimum_size = Vector2(TopBar.MENU_ICON, TopBar.MENU_ICON * 62.0 / 66.0)
 		b.pressed.connect(t[2])
+		menu_buttons[String(t[3]).trim_prefix("menu_")] = b
 		var m := RegEx.create_from_string("\\(([^)]+)\\)").search(label)
 		if m:
 			# kısayol harfi sağ alt köşede, okunsun diye küçük siyah zemin üstünde

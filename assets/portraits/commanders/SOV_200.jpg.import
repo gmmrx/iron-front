@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/SOV_200.jpg-4e593700df463dafc90e000a190bc795.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

@@ -66,6 +66,7 @@ const GLOW_GOOD := Color(0.42, 0.9, 0.36)
 const GLOW_BAD := Color(0.95, 0.3, 0.22)
 const DIE_TIME := 2.6              ## yok olan sayaç siyah-beyaz durur, son saniyede yavaşça söner
 const COMMANDER_BODY_SHIFT := 24.0 ## portre takılıyken plakayı sağa al; tüm işaret iğneye göre ortalı kalır
+const CHIP_HEAD_GAP := 2.5         ## yakında "bayrak | sayı" rozeti figürün başının bu kadar üstünde (dünya birimi)
 
 var map: MapView3D
 var camera: Camera3D
@@ -76,7 +77,6 @@ var selected: Array[Division] = []
 var _counters := {}                ## "pid:tag" -> {root, label, org, str, divs}
 var _counter_tex := {}             ## tag -> Texture2D
 static var _flag_tex := {}         ## "tag:seçili" -> çerçeveli küçük bayrak
-var _battle_nodes := {}            ## pid -> Node3D
 var _arrows: MeshInstance3D
 var _arrow_mat: ShaderMaterial
 var _white: Texture2D
@@ -203,8 +203,12 @@ func _process(delta: float) -> void:
 			c["label"].visible = far == 0 and not show_comp and not figure
 			if c.get("fig") != null:
 				(c["fig"] as Node3D).visible = figure
-			c["flag"].visible = far == 1
-			c["clabel"].visible = far == 1
+			# "bayrak | sayı" rozeti: uzakta haritada, yakında figürün başının üstünde (haritadaki rozetin aynısı)
+			c["flag"].visible = far == 1 or figure
+			c["clabel"].visible = far == 1 or figure
+			var chip_y := float((c["fig"] as Node3D).get_meta("head", 1.3)) * FIG_SIZE + CHIP_HEAD_GAP if figure else 0.0
+			(c["flag"] as Node3D).position.y = chip_y
+			(c["clabel"] as Node3D).position.y = chip_y
 			c["army"].visible = false
 			_place_stars(c)
 			for sub: Array in subs:
@@ -396,7 +400,7 @@ func _goal_base(c: Dictionary, key: String, divs: Array, delta: float, frame: in
 		if c.has("post_goal"):
 			goal = c["post_goal"]
 		elif foe > 0:
-			goal = _border_spot(pid, foe)
+			goal = _free_post(key, pid, foe)
 			c["post_pid"] = pid
 			c["post_goal"] = goal
 	# sıçramaz: yeni bölgeye giren, geri çekilen figür oraya yürür (HOP_SPEED). Uzun sıçrama (çıkarma, konuşlanma) ve
@@ -454,10 +458,13 @@ func _combat_foe(pid: int, divs: Array) -> int:
 			best = q
 	return best
 
-## Sınırdaki duruş yeri: kendi bölgesinin noktasından düşman bölgesininkine yürürken sınırın kesildiği yer, kendi tarafına
-## BORDER_GAP geri çekilmiş (iki taraf arasında ~2 × BORDER_GAP: menzilden ateş, dip dibe değil). Sınırlar değişmez:
-## önbellekli.
+## Sınırdaki duruş yeri: kendi bölgesinin noktasından düşman bölgesine yürürken sınırın kesildiği yer, kendi tarafına
+## BORDER_GAP geri çekilmiş (iki taraf arasında ~2 × BORDER_GAP: menzilden ateş, dip dibe değil). Kesim düşmanın sınırında
+## olmalı: düz çizgi önce kendi tarafının başka bir bölgesine giriyorsa (düşmana köşeden değen bölge) düşman yönünün
+## çevresinde, kendi bölgesinden doğrudan düşmana çıkan en yakın yön seçilir; yoksa figür komşu dost bölgenin figürünün
+## dibinde dururdu. Sınırlar değişmez: önbellekli.
 const BORDER_GAP := 10.0
+const BORDER_FAN := [0.0, 0.21, -0.21, 0.42, -0.42, 0.63, -0.63, 0.84, -0.84, 1.05, -1.05]   ## denenen yön sapmaları (radyan)
 var _border := {}
 func _border_spot(own: int, foe: int) -> Vector2:
 	var k := own * 1000003 + foe
@@ -465,19 +472,60 @@ func _border_spot(own: int, foe: int) -> Vector2:
 		return _border[k]
 	var a := _tile_spot(own)
 	var b := World.unwrap_near(a, _tile_spot(foe))
-	var dir := (b - a).normalized()
-	var len := a.distance_to(b)
-	var cut := a.lerp(b, 0.5)
-	var t := 0.0
-	while t < len:
-		var p := a + dir * t
-		var q := map.province_at(p)
-		if q != own and q != 0:
-			cut = p
+	var dir0 := (b - a).normalized()
+	var len := a.distance_to(b) * 1.5
+	var spot := Vector2.INF
+	var fallback := Vector2.INF
+	for ang: float in BORDER_FAN:
+		var dir := dir0.rotated(ang)
+		var t := 0.0
+		while t < len:
+			var p := a + dir * t
+			var q := map.province_at(p)
+			if q != own and q != 0:
+				var at := p - dir * minf(BORDER_GAP, t)
+				if q == foe:
+					spot = at
+				elif fallback == Vector2.INF:
+					fallback = at                      # düz çizginin eski sonucu: düşmana hiçbir yönden çıkılmazsa
+				break
+			t += 1.0
+		if spot != Vector2.INF:
 			break
-		t += 1.0
-	var spot := cut - dir * minf(BORDER_GAP, cut.distance_to(a))
+	if spot == Vector2.INF:
+		spot = fallback if fallback != Vector2.INF else a.lerp(b, 0.5)
 	_border[k] = spot
+	return spot
+
+## Muharebedeki duruş yeri, başka bir figürün duruş yerine binmeden: sınır boyunca yana (sonra geriye) kayar, kendi
+## bölgesinin içinde kalır. Uzaklık figür örtüşmesiyle aynı ölçülü uzayda (kuzey-güney FIG_DEPTH ile geniş).
+func _free_post(key: String, pid: int, foe: int) -> Vector2:
+	var spot := _border_spot(pid, foe)
+	var dmin := 2.0 * FIG_SIZE * UnitFigures.BASE_R * FIG_GAP
+	var kz := dmin / (FIG_SIZE * FIG_DEPTH)
+	var taken: Array[Vector2] = []
+	for k2: String in _counters:
+		var o: Dictionary = _counters[k2]
+		if k2 != key and o.has("post_goal") and (o["root"] as Node3D).visible:
+			taken.append(o["post_goal"])
+	if taken.is_empty():
+		return spot
+	var a := _tile_spot(pid)
+	var fwd := (spot - a).normalized() if spot.distance_to(a) > 0.01 else Vector2.UP
+	var side := Vector2(-fwd.y, fwd.x)
+	for step: Vector2 in [Vector2.ZERO, Vector2(1, 0), Vector2(-1, 0), Vector2(1, -1), Vector2(-1, -1), Vector2(0, -1),
+			Vector2(2, 0), Vector2(-2, 0), Vector2(0, -2), Vector2(2, -1), Vector2(-2, -1)]:
+		var cand := spot + (side * step.x + fwd * step.y) * dmin * 1.05
+		if step != Vector2.ZERO and map.province_at(cand) != pid:
+			continue
+		var free := true
+		for q: Vector2 in taken:
+			var dv := World.unwrap_near(cand, q) - cand
+			if Vector2(dv.x, dv.y * kz).length() < dmin:
+				free = false
+				break
+		if free:
+			return cand
 	return spot
 
 ## Figürler (yakında) birbirinin içinden geçmez, araziye oturur, gittikleri yöne dönerler:
@@ -568,10 +616,6 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 			av = av.move_toward(push, rate * delta)
 			c["av"] = av
 		var fig: Node3D = c["fig"]
-		var fl: Label3D = fig.get_node_or_null("h/n")
-		var ft := count_text(_shown_count(c))
-		if fl and fl.text != ft:
-			fl.text = ft
 		var xz: Vector2 = (c["pos0"] as Vector2) + av
 		# askerin yönü: yer değişiminin yönü (gerçek sn başına dünya birimi, yumuşatılmış); muharebede düşmana
 		var vel: Vector2 = c.get("vel", Vector2.ZERO)
@@ -596,7 +640,7 @@ func _place_figures(figs: Array[String], delta: float) -> void:
 				want = UnitFigures.FACE_DIR
 		var yaw: float = c.get("yaw", deg_to_rad(UnitFigures.FACE_YAW))
 		var yaw_t := UnitFigures.yaw_for(want) - (UnitFigures.aim_yaw(UnitFigures.kind_of(c.get("fig"))) if aim else 0.0)
-		c["aim_ready"] = not me[1] and aim and absf(wrapf(yaw_t - yaw, -PI, PI)) < deg_to_rad(15.0)
+		c["aim_ready"] = not me[1] and aim and absf(wrapf(yaw_t - yaw, -PI, PI)) < deg_to_rad(40.0)
 		if yaw != yaw_t:
 			yaw = rotate_toward(yaw, yaw_t, FIG_TURN * delta)
 			c["yaw"] = yaw
@@ -658,7 +702,7 @@ func _swap_fig(c: Dictionary, tag: String, fk: String) -> void:
 	fig.scale = old.scale
 	fig.position = old.position
 	fig.visible = old.visible
-	UnitFigures.set_count(fig, int(c.get("count", (c["divs"] as Array).size())))
+	UnitFigures.set_count(fig, _shown_count(c))
 	UnitFigures.set_yaw(fig, float(c.get("yaw", deg_to_rad(UnitFigures.FACE_YAW))))
 	old.get_parent().add_child(fig)
 	old.queue_free()
@@ -1154,7 +1198,8 @@ func _rebuild() -> void:
 	GameClock.timed("ur_group", __t0); __t0 = Time.get_ticks_usec()
 	_tile_key.clear()
 	for key: String in groups:
-		_tile_key["%s:%s" % [key.get_slice(":", 0), key.get_slice(":", 1)]] = key
+		if not key.get_slice(":", 3).begins_with(">"):   # yalnız duranlar: gelen asker bölgeden ayrılmakta olana katılmasın
+			_tile_key["%s:%s" % [key.get_slice(":", 0), key.get_slice(":", 1)]] = key
 	_sel_keys.clear()
 	# sayaçlar tümenleri izler, anahtarı değil: her yığın tümenlerinin çoğunu taşıyan eski sayacı devralır (yürümeye
 	# başladı, bölge değiştirdi, vardı, küme sırası değişti). Silinip yeniden kurulunca sayaç sönüp başka yerde
@@ -1365,9 +1410,7 @@ func _rebuild() -> void:
 			if c.get("look", Vector4i(-1, -1, -1, -1)) != look or c.get("hq", false) != is_hq:
 				c["look"] = look
 				c["hq"] = is_hq
-				if not FIGURES:
-					set_count(c["label"], divs.size(), 42)       # figür kipinde levha yazısı hiç görünmez
-				set_count(c["clabel"], divs.size(), 30)
+				_write_count(c)
 				c["bg"].texture = _tex_for(tag, ob, sb, sel, kind, is_hq)
 				c["flag"].texture = flag_marker(tag, sel)
 			c["selected"] = sel
@@ -1897,10 +1940,13 @@ func _tile_merge() -> void:
 	_merge_walkers()
 	_refresh_counts()
 
-## Yürüyen figür hedef bölgesinin sınırını geçtiği an oradaki kendi figürüne katılır (sayısı ona eklenir); hedefte kendi
-## askeri yoksa hedefin noktasına yürür. Yol üstündeki bölgelerde (izinle geçilen başka ülkeler dahil) katılmaz.
+## Aynı bölgedeki aynı ülkenin askerleri tek figürdür. Yürüyen figür varacağı bölgeye girdiği an oradaki kendi figürüne
+## katılır (sayısı ona eklenir); orada duran figürü yoksa o bölgeye giren yürüyenler tek figürdür (en kalabalığı taşır).
+## Yolunun geçtiği bölgelerde (izinle geçilen başka ülkeler dahil) katılmaz, geçip gider; çıktığı bölgede grubundan olduğu
+## yerde ayrılır. Bölge, figürün haritadaki yerinden (_map_xz).
 func _merge_walkers() -> void:
-	var changed := false
+	var hosts := {}                                   # "bölge:ülke" -> o bölgeye giren yürüyenleri taşıyan (duran figür yoksa)
+	var arrived := {}                                 # yürüyen anahtarı -> varacağı bölgeye girdi: o bölge
 	for key: String in _counters:
 		var c: Dictionary = _counters[key]
 		if not c.get("walking", false) or c.get("tile_merged", false) and str(c.get("walk_into", "")) == "":
@@ -1910,17 +1956,38 @@ func _merge_walkers() -> void:
 			continue
 		var d0: Division = divs[0]
 		var dest: int = d0.path[d0.path.size() - 1]
-		var hk2: String = _tile_key.get("%d:%s" % [dest, c["tag"]], "")
+		if map.province_at(_map_xz(c)) != dest:
+			continue
+		arrived[key] = dest
+		var tk := "%d:%s" % [dest, c["tag"]]
+		var hk: String = _tile_key.get(tk, "")
+		if hk != "" and hk != key and _counters.has(hk) and int(_merge_stay.get(hk, 0)) > 0:
+			continue                                  # orada duran figürü var: ona katılır
+		var best: String = hosts.get(tk, "")
+		var n := divs.size()
+		var nb := (_counters[best]["divs"] as Array).size() if best != "" else -1
+		if n > nb or (n == nb and key < best):
+			hosts[tk] = key
+	var changed := false
+	for key: String in _counters:
+		var c: Dictionary = _counters[key]
+		if not c.has("walk_into") and not arrived.has(key):
+			continue
+		if c.get("tile_merged", false) and str(c.get("walk_into", "")) == "":
+			continue                                  # tümenleri başka bölgeye geçti (_tile_merge)
 		var into := ""
-		if hk2 != "" and hk2 != key and _counters.has(hk2) and int(_merge_stay.get(hk2, 0)) > 0:
-			var ra: Node3D = c["root"]
-			if map.province_at(Vector2(ra.position.x, ra.position.z)) == dest:
-				into = hk2
+		if arrived.has(key):
+			var tk := "%d:%s" % [int(arrived[key]), c["tag"]]
+			var hk: String = _tile_key.get(tk, "")
+			if hk != "" and hk != key and _counters.has(hk) and int(_merge_stay.get(hk, 0)) > 0:
+				into = hk
+			elif str(hosts.get(tk, key)) != key:
+				into = hosts[tk]
 		var prev: String = c.get("walk_into", "")
 		if into == prev:
 			continue
 		changed = true
-		var n := divs.size() - int(c.get("gone", 0))
+		var n := (c["divs"] as Array).size() - int(c.get("gone", 0))
 		if prev != "" and _counters.has(prev):
 			_counters[prev]["extra"] = maxi(0, int(_counters[prev].get("extra", 0)) - n)
 		if into != "":
@@ -1932,18 +1999,45 @@ func _merge_walkers() -> void:
 	if changed:
 		_refresh_counts()
 
+## Figürün haritadaki yeri (gizliyken de güncel): yakında yerleştirildiği nokta (yığın ve yol verme payıyla), uzakta kökün
+## yeri
+func _map_xz(c: Dictionary) -> Vector2:
+	if FIGURES and _was_far == 0 and c.has("pos0"):
+		return (c["pos0"] as Vector2) + (c.get("av", Vector2.ZERO) as Vector2)
+	var rp: Vector3 = (c["root"] as Node3D).position
+	return Vector2(rp.x, rp.z)
+
 ## Figür sayıları (yakında figürde, uzakta rozette): değişince yazılır
 func _refresh_counts() -> void:
-	for key: String in _counters:
-		var c: Dictionary = _counters[key]
-		var n := _shown_count(c)
-		if int(c.get("shown_n", -1)) != n:
-			c["shown_n"] = n
-			set_count(c["clabel"], n, 30)
+	_apply_counts()
 
-## Figürde yazan sayı: kendi tümenleri, başka bölgedeki figüre katılanlar düşülür, bu bölgeye katılanlar eklenir
+## Sayacın kendi tümen sayısı: kendi tümenleri, başka bölgedeki figüre katılanlar düşülür, bu bölgeye katılanlar eklenir
+func _own_count(c: Dictionary) -> int:
+	return maxi((c["divs"] as Array).size() - int(c.get("gone", 0)) + int(c.get("extra", 0)), 0)
+
+## Yazan sayı: işaretin temsil ettiği bütün tümenler. Kapalı destenin çapası (yakında) ve uzak kümenin lideri
+## üyelerinin toplamını yazar; gizlenen üyeler kendi sayısını yazmaz. Her zoom'da aynı tümenler aynı toplamı verir.
 func _shown_count(c: Dictionary) -> int:
-	return maxi(int(c.get("count", (c["divs"] as Array).size())) - int(c.get("gone", 0)) + int(c.get("extra", 0)), 0)
+	var mem: Array = c.get("members", [])
+	if mem.size() < 2:
+		return _own_count(c)
+	var n := 0
+	for k: String in mem:
+		if _counters.has(k):
+			n += _own_count(_counters[k])
+	return n
+
+## Sayı tek yerden yazılır (figürün kaidesi ve başı, rozet, levha aynı sayıyı gösterir); yalnız değişince
+func _write_count(c: Dictionary) -> void:
+	var n := _shown_count(c)
+	if int(c.get("shown_n", -1)) == n:
+		return
+	c["shown_n"] = n
+	if not FIGURES:
+		set_count(c["label"], n, 42)                      # figür kipinde levha yazısı hiç görünmez: dizilmez
+	if c.get("fig") != null:
+		UnitFigures.set_count(c["fig"], n)                # kaidede ve başın üstünde
+	set_count(c["clabel"], n, 30)
 
 # ------------------------------------------------------------------ yürüyüş (figürler)
 var _walk := {}                      ## tümen id -> [çıkış noktası, hedef noktası, toplam km, hedef, önbellek anahtarı, kalan bacakların km'si]
@@ -2124,7 +2218,11 @@ func _rest_km(d: Division) -> float:
 ## UnitFigures'ın gerçek namlu yuvası kullanılır. Atış/tetik ve geri tepme burada;
 ## alev, uçuş, isabet, toprak ve duman ortak CombatEffects katmanında toplu çizilir.
 ## Tank topu tüfekle aynı hızda ateş etmez; yığındaki tümen sayısı görsel ateşi çoğaltmaz.
-const RIFLE_GAP := Vector2(0.35, 0.85)
+const RIFLE_GAP := Vector2(0.7, 1.5)                 ## tüfek: seriler arası (gerçek sn)
+const RIFLE_BURST := Vector2i(2, 4)                  ## bir seride bu kadar atış, aralarında BURST_GAP
+const BURST_GAP := 0.12
+const RIFLE_FX := 2.2                                ## piyade atışının çakma boyu (figür ölçeğinde)
+const RIFLE_TRACER := 3.0                            ## piyade mermi izinin ve isabet tozunun boyu (yakın haritada seçilsin)
 const CANNON_GAP := Vector2(1.8, 3.0)
 const SHELL_GAP := Vector2(3.2, 6.5)                 ## arada gelen topçu isabeti (gerçek sn)
 const HAZE_GAP := Vector2(4.5, 7.5)                  ## seyrek barut dumanı; harita sisle kaplanmaz
@@ -2169,10 +2267,17 @@ func _combat_fx(delta: float) -> void:
 			var gap := CANNON_GAP if weapon == "cannon" else RIFLE_GAP
 			if c.get("shot_weapon", "") != weapon:
 				c["shot_weapon"] = weapon
-				c["shot_t"] = _combat_rng.randf_range(gap.x, gap.y)
+				c["shot_t"] = _combat_rng.randf_range(0.0, gap.y)
+				c["burst"] = 0
 			c["shot_t"] = float(c["shot_t"]) - delta
 			if float(c["shot_t"]) <= 0.0:
-				c["shot_t"] = _combat_rng.randf_range(gap.x, gap.y)
+				# tüfek kısa seriyle atar (çakmalar ve mermi izleri arka arkaya: ateş ettiği belli olur), top tek tek
+				var left := int(c.get("burst", 0))
+				if left <= 0 and weapon == "rifle":
+					left = _combat_rng.randi_range(RIFLE_BURST.x, RIFLE_BURST.y)
+				left -= 1
+				c["burst"] = left
+				c["shot_t"] = BURST_GAP if left > 0 else _combat_rng.randf_range(gap.x, gap.y)
 				_fire(c, fig, tgt)
 			if not c.has("shell_t"):
 				c["shell_t"] = _combat_rng.randf_range(SHELL_GAP.x, SHELL_GAP.y)
@@ -2260,10 +2365,10 @@ func _fire(c: Dictionary, fig: Node3D, tgt: Vector2) -> void:
 	var off := Vector2.from_angle(_combat_rng.randf() * TAU) * FIG_SIZE * _combat_rng.randf_range(0.1, 0.75)
 	var at := tgt + off
 	var aim := Vector3(at.x, maxf(map.height_at(at), 0.0) + 0.15, at.y)
-	var scale := FIG_SIZE / 10.0
+	var scale := FIG_SIZE / 10.0 * (RIFLE_FX if weapon == "rifle" else 1.0)
 	combat_effects.muzzle(muzzle, direction, weapon, scale)
 	# CombatEffects schedules the impact when the round arrives, not at shot time.
-	combat_effects.projectile(muzzle, aim, weapon, scale)
+	combat_effects.projectile(muzzle, aim, weapon, FIG_SIZE / 10.0 * (RIFLE_TRACER if weapon == "rifle" else 1.0))
 
 ## Top mermisi: düşman figürünün yakınına (üstüne değil) düşer — alev, toprak sıçraması, koyu duman
 func _shell(tgt: Vector2) -> void:
@@ -2330,20 +2435,6 @@ func _animate_combat(delta: float) -> void:
 		else:
 			g.pixel_size = CARD_PX
 			g.offset = (c["bg"] as Sprite3D).offset
-	for pid: int in _battle_nodes:
-		var bn: Node3D = _battle_nodes[pid]
-		bn.scale = Vector3.ONE * (1.0 + 0.1 * sin(_anim_t * 6.0 + float(pid % 11)))
-		# işaret iki tarafın kartlarının tam ortasında (kartların üstüne binmesin); kart yoksa bölgeler arasında kalır
-		var b: Dictionary = Military.battles.get(pid, {})
-		if b.is_empty() or (b.get("attackers", []) as Array).is_empty() or (b.get("defenders", []) as Array).is_empty():
-			continue
-		var ka: String = _div_key.get((b["attackers"][0] as Division).id, "")
-		var kd: String = _div_key.get((b["defenders"][0] as Division).id, "")
-		if ka != "" and kd != "" and _counters.has(ka) and _counters.has(kd) and ka != kd:
-			var ra: Node3D = _counters[ka]["root"]
-			var rd: Node3D = _counters[kd]["root"]
-			if ra.visible and rd.visible:
-				bn.position = (ra.position + rd.position) * 0.5
 	# muharebeden çıkan sayaçların ateşi söner
 	for key: String in _counters:
 		var c: Dictionary = _counters[key]
@@ -2653,47 +2744,23 @@ func _portrait_frame() -> Texture2D:
 
 # ------------------------------------------------------------------ muharebe işaretleri
 func _update_battles() -> void:
-	var tex := UiTheme.icon("battle")
-	for pid: int in _battle_nodes.keys():
-		if not Military.battles.has(pid):
-			_battle_nodes[pid].queue_free()
-			_battle_nodes.erase(pid)
-	for pid: int in Military.battles:
-		var b: Dictionary = Military.battles[pid]
-		if not _battle_nodes.has(pid):
-			var root := Node3D.new()
-			add_child(root)
-			var s := _sprite(tex, PIXEL * 0.35 * UiTheme.px_scale(tex, 102.0), 13)
-			root.add_child(s)
-			var l := Label3D.new()
-			l.font = UiTheme.bold_font()
-			l.font_size = 26
-			l.outline_size = 8
-			l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-			l.fixed_size = true
-			l.pixel_size = PIXEL * 0.6
-			l.no_depth_test = true
-			l.render_priority = 14
-			l.outline_render_priority = 13
-			l.offset = Vector2(0, -34)
-			root.add_child(l)
-			_battle_nodes[pid] = root
-		var node: Node3D = _battle_nodes[pid]
-		var a := World.province(int(b["from"])).center
-		var t := World.province(pid).center
-		var m := a.lerp(t, 0.6)
-		node.position = Vector3(m.x, maxf(map.height_at(m), 0.0) + LIFT + 2.0, m.y)
-		var lbl: Label3D = node.get_child(1)
-		var att := float(b["att_ratio"])
-		var dfn := float(b["def_ratio"])
-		lbl.text = "%d%%" % roundi(att / maxf(att + dfn, 0.01) * 100.0)
-		var player_att := false
-		for d: Division in b["attackers"]:
-			if d.owner == World.player_tag or Diplomacy.are_allies(d.owner, World.player_tag):
-				player_att = true
-		var winning := att > dfn
-		lbl.modulate = Color(0.55, 0.95, 0.45) if winning == player_att else Color(1.0, 0.45, 0.35)
 	_refresh_combat()
+
+## Muharebedeki iki tarafın görünen işaretlerinin ortası (yakında muharebe plakası onların arasında, başlarının üstünde
+## durur: BattleIcons); biri görünmüyorsa Vector3.INF
+func battle_mid(pid: int) -> Vector3:
+	var b: Dictionary = Military.battles.get(pid, {})
+	if b.is_empty() or (b.get("attackers", []) as Array).is_empty() or (b.get("defenders", []) as Array).is_empty():
+		return Vector3.INF
+	var ka: String = _div_key.get((b["attackers"][0] as Division).id, "")
+	var kd: String = _div_key.get((b["defenders"][0] as Division).id, "")
+	if ka == "" or kd == "" or ka == kd or not _counters.has(ka) or not _counters.has(kd):
+		return Vector3.INF
+	var ra: Node3D = _counters[ka]["root"]
+	var rd: Node3D = _counters[kd]["root"]
+	if not ra.visible or not rd.visible:
+		return Vector3.INF
+	return (ra.position + rd.position) * 0.5
 
 # ------------------------------------------------------------------ seçim
 func clear_selection() -> void:
@@ -2742,12 +2809,9 @@ func _cluster() -> void:
 			return nx > ny or (nx == ny and x < y))
 		var lead: Dictionary = _counters[keys[0]]
 		lead["members"] = keys
-		var total := 0
 		for k: String in keys:
-			total += (_counters[k]["divs"] as Array).size()
 			if k != keys[0]:
 				_counters[k]["merged"] = true
-		lead["cluster_total"] = total
 	for key: String in _counters:
 		var c: Dictionary = _counters[key]
 		c["root"].visible = c.get("base_vis", true) and not c["merged"] and not c.get("deck_hidden", false) \
@@ -2759,19 +2823,7 @@ func _cluster() -> void:
 ## sonra toplama dönen yüzlerce yazı kareyi ~20 ms takıyordu)
 func _apply_counts() -> void:
 	for key: String in _counters:
-		var c: Dictionary = _counters[key]
-		var n: int = (c["divs"] as Array).size()
-		if _was_far == 0 and int(c.get("deck_n", 0)) > 0:
-			n = int(c.get("deck_total", n))
-		elif (c.get("members", []) as Array).size() > 1 and not c.get("merged", false):
-			n = int(c.get("cluster_total", n))
-		c["count"] = n
-		if not FIGURES:
-			set_count(c["label"], n, 42)                      # figür kipinde levha yazısı hiç görünmez: dizilmez
-		elif c.get("fig") != null and int(c.get("fig_n", -1)) != n:
-			c["fig_n"] = n
-			UnitFigures.set_count(c["fig"], n)                # kaidede ve başın üstünde
-		set_count(c["clabel"], n, 30)
+		_write_count(_counters[key])
 
 ## Sayacın temsil ettiği bütün tümenler (birleşik sayaçta grubun tamamı)
 func _counter_divs(c: Dictionary) -> Array:
@@ -2953,6 +3005,8 @@ func _declutter() -> void:
 		for y: String in near_keys:
 			if items[y][3] != items[x][3]:
 				continue
+			if fig_mode and x.get_slice(":", 0) != y.get_slice(":", 0):
+				continue                              # figürde yığın yalnız aynı bölgede: komşu bölgenin figürü kendi yerinde durur
 			var sx := str(_counters[x].get("stack_of", ""))
 			var was: bool = sx != "" and sx == str(_counters[y].get("stack_of", ""))
 			var ry: Rect2 = items[y][2]
@@ -3114,14 +3168,11 @@ func _declutter() -> void:
 			if lift0 > 0.0 and ppu > 0.01:
 				lead["dk_t"] = up_dir * (lift0 / ppu) / unit
 			lead["deck_n"] = n - 1
-			lead["members"] = members.duplicate()                     # tıklayınca destenin hepsi seçilir
-			var total := 0
+			lead["members"] = members.duplicate()                     # tıklayınca destenin hepsi seçilir; sayısı toplam
 			for x: String in members:
-				total += (_counters[x]["divs"] as Array).size()
 				if x != anchor:
 					_counters[x]["deck_hidden"] = true
 					_counters[x]["pin"] = false
-			lead["deck_total"] = total
 			placed[anchor] = Rect2(ar0.position - Vector2(0.0, lift0), ar0.size).grow_individual(0.0, 16.0 * k, 16.0 * k, 0.0)
 			continue
 		# ızgara: yığın kurulduğu noktada kalır (yeni yığında çapa kartının gerçek yeri); kartlar çevresinde sabit bir

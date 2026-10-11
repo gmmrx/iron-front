@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/focus_ger_four_year.png-7a4b92e4ff84951ccf0f6
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b5b6u1tntwu0p"
-valid=false
+path="res://.godot/imported/FIN_062.jpg-44560f377240a88dfc014d0a25016998.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/portraits/commanders/FIN_062.jpg"
+dest_files=["res://.godot/imported/FIN_062.jpg-44560f377240a88dfc014d0a25016998.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

@@ -2,8 +2,8 @@ class_name FrontLayer
 extends Node3D
 ## Cephe hattı: oyuncunun tarafının (oyuncu ve müttefikleri; izleyici kipinde izlenen savaşın saldıranı: Game.front_tag)
 ## elindeki bölgelerle düşmanın elindeki bölgelerin sınırı, haritaya mürekkeple basılmış taraklı çizgi olarak
-## (assets/shaders/front_ink.gdshader): yarı saydam mint mürekkep, tek taraflı dik ImageGen dişleri.
-## Geometri zoom, fare ve muharebe değişimlerinde sabit kalır.
+## (assets/shaders/front_ink.gdshader): kalın bir sırt ve sırttan düşmana uzanan dişler, gölgelendiricide çizilir.
+## Sırt uzakta da birkaç piksel kalınlıkta seçilir (savaşta sınır kaybolmaz), yakında harita ölçeğinde kalınlaşır.
 ##
 ## Bütünlük: cephe bölge çifti çifti değil, bütün olarak kurulur. Bizim tarafın pikseli ile düşmanın pikseli arasındaki
 ## her piksel kenarı bir ağda toplanır ve kenarlar uç uca eklenerek uzun, kesintisiz çizgilere dizilir; çizgi yalnız
@@ -19,8 +19,8 @@ const BUDGET_USEC := 1000              ## kare başına iş bütçesi (µs)
 const LIFT := 0.06                     ## printed on the flat terrain, not floating above the border
 const SMOOTH_PASSES := 24              ## remove raster-scale zigzags before placing perpendicular teeth
 const SAMPLE_STEP := 2.0
-const HATCH_PERIOD := 4.0              ## larger spaced teeth, fixed in world space
-const HATCH_BAND := 8.0                ## larger single-sided comb; tight bends remain limited
+const HATCH_PERIOD := 3.0              ## diş aralığı (dünya birimi)
+const HATCH_BAND := 7.0                ## dişlerin uzandığı şerit (dünya birimi; kıvrımda daralır)
 const DIRS: Array[Vector2i] = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 
 var map: MapView3D
@@ -40,7 +40,6 @@ func _ready() -> void:
 	_mat.render_priority = 2
 	_mat.set_shader_parameter("period", HATCH_PERIOD)
 	_mat.set_shader_parameter("band", HATCH_BAND)
-	_mat.set_shader_parameter("comb_tex", preload("res://assets/ui/map/front_comb_perpendicular_v3.png"))
 	# Reuse the authoritative owner/controller buffers. No new texture or CPU mask pass.
 	_mat.set_shader_parameter("province_mask_enabled", map._province_texture != null and map._data_texture != null)
 	_mat.set_shader_parameter("province_tex", map._province_texture)

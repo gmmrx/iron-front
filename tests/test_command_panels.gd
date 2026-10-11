@@ -38,9 +38,9 @@ func test_government_research_requires_explicit_confirmation() -> void:
 	var c := player()
 	c.political_power = 500
 	c.stability = 0.8
-	panel.refresh()
+	panel._set_branch("governance")
 	var candidate := "government_democratic_transition"
-	if check(panel._nodes.has(candidate), "government projects are the initial research view"):
+	if check(panel._nodes.has(candidate), "government projects are on the Government tab"):
 		(panel._nodes[candidate] as Button).pressed.emit()
 		var before := c.political_power
 		panel._start_button.pressed.emit()
@@ -95,7 +95,7 @@ func test_research_branch_filter_preserves_technology_identity() -> void:
 			var art := illustrations[0] as TextureRect
 			eq(art.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "technology artwork is never cropped into an unrecognizable strip")
 			eq(art.name, &"Thumbnail", "full artwork has a dedicated top plate")
-			eq(art.custom_minimum_size.y, ResearchPanel.ProjectCard.THUMBNAIL_HEIGHT, "thumbnail occupies a compact full-width band")
+			eq(art.custom_minimum_size.y, (card as ResearchPanel.ProjectCard).thumb_cap, "thumbnail occupies the card's compact full-width band")
 	panel._set_branch("all")
 	eq(panel._nodes.size(), total, "all branches restore without losing technologies")
 	panel.free()

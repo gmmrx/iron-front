@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/army.png-ed433315285b1c0ae20250ea4c66070e.cte
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

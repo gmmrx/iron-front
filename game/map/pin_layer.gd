@@ -79,6 +79,20 @@ var _tops := {}                      ## iğne sırası -> iğnenin tepesindeki �
 ## Yeni asset bulunamazsa önceki belediye binası, o da yoksa eski iğne/ikon kullanılır.
 const CITY_MODEL := "res://assets/models/city-hall.glb"
 const CITY_WORLD_WIDTH: Array[float] = [4.0, 3.5, 3.0, 2.6, 2.2] ## modelin sabit dünya eni, kademe 0..4
+## Deneme: şehir 3D minyatür yerine 2D resim (assets/city.png, kameraya bakar, gölgesiz); false: minyatür
+const CITY_IMAGE_ON := true
+const CITY_IMAGE := "res://assets/city.png"
+const CITY_IMAGE_WIDTH: Array[float] = [8.0, 6.8, 5.8, 5.0, 4.2]  ## resmin dünya eni, kademe 0..4 (asker figürü 10 boyunda)
+const CITY_IMAGE_BASE := 0.12        ## resmin altındaki saydam pay (boyunun katı): kentin tabanı şehrin noktasına oturur
+var _city_imgs := {}                 ## iğne sırası -> şehir resmi
+## Deneme: sivil ya da askerî fabrikası olan eyaletin yapı iğnesinin dibinde fabrika resmi (assets/factory.png); rozetli
+## iğne fabrikanın üstünden yükselir. false: yalnız rozet
+const FACTORY_IMAGE_ON := true
+const FACTORY_IMAGE := "res://assets/factory.png"
+const FACTORY_IMAGE_WIDTH := 5.0
+const FACTORY_RANGE := 320.0          ## yapı rozetleriyle aynı yakınlıkta görünür
+var _factory_imgs := {}               ## eyalet iğnesinin anahtarı -> fabrika resmi
+var _factory_shown := false
 var _city_models = MINI_CITY_MODELS.new()
 var _halls := {}                     ## iğne sırası -> şehir modeli
 var _city_ground = CITY_GROUND.new()
@@ -213,6 +227,9 @@ func _rebuild() -> void:
 	for h: MeshInstance3D in _halls.values():
 		h.queue_free()
 	_halls.clear()
+	for img: Sprite3D in _city_imgs.values():
+		img.queue_free()
+	_city_imgs.clear()
 	for site: MeshInstance3D in _city_sites.values():
 		site.queue_free()
 	_city_sites.clear()
@@ -253,6 +270,11 @@ func _process(delta: float) -> void:
 			_restore_labels()
 	if not on:
 		return
+	var fs: bool = FACTORY_IMAGE_ON and camera != null and camera.distance < FACTORY_RANGE
+	if fs != _factory_shown:
+		_factory_shown = fs
+		for img: Sprite3D in _factory_imgs.values():
+			img.visible = fs
 	# sonradan eklenen modeller (yeni hava üssü) de gizli kalsın
 	_recheck -= delta
 	if _recheck <= 0.0:
@@ -333,6 +355,9 @@ func _write_pin(i: int) -> void:
 	var pin: Array = _pins[i]
 	var c: City = pin[4]
 	var s := _anim_s[i]
+	if c != null and CITY_IMAGE_ON:
+		_write_city_image(i, c, s)
+		return
 	if c != null:
 		var model: Dictionary = _city_models.model_for(c)
 		if not model.is_empty():
@@ -393,6 +418,75 @@ func _write_hall(i: int, c: City, s: float, model: Dictionary) -> void:
 		_city_sites[i] = site
 	if site != null:
 		site.visible = h.visible
+
+## Şehir resmi (CITY_IMAGE_ON): iğne, baş ve gölge sıfır boyda; resim kameraya bakar, tabanı şehrin noktasında, eni
+## şehrin kademesine göre sabit dünya ölçüsünde (zoom'la yaklaşınca büyür)
+func _write_city_image(i: int, c: City, s: float) -> void:
+	_city_needles.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, 0.0))
+	_heads.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, _packed[i]))
+	_shadows.multimesh.set_instance_custom_data(i, Color(0.0, 0.0, FAR_Z, 0.0))
+	var img: Sprite3D = _city_imgs.get(i)
+	if img == null:
+		if s <= 0.001:
+			return
+		var tex := load(CITY_IMAGE) as Texture2D
+		if tex == null:
+			return
+		img = Sprite3D.new()
+		img.texture = tex
+		img.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		img.shaded = false
+		img.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		img.pixel_size = CITY_IMAGE_WIDTH[CityLayer.tier_of(c)] / float(tex.get_width())
+		img.offset.y = float(tex.get_height()) * (0.5 - CITY_IMAGE_BASE)
+		img.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var p: Vector2 = _pins[i][0]
+		img.position = Vector3(p.x, _ground[i], p.y)
+		add_child(img)
+		_city_imgs[i] = img
+	img.visible = s > 0.001
+
+## Fabrika resimleri istenen eyalet iğneleriyle eşlenir: fabrikası olan eyalette iğnenin dibinde bir resim; iğne kalkınca,
+## yer değişince ya da fabrika kalmayınca resim de kalkar
+func _sync_factories(want: Dictionary) -> void:
+	if not FACTORY_IMAGE_ON:
+		return
+	for key: String in _factory_imgs.keys():
+		var w: Array = want.get(key, [])
+		var img: Sprite3D = _factory_imgs[key]
+		if w.is_empty() or not _has_factory(w[1]) or img.get_meta("at") != w[0]:
+			img.queue_free()
+			_factory_imgs.erase(key)
+	for key: String in want:
+		if _factory_imgs.has(key) or key.begins_with("air:"):
+			continue
+		var w: Array = want[key]
+		if not _has_factory(w[1]):
+			continue
+		var tex := load(FACTORY_IMAGE) as Texture2D
+		if tex == null:
+			return
+		var p: Vector2 = w[0]
+		var img := Sprite3D.new()
+		img.texture = tex
+		img.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		img.shaded = false
+		img.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		img.pixel_size = FACTORY_IMAGE_WIDTH / float(tex.get_width())
+		img.offset.y = float(tex.get_height()) * (0.5 - CITY_IMAGE_BASE)
+		img.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var at := p + Vector2(-FACTORY_IMAGE_WIDTH * 0.42, 0.0)   # iğne fabrikanın sağ yanından yükselir, içinden geçmez
+		img.position = Vector3(at.x, maxf(map.height_at(at), 0.0), at.y)
+		img.set_meta("at", p)
+		img.visible = _factory_shown
+		add_child(img)
+		_factory_imgs[key] = img
+
+static func _has_factory(items: Array) -> bool:
+	for it: Array in items:
+		if not bool(it[2]) and String(it[0]) in ["civilian_factory", "military_factory"]:
+			return true
+	return false
 
 ## Şehrin tepe ikonu: stilinin kademe dosyası, yoksa west'inki; başkentte o da yoksa madalyon; yoksa null
 func _top_tex(c: City) -> Texture2D:
@@ -585,6 +679,7 @@ func _want_state(sid: int, queued: Dictionary, ind: IndustryLayer, want: Diction
 
 ## İstenen iğnelerle var olanları eşle: değişmeyenler kalır, değişen ya da kalkanlar yenilenir
 func _apply_want(want: Dictionary) -> void:
+	_sync_factories(want)
 	# değişmeyenler kalır; değişen ya da kalkanlar yenilenir. Hiçbir şey değişmediyse liste ve iğne gövdeleri yeniden
 	# yazılmaz; yalnız rozet içeriği değiştiyse (seviye, inşaat) gövdeler aynı kalır.
 	var changed := false

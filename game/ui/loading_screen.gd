@@ -22,6 +22,7 @@ var _bar_box: Control
 var _fill: Control                             ## dolu çubuğu kırpan alan (genişliği ilerleme)
 var _mb: Label
 var _total_mb := 0.0
+var _size_task := -1                   ## Godot'ta kaynaktan: paket boyu arka planda sayılıyor
 
 func _ready() -> void:
 	layer = 30
@@ -67,8 +68,29 @@ func _ready() -> void:
 	_mb.offset_right = -28
 	_mb.offset_bottom = -20
 	_root.add_child(_mb)
-	_total_mb = game_size_mb()
+	if OS.has_feature("editor") and not OS.has_feature("web"):
+		# Godot'ta kaynaktan: paketin boyunu saymak ~0,6 sn sürer, açılışı bekletmesin (sayı hazır olunca yazılır)
+		var me: WeakRef = weakref(self)
+		_size_task = WorkerThreadPool.add_task(func() -> void:
+			var mb := export_size_mb()
+			var o: Object = me.get_ref()
+			if o:
+				o.call_deferred("_size_ready", mb))
+	else:
+		_total_mb = game_size_mb()
 	_update_bar()
+
+func _size_ready(mb: float) -> void:
+	if _size_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_size_task)   # görev bitti: kaydı bırakılır
+		_size_task = -1
+	_total_mb = mb
+	_update_bar()
+
+func _exit_tree() -> void:
+	if _size_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_size_task)
+		_size_task = -1
 
 func _bar_part(sheet: Texture2D, region: Rect2, h: float) -> TextureRect:
 	var at := AtlasTexture.new()
@@ -115,8 +137,8 @@ func fade_out(secs: float) -> void:
 	tw.tween_property(_root, "modulate:a", 0.0, secs)
 	tw.tween_callback(queue_free)
 
-## Oyunun toplam boyu (MB): dışa aktarılmış sürümde paket dosyası (web: indirilen paket + motor), kaynaktan çalışırken
-## oyunun veri klasörleri
+## Oyunun toplam boyu (MB): dışa aktarılmış sürümde paket dosyası (web: indirilen paket + motor); kaynaktan (Godot'ta)
+## çalışırken dışa aktarılınca pakete girecek olanlar (export_size_mb)
 static func game_size_mb() -> float:
 	if OS.has_feature("web"):
 		var r: Variant = JavaScriptBridge.eval("(function(){try{var s=GODOT_CONFIG.fileSizes,t=0;for(var k in s)t+=s[k];return t;}catch(e){return 0;}})()", true)
@@ -129,9 +151,24 @@ static func game_size_mb() -> float:
 			return FileAccess.get_size(pck) / 1048576.0
 		if FileAccess.file_exists(exe):
 			return FileAccess.get_size(exe) / 1048576.0          # paket çalıştırılabilir dosyanın içinde
-	return (_dir_size("res://assets") + _dir_size("res://data") + _dir_size("res://game")) / 1048576.0
+	return export_size_mb()
 
-static func _dir_size(path: String) -> float:
+## Kaynaktan çalışırken paketin boyu: dışa aktarım ayarının (export_presets.cfg) dışarıda bıraktıkları sayılmaz, içe
+## aktarılan dosyanın yerine Godot'un ürettiği hali (kayıplı WebP doku, ogg, sahne) sayılır. Ham kaynak klasörlerini
+## toplamak (~650 MB) paketi göstermiyordu. Web paketinde harita verisi ayrıca sıkıştırılır (tools/web/pack_data.py):
+## orada ~30 MB daha küçük.
+static func export_size_mb() -> float:
+	var excludes := PackedStringArray()
+	var cfg := ConfigFile.new()
+	if cfg.load("res://export_presets.cfg") == OK:
+		for pat: String in str(cfg.get_value("preset.0", "exclude_filter", "")).split(",", false):
+			excludes.append(pat.strip_edges())
+	var total := 0.0
+	for root: String in ["res://assets", "res://data", "res://game"]:
+		total += _packed_dir_size(root, excludes)
+	return total / 1048576.0
+
+static func _packed_dir_size(path: String, excludes: PackedStringArray) -> float:
 	var total := 0.0
 	var d := DirAccess.open(path)
 	if d == null:
@@ -142,8 +179,34 @@ static func _dir_size(path: String) -> float:
 		if not name.begins_with("."):
 			var full := path.path_join(name)
 			if d.current_is_dir():
-				total += _dir_size(full)
-			elif not name.ends_with(".import") and not name.ends_with(".uid"):
-				total += FileAccess.get_size(full)
+				total += _packed_dir_size(full, excludes)
+			elif not name.ends_with(".import") and not name.ends_with(".uid") and not _excluded(full, excludes):
+				total += _packed_size(full)
 		name = d.get_next()
 	return total
+
+static func _excluded(full: String, excludes: PackedStringArray) -> bool:
+	var rel := full.trim_prefix("res://")
+	for pat: String in excludes:
+		if rel.match(pat):
+			return true
+	return false
+
+## Dosyanın pakete giren boyu: içe aktarılansa Godot'un ürettiği dosya(lar), "keep" ise kendisi
+static func _packed_size(full: String) -> float:
+	var imp := full + ".import"
+	if not FileAccess.file_exists(imp):
+		return FileAccess.get_size(full)
+	var cfg := ConfigFile.new()
+	if cfg.load(imp) != OK:
+		return FileAccess.get_size(full)
+	var importer := str(cfg.get_value("remap", "importer", ""))
+	if importer == "keep":
+		return FileAccess.get_size(full)
+	if importer == "skip":
+		return 0.0
+	var n := 0.0
+	for f: Variant in cfg.get_value("deps", "dest_files", []):
+		if FileAccess.file_exists(str(f)):
+			n += FileAccess.get_size(str(f))
+	return n

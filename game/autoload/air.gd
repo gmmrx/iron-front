@@ -138,15 +138,36 @@ func disband(w: AirWing) -> void:
 	_zones_ready = false
 	wings_changed.emit()
 
-## Kanadı stoktan tamamla (üsteyken)
+## Bir uçağın SP bedeli: kanadın şehirde alınış fiyatının yüzde biri (recruit.json, 100 uçaklık kanat)
+func plane_sp(type: String) -> float:
+	for u: Dictionary in Military.recruit_def()["units"].values():
+		if String(u.get("wing", "")) == type:
+			return float(u["sp"]) / float(WING_SIZE)
+	return 0.0
+
+## Kanadı tamamlamanın planı: [stoktan gelen uçak, SP ile alınan uçak, SP bedeli]
+func reinforce_plan(w: AirWing) -> Array:
+	var c: Country = World.countries.get(w.owner)
+	var missing := WING_SIZE - w.planes
+	if c == null or missing <= 0:
+		return [0, 0, 0.0]
+	var from_stock := mini(missing, int(c.stockpile.get(TYPES[w.type]["eq"], 0.0)))
+	var per := plane_sp(w.type)
+	var buy := mini(missing - from_stock, int(floor(c.sp / per)) if per > 0.0 else 0)
+	return [from_stock, buy, buy * per]
+
+## Kanadı tamamla: önce stoktaki uçaklar, eksiği sanayi puanıyla (SP) alınır (kayıplar böyle yerine konur)
 func reinforce(w: AirWing) -> void:
 	var c: Country = World.countries.get(w.owner)
+	var plan := reinforce_plan(w)
+	if c == null or int(plan[0]) + int(plan[1]) <= 0:
+		return
 	var eq: String = TYPES[w.type]["eq"]
-	var add := mini(WING_SIZE - w.planes, int(c.stockpile.get(eq, 0.0)))
-	if add > 0:
-		c.stockpile[eq] = float(c.stockpile.get(eq, 0.0)) - add
-		w.planes += add
-		wings_changed.emit()
+	c.stockpile[eq] = float(c.stockpile.get(eq, 0.0)) - int(plan[0])
+	c.sp -= float(plan[2])
+	w.planes += int(plan[0]) + int(plan[1])
+	wings_changed.emit()
+	Military.sp_changed.emit()
 
 ## Üretimden (stok) uçaklar kanatlara: dolmayan kanat varsa tamamlanır, yoksa yeni kanat (AI; oyuncu elle konuşlandırır)
 func _absorb(c: Country) -> void:

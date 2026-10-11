@@ -56,7 +56,9 @@ func test_compact_mode_keeps_skin_selection_audio_and_default_mode_contract() ->
 	eq(art.custom_minimum_size.y, 60.0, "compact illustration does not inflate roster cards")
 	eq(card.custom_minimum_size.y, 116.0, "compact cells have a bounded overview height")
 	check(card.get_meta("force_selected") and card.toggle_button.button_pressed, "compact conversion preserves selection")
-	check(card.get_theme_stylebox("panel").get("surface") != null, "existing generated gunmetal/gold skin remains")
+	var sel_box := card.get_theme_stylebox("panel")
+	check(sel_box.get("surface") == null and float(sel_box.get("edge_width")) == 0.0 and (sel_box.get("fill") as Color).a > 0.5,
+		"a selected card is a plain fill: no frame, no border")
 	check(card.select_button.get_meta("audio_silent") and card.toggle_button.get_meta("audio_silent"), "compact surfaces retain single-owner selection audio")
 	card.set_selected(false)
 	check(not card.toggle_button.button_pressed, "deselection remains available")

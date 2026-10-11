@@ -3,17 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ew0acdajqqnt"
-valid=false
+path="res://.godot/imported/TUR_210.jpg-ff5f44c3ac86a83425d421b926b8d15b.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/portraits/commanders/TUR_210.jpg"
+dest_files=["res://.godot/imported/TUR_210.jpg-ff5f44c3ac86a83425d421b926b8d15b.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

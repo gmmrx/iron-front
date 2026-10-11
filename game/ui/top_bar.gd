@@ -30,6 +30,7 @@ var _sp_gain: Label
 var task_row: VBoxContainer      ## sol kenardaki dikey menü (HUD düğmeleri ekler)
 var alert_row: HBoxContainer     ## üst satırdaki uyarı kutucukları
 var alert_strip: PanelContainer  ## uyarıların metal şeridi (uyarı yokken gizli)
+var resource_strip: Control             ## kaynak çubuğu (öğretici vurgular)
 const EDGE := 12.0               ## portre ve menü tepsisinin ekranın sol kenarından, portrenin üst kenardan payı
 const MENU_TOP := 127.0          ## menü tepsisinin üst kenarı: portrenin altı + MENU_GAP (portre boyu değişirse _fit_portrait)
 const MENU_GAP := 10.0           ## portre ile menü tepsisi arası
@@ -109,6 +110,7 @@ func _ready() -> void:
 	strip.custom_minimum_size.y = BAR_H
 	strip.mouse_filter = Control.MOUSE_FILTER_STOP
 	stats_line.add_child(strip)
+	resource_strip = strip
 	strip.resized.connect(func() -> void: _fit_portrait(strip.size.y))
 	_fit_portrait(BAR_H)
 	var row := HBoxContainer.new()
@@ -121,10 +123,11 @@ func _ready() -> void:
 	_manpower = _stat(row, ResourceIcon.Kind.MANPOWER, "UI_MANPOWER_TIP", true)
 	_factories = _stat(row, ResourceIcon.Kind.FACTORY, "UI_FACTORIES_TIP", true)
 	_sp_gain = _gain(_factories)
-	# yakıt ve ikmal gösterilmez: sade oyunda savaşı etkilemiyorlar (Military.FUEL / SUPPLY)
+	# yakıt, ikmal ve konvoy gösterilmez: sade oyunda oyuncunun işi değiller (Military.FUEL / SUPPLY; konvoy yalnız
+	# ithalatı taşır, ticaret kalktı — docs/DESIGN.md)
 	_fuel = UiTheme.make_label("", 12)
 	_supply = UiTheme.make_label("", 12)
-	_convoys = _stat(row, ResourceIcon.Kind.CONVOY, "UI_CONVOY_TIP", true)
+	_convoys = UiTheme.make_label("", 12)
 	_tension = _stat(row, ResourceIcon.Kind.TENSION, "TIP_TENSION", true)
 	_war = _stat(row, ResourceIcon.Kind.WAR, "TIP_AT_WAR_SHORT", true)
 	_war.add_theme_color_override("font_color", UiTheme.BAD)
@@ -571,11 +574,10 @@ func _update_country() -> void:
 	var inc := Military.sp_income(c)
 	_factories.text = "%d" % int(c.sp)
 	_set_gain(_sp_gain, inc)
-	var tip := tr("TIP_SP") % [int(c.sp), roundi(inc), Economy.count(c, "military_factory"), Economy.count(c, "civilian_factory")]
-	for r: String in Economy.resource_names:
-		var n := Economy.resource_total(c, r)
-		if n > 0:
-			tip += "\n%s: %d" % [tr("RES_" + r), n]
+	var out_mod := Military.sp_output_mod(c) - 1.0
+	var tip := tr("TIP_SP") % [int(c.sp), roundi(inc), Economy.count(c, "military_factory"), Economy.count(c, "civilian_factory"),
+		("+" if out_mod >= 0.0 else "") + "%d%%" % roundi(out_mod * 100.0)]
+	# kaynaklar (çelik, petrol...) burada yazılmaz: SP gelirine girmezler (yalnız üretim hatları ve ticaret kullanır)
 	_cell_of(_factories).tooltip_text = tip
 	# depo sığası günlük hesaplanır; henüz hesaplanmadıysa (eski kayıt, ilk gün) eldeki yakıt dolu sayılır
 	var fcap := c.fuel_cap if c.fuel_cap > 0.0 else maxf(c.fuel, 1.0)
@@ -603,7 +605,8 @@ func _update_country() -> void:
 		need += float(i["amount"]) * 0.5
 	_convoys.text = "%d" % conv
 	_convoys.add_theme_color_override("font_color", UiTheme.BAD if float(conv) < need else UiTheme.TEXT)
-	_cell_of(_convoys).tooltip_text = tr("UI_CONVOY_TIP") + "\n" + tr("UI_CONVOY_DETAIL") % [conv, ceili(need)]
+	if _convoys.get_parent() != null:        # konvoy hücresi üst çubukta yok
+		_cell_of(_convoys).tooltip_text = tr("UI_CONVOY_TIP") + "\n" + tr("UI_CONVOY_DETAIL") % [conv, ceili(need)]
 	_command.text = "%d" % int(c.command_power)
 	_tension.text = "%d%%" % roundi(World.world_tension)
 	if Diplomacy.at_war(c.tag):

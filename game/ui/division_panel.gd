@@ -14,6 +14,8 @@ const COLS := 2
 const WIDTH := 440                    ## compact two-column selection overview, with an explicit checkbox per card
 const SLIDE := 0.18                   ## sağdan kayarak açılma süresi (sn)
 const TILE := Vector2(188, 170)
+const ROW_LABEL_W := 64.0              ## emir satırlarında adın sütunu (Böl, Duruş): düğmeler alt alta hizalı
+const ROW_H := 38.0                    ## emir düğmelerinin boyu
 
 var units: UnitLayer
 var _head: HBoxContainer
@@ -21,7 +23,7 @@ var _cells: GridContainer
 var _comp: HFlowContainer
 var _grid: GridContainer
 var _scroll: ScrollContainer
-var _tools: HFlowContainer            ## komutlar sığmazsa ikinci satıra akar
+var _tools: VBoxContainer             ## emirler hizalı satırlarda (_row): eşit genişlikte düğmeler, solda satırın adı
 var _stance: HBoxContainer            ## duruş: son askere kadar / esnek (araç çubuğu yeniden kurulurken korunur)
 var _stance_hold: Button
 var _stance_flex: Button
@@ -70,27 +72,23 @@ func _ready() -> void:
 	_grid.add_theme_constant_override("h_separation", 4)
 	_grid.add_theme_constant_override("v_separation", 4)
 	_scroll.add_child(_grid)
-	var tp := PanelContainer.new()
-	tp.theme_type_variation = "Strip"
-	v.add_child(tp)
-	_tools = HFlowContainer.new()
-	_tools.add_theme_constant_override("h_separation", 6)
-	_tools.add_theme_constant_override("v_separation", 4)
-	tp.add_child(_tools)
-	_stance = HBoxContainer.new()
-	_stance.add_theme_constant_override("separation", 0)
-	var sl := UiTheme.make_label(tr("DIV_STANCE"), 13, UiTheme.TEXT_DIM)
-	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_stance.add_child(sl)
-	var gap := Control.new()
-	gap.custom_minimum_size.x = 6
-	_stance.add_child(gap)
+	var tm := MarginContainer.new()
+	tm.add_theme_constant_override("margin_top", 10)
+	v.add_child(tm)
+	_tools = VBoxContainer.new()
+	_tools.add_theme_constant_override("separation", 8)
+	tm.add_child(_tools)
+	_stance = _row(tr("DIV_STANCE"))
 	_stance_hold = _btn(tr("DIV_STANCE_HOLD"), tr("TIP_DIV_STANCE_HOLD"))
 	_stance_flex = _btn(tr("DIV_STANCE_FLEX"), tr("TIP_DIV_STANCE_FLEX"))
+	# seçili duruş çerçevesiz: dolgu ve alt çizgi
+	var on := CommandPanelSkin.tab_box("pressed", false)
+	var on_hover := CommandPanelSkin.tab_box("hover_pressed", false)
 	for pair: Array in [[_stance_hold, true], [_stance_flex, false]]:
 		var b: Button = pair[0]
 		var hold: bool = pair[1]
-		b.theme_type_variation = "Tab"
+		b.add_theme_stylebox_override("pressed", on)
+		b.add_theme_stylebox_override("hover_pressed", on_hover)
 		b.toggle_mode = true
 		b.pressed.connect(func() -> void:
 			for d in units.selected:
@@ -154,8 +152,20 @@ func _sync_motivate() -> void:
 	var md := Military.motivate_def()
 	var cost := int(Military.motivate_cost(c, _motivate_for))
 	var err := Military.motivate_error(c, _motivate_for)
-	_motivate_btn.text = tr("DIV_MOTIVATE") % cost
+	_motivate_btn.text = tr("DIV_MOTIVATE")
 	_motivate_btn.disabled = err != ""
+	# bedel (nüfuz) düğmenin hemen yanında simgeyle; teşvik edilecek tümen kalmadıysa gösterilmez
+	var parent := _motivate_btn.get_parent()
+	if parent:
+		var old := parent.get_node_or_null("MotivateCost")
+		if old:
+			parent.remove_child(old)
+			old.queue_free()
+		if cost > 0:
+			var chip := PanelLayout.cost_chip([["influence", cost, c.political_power]], err != "")
+			chip.name = "MotivateCost"
+			parent.add_child(chip)
+			parent.move_child(chip, _motivate_btn.get_index() + 1)
 	var tip := tr("TIP_DIV_MOTIVATE") % [roundi(float(md["org"]) * 100.0), roundi(float(md["bonus"]) * 100.0), int(md["hours"]),
 		cost, int(md["pp_per_division"])]
 	_motivate_btn.tooltip_text = tip + ("" if err == "" else "\n\n⚠ " + tr(err))
@@ -397,13 +407,16 @@ func _build_tools(mine: Array[Division]) -> void:
 		_stance.get_parent().remove_child(_stance)
 	if mine.is_empty():
 		return
+	# emirler: üç eşit düğme (teşvikin bedeli düğmesinin yanında)
+	var orders := _row("")
+	_tools.add_child(orders)
 	var stop := _btn(tr("DIV_STOP"), tr("TIP_DIV_STOP"))
 	stop.set_meta("audio_silent", true)
 	stop.pressed.connect(func() -> void:
 		for d in mine: Military.stop(d)
 		Audio.play("order_stop", 150)
 		units._dirty = true)
-	_tools.add_child(stop)
+	orders.add_child(stop)
 	var back := _btn(tr("DIV_WITHDRAW"), tr("TIP_DIV_WITHDRAW"))
 	back.set_meta("audio_silent", true)
 	back.pressed.connect(func() -> void:
@@ -416,7 +429,11 @@ func _build_tools(mine: Array[Division]) -> void:
 		else:
 			Audio.play("order_retreat", 150)
 		units._dirty = true)
-	_tools.add_child(back)
+	orders.add_child(back)
+	var mcell := HBoxContainer.new()
+	mcell.add_theme_constant_override("separation", 6)
+	mcell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	orders.add_child(mcell)
 	_motivate_btn = _btn("", "")
 	_motivate_btn.set_meta("audio_silent", true)
 	_motivate_for = mine
@@ -427,21 +444,36 @@ func _build_tools(mine: Array[Division]) -> void:
 		else:
 			Audio.play("ui_confirm", 150)
 		_sync_motivate())
-	_tools.add_child(_motivate_btn)
+	mcell.add_child(_motivate_btn)
 	_sync_motivate()
 	_build_split(mine)
-	_tools.add_child(VSeparator.new())
 	_tools.add_child(_stance)
 	_sync_stance()
+	# dağıt: geri alınamaz, ayrı satırda sağda
+	var last := _row("")
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_tools.add_child(spacer)
+	last.add_child(spacer)
 	var dis := _btn(tr("DIV_DISBAND"), tr("TIP_DIV_DISBAND"))
+	dis.size_flags_horizontal = Control.SIZE_FILL
+	dis.custom_minimum_size.x = 120
 	dis.add_theme_color_override("font_color", UiTheme.BAD.lightened(0.25))
 	dis.pressed.connect(func() -> void:
 		for d in mine.duplicate(): Military.disband(d)
 		units.clear_selection())
-	_tools.add_child(dis)
+	last.add_child(dis)
+	_tools.add_child(last)
+
+## Emir satırı: solda sabit genişlikte satırın adı (boşsa ad sütunu yok); eklenen düğmeler eşit genişlikte (_btn)
+func _row(label: String) -> HBoxContainer:
+	var r := HBoxContainer.new()
+	r.add_theme_constant_override("separation", 6)
+	if label != "":
+		var l := UiTheme.make_label(label, 14, UiTheme.TEXT_DIM)
+		l.custom_minimum_size.x = ROW_LABEL_W
+		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		r.add_child(l)
+	return r
 
 ## Böl: seçili her figürden (bölgeden) sonraki emirle kaç tümen gidecek — 1, yarısı ya da hepsi. En düzenliler
 ## (bütünlüğü en yüksek) önce gider, kalanlar yerinde kalır. "Hepsi" o bölgelerde duran bütün tümenleri seçer.
@@ -459,19 +491,11 @@ func _build_split(mine: Array[Division]) -> void:
 	var biggest := 0
 	for pid: int in by:
 		biggest = maxi(biggest, (by[pid] as Array).size())
-	var seg := HBoxContainer.new()
-	seg.add_theme_constant_override("separation", 0)
-	var sl := UiTheme.make_label(tr("DIV_SPLIT"), 13, UiTheme.TEXT_DIM)
-	sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	seg.add_child(sl)
-	var gap := Control.new()
-	gap.custom_minimum_size.x = 6
-	seg.add_child(gap)
+	var seg := _row(tr("DIV_SPLIT"))
 	for pair: Array in [["DIV_SPLIT_ONE", 1], ["DIV_SPLIT_HALF", 2], ["DIV_SPLIT_ALL", 0]]:
 		var mode: int = pair[1]
 		var b := _btn(tr(pair[0]), tr("TIP_DIV_SPLIT"))
 		b.set_meta("audio_silent", true)
-		b.theme_type_variation = "Tab"
 		b.disabled = (mode != 0 and biggest < 2) or (mode == 0 and all.size() <= mine.size())
 		b.pressed.connect(func() -> void:
 			if mode == 0:
@@ -494,6 +518,9 @@ func _btn(text: String, tip: String) -> Button:
 	b.tooltip_text = tip
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_font_size_override("font_size", UiTheme.fs(14))
+	b.custom_minimum_size.y = ROW_H
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL     # satırdaki düğmeler eşit genişlikte
+	b.clip_text = true
 	return b
 
 func _bar(value: float, color: Color, width: float, height: float) -> Control:
