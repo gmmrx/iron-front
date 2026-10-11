@@ -81,6 +81,13 @@ func _arrow_arrays(ul: UnitLayer) -> Array:
 		return []
 	return mesh.surface_get_arrays(0)
 
+## Okun başlangıçtan en uzak köşesi (harita düzleminde)
+func _reach(arr: Array, from: Vector2) -> float:
+	var best := 0.0
+	for v: Vector3 in arr[Mesh.ARRAY_VERTEX] as PackedVector3Array:
+		best = maxf(best, Vector2(v.x, v.z).distance_to(from))
+	return best
+
 func test_arrow_geometry_and_color() -> void:
 	Probe.ensure()
 	var m := _mover("TUR", 3)
@@ -100,10 +107,14 @@ func test_arrow_geometry_and_color() -> void:
 	var cv := ul._curve(pts)
 	eq(cv.size(), (pts.size() - 1) * 8 + 1, "eğri örnek sayısı")
 	check(cv[0] == pts[0] and cv[cv.size() - 1] == pts[pts.size() - 1], "eğri uçları rota uçlarında")
-	# kendi toprağında hareket: ülkenin renginde
+	# kendi toprağında hareket: ülkenin renginde; yeni ok başladığı yerden uzayarak çıkar (ARROW_GROW), sonra tam boy
+	ul._draw_arrows()
+	var growing := _arrow_arrays(ul)
+	ul._arrow_clock += UnitLayer.ARROW_GROW
 	ul._draw_arrows()
 	var arr := _arrow_arrays(ul)
-	if check(not arr.is_empty(), "ok çizildi"):
+	if check(not arr.is_empty() and not growing.is_empty(), "ok çizildi"):
+		lt(_reach(growing, pts[0]), _reach(arr, pts[0]) * 0.5, "yeni ok başladığı yerden uzayarak çıkar")
 		_check_arrow(arr, UnitLayer.move_color("TUR"), pts[pts.size() - 1], target, "hareket")
 	# hiçbir şey değişmediyse geçen karenin örgüsü kalır (savaş ilanı/kontrol değişince yeniden kurulur: aşağıda)
 	var first := ul._arrows.mesh
@@ -451,6 +462,8 @@ func test_order_keeps_counter_in_place() -> void:
 	ul.models = um
 	ul._arrows = MeshInstance3D.new()
 	ul.selected = [d]
+	ul._draw_arrows()
+	ul._arrow_clock += UnitLayer.ARROW_GROW            # uzaması bitsin: tam boy ok
 	ul._draw_arrows()
 	var arr := _arrow_arrays(ul)
 	if check(not arr.is_empty(), "ok çizildi"):

@@ -131,6 +131,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_timer += delta
+	_arrow_clock += minf(delta, 0.05)
 	# yeniden kurulum aralığı oyun hızıyla uzar (5×'te ~1 sn): savaşta her 0,35 sn'de bütün sayaçları kurmak pahalı
 	if _dirty and _timer > 0.35 * maxf(1.0, float(GameClock.speed) - 2.0):
 		_timer = 0.0
@@ -3351,6 +3352,9 @@ static func move_color(_tag: String) -> Color:
 ## (duran seçimde her kare eğri + şerit kurmak boşa giderdi; yürürken başlangıç kaydığı için yine her kare kurulur).
 var _arrow_sig := 0
 var _arrow_div_ver := -1
+const ARROW_GROW := 0.45                ## yeni emir oku başladığı yerden hedefe bu sürede uzar (gerçek sn)
+var _arrow_born := {}                   ## "tümen>hedef" -> okun çıktığı an (_arrow_clock); ok kalktıkça silinir
+var _arrow_clock := 0.0                 ## ok uzamasının saati: kare başına en çok 50 ms (takılmada ok uzamadan çıkmaz)
 
 func _draw_arrows() -> void:
 	var cam_d: float = (camera as MapCamera3D).distance if camera is MapCamera3D else 300.0
@@ -3363,6 +3367,7 @@ func _draw_arrows() -> void:
 		if _arrows.mesh != null:
 			_arrows.mesh = null
 		_arrow_sig = 0
+		_arrow_born.clear()
 		return
 	if Military._div_version != _arrow_div_ver:
 		_arrow_div_ver = Military._div_version
@@ -3385,6 +3390,8 @@ func _draw_arrows() -> void:
 	var im := ImmediateMesh.new()
 	var drawn := {}
 	var arrows: Array = []
+	var live := {}
+	var growing := false
 	for d in selected:
 		if d.path.is_empty():
 			continue
@@ -3406,7 +3413,21 @@ func _draw_arrows() -> void:
 		for i in cv.size() - 1:
 			total += cv[i].distance_to(cv[i + 1])
 		if total >= 0.5:                  # varmak üzere olanın şeridi yok (boş yüzey motor hatası verir)
+			# yeni ok başladığı yerden hedefe doğru uzar (kimliği tümen ve hedef: ara bölgeye varınca yeniden uzamaz)
+			var ak := "%d>%d" % [d.id, d.path[d.path.size() - 1]]
+			live[ak] = true
+			if not _arrow_born.has(ak):
+				_arrow_born[ak] = _arrow_clock
+			var f := clampf((_arrow_clock - float(_arrow_born[ak])) / ARROW_GROW, 0.0, 1.0)
+			if f < 1.0:
+				growing = true
+				cv = _clip_line(cv, total * lerpf(0.08, 1.0, 1.0 - pow(1.0 - f, 3.0)))
 			arrows.append([cv, cc, d.path[d.path.size() - 1]])
+	for ak: String in _arrow_born.keys():
+		if not live.has(ak):
+			_arrow_born.erase(ak)
+	if growing:
+		_arrow_sig = 0                    # uzarken her karede yeniden çizilir
 	if arrows.is_empty():
 		_arrows.mesh = null
 		return
@@ -3416,6 +3437,19 @@ func _draw_arrows() -> void:
 		_ribbon(im, a[0], a[1], width, true)            # ok başı: gittiği yön belli olsun
 	im.surface_end()
 	_arrows.mesh = im
+
+## Çizginin baştan `length` uzunluğu (uzayan ok)
+static func _clip_line(pts: Array[Vector2], length: float) -> Array[Vector2]:
+	var out: Array[Vector2] = [pts[0]]
+	var left := length
+	for i in pts.size() - 1:
+		var seg := pts[i].distance_to(pts[i + 1])
+		if seg >= left:
+			out.append(pts[i].lerp(pts[i + 1], left / maxf(seg, 0.0001)))
+			return out
+		out.append(pts[i + 1])
+		left -= seg
+	return out
 
 ## Tümenin rotası, figürün gerçekten yürüyeceği çizgi (PathMotion.division ile aynı hesap): karada bölge merkezlerinden
 ## Catmull-Rom (önceki nokta yansıtılır) + çıkış/varış duruş noktası kayması, denizde deniz yolu. İlk bacak tümenin şu

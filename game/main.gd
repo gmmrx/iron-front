@@ -899,6 +899,9 @@ func _handle_dev_args() -> void:
 			var ap: Vector2 = Air.fights.values()[0]["pos"]
 			camera.focus_on(ap, float(args["focus_air"]) if args["focus_air"] != "" else 260.0)
 	if args.has("demo_order"):
+		if args.has("order_delay"):
+			for i in int(args["order_delay"]):          # geliştirici: emir birkaç kare sonra (ok animasyonunu çekmek için)
+				await get_tree().process_frame
 		var me := World.player()
 		var divs := Military.country_divisions(me.tag).slice(0, 6)
 		units.select_divisions(divs, false)
