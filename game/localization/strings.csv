@@ -837,7 +837,7 @@ POL_NO_PARTY,No ruling party,İktidar partisi yok
 POL_NO_ELECTIONS,No elections,Seçim yapılmıyor
 POL_NEXT_ELECTION,Next election: %s (every %d years),Sonraki seçim: %s (%d yılda bir)
 POL_POP_TIP,"The ruling party's popularity adds up to %d%% stability now.
-Elections: another ideology above 50% wins.","İktidar partisinin popülerliği şu an istikrara %%%d katıyor.
+Elections: another ideology above 50%% wins.","İktidar partisinin popülerliği şu an istikrara %%%d katıyor.
 Seçimde başka bir ideoloji %%50'yi geçerse iktidar değişir."
 POL_PP_SHORT,Influence,Nüfuz
 POL_STAB_SHORT,Stability,İstikrar
